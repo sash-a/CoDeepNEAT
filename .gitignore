@@ -1,0 +1,13 @@
+**/.idea
+
+**/venv/*
+**/env/*
+
+**/data/*
+**/results/*
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+*.so
