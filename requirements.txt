@@ -1,5 +1,5 @@
 # This file may be used to create an environment using:
-# $ conda create --name <env> --file <this file>
+# conda create -p venv --file requirements.txt
 # platform: linux-64
 
 # Pytorch for CPU or GPU
@@ -14,8 +14,8 @@ torchvision=0.2.1
 # torchvision-cpu=0.2.1=py_2
 
 
-matplotlib=3.02
-matplotlib-base=3.0.2
+matplotlib
+matplotlib-base
 numpy
 
 ipython
