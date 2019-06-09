@@ -6,12 +6,12 @@
 
 # Nvidia GPU cuda 10.0.130
 cudatoolkit=10.0.130
-pytorch=1.0.1
-torchvision=0.2.1
+pytorch
+torchvision
 
 # CPU
-# pytorch-cpu=1.0.0=py3.7_cpu_1
-# torchvision-cpu=0.2.1=py_2
+# pytorch-cpu
+# torchvision-cpu
 
 
 matplotlib
