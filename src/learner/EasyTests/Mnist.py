@@ -6,14 +6,14 @@ from torchvision import datasets, transforms
 
 from src.learner.Net import Net
 from src.learner.Layers import Reshape
-from src.learner.Evaluator import train
+from src.learner.Evaluator import train, test
 
 import time
 
 n_gpu = 1
 device = torch.device('cuda' if (torch.cuda.is_available() and n_gpu > 0) else 'cpu')
 
-epochs = 20
+epochs = 10
 
 layers = [nn.Conv2d(1, 20, 5, 1), nn.ReLU(), nn.MaxPool2d(2, 2), nn.Conv2d(20, 50, 5, 1), nn.ReLU(),
           nn.MaxPool2d(2, 2), Reshape(-1, 4 * 4 * 50), nn.Linear(4 * 4 * 50, 500), nn.ReLU(), nn.Linear(500, 10),
@@ -36,5 +36,7 @@ s = time.time()
 for i in range(epochs):
     train(model, device, train_loader, i)
 e = time.time()
+
+test(model, device, train_loader)
 
 print('took', e - s, 'with', n_gpu, 'GPUs')
