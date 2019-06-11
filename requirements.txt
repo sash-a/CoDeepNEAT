@@ -1,11 +1,12 @@
 # This file may be used to create an environment using:
 # conda create -p venv --file requirements.txt
+#activate venv in terminal: conda activate C:\Users\Shane\PycharmProjects\CDN\venv
 # platform: linux-64
 
 # Pytorch for CPU or GPU
 
 # Nvidia GPU cuda 10.0.130
-cudatoolkit=10.0.130
+cudatoolkit==10.0.130
 pytorch
 torchvision
 
