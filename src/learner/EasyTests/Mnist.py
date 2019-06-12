@@ -4,9 +4,9 @@ from torch.utils.data import DataLoader
 
 from torchvision import datasets, transforms
 
-from src.learner.Net import Net
-from src.learner.Layers import Reshape
-from src.learner.Evaluator import train
+from src.Learner.Net import Net
+from src.Learner.Layers import Reshape
+from src.Learner.Evaluator import train
 
 import time
 

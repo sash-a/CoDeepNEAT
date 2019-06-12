@@ -1,5 +1,4 @@
-from CoDeepNEAT.src.Graph.Node import Node
-from CoDeepNEAT.src.Module.AggregatorNode import AggregatorNode
+from src.Graph.Node import Node
 import torch.nn as nn
 
 
@@ -17,47 +16,50 @@ class ModuleNode(Node):
     regularisation = None
     deepLayer = None #an nn layer object such as    nn.Conv2d(3, 6, 5) or nn.Linear(84, 10)
 
-    traversalID = "" # a string structured as '1,1,3,2,0' where each number represents which child to move to along the path from input to output
 
     def __init__(self, value = None):
         Node.__init__(self,value)
-
-    def getTraversalIDs(self, currentID = ""):
-        """should be called on root node
-            calculates all nodes traversal ID
-        """
-        self.traversalID = currentID
-        for childNo in len(self.children):
-            newID = (',' if not currentID == "" else "") + repr(childNo)
-            self.children()[childNo].getTraversalIDs(newID)
+        self.traversalID = ""
 
     def insertAggregatorNodes(self, state = "start"):#could be made more efficient as a breadth first instead of depth first because of duplicate paths
+        from CoDeepNEAT.src.Module.AggregatorNode import AggregatorNode as Aggregator
         """
         *NB  -- must have called getTraversalIDs on root node to use this function
         traverses the module graph from the input up to output, and inserts aggregators
         which are module nodes which take multiple inputs and combine them"""
 
         if(state == "start"):#method is called from the root node - but must be traversed from the output node
-            outputNode = self.getLeafNode()
+            outputNode = self.getOutputNode()
             outputNode.insertAggregatorNodes("fromTop")
+            return
 
+        #print("inserting agg nodes from " , self.traversalID)
 
         numParents = len(self.parents)
 
         if(numParents > 1):
             #must insert an aggregator node
-            aggregator = AggregatorNode()#all parents of self must be rerouted to this aggregatorNode
-            self.getInputNode().registerAggregator(aggregator)
+            aggregator = Aggregator()#all parents of self must be rerouted to this aggregatorNode
+            #self.getInputNode().registerAggregator(aggregator)
 
             for parent in self.parents:
                 aggregator.addParent(parent)
-                parent.children = [aggregator if x==self else x for x in parent.children]#replaces self as a child with the new aggregator node
+                parent.children = [aggregator if x == self else x for x in parent.children]#replaces self as a child with the new aggregator node
 
             self.parents = []#none of the parents are now a parent to this node - instead only the aggregator is
-            self.parents.append(aggregator)
+            #self.parents.append(aggregator)
+            aggregator.addChild(self)
 
             for previousParent in aggregator.parents:
                 previousParent.insertAggregatorNodes("fromTop")
+
+        elif (numParents == 1):
+            self.parents[0].insertAggregatorNodes("fromTop")
+
+
+        if(self.isOutputNode()):
+
+            self.getInputNode().getTraversalIDs()
 
     def passANNInputUpGraph(self, input, parentID = ""):
         """called by the forward method of the NN - traverses the module graph
@@ -65,11 +67,20 @@ class ModuleNode(Node):
             aggregator nodes wait for all inputs before passing outputs
             """
 
-        output = self.deepLayer(input)
+        output = self.passInputThroughLayer(input)#will call aggregation if is aggregator node
 
         for child in self.children:
             child.passANNInputUpGraph(output, self.traversalID)
 
+    def passInputThroughLayer(self, input):
+        return self.deepLayer(input)
+
+    def printNode(self, printToConsole = True):
+        out = " "*(len(self.traversalID)) + self.traversalID
+        if(printToConsole):
+            print(out)
+        else:
+            return out
 
 
 

@@ -1,4 +1,4 @@
-from src.learner.Net import Net
+from src.Learner.Net import Net
 import torch.nn as nn
 import torch.tensor
 
