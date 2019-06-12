@@ -20,7 +20,9 @@ layers = [nn.Conv2d(1, 20, 5, 1), nn.ReLU(), nn.MaxPool2d(2, 2), nn.Conv2d(20, 5
           nn.LogSoftmax(1)]
 
 model = Net(layers, loss_fn=nn.NLLLoss())
-model.to(device)
+model = model.to(device)
+
+# print(next(model.parameters()).is_cuda)
 
 kwargs = {'num_workers': 1, 'pin_memory': True} if device == 'cuda' else {}
 
