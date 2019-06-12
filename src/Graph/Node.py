@@ -133,5 +133,8 @@ def genNodeGraph(nodeType, graphType = "diamond"):
         input.children[0].addChild(nodeType())
         input.addChild(input.children[0].children[0])
 
+    if(graphType == "single"):
+        pass
+
     return input
 

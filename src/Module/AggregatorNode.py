@@ -1,4 +1,6 @@
 from src.Module.ModuleNode import ModuleNode as Module
+from src.Learner.Layers import MergeSum
+import torch
 
 class AggregatorNode(Module):
 
@@ -12,16 +14,13 @@ class AggregatorNode(Module):
         self.accountedForInputIDs = {}
         #print("created aggregator node")
 
-    def addInputNodeID(self, id):
-        self.moduleNodeInputIDs.append(id)
-
     def insertAggregatorNodes(self, state="start"):
         #if aggregator node has already been created - then the multi parent situation has already been dealt with here
         #since at the time the decendants of this aggregator node were travered further already, there is no need to traverse its decendants again
         pass
 
     def addParent(self, parent):
-        self.addInputNodeID(parent.traversalID)
+        self.moduleNodeInputIDs.append(parent)
         self.parents.append(parent)
 
     def resetNode(self):
@@ -33,24 +32,32 @@ class AggregatorNode(Module):
     def passANNInputUpGraph(self, input, parentID = ""):
         self.accountedForInputIDs[parentID] = input
 
+        print("agg(",self.traversalID,") received in:",input, "from",parentID)
+
         if(len(self.moduleNodeInputIDs) == len(self.accountedForInputIDs)):
             #all inputs have arrived
             #may now aggregate and pass upwards
+
+            #print("agg(",self.traversalID,") received all inputs",self.accountedForInputIDs)
 
             super(AggregatorNode, self).passANNInputUpGraph(None)
             
             self.resetNode()
 
     def passInputThroughLayer(self, _):
-        print("aggregate inputs not yet implemented fully")
+        #print("aggregate inputs not yet implemented fully")
         output = None
-        for id in self.moduleNodeInputIDs:
-            input = self.accountedForInputIDs[id]
-            if(output == None):
-                output = input
-            else:
-                output = output + input
+        inputs = []
+        for parent in self.moduleNodeInputIDs:
+            input = self.accountedForInputIDs[parent.traversalID]
+
+            inputs.append(input)
             #combine inputs
+
+        print("in:", inputs)
+        #print("stack:", torch.stack(inputs))
+        output = torch.sum(torch.stack(inputs), dim=0)
+        print("out:", output)
 
         return output
 

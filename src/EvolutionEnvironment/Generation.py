@@ -1,6 +1,8 @@
 from src.Module.Species import Species
 from src.Blueprint.Blueprint import BlueprintNode
 from src.Graph import Node
+from src.NeuralNetwork.ANN import ModuleNet
+import torch
 import math
 
 class Generation:
@@ -38,13 +40,22 @@ class Generation:
 
     def evaluate(self):
         print("evaluating blueprint")
+
         for blueprint in self.blueprintCollection:
             print("parsing blueprint to module")
             moduleGraph = blueprint.parsetoModule(self)
             #moduleGraph.printTree()
             moduleGraph.insertAggregatorNodes()
-            print(moduleGraph.getOutputNode().traversalID)
-            #moduleGraph.plotTree(set(),math.radians(0))
+            #print(moduleGraph.getOutputNode().traversalID)
+            moduleGraph.plotTree(set(),math.radians(0))
+
+            net = ModuleNet(moduleGraph)
+
+            out = net(torch.randn(1,5))
+
+            print("final output:",out)
+
+
 
 
 
