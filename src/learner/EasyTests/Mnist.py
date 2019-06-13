@@ -6,7 +6,7 @@ from torchvision import datasets, transforms
 
 from src.Learner.Net import Net
 from src.Learner.Layers import Reshape
-from src.Learner.Evaluator import train
+from src.Learner.Evaluator import train,test
 
 import time
 

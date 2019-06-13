@@ -67,8 +67,8 @@ class ModuleNode(Node):
             aggregator nodes wait for all inputs before passing outputs
             """
 
-        if(self.isOutputNode()):
-            print("final node received input:", input)
+        # if(self.isOutputNode()):
+        #     print("final node received input:", input)
 
         output = self.passInputThroughLayer(input)#will call aggregation if is aggregator node
         # if(input is None):

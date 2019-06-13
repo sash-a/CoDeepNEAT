@@ -32,7 +32,7 @@ class AggregatorNode(Module):
     def passANNInputUpGraph(self, input, parentID = ""):
         self.accountedForInputIDs[parentID] = input
 
-        print("agg(",self.traversalID,") received in:",input, "from",parentID)
+        #print("agg(",self.traversalID,") received in:",input, "from",parentID)
 
         if(len(self.moduleNodeInputIDs) == len(self.accountedForInputIDs)):
             #all inputs have arrived
@@ -54,10 +54,10 @@ class AggregatorNode(Module):
             inputs.append(input)
             #combine inputs
 
-        print("in:", inputs)
+        #print("in:", inputs)
         #print("stack:", torch.stack(inputs))
         output = torch.sum(torch.stack(inputs), dim=0)
-        print("out:", output)
+        #print("out:", output)
 
         return output
 

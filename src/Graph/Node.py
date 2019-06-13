@@ -63,6 +63,14 @@ class Node:
     def isOutputNode(self):
         return len(self.children) == 0
 
+    def hasSiblings(self):
+        for parent in self.parents:
+            if(len(parent.children) > 1):
+                return True
+
+        return False
+
+
     def printTree(self, nodesPrinted = set()):
         if (self in nodesPrinted):
             return
@@ -113,7 +121,7 @@ class Node:
     def getPlotColour(self):
         return 'ro'
 
-def genNodeGraph(nodeType, graphType = "diamond"):
+def genNodeGraph(nodeType, graphType = "diamond", linearCount = 3):
     """the basic starting points of both blueprints and modules"""
     input = nodeType()
 

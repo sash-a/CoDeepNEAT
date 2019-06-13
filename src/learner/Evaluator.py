@@ -13,16 +13,21 @@ def train(model, device, train_loader, epoch):
     :param epoch: the current epoch
     """
     model.train()
+
+    loss = 0
     for batch_idx, (inputs, targets) in enumerate(train_loader):
         # TODO add all to GPU in parallel and keep the inputs there
         inputs, targets = inputs.to(device), targets.to(device)
         model.optimizer.zero_grad()
         # compute loss without variables to avoid copying from gpu to cpu
-        model.loss_fn(model(inputs), targets).backward()
+        m_loss = model.loss_fn(model(inputs), targets)
+        m_loss.backward()
         model.optimizer.step()
+        loss += m_loss
 
-    if epoch % 10 == 0:
-        print('some useful info')
+
+    if epoch % 1 == 0:
+        print("loss:",loss)
 
 
 def test(model, device, test_loader):

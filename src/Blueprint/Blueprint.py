@@ -16,13 +16,12 @@ class BlueprintNode(Node):
 
     def parsetoModule(self, generation ,moduleConstruct = None, speciesindexes = None):
         """
-
         :param moduleConstruct: the output module node to have this newly sampled module attached to. None if this is root blueprint node
         :return:
         """
-
         inputModuleNode, index = generation.speciesCollection[self.value].sampleModule()#to be added as child to existing module construct
         outputModuleNode = inputModuleNode.getOutputNode()#many branching modules may be added to this module
+
 
         if(not moduleConstruct == None):
             moduleConstruct.addChild(inputModuleNode)

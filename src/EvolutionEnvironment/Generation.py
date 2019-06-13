@@ -5,6 +5,14 @@ from src.NeuralNetwork.ANN import ModuleNet
 import torch
 import math
 
+import torch.nn as nn
+from src.Learner.Evaluator import train
+import torch.tensor
+from torch.utils.data import DataLoader
+
+from torchvision import datasets, transforms
+
+
 class Generation:
 
     numBlueprints = 1
@@ -51,9 +59,13 @@ class Generation:
 
             net = ModuleNet(moduleGraph)
 
-            out = net(torch.randn(1,5))
-
+            r = torch.randn(1,5)
+            out = net(r)
             print("final output:",out)
+
+
+
+
 
 
 
