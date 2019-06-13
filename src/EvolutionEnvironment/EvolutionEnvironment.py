@@ -10,8 +10,7 @@ numGenerations = 1
 currentGeneration = None
 previousGeneration = None
 
-
-if(__name__ == "__main__"):
+if __name__ == '__main__':
     print("running CDN")
 
     currentGeneration = Generation(True)

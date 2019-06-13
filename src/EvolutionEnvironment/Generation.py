@@ -6,7 +6,7 @@ import torch
 import math
 
 import torch.nn as nn
-from src.Learner.Evaluator import train
+from src.Learner.Evaluator import evaluate
 import torch.tensor
 from torch.utils.data import DataLoader
 
@@ -14,18 +14,17 @@ from torchvision import datasets, transforms
 
 
 class Generation:
-
     numBlueprints = 1
     numModules = 1
 
-    speciesCollection = {} #hashmap from species number to species
+    speciesCollection = {}  # hashmap from species number to species
     speciesNumbers = []
     blueprintCollection = set()
 
-    def __init__(self, firstGen = False, previousGeneration = None):
+    def __init__(self, firstGen=False, previousGeneration=None):
         self.speciesNumbers = []
         self.speciesCollection = {}
-        if(firstGen):
+        if (firstGen):
             self.initialisePopulation()
         else:
             self.generateFromPreviousGeneration(previousGeneration)
@@ -42,7 +41,6 @@ class Generation:
         self.speciesCollection[species.speciesNumber] = species
         self.speciesNumbers.append(species.speciesNumber)
 
-
     def generateFromPreviousGeneration(self, previousGen):
         pass
 
@@ -52,23 +50,13 @@ class Generation:
         for blueprint in self.blueprintCollection:
             print("parsing blueprint to module")
             moduleGraph = blueprint.parsetoModule(self)
-            #moduleGraph.printTree()
+            # moduleGraph.printTree()
             moduleGraph.insertAggregatorNodes()
-            #print(moduleGraph.getOutputNode().traversalID)
-            moduleGraph.plotTree(set(),math.radians(0))
+            # print(moduleGraph.getOutputNode().traversalID)
+            moduleGraph.plotTree(set(), math.radians(0))
 
             net = ModuleNet(moduleGraph)
-
-            r = torch.randn(1,5)
-            out = net(r)
-            print("final output:",out)
-
-
-
-
-
-
-
-
-
-
+            evaluate(net, 15, dataset='mnist', path='../data')
+            # r = torch.randn(1, 5)
+            # out = net(r)
+            # print("final output:", out)
