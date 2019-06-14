@@ -4,25 +4,42 @@ import torch
 
 
 class ModuleNet(nn.Module):
-    def __init__(self, moduleGraph, lr=0.001, beta1=0.9, beta2=0.999, loss_fn=nn.MSELoss(), outputDimensionality = torch.tensor([1])):
+    def __init__(self, moduleGraph, lr=0.001, beta1=0.9, beta2=0.999, loss_fn=nn.MSELoss()):
         super(ModuleNet, self).__init__()
         self.moduleGraph = moduleGraph
         self.loss_fn = loss_fn
         self.lr = lr
-        self.outputDimensionality = outputDimensionality
-        outputNodes = torch.cumprod( outputDimensionality,0)[0].item()
-        print(moduleGraph.getOutputNode().getDimensionality() ,outputNodes )
-        self.finalLayer = nn.Linear(moduleGraph.getOutputNode().getDimensionality(), outputNodes)
-
+        self.dimensionalityConfigured = False
+        self.outputDimensionality = None
         self.optimizer = optim.Adam(moduleGraph.getParameters({}), lr=self.lr, betas=(beta1, beta2))
+
+    def specifyOutputDimensionality(self,inputSample, outputDimensionality = torch.tensor([1])):
+        if(self.dimensionalityConfigured):
+            print("warning - trying to configure dimensionality multiple times on the same network")
+            return
+        print("configuring output dims with in=",inputSample.size(),end = " ")
+        outputNodes = self.getFlatNumber(outputDimensionality,0)
+        output = self(inputSample)
+        inLayers = self.getFlatNumber(output)
+        print("out = ", output.size(), "using linear layer (",inLayers,",",outputNodes,")")
+
+        self.finalLayer = nn.Linear(inLayers, outputNodes)
+        self.dimensionalityConfigured = True
+        self.outputDimensionality = outputDimensionality
+
+    def getFlatNumber(self, tensor, startDim = 1):
+        prod = 1
+        items = list(tensor.size())
+        for i in range(startDim,len(items)):
+            prod*=items[i]
+
+        return prod
 
     def forward(self, x):
         x = self.moduleGraph.passANNInputUpGraph(x)
-        if(not self.outputDimensionality is None):
+        if(self.dimensionalityConfigured):
             batchSize = x.size()[0]
-            #print("output shape:",x.size(), "flat:",x.view(batchSize,-1).size())
             x = self.finalLayer(x.view(batchSize,-1))
-            #print(self.outputDimensionality[0].item())
             #only works with 1 output dimension
             x = x.view(batchSize, self.outputDimensionality[0].item(), -1)
 

@@ -6,7 +6,7 @@ import torch
 import math
 
 import torch.nn as nn
-from src.Learner.Evaluator import evaluate
+from src.Learner import Evaluator
 import torch.tensor
 from torch.utils.data import DataLoader
 
@@ -51,18 +51,13 @@ class Generation:
             print("parsing blueprint to module")
 
             moduleGraph = blueprint.parsetoModule(self)
-            # moduleGraph.printTree()
             moduleGraph.createLayers(inChannels=1)
             moduleGraph.insertAggregatorNodes()
-            # print(moduleGraph.getOutputNode().traversalID)
             #moduleGraph.plotTree(set(), math.radians(0))
 
             net = ModuleNet(moduleGraph)#.to(torch.device("cuda:0"))
             print("parsed blueprint to NN:",net)
-            # for i in range(5):
-            #     r = torch.randn(1, 5)
-            #     out = net(r)
-            #     print("final output:", out)
 
-            evaluate(net, 15, dataset='mnist', path='../data', device=torch.device("cpu") )
+            Evaluator.evaluate(net, 15, dataset='mnist', path='../data', device=torch.device("cpu") )
+
 

@@ -12,7 +12,7 @@ printBatchEvery = 10 # -1 to switch off batch printing
 printEpochEvery = 1
 
 
-def train(model, device, train_loader, epoch):
+def train(model, device, train_loader, epoch, test_loader):
     """
     Run a single train epoch
 
@@ -33,6 +33,11 @@ def train(model, device, train_loader, epoch):
         # compute loss without variables to avoid copying from gpu to cpu
         #print(targets)
         #print("input shape:", inputs.size())
+        if(not model.dimensionalityConfigured):
+            #first forward pass of this new network
+            #print("configuring network dims")
+            model.specifyOutputDimensionality(inputs)
+
         output = model(inputs)
         #print("out shape:",output.size(), "target shape:",targets.size())
         m_loss = model.loss_fn(output, targets.float())
@@ -45,11 +50,12 @@ def train(model, device, train_loader, epoch):
             print("epoch:",epoch,"batch:",batchNo,"loss:",m_loss.item())
         batchNo +=1
 
+
     if epoch % printEpochEvery == 0:
-        print("epoch",epoch,"average loss:", loss.item()/batchNo, "time for epoch:",(time.time() - s))
+        print("epoch",epoch,"average loss:", loss.item()/batchNo,"accuracy:",test(model,device,test_loader, printAcc= False), "time for epoch:",(time.time() - s))
 
 
-def test(model, device, test_loader):
+def test(model, device, test_loader, printAcc = True):
     """
     Run through a test dataset and return the accuracy
 
@@ -66,15 +72,19 @@ def test(model, device, test_loader):
         for inputs, targets in test_loader:
             inputs, targets = inputs.to(device), targets.to(device)
             output = model(inputs)
+            print(output.size(), targets.size())
             test_loss += F.nll_loss(output, targets, reduction='sum').item()  # sum up batch loss
             pred = output.argmax(dim=1, keepdim=True)  # get the index of the max log-probability
             correct += pred.eq(targets.view_as(pred)).sum().item()
 
     test_loss /= len(test_loader.dataset)
 
-    print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
-        test_loss, correct, len(test_loader.dataset),
-        100. * correct / len(test_loader.dataset)))
+    if(printAcc):
+        print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
+            test_loss, correct, len(test_loader.dataset),
+            100. * correct / len(test_loader.dataset)))
+    else:
+        return 100. * correct / len(test_loader.dataset)
 
 
 def evaluate(model, epochs, dataset='mnist', path='../../data', device=torch.device('cuda:0'), timer=False):
@@ -129,7 +139,7 @@ def evaluate(model, epochs, dataset='mnist', path='../../data', device=torch.dev
     #print("training network")
     s = time.time()
     for epoch in range(1, epochs + 1):
-            train(model, device, train_loader, epoch)
+            train(model, device, train_loader, epoch, test_loader)
     e = time.time()
 
     print('Took:', e - s, 'seconds')

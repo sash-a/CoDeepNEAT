@@ -141,6 +141,19 @@ class ModuleNode(Node):
         #print(torch.cumprod(self.deepLayer.shape()))
         return 10*10*self.deepLayer.out_channels #10*10 because by the time the 28*28 has gone through all the convs - it has been reduced to 10810
 
+    def getOutFeatures(self, deepLayer = None):
+        if(deepLayer is None):
+            deepLayer = self.deepLayer
+
+        if (type(deepLayer) == nn.Conv2d):
+            numFeatures = deepLayer.out_channels
+        elif (type(deepLayer) == nn.Linear):
+            numFeatures = deepLayer.deepLayer.out_features
+        else:
+            print("cannot extract num features from layer type:", type(deepLayer))
+            return None
+
+        return numFeatures
 
 
 
