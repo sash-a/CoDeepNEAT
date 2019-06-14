@@ -45,18 +45,24 @@ class Generation:
         pass
 
     def evaluate(self):
-        print("evaluating blueprint")
+        print("evaluating blueprints")
 
         for blueprint in self.blueprintCollection:
             print("parsing blueprint to module")
+
             moduleGraph = blueprint.parsetoModule(self)
             # moduleGraph.printTree()
+            moduleGraph.createLayers(inChannels=1)
             moduleGraph.insertAggregatorNodes()
             # print(moduleGraph.getOutputNode().traversalID)
-            moduleGraph.plotTree(set(), math.radians(0))
+            #moduleGraph.plotTree(set(), math.radians(0))
 
-            net = ModuleNet(moduleGraph)
-            evaluate(net, 15, dataset='mnist', path='../data')
-            # r = torch.randn(1, 5)
-            # out = net(r)
-            # print("final output:", out)
+            net = ModuleNet(moduleGraph)#.to(torch.device("cuda:0"))
+            print("parsed blueprint to NN:",net)
+            # for i in range(5):
+            #     r = torch.randn(1, 5)
+            #     out = net(r)
+            #     print("final output:", out)
+
+            evaluate(net, 15, dataset='mnist', path='../data', device=torch.device("cpu") )
+

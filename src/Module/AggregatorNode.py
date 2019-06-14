@@ -19,6 +19,10 @@ class AggregatorNode(Module):
         #since at the time the decendants of this aggregator node were travered further already, there is no need to traverse its decendants again
         pass
 
+    def getParameters(self, parametersDict):
+        for child in self.children:
+            child.getParameters(parametersDict)
+
     def addParent(self, parent):
         self.moduleNodeInputIDs.append(parent)
         self.parents.append(parent)
@@ -40,9 +44,12 @@ class AggregatorNode(Module):
 
             #print("agg(",self.traversalID,") received all inputs",self.accountedForInputIDs)
 
-            super(AggregatorNode, self).passANNInputUpGraph(None)
-            
+            out =  super(AggregatorNode, self).passANNInputUpGraph(None)
+            # if(not out is None):
+            #     print("agg got non null out")
             self.resetNode()
+
+            return out
 
     def passInputThroughLayer(self, _):
         #print("aggregate inputs not yet implemented fully")

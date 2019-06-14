@@ -1,5 +1,6 @@
 from src.Graph.Node import Node
-
+from src.Module.ModuleNode import ModuleNode
+from torch import nn
 
 class BlueprintNode(Node):
 
@@ -39,6 +40,6 @@ class BlueprintNode(Node):
             childBlueprintNode.parsetoModule(generation, outputModuleNode, speciesindexes)#passes species index down to collect all species indexes used to construct this blueprint in one list
 
         if (len(self.parents) == 0):
-            print("blueprint parsed. getting module node traversal ID's")
+            #print("blueprint parsed. getting module node traversal ID's")
             inputModuleNode.getTraversalIDs("_")
             return inputModuleNode
