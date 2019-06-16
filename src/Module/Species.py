@@ -30,5 +30,5 @@ class Species:
         print("initialising modules")
         
         for m in range(numModules):
-            module = Node.genNodeGraph(ModuleNode, "diamond")
+            module = Node.genNodeGraph(ModuleNode, "triangle")
             self.moduleCollection.append(module)

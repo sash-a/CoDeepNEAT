@@ -51,7 +51,7 @@ class Generation:
             print("parsing blueprint to module")
 
             moduleGraph = blueprint.parsetoModule(self)
-            moduleGraph.createLayers(inChannels=1)
+            moduleGraph.createLayers(inFeatures=1)
             moduleGraph.insertAggregatorNodes()
             #moduleGraph.plotTree(set(), math.radians(0))
 

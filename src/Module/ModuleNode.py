@@ -1,6 +1,10 @@
 from src.Graph.Node import Node
 import torch.nn as nn
 import torch
+import torch.nn.functional as F
+import random
+
+random.seed(0)
 
 class ModuleNode(Node):
     """
@@ -13,6 +17,7 @@ class ModuleNode(Node):
     """
 
     layerType = None
+    reduction = None
     regularisation = None
 
 
@@ -22,15 +27,24 @@ class ModuleNode(Node):
         self.inFeatures = -1
         self.outFeatures = -1
         self.traversalID = ""
+        self.activation =F.relu
+        if(random.randint(0,0) == 0):
+            self.reduction = nn.MaxPool2d(2, 2)
+            print("layer",self.traversalID,'using max pooling')
+        else:
+            self.reduction = None
+        self.regularisation = None
 
-    def createLayers(self, inChannels = None, outChannels = 20):
-        self.outFeatures = outChannels
+    def createLayers(self, inFeatures = None, outFeatures = 20):
+        self.outFeatures = outFeatures
         if(self.deepLayer is None):
-            if (inChannels is None):
+            if (inFeatures is None):
                 self.inFeatures = self.parents[0].outFeatures  # only aggregator nodes should have more than one parent
             else:
-                self.inFeatures = inChannels
+                self.inFeatures = inFeatures
             self.deepLayer = nn.Conv2d(self.inFeatures, self.outFeatures, 3, 1)
+            if (random.randint(0, 1) == 0):
+                self.regularisation = nn.BatchNorm2d(outFeatures)
 
 
             for child in self.children:
@@ -85,8 +99,9 @@ class ModuleNode(Node):
         #     print("final node received input:", input)
 
         output = self.passInputThroughLayer(input)#will call aggregation if is aggregator node
+
         # if(input is None):
-        #     print("out of agg(",type(self), "):",output)
+        #     print("out of agg(",type(self), "):",output.size())
 
         childOut = None
         for child in self.children:
@@ -105,9 +120,28 @@ class ModuleNode(Node):
             return output#output of final output node must be bubbled back up to the top entry point of the nn
 
     def passInputThroughLayer(self, input):
-        #print("inshape:",input.size())
-        #print("outshape:", self.deepLayer(input).size())
-        return self.deepLayer(input)
+        if(input is None):
+            return None
+
+        if(self.regularisation is None):
+            output = self.deepLayer(input)
+        else:
+            output = self.regularisation(self.deepLayer(input))
+
+
+        if(not self.reduction is None):
+            if (type(self.reduction) == nn.MaxPool2d):
+                #a reduction should only be done on inputs large enough to reduce
+                if (list(input.size())[2] > 5):
+                    return self.reduction(self.activation(output))
+            else:
+                return self.reduction(self.activation(output))
+
+        if(type(self.deepLayer) == nn.Linear  or (type(self.deepLayer) == nn.Conv2d and list(input.size())[2] > 5)):
+            return self.activation(output)
+        else:
+            #is conv layer - is small. needs padding
+            return F.pad(input = self.activation(output), pad = (1,1,1 ,1) , mode='constant', value=0)
 
     def getParameters(self, parametersDict):
         if(not self in parametersDict):
