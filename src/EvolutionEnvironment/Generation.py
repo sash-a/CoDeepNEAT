@@ -44,20 +44,18 @@ class Generation:
     def generateFromPreviousGeneration(self, previousGen):
         pass
 
-    def evaluate(self, device =torch.device("cuda:0") ):
+    def evaluate(self, device=torch.device("cuda:0")):
         print("evaluating blueprints")
 
         for blueprint in self.blueprintCollection:
             print("parsing blueprint to module")
 
             moduleGraph = blueprint.parsetoModule(self)
-            moduleGraph.createLayers(inFeatures=1, device = device)
+            moduleGraph.createLayers(inFeatures=1, device=device)
             moduleGraph.insertAggregatorNodes()
-            #moduleGraph.plotTree(set(), math.radians(0))
+            # moduleGraph.plotTree(set(), math.radians(0))
 
             net = ModuleNet(moduleGraph).to(device)
-            print("parsed blueprint to NN:",net)
+            print("parsed blueprint to NN:", net)
 
-            Evaluator.evaluate(net, 15, dataset='mnist', path='../data', device=device)
-
-
+            Evaluator.evaluate(net, 15, dataset='mnist', path='../../data', device=device)

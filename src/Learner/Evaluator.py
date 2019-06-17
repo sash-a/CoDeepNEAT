@@ -8,7 +8,7 @@ from torch.utils.data import DataLoader
 
 import time
 
-printBatchEvery = 50 # -1 to switch off batch printing
+printBatchEvery = -1 # -1 to switch off batch printing
 printEpochEvery = 1
 
 
