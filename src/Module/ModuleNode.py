@@ -30,7 +30,7 @@ class ModuleNode(Node):
         self.activation =F.relu
         if(random.randint(0,0) == 0):
             self.reduction = nn.MaxPool2d(2, 2)
-            print("layer",self.traversalID,'using max pooling')
+            #print("layer",self.traversalID,'using max pooling')
         else:
             self.reduction = None
         self.regularisation = None

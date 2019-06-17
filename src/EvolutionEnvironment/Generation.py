@@ -58,6 +58,6 @@ class Generation:
             net = ModuleNet(moduleGraph)#.to(torch.device("cuda:0"))
             print("parsed blueprint to NN:",net)
 
-            Evaluator.evaluate(net, 15, dataset='mnist', path='../data', device=torch.device("cpu") )
+            Evaluator.evaluate(net, 15, dataset='mnist', path='../data', device=torch.device("cpu"))
 
 
