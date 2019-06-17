@@ -13,7 +13,7 @@ class ModuleNet(nn.Module):
         self.outputDimensionality = None
         self.optimizer = optim.Adam(moduleGraph.getParameters({}), lr=self.lr, betas=(beta1, beta2))
 
-    def specifyOutputDimensionality(self,inputSample, outputDimensionality = torch.tensor([1])):
+    def specifyOutputDimensionality(self,inputSample, outputDimensionality = torch.tensor([1]), device =  torch.device("cpu")):
         if(self.dimensionalityConfigured):
             print("warning - trying to configure dimensionality multiple times on the same network")
             return
@@ -23,7 +23,7 @@ class ModuleNet(nn.Module):
         inLayers = self.getFlatNumber(output)
         print("out = ", output.size(), "using linear layer (",inLayers,",",outputNodes,")")
 
-        self.finalLayer = nn.Linear(inLayers, outputNodes)
+        self.finalLayer = nn.Linear(inLayers, outputNodes).to(device)
         self.dimensionalityConfigured = True
         self.outputDimensionality = outputDimensionality
 

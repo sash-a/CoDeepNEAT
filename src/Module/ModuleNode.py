@@ -21,7 +21,7 @@ class ModuleNode(Node):
     regularisation = None
 
 
-    def __init__(self ):
+    def __init__(self , device = torch.device("cpu")):
         Node.__init__(self)
         self.deepLayer = None#an nn layer object such as    nn.Conv2d(3, 6, 5) or nn.Linear(84, 10)
         self.inFeatures = -1
@@ -35,20 +35,20 @@ class ModuleNode(Node):
             self.reduction = None
         self.regularisation = None
 
-    def createLayers(self, inFeatures = None, outFeatures = 20):
+    def createLayers(self, inFeatures = None, outFeatures = 20, device = torch.device("cpu")):
         self.outFeatures = outFeatures
         if(self.deepLayer is None):
             if (inFeatures is None):
                 self.inFeatures = self.parents[0].outFeatures  # only aggregator nodes should have more than one parent
             else:
                 self.inFeatures = inFeatures
-            self.deepLayer = nn.Conv2d(self.inFeatures, self.outFeatures, 3, 1)
+            self.deepLayer = nn.Conv2d(self.inFeatures, self.outFeatures, 3, 1).to(device)
             if (random.randint(0, 1) == 0):
-                self.regularisation = nn.BatchNorm2d(outFeatures)
+                self.regularisation = nn.BatchNorm2d(outFeatures).to(device)
 
 
             for child in self.children:
-                child.createLayers()
+                child.createLayers(device=device)
 
     def insertAggregatorNodes(self, state = "start"):#could be made more efficient as a breadth first instead of depth first because of duplicate paths
         from src.Module.AggregatorNode import AggregatorNode as Aggregator
