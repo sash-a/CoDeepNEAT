@@ -32,9 +32,6 @@ def train(model, device, train_loader, epoch, test_loader, print_accuracy=False)
     for batch_idx, (inputs, targets) in enumerate(train_loader):
         inputs, targets = inputs.to(device), targets.to(device)
         model.optimizer.zero_grad()
-        if not model.dimensionality_configured:
-            # first forward pass of this new network
-            model.specify_output_dimensionality(inputs, device=device)
 
         output = model(inputs)
         m_loss = model.loss_fn(output, targets.float())
@@ -115,6 +112,27 @@ def evaluate(model, epochs, dataset='mnist', path='../../data', device=torch.dev
     # num_workers=1 is giving issues, but 0 runs slower
     data_loader_args = {'num_workers': 0, 'pin_memory': True} if device == 'cuda' else {}
 
+    train_loader, test_loader = load_data('mnist','../../data')
+
+    s = time.time()
+    for epoch in range(1, epochs + 1):
+        train(model, device, train_loader, epoch, test_loader)
+    e = time.time()
+
+    print('Took:', e - s, 'seconds')
+    test(model, device, test_loader)
+
+
+def sample_inputs(dataset='mnist', path='../../data', device=torch.device('cuda:0'), batchSize = 64):
+    train_loader, test_loader = load_data('mnist','../../data')
+    for batch_idx, (inputs, targets) in enumerate(train_loader):
+        return inputs.to(device), targets.to(device)
+
+
+def load_data(dataset, path, batchSize = 64):
+    #data_loader_args = {'num_workers': 0, 'pin_memory': True} if device == 'cuda' else {}
+    data_loader_args = {}
+
     train_loader = None
     test_loader = None
     if dataset.lower() == 'mnist':
@@ -126,7 +144,7 @@ def evaluate(model, epochs, dataset='mnist', path='../../data', device=torch.dev
                                transforms.ToTensor(),
                                transforms.Normalize((0.1307,), (0.3081,))
                            ])),
-            batch_size=batch_size, shuffle=True, **data_loader_args)
+            batch_size=batchSize, shuffle=True, **data_loader_args)
 
         test_loader = DataLoader(
             datasets.MNIST(path,
@@ -136,7 +154,7 @@ def evaluate(model, epochs, dataset='mnist', path='../../data', device=torch.dev
                                transforms.ToTensor(),
                                transforms.Normalize((0.1307,), (0.3081,))
                            ])),
-            batch_size=batch_size, shuffle=True, **data_loader_args)
+            batch_size=batchSize, shuffle=True, **data_loader_args)
 
     elif dataset.lower() == 'imgnet':
         train_loader = DataLoader(
@@ -149,10 +167,4 @@ def evaluate(model, epochs, dataset='mnist', path='../../data', device=torch.dev
     else:
         raise Exception('Invalid dataset name, options are imgnet or mnist')
 
-    s = time.time()
-    for epoch in range(1, epochs + 1):
-        train(model, device, train_loader, epoch, test_loader)
-    e = time.time()
-
-    print('Took:', e - s, 'seconds')
-    test(model, device, test_loader)
+    return train_loader,test_loader

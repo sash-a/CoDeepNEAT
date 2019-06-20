@@ -36,10 +36,11 @@ class Generation:
     def generate_from_previous_generation(self, previous_gen):
         pass
 
-    def evaluate(self, device=torch.device("cuda:0"), print_graphs = False):
-        print("evaluating blueprints")
+    def evaluate(self, device=torch.device("cuda:0"), print_graphs = True):
+        inputs, targets = Evaluator.sample_inputs('mnist','../../data', device=device)
 
         for blueprint in self.blueprintCollection:
+
             module_graph = blueprint.parseto_module(self)
             module_graph.create_layers(in_features=1, device=device)
             module_graph.insert_aggregator_nodes()
@@ -47,6 +48,8 @@ class Generation:
                 module_graph.plot_tree()
 
             net = ModuleNet(module_graph).to(device)
+            net.specify_output_dimensionality(inputs, device=device)
+
 
             Evaluator.evaluate(net, 15, dataset='mnist', path='../../data', device=device, batch_size= 256)
             #batchsize:128, time:255, max GPU: 12, acc: 97.5

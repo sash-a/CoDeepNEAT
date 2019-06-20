@@ -157,6 +157,15 @@ class ModuleNode(Node):
         else:
             return out
 
+    def get_plot_colour(self):
+        # print("plotting agg node")
+        if (self.deepLayer is None):
+            return "rs"
+        if (type(self.deepLayer) == nn.Conv2d):
+            return "go"
+        elif (type(self.deepLayer) == nn.Linear):
+            return "co"
+
     def get_dimensionality(self):
         print("need to implement get dimensionality")
         # 10*10 because by the time the 28*28 has gone through all the convs - it has been reduced to 10810
