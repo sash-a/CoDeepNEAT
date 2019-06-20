@@ -15,11 +15,7 @@ class BlueprintNode(Node):
 
     def parseto_module(self, generation, module_construct=None, species_indexes=None):
         """
-        :param module_construct: the output module node to have this newly sampled module attached to. None if this is
-        root blueprint node
-        :param generation:
-        :param species_indexes:
-        :return: input module node
+        :param module_construct: the output module node to have this newly sampled module attached to. None if this is root blueprint node
         """
         # to be added as child to existing module construct
         input_module_node, index = generation.speciesCollection[self.value].sample_module()
