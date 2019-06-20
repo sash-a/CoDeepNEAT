@@ -24,8 +24,7 @@ class ModuleNet(nn.Module):
         in_layers = self.get_flat_number(output)
         print("out = ", output.size(), "using linear layer (", in_layers, ",", output_nodes, ")")
 
-        self.final_layer = nn.Linear(in_layers, 500).to(device)
-        self.final2 = nn.Linear(500, output_nodes).to(device)
+        self.final_layer = nn.Linear(in_layers, output_nodes).to(device)
         self.dimensionality_configured = True
         self.outputDimensionality = output_dimensionality
 
@@ -42,8 +41,6 @@ class ModuleNet(nn.Module):
         if self.dimensionality_configured:
             batch_size = x.size()[0]
             x = F.relu(self.final_layer(x.view(batch_size, -1)))
-
-            x = self.final2(x)
             # only works with 1 output dimension
             x = x.view(batch_size, self.outputDimensionality[0].item(), -1)
 

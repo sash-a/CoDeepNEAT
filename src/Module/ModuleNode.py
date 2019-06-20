@@ -29,13 +29,13 @@ class ModuleNode(Node):
         self.traversalID = ""
         self.activation = F.relu
         if random.randint(0, 0) == 0:
-            # self.reduction = nn.MaxPool2d(2, 2)
+            self.reduction = nn.MaxPool2d(2, 2)
             pass
         else:
             self.reduction = None
         self.regularisation = None
 
-    def create_layers(self, in_features=None, out_features=512, device=torch.device("cpu")):
+    def create_layers(self, in_features=None, out_features=25, device=torch.device("cpu")):
         self.outFeatures = out_features
         if self.deepLayer is None:
             if in_features is None:
@@ -43,8 +43,8 @@ class ModuleNode(Node):
             else:
                 self.inFeatures = in_features
             self.deepLayer = nn.Conv2d(self.inFeatures, self.outFeatures, 3, 1).to(device)
-            if random.randint(0, 0) == 0:
-                # self.regularisation = nn.BatchNorm2d(outFeatures).to(device)
+            if random.randint(0, 1) == 0:
+                self.regularisation = nn.BatchNorm2d(self.outFeatures).to(device)
                 pass
 
             for child in self.children:
@@ -128,7 +128,9 @@ class ModuleNode(Node):
             return self.activation(output)
         else:
             # is conv layer - is small. needs padding
-            return F.pad(input=self.activation(output), pad=(2, 2, 2, 2), mode='constant', value=0)
+            xkernel,ykernel = self.deepLayer.kernel_size
+            xkernel,ykernel = (xkernel-1)//2,(ykernel-1)//2
+            return F.pad(input=self.activation(output), pad=( ykernel, ykernel, xkernel, xkernel), mode='constant', value=0)
 
     def get_parameters(self, parametersDict):
         if self not in parametersDict:

@@ -8,11 +8,11 @@ from torch.utils.data import DataLoader
 
 import time
 
-printBatchEvery = 100  # -1 to switch off batch printing
+printBatchEvery = 150  # -1 to switch off batch printing
 print_epoch_every = 1
 
 
-def train(model, device, train_loader, epoch, test_loader, print_accuracy=False):
+def train(model, device, train_loader, epoch, test_loader, print_accuracy=True):
     """
     Run a single train epoch
 
@@ -44,7 +44,7 @@ def train(model, device, train_loader, epoch, test_loader, print_accuracy=False)
         loss += m_loss.item()
 
         if batch_idx % printBatchEvery == 0 and not printBatchEvery == -1:
-            print("epoch:", epoch, "batch:", batch_idx, "loss:", m_loss.item(), "running time:", time.time() - s)
+            print("\tepoch:", epoch, "batch:", batch_idx, "loss:", m_loss.item(), "running time:", time.time() - s)
 
     end_time = time.time()
     if epoch % print_epoch_every == 0:

@@ -18,7 +18,7 @@ class BlueprintNode(Node):
     def parseto_module(self, generation, moduleConstruct=None, speciesindexes=None):
         """
         :param moduleConstruct: the output module node to have this newly sampled module attached to. None if this is root blueprint node
-        :return:
+        :return: a handle on the root node of the newly created module graph
         """
         inputModuleNode, index = generation.speciesCollection[
             self.value].sample_module()  # to be added as child to existing module construct
