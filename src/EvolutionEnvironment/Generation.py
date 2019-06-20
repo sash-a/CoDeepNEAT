@@ -11,13 +11,11 @@ class Generation:
     numBlueprints = 1
     numModules = 1
 
-    speciesCollection = {}  # hashmap from species number to species
-    speciesNumbers = []
-    blueprintCollection = set()
-
     def __init__(self, first_gen=False, previous_generation=None):
         self.speciesNumbers = []
-        self.speciesCollection = {}
+        self.speciesCollection = {} # hashmap from species number to species
+        self.blueprintCollection = set()
+
         if first_gen:
             self.initialise_population()
         else:
@@ -49,5 +47,9 @@ class Generation:
                 module_graph.plot_tree()
 
             net = ModuleNet(module_graph).to(device)
-            
-            Evaluator.evaluate(net, 15, dataset='mnist', path='../../data', device=device)
+
+            Evaluator.evaluate(net, 15, dataset='mnist', path='../../data', device=device, batch_size= 256)
+            #batchsize:128, time:255, max GPU: 12, acc: 97.5
+            #batchsize:256, time:217, max GPU: 12, acc: 96.5
+            #batchsize:512, time:216, max GPU: 12, acc: 94.5
+
