@@ -1,16 +1,10 @@
 from src.Module.Species import Species
 from src.Blueprint.Blueprint import BlueprintNode
 from src.Graph import Node
-from src.NeuralNetwork.ANN import ModuleNet
-import torch
-import math
+from src.NeuralNetwork.Net import ModuleNet
 
-import torch.nn as nn
-from src.Learner import Evaluator
+from src.NeuralNetwork import Evaluator
 import torch.tensor
-from torch.utils.data import DataLoader
-
-from torchvision import datasets, transforms
 
 
 class Generation:
@@ -21,27 +15,27 @@ class Generation:
     speciesNumbers = []
     blueprintCollection = set()
 
-    def __init__(self, firstGen=False, previousGeneration=None):
+    def __init__(self, first_gen=False, previous_generation=None):
         self.speciesNumbers = []
         self.speciesCollection = {}
-        if (firstGen):
-            self.initialisePopulation()
+        if first_gen:
+            self.initialise_population()
         else:
-            self.generateFromPreviousGeneration(previousGeneration)
+            self.generate_from_previous_generation(previous_generation)
 
-    def initialisePopulation(self):
+    def initialise_population(self):
         print("initialising random population")
 
         for b in range(self.numBlueprints):
-            blueprint = Node.genNodeGraph(BlueprintNode, "linear")
+            blueprint = Node.gen_node_graph(BlueprintNode, "linear")
             self.blueprintCollection.add(blueprint)
 
         species = Species()
-        species.initialiseModules(self.numModules)
+        species.initialise_modules(self.numModules)
         self.speciesCollection[species.speciesNumber] = species
         self.speciesNumbers.append(species.speciesNumber)
 
-    def generateFromPreviousGeneration(self, previousGen):
+    def generate_from_previous_generation(self, previous_gen):
         pass
 
     def evaluate(self, device=torch.device("cuda:0")):
@@ -50,12 +44,12 @@ class Generation:
         for blueprint in self.blueprintCollection:
             print("parsing blueprint to module")
 
-            moduleGraph = blueprint.parsetoModule(self)
-            moduleGraph.createLayers(inFeatures=1, device=device)
-            moduleGraph.insertAggregatorNodes()
-            # moduleGraph.plotTree(set(), math.radians(0))
+            module_graph = blueprint.parseto_module(self)
+            module_graph.create_layers(in_features=1, device=device)
+            module_graph.insert_aggregator_nodes()
+            # moduleGraph.plotTree()
 
-            net = ModuleNet(moduleGraph).to(device)
+            net = ModuleNet(module_graph).to(device)
             print("parsed blueprint to NN:", net)
 
             Evaluator.evaluate(net, 15, dataset='mnist', path='../../data', device=device)

@@ -11,14 +11,13 @@ currentGeneration = None
 previousGeneration = None
 
 
-
 def main():
     print("running CDN")
 
-    currentGeneration = Generation(True)
+    current_generation = Generation(True)
 
     for i in range(numGenerations):
-        currentGeneration.evaluate()
+        current_generation.evaluate()
 
 
 if __name__ == '__main__':

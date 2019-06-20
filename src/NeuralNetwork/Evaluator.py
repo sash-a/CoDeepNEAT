@@ -1,18 +1,18 @@
 # modified from https://github.com/pytorch/examples/blob/master/mnist/main.py
 
 import torch
-from torch import no_grad
+from torch import no_grad, nn
 import torch.nn.functional as F
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 
 import time
 
-printBatchEvery = 100 # -1 to switch off batch printing
-printEpochEvery = 1
+printBatchEvery = 100  # -1 to switch off batch printing
+print_epoch_every = 1
 
 
-def train(model, device, train_loader, epoch, test_loader, printAccuracy = False):
+def train(model, device, train_loader, epoch, test_loader, print_accuracy=False):
     """
     Run a single train epoch
 
@@ -20,83 +20,77 @@ def train(model, device, train_loader, epoch, test_loader, printAccuracy = False
     :param device: Device to train on (cuda or cpu)
     :param train_loader: the training dataset
     :param epoch: the current epoch
+    :param test_loader: The test data set loader
+    :param print_accuracy: True if should test when printing batch info
     """
     model.train()
 
-    #print("training network on device:",device)
     s = time.time()
     loss = 0
-    batchNo = 0
+    batch_idx = 0
+
     for batch_idx, (inputs, targets) in enumerate(train_loader):
         inputs, targets = inputs.to(device), targets.to(device)
         model.optimizer.zero_grad()
-        # compute loss without variables to avoid copying from gpu to cpu
-        #print(targets)
-        #print("input shape:", inputs.size())
-        if(not model.dimensionalityConfigured):
-            #first forward pass of this new network
-            #print("configuring network dims")
-            model.specifyOutputDimensionality(inputs, device = device)
+        if not model.dimensionality_configured:
+            # first forward pass of this new network
+            model.specify_output_dimensionality(inputs, device=device)
 
         output = model(inputs)
-        #print("out shape:",output.size(), "target shape:",targets.size())
         m_loss = model.loss_fn(output, targets.float())
         m_loss.backward()
         model.optimizer.step()
 
         loss += m_loss.item()
 
-        if(batchNo%printBatchEvery == 0 and not printBatchEvery == -1):
-            print("epoch:",epoch,"batch:",batchNo,"loss:",m_loss.item(), "running time:", time.time() - s)
-        batchNo +=1
+        if batch_idx % printBatchEvery == 0 and not printBatchEvery == -1:
+            print("epoch:", epoch, "batch:", batch_idx, "loss:", m_loss.item(), "running time:", time.time() - s)
 
-        #break
-
-    endTime = time.time()
-    if epoch % printEpochEvery == 0:
-        if(printAccuracy):
-            print("epoch",epoch,"average loss:", loss/batchNo,"accuracy:",test(model,device,test_loader, printAcc= False), "% time for epoch:",(endTime - s))
+    end_time = time.time()
+    if epoch % print_epoch_every == 0:
+        if print_accuracy:
+            print("epoch", epoch, "average loss:", loss / batch_idx, "accuracy:",
+                  test(model, device, test_loader, print_acc=False), "% time for epoch:", (end_time - s))
         else:
-            print("epoch",epoch,"average loss:", loss/batchNo,"time for epoch:",(endTime - s))
+            print("epoch", epoch, "average loss:", loss / batch_idx, "time for epoch:", (end_time - s))
 
 
-
-def test(model, device, test_loader, printAcc = True):
+def test(model, device, test_loader, print_acc=True):
     """
     Run through a test dataset and return the accuracy
 
     :param model: the network of type torch.nn.Module
     :param device: Device to train on (cuda or cpu)
     :param test_loader: the training dataset
+    :param print_acc: If true accuracy will be printed otherwise it will be returned
     :return: accuracy
     """
     model.eval()
 
     test_loss = 0
     correct = 0
-    loss_fn = torch.nn.MSELoss()
+    loss_fn = nn.MSELoss()
     with no_grad():
         for inputs, targets in test_loader:
             inputs, targets = inputs.to(device), targets.to(device)
             output = model(inputs)
-            #print(output.size(), targets.size())
-            if(len(list(targets.size())) == 1 ):
-                #each batch item has only one value. this value is the class prediction
-                test_loss += loss_fn(output,targets.float())
+            if len(list(targets.size())) == 1:
+                # each batch item has only one value. this value is the class prediction
+                test_loss += loss_fn(output, targets.float())
                 for i in range(list(targets.size())[0]):
                     prediction = round(list(output)[i].item())
-                    if(prediction == list(targets)[i]):
-                        correct +=1
+                    if prediction == list(targets)[i]:
+                        correct += 1
 
             else:
-                #each batch item has num_classes values, the highest of which predicts the class
+                # each batch item has num_classes values, the highest of which predicts the class
                 test_loss += F.nll_loss(output, targets, reduction='sum').item()  # sum up batch loss
                 pred = output.argmax(dim=1, keepdim=True)  # get the index of the max log-probability
                 correct += pred.eq(targets.view_as(pred)).sum().item()
 
     test_loss /= len(test_loader.dataset)
 
-    if(printAcc):
+    if print_acc:
         print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
             test_loss, correct, len(test_loader.dataset),
             100. * correct / len(test_loader.dataset)))
@@ -104,7 +98,8 @@ def test(model, device, test_loader, printAcc = True):
         return 100. * correct / len(test_loader.dataset)
 
 
-def evaluate(model, epochs, dataset='mnist', path='../../data', device=torch.device('cuda:0'), timer=False, batchSize = 64):
+def evaluate(model, epochs, dataset='mnist', path='../../data', device=torch.device('cuda:0'), timer=False,
+             batch_size=64):
     """
     Runs all epochs and tests the model after all epochs have run
 
@@ -113,6 +108,7 @@ def evaluate(model, epochs, dataset='mnist', path='../../data', device=torch.dev
     :param dataset: Either mnist or imgnet
     :param path: where to store the dataset
     :param device: Either cuda or cpu
+    :param batch_size: The data set batch size
     :return: The trained model
     """
     # Make this params
@@ -130,7 +126,7 @@ def evaluate(model, epochs, dataset='mnist', path='../../data', device=torch.dev
                                transforms.ToTensor(),
                                transforms.Normalize((0.1307,), (0.3081,))
                            ])),
-            batch_size=batchSize, shuffle=True, **data_loader_args)
+            batch_size=batch_size, shuffle=True, **data_loader_args)
 
         test_loader = DataLoader(
             datasets.MNIST(path,
@@ -140,7 +136,7 @@ def evaluate(model, epochs, dataset='mnist', path='../../data', device=torch.dev
                                transforms.ToTensor(),
                                transforms.Normalize((0.1307,), (0.3081,))
                            ])),
-            batch_size=batchSize, shuffle=True, **data_loader_args)
+            batch_size=batch_size, shuffle=True, **data_loader_args)
 
     elif dataset.lower() == 'imgnet':
         train_loader = DataLoader(
@@ -153,10 +149,9 @@ def evaluate(model, epochs, dataset='mnist', path='../../data', device=torch.dev
     else:
         raise Exception('Invalid dataset name, options are imgnet or mnist')
 
-    #print("training network")
     s = time.time()
     for epoch in range(1, epochs + 1):
-            train(model, device, train_loader, epoch, test_loader)
+        train(model, device, train_loader, epoch, test_loader)
     e = time.time()
 
     print('Took:', e - s, 'seconds')

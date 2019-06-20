@@ -11,77 +11,86 @@ class Node:
     parents = []
     value = None
 
-    traversalID = ""  # a string structured as '1,1,3,2,0' where each number represents which child to move to along the path from input to output
+    # a string structured as '1,1,3,2,0' where each number represents which child to move to along the path from
+    # input to output
+    traversalID = ""
 
     def __init__(self, val=None):
         self.value = val
         self.children = []
         self.parents = []
 
-    def addChild(self, value=None):
-        self.addChild(Node(value))
+    def add_child(self, value=None):
+        self.add_child(Node(value))
 
-    def addChild(self, childNode):
+    def add_child(self, childNode):
         """
         :param childNode: Node to be added - can have subtree underneath
         """
         self.children.append(childNode)
         childNode.parents.append(self)
 
-    def getChild(self, childNum):
+    def get_child(self, childNum):
         return self.children[childNum]
 
-    def getOutputNode(self):
+    def get_output_node(self):
         if (len(self.children) == 0):
             return self
 
-        return self.children[0].getOutputNode()
+        return self.children[0].get_output_node()
 
-    def getInputNode(self):
-        if (len(self.parents) == 0):
+    def get_input_node(self):
+        if len(self.parents) == 0:
             return self
 
-        return self.parents[0].getInputNode()
+        return self.parents[0].get_input_node()
 
-    def getTraversalIDs(self, currentID=""):
+    def get_traversal_ids(self, current_id=""):
         """should be called on root node
             calculates all nodes traversal ID
         """
-        self.traversalID = currentID
+        self.traversalID = current_id
         # print(self,"num children:", len(self.children))
         # print("Me:",self,"child:",self.children[0])
         for childNo in range(len(self.children)):
-            newID = currentID + (',' if not currentID == "" else "") + repr(childNo)
+            new_id = current_id + (',' if not current_id == "" else "") + repr(childNo)
             # print(newID)
-            self.children[childNo].getTraversalIDs(newID)
+            self.children[childNo].get_traversal_ids(new_id)
 
-    def isInputNode(self):
+    def is_input_node(self):
         return len(self.parents) == 0
 
-    def isOutputNode(self):
+    def is_output_node(self):
         return len(self.children) == 0
 
-    def hasSiblings(self):
+    def has_siblings(self):
         for parent in self.parents:
-            if (len(parent.children) > 1):
+            if len(parent.children) > 1:
                 return True
 
         return False
 
-    def printTree(self, nodesPrinted=set()):
-        if (self in nodesPrinted):
+    def print_tree(self, nodes_printed=None):
+        if nodes_printed is None:
+            nodes_printed = set()
+
+        if self in nodes_printed:
             return
-        nodesPrinted.add(self)
-        self.printNode()
+
+        nodes_printed.add(self)
+        self.print_node()
 
         for child in self.children:
-            child.printTree(nodesPrinted)
+            child.print_tree(nodes_printed)
 
-    def printNode(self, printToConsole=True):
+    def print_node(self, print_to_console=True):
         pass
 
-    def plotTree(self, nodesPlotted, rotDegree=0):
-        arrowScaleFactor = 1
+    def plot_tree(self, nodes_plotted=None, rot_degree=0):
+        if nodes_plotted is None:
+            nodes_plotted = set()
+
+        arrow_scale_factor = 1
 
         y = len(self.traversalID)
         x = 0
@@ -91,56 +100,53 @@ class Node:
 
         # x +=y*0.05
 
-        x = x * math.cos(rotDegree) - y * math.sin(rotDegree)
-        y = y * math.cos(rotDegree) + x * math.sin(rotDegree)
+        x = x * math.cos(rot_degree) - y * math.sin(rot_degree)
+        y = y * math.cos(rot_degree) + x * math.sin(rot_degree)
 
-        if (self in nodesPlotted):
+        if self in nodes_plotted:
             return x, y
 
-        nodesPlotted.add(self)
+        nodes_plotted.add(self)
 
-        plt.plot(x, y, self.getPlotColour(), markersize=10)
+        plt.plot(x, y, self.get_plot_colour(), markersize=10)
 
         for child in self.children:
-            c = child.plotTree(nodesPlotted, rotDegree)
-            if (not c == None):
+            c = child.plot_tree(nodes_plotted, rot_degree)
+            if c is not None:
                 cx, cy = c
-                plt.arrow(x, y, (cx - x) * arrowScaleFactor, (cy - y) * 0.8 * arrowScaleFactor, head_width=0.13,
+                plt.arrow(x, y, (cx - x) * arrow_scale_factor, (cy - y) * 0.8 * arrow_scale_factor, head_width=0.13,
                           length_includes_head=True)
 
-                # print("plotting from:",(x,y),"to",(cx,cy))
-            # print(child.plotTree(nodesPlotted,xs,ys))
-
-        if (self.isInputNode()):
+        if self.is_input_node():
             plt.show()
 
         return x, y
 
-    def getPlotColour(self):
+    def get_plot_colour(self):
         return 'ro'
 
 
-def genNodeGraph(nodeType, graphType="diamond", linearCount=3):
+def gen_node_graph(node_type, graph_type="diamond", linear_count=3):
     """the basic starting points of both blueprints and modules"""
-    input = nodeType()
+    input = node_type()
 
-    if (graphType == "linear"):
-        input.addChild(nodeType())
-        input.children[0].addChild(nodeType())
+    if graph_type == "linear":
+        input.add_child(node_type())
+        input.children[0].add_child(node_type())
 
-    if (graphType == "diamond"):
-        input.addChild(nodeType())
-        input.addChild(nodeType())
-        input.children[0].addChild(nodeType())
-        input.children[1].addChild(input.children[0].children[0])
+    if graph_type == "diamond":
+        input.add_child(node_type())
+        input.add_child(node_type())
+        input.children[0].add_child(node_type())
+        input.children[1].add_child(input.children[0].children[0])
 
-    if (graphType == "triangle"):
+    if graph_type == "triangle":
         """feeds input node to a child and straight to output node"""
-        input.addChild(nodeType())
-        input.children[0].addChild(nodeType())
-        input.addChild(input.children[0].children[0])
+        input.add_child(node_type())
+        input.children[0].add_child(node_type())
+        input.add_child(input.children[0].children[0])
 
-    if (graphType == "single"):
+    if graph_type == "single":
         pass
 
     return input
