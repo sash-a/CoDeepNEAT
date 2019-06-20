@@ -19,10 +19,10 @@ class BlueprintNode(Node):
         root blueprint node
         :param generation:
         :param species_indexes:
-        :return:
+        :return: input module node
         """
-        input_module_node, index = generation.speciesCollection[
-            self.value].sample_module()  # to be added as child to existing module construct
+        # to be added as child to existing module construct
+        input_module_node, index = generation.speciesCollection[self.value].sample_module()
         output_module_node = input_module_node.get_output_node()  # many branching modules may be added to this module
 
         if module_construct is not None:
