@@ -10,10 +10,16 @@ numGenerations = 1
 currentGeneration = None
 previousGeneration = None
 
-if __name__ == '__main__':
+
+
+def main():
     print("running CDN")
 
     currentGeneration = Generation(True)
 
     for i in range(numGenerations):
         currentGeneration.evaluate()
+
+
+if __name__ == '__main__':
+    main()

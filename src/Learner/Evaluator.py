@@ -8,7 +8,7 @@ from torch.utils.data import DataLoader
 
 import time
 
-printBatchEvery = -1 # -1 to switch off batch printing
+printBatchEvery = 100 # -1 to switch off batch printing
 printEpochEvery = 1
 
 
@@ -47,7 +47,7 @@ def train(model, device, train_loader, epoch, test_loader, printAccuracy = False
         loss += m_loss.item()
 
         if(batchNo%printBatchEvery == 0 and not printBatchEvery == -1):
-            print("epoch:",epoch,"batch:",batchNo,"loss:",m_loss.item())
+            print("epoch:",epoch,"batch:",batchNo,"loss:",m_loss.item(), "running time:", time.time() - s)
         batchNo +=1
 
         #break
@@ -57,7 +57,7 @@ def train(model, device, train_loader, epoch, test_loader, printAccuracy = False
         if(printAccuracy):
             print("epoch",epoch,"average loss:", loss/batchNo,"accuracy:",test(model,device,test_loader, printAcc= False), "% time for epoch:",(endTime - s))
         else:
-            print("epoch",epoch,"average loss:", loss/batchNo,"time for epoch:",(time.time() - s))
+            print("epoch",epoch,"average loss:", loss/batchNo,"time for epoch:",(endTime - s))
 
 
 

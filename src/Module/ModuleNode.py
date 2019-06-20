@@ -29,13 +29,14 @@ class ModuleNode(Node):
         self.traversalID = ""
         self.activation =F.relu
         if(random.randint(0,0) == 0):
-            self.reduction = nn.MaxPool2d(2, 2)
+            #self.reduction = nn.MaxPool2d(2, 2)
+            pass
             #print("layer",self.traversalID,'using max pooling')
         else:
             self.reduction = None
         self.regularisation = None
 
-    def createLayers(self, inFeatures = None, outFeatures = 20, device = torch.device("cpu")):
+    def createLayers(self, inFeatures = None, outFeatures = 512, device = torch.device("cpu")):
         self.outFeatures = outFeatures
         if(self.deepLayer is None):
             if (inFeatures is None):
@@ -43,9 +44,9 @@ class ModuleNode(Node):
             else:
                 self.inFeatures = inFeatures
             self.deepLayer = nn.Conv2d(self.inFeatures, self.outFeatures, 3, 1).to(device)
-            if (random.randint(0, 1) == 0):
-                self.regularisation = nn.BatchNorm2d(outFeatures).to(device)
-
+            if (random.randint(0, 0) == 0):
+                #self.regularisation = nn.BatchNorm2d(outFeatures).to(device)
+                pass
 
             for child in self.children:
                 child.createLayers(device=device)
@@ -141,7 +142,7 @@ class ModuleNode(Node):
             return self.activation(output)
         else:
             #is conv layer - is small. needs padding
-            return F.pad(input = self.activation(output), pad = (1,1,1 ,1) , mode='constant', value=0)
+            return F.pad(input = self.activation(output), pad = (2,2,2 ,2) , mode='constant', value=0)
 
     def getParameters(self, parametersDict):
         if(not self in parametersDict):

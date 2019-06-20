@@ -1,6 +1,7 @@
 from torch import nn
 from torch import optim
 import torch
+import torch.nn.functional as F
 
 
 class ModuleNet(nn.Module):
@@ -23,7 +24,8 @@ class ModuleNet(nn.Module):
         inLayers = self.getFlatNumber(output)
         print("out = ", output.size(), "using linear layer (",inLayers,",",outputNodes,")")
 
-        self.finalLayer = nn.Linear(inLayers, outputNodes).to(device)
+        self.finalLayer = nn.Linear(inLayers, 500).to(device)
+        self.final2 = nn.Linear(500,outputNodes).to(device)
         self.dimensionalityConfigured = True
         self.outputDimensionality = outputDimensionality
 
@@ -39,7 +41,9 @@ class ModuleNet(nn.Module):
         x = self.moduleGraph.passANNInputUpGraph(x)
         if(self.dimensionalityConfigured):
             batchSize = x.size()[0]
-            x = self.finalLayer(x.view(batchSize,-1))
+            x = F.relu(self.finalLayer(x.view(batchSize,-1)))
+
+            x = self.final2(x)
             #only works with 1 output dimension
             x = x.view(batchSize, self.outputDimensionality[0].item(), -1)
 
