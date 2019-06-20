@@ -1,7 +1,9 @@
 from src.Graph.Node import Node
-
+from src.Module.ModuleNode import ModuleNode
+from torch import nn
 
 class BlueprintNode(Node):
+
     """
     Each value in a blueprint graph is a Module Species number
     """
@@ -13,29 +15,32 @@ class BlueprintNode(Node):
         self.value = 0
         self.speciesIndexesUsed = []
 
-    def parseto_module(self, generation, module_construct=None, species_indexes=None):
+    def parseto_module(self, generation, moduleConstruct=None, speciesindexes=None):
         """
-        :param module_construct: the output module node to have this newly sampled module attached to. None if this is root blueprint node
+        :param moduleConstruct: the output module node to have this newly sampled module attached to. None if this is root blueprint node
+        :return:
         """
-        # to be added as child to existing module construct
-        input_module_node, index = generation.speciesCollection[self.value].sample_module()
-        output_module_node = input_module_node.get_output_node()  # many branching modules may be added to this module
+        inputModuleNode, index = generation.speciesCollection[
+            self.value].sample_module()  # to be added as child to existing module construct
+        outputModuleNode = inputModuleNode.get_output_node()  # many branching modules may be added to this module
 
-        if module_construct is not None:
-            module_construct.add_child(input_module_node)
+        if (not moduleConstruct == None):
+            moduleConstruct.add_child(inputModuleNode)
         else:
-            if not self.is_input_node():
+            if (not self.is_input_node()):
                 print("null module construct passed to non root blueprint node")
 
-        if self.is_input_node():
+        if (self.is_input_node()):
             self.speciesIndexesUsed = []
-            species_indexes = self.speciesIndexesUsed
-            species_indexes.append(index)
+            speciesindexes = self.speciesIndexesUsed
+            speciesindexes.append(index)
 
-        # passes species index down to collect all species indexes used to construct this blueprint in one list
+
         for childBlueprintNode in self.children:
-            childBlueprintNode.parseto_module(generation, output_module_node, species_indexes)
+            childBlueprintNode.parseto_module(generation, outputModuleNode,
+                                              speciesindexes)  # passes species index down to collect all species indexes used to construct this blueprint in one list
 
-        if len(self.parents) == 0:
-            input_module_node.get_traversal_ids("_")
-            return input_module_node
+        if (len(self.parents) == 0):
+            # print("blueprint parsed. getting module node traversal ID's")
+            inputModuleNode.get_traversal_ids("_")
+            return inputModuleNode
