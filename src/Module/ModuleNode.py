@@ -4,7 +4,7 @@ import torch
 import torch.nn.functional as F
 import random
 
-random.seed(0)
+#random.seed(0)
 
 
 class ModuleNode(Node):

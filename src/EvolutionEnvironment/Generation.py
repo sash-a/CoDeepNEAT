@@ -9,7 +9,7 @@ import torch.tensor
 
 class Generation:
     numBlueprints = 1
-    numModules = 1
+    numModules = 5
 
     def __init__(self, first_gen=False, previous_generation=None):
         self.speciesNumbers = []
@@ -25,7 +25,7 @@ class Generation:
         print("initialising random population")
 
         for b in range(self.numBlueprints):
-            blueprint = Node.gen_node_graph(BlueprintNode, "linear")
+            blueprint = Node.gen_node_graph(BlueprintNode, "linear",linear_count= 6 )
             self.blueprintCollection.add(blueprint)
 
         species = Species()
@@ -37,7 +37,7 @@ class Generation:
         pass
 
     def evaluate(self, device=torch.device("cuda:0"), print_graphs = True):
-        inputs, targets = Evaluator.sample_inputs('mnist','../../data', device=device)
+        inputs, targets = Evaluator.sample_data('mnist', '../../data', device=device)
 
         for blueprint in self.blueprintCollection:
 

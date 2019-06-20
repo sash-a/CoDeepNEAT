@@ -128,11 +128,14 @@ class Node:
 
 def gen_node_graph(node_type, graph_type="diamond", linear_count=3):
     """the basic starting points of both blueprints and modules"""
+    #print("initialising graph",node_type,"of shape",graph_type)
     input = node_type()
 
     if graph_type == "linear":
-        input.add_child(node_type())
-        input.children[0].add_child(node_type())
+        head = input
+        for i in range(linear_count - 1):
+            head.add_child(node_type())
+            head = head.children[0]
 
     if graph_type == "diamond":
         input.add_child(node_type())

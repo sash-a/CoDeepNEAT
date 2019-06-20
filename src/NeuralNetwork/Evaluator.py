@@ -123,7 +123,7 @@ def evaluate(model, epochs, dataset='mnist', path='../../data', device=torch.dev
     test(model, device, test_loader)
 
 
-def sample_inputs(dataset='mnist', path='../../data', device=torch.device('cuda:0'), batchSize = 64):
+def sample_data(dataset='mnist', path='../../data', device=torch.device('cuda:0'), batchSize = 64):
     train_loader, test_loader = load_data('mnist','../../data')
     for batch_idx, (inputs, targets) in enumerate(train_loader):
         return inputs.to(device), targets.to(device)
