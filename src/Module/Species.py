@@ -27,15 +27,18 @@ class Species:
     def initialise_modules(self, num_modules):
         #print("initialising modules")
 
-        initialisation_shapes = ["triangle", "diamond", "linear"]
-        #initialisation_shapes = ["triangle", "diamond"]
+        #initialisation_shapes = ["triangle", "diamond", "linear"]
+        initialisation_shapes = ["diamond"]
 
 
         for m in range(num_modules ):
 
             shape = initialisation_shapes[randint(0, len(initialisation_shapes) - 1)]
+
             if(shape == "linear"):
-                module = Node.gen_node_graph(ModuleNode, shape, randint(1,3))
+                #module = Node.gen_node_graph(ModuleNode, shape, randint(1,3))
+                module = Node.gen_node_graph(ModuleNode, shape, 5)
+
             else:
                 module = Node.gen_node_graph(ModuleNode, shape)
 

@@ -12,8 +12,6 @@ previousGeneration = None
 
 
 def main():
-    print("running CDN")
-
     current_generation = Generation(True)
 
     for i in range(numGenerations):

@@ -25,7 +25,7 @@ class Generation:
         print("initialising random population")
 
         for b in range(self.numBlueprints):
-            blueprint = Node.gen_node_graph(BlueprintNode, "linear",linear_count= 6 )
+            blueprint = Node.gen_node_graph(BlueprintNode, "diamond",linear_count= 1 )
             self.blueprintCollection.add(blueprint)
 
         species = Species()
