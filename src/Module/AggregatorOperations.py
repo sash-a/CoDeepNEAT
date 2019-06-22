@@ -1,8 +1,27 @@
 import torch.nn.functional as F
+import torch
 
-def merge_linear_outputs(previous_num_features, previous_inputs, new_num_features, new_input):
+
+def merge_linear_outputs( previous_inputs, new_input, cat = False):
     print("merging linear layers with different feature counts")
+    if(cat):
+        previous = torch.sum(torch.stack(previous_inputs), dim=0)
+        return None, [torch.cat([previous, new_input],dim=0)]
+    else:
+        return pad_linear_outputs(previous_inputs, new_input)
 
+    
+def pad_linear_outputs(previous_inputs, new_input):
+    sizeDiff = previous_inputs[0].out_features - new_input.out_features
+    if(sizeDiff > 0):
+        #previous is larger
+        for i in range(len(previous_inputs)):
+            previous_inputs[i] = F.pad(input=previous_inputs[i], pad=sizeDiff)
+    else:
+        #new is larger
+        new_input = F.pad(input=new_input, pad= -sizeDiff)
+
+    return new_input, previous_inputs
 
 def merge_conv_outputs(previous_num_features, previous_inputs, new_num_features, new_input):
     # print("merging two diff conv tensors")

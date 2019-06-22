@@ -56,7 +56,7 @@ class AggregatorNode(Module):
         output = None
         previous_inputs = []  # method ensures that previous_inputs is always homogenous as new inputs are added
         input_type = None
-        previous_num_features = -1
+        previous_features = -1
 
         input_shapes = ""
         for parent in self.module_node_input_ids:
@@ -64,34 +64,36 @@ class AggregatorNode(Module):
             new_input = self.accountedForInputIDs[parent.traversalID]
             # combine inputs
 
-            if previous_num_features == -1:
+            if previous_features == -1:
                 # first input. no issue by default
                 input_type = type(deep_layer)
-                previous_num_features = self.get_feature_tuple(new_input)
 
             else:
                 #second input and onward
                 if type(deep_layer) == input_type:
                     # same layer type as seen up till now
-                    new_num_features = self.get_out_features(deep_layer=deep_layer), new_input.size()[2], new_input.size()[3]
+                    new_features = self.get_feature_tuple(deep_layer, new_input)
 
-                    if new_num_features == previous_num_features:
+                    if new_features == previous_features:
                         # no issue
                         pass
                     else:
                         # different input shapes
                         if input_type == nn.Conv2d:
                             # print("merging conv layers")
-                            new_input, previous_inputs = AggregatorOperations.merge_conv_outputs(previous_num_features,previous_inputs,new_num_features, new_input)
+                            new_input, previous_inputs = AggregatorOperations.merge_conv_outputs(previous_features,previous_inputs,new_features, new_input)
 
                         elif input_type == nn.Linear:
-                            new_input, previous_inputs = AggregatorOperations.merge_linear_outputs(previous_num_features,previous_inputs,new_num_features, new_input)
+                            new_input, previous_inputs = AggregatorOperations.merge_linear_outputs(previous_inputs, new_input)
                         else:
                             print("not yet implemented merge of layer type:", input_type)
                 else:
                     print("trying to merge layers of different types:", type(deep_layer), ";", input_type,
                           "this has not been implemented yet")
-            previous_inputs.append(new_input)
+
+            previous_features = self.get_feature_tuple(deep_layer, previous_inputs[0])
+            if(not new_input is None):
+                previous_inputs.append(new_input)
             input_shapes += "," + repr(new_input.size())
 
         output = torch.sum(torch.stack(previous_inputs), dim=0)
