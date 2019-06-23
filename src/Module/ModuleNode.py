@@ -128,9 +128,10 @@ class ModuleNode(Node):
             return self.activation(output)
         else:
             # is conv layer - is small. needs padding
-            xkernel,ykernel = self.deepLayer.kernel_size
-            xkernel,ykernel = (xkernel-1)//2,(ykernel-1)//2
-            return F.pad(input=self.activation(output), pad=( ykernel, ykernel, xkernel, xkernel), mode='constant', value=0)
+            xkernel, ykernel = self.deepLayer.kernel_size
+            xkernel, ykernel = (xkernel - 1) // 2, (ykernel - 1) // 2
+            return F.pad(input=self.activation(output), pad=(ykernel, ykernel, xkernel, xkernel), mode='constant',
+                         value=0)
 
     def get_parameters(self, parametersDict):
         if self not in parametersDict:
