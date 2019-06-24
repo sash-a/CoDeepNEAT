@@ -20,3 +20,5 @@ matplotlib-base
 numpy
 
 ipython
+
+pytest

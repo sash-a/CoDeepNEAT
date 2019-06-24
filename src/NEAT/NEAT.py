@@ -90,14 +90,14 @@ class NeatSpecies:
         self.representative = representative
         self.members = [representative]
 
-    def add_member(self, new_member):
-        if self.is_compatible(new_member):
+    def add_member(self, new_member, thresh=compat_thresh):
+        if self.is_compatible(new_member, thresh):
             self.members.append(new_member)
 
     def __add__(self, other):
         self.add_member(other)
 
-    def is_compatible(self, individual):
+    def is_compatible(self, individual, thresh):
         n = max(len(self.representative.connections), len(individual.connections))
         self_d, self_e = self.representative.get_disjoint_excess(individual)
         other_d, other_e = individual.get_disjoint_excess(self.representative)
@@ -106,7 +106,7 @@ class NeatSpecies:
         e = len(self_e) + len(other_e)
 
         compatibility = (d + e) / n
-        return compatibility < compat_thresh
+        return compatibility <= thresh
 
 
 def speciate(individuals):
