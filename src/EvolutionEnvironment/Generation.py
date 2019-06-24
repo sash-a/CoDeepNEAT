@@ -25,7 +25,7 @@ class Generation:
         print("initialising random population")
 
         for b in range(self.numBlueprints):
-            blueprint = Node.gen_node_graph(BlueprintNode, "diamond",linear_count= 1 )
+            blueprint = Node.gen_node_graph(BlueprintNode, "triangle",linear_count= 1 )
             self.blueprintCollection.add(blueprint)
 
         species = Species()
@@ -36,7 +36,7 @@ class Generation:
     def generate_from_previous_generation(self, previous_gen):
         pass
 
-    def evaluate(self, device=torch.device("cuda:0"), print_graphs = True):
+    def evaluate(self, device=torch.device("cuda:0"), print_graphs = False):
         inputs, targets = Evaluator.sample_data('mnist', '../../data', device=device)
 
         for blueprint in self.blueprintCollection:

@@ -28,7 +28,7 @@ class Species:
         #print("initialising modules")
 
         #initialisation_shapes = ["triangle", "diamond", "linear"]
-        initialisation_shapes = ["diamond"]
+        initialisation_shapes = ["triangle"]
 
 
         for m in range(num_modules ):

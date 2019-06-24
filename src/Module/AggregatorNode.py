@@ -59,47 +59,54 @@ class AggregatorNode(Module):
         previous_features = -1
 
         input_shapes = ""
+
+        conv_outputs = []
+        linear_outputs = []
+        outputs_deep_layers = {}
+
         for parent in self.module_node_input_ids:
+            #separte inputs by typee
             deep_layer = parent.deepLayer
             new_input = self.accountedForInputIDs[parent.traversalID]
-            # combine inputs
+            outputs_deep_layers[new_input] = deep_layer
+            if(type(deep_layer) == nn.Conv2d):
+                conv_outputs.append(new_input)
+            elif(type(deep_layer) == nn.Linear):
+                linear_outputs.append(new_input)
 
-            if previous_features == -1:
-                # first input. no issue by default
-                input_type = type(deep_layer)
+        conv_outputs = self.homogenise_outputs_list(conv_outputs, AggregatorOperations.merge_conv_outputs,outputs_deep_layers)
+        linear_outputs= self.homogenise_outputs_list(linear_outputs, AggregatorOperations.merge_linear_outputs,outputs_deep_layers)
 
-            else:
-                #second input and onward
-                if type(deep_layer) == input_type:
-                    # same layer type as seen up till now
-                    new_features = self.get_feature_tuple(deep_layer, new_input)
-
-                    if new_features == previous_features:
-                        # no issue
-                        pass
-                    else:
-                        # different input shapes
-                        if input_type == nn.Conv2d:
-                            # print("merging conv layers")
-                            new_input, previous_inputs = AggregatorOperations.merge_conv_outputs(previous_features,previous_inputs,new_features, new_input)
-
-                        elif input_type == nn.Linear:
-                            new_input, previous_inputs = AggregatorOperations.merge_linear_outputs(previous_inputs, new_input)
-                        else:
-                            print("not yet implemented merge of layer type:", input_type)
-                else:
-                    print("trying to merge layers of different types:", type(deep_layer), ";", input_type,
-                          "this has not been implemented yet")
-
-            previous_features = self.get_feature_tuple(deep_layer, previous_inputs[0])
-            if(not new_input is None):
-                previous_inputs.append(new_input)
-            input_shapes += "," + repr(new_input.size())
-
-        output = torch.sum(torch.stack(previous_inputs), dim=0)
+        output = torch.sum(torch.stack(conv_outputs), dim=0)
 
         return output
 
+    def homogenise_outputs_list(self, outputs, homogeniser, outputs_deep_layers):
+        """
 
+        :param outputs: full list of unhomogenous output tensors - of the same layer type (dimensionality)
+        :param homogeniser: the function used to return the homogenous list for this layer type
+        :param outputs_deep_layers: a map of output tensor to deep layer it came from
+        :return: a homogenous list of tensors
+        """
+        homogenous_conv_features = None
+        for i in range(len(outputs)):
+            #all list items from 0:i-1 are homogenous
+            conv_layer = outputs_deep_layers[outputs[i]]
+            if (homogenous_conv_features is None):
+                homogenous_conv_features = self.get_feature_tuple(conv_layer, outputs[i])
+                #print("setting hom features to:",homogenous_conv_features, "num outs:",len(outputs))
+            else:
+                new_conv_features = self.get_feature_tuple(conv_layer, outputs[i])
+                if (not new_conv_features == homogenous_conv_features):
+                    # either the list up till this point or the new  input needs modification
+                    if(len(outputs)>i+1):
+                        outputs = homogeniser(homogenous_conv_features,outputs[:i], new_conv_features,outputs[i]) + outputs[i+1:]
+                    else:
+                        outputs = homogeniser(homogenous_conv_features,outputs[:i], new_conv_features,outputs[i])
+
+                    #print("hom shape:",outputs[0].size(),"new shape:",outputs[i].size(), "i:",i)
+
+        return outputs
 
 

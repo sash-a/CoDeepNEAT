@@ -12,7 +12,7 @@ printBatchEvery = 150  # -1 to switch off batch printing
 print_epoch_every = 1
 
 
-def train(model, device, train_loader, epoch, test_loader, print_accuracy=False):
+def train(model, device, train_loader, epoch, test_loader, print_accuracy=True):
     """
     Run a single train epoch
 
