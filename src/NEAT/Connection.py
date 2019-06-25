@@ -1,7 +1,7 @@
 class Connection:
-    def __init__(self, in_node, out_node, connection_type=None, enabled=True, innovation=0):
-        self.in_node = in_node
-        self.out_node = out_node
+    def __init__(self, from_node, to_node, connection_type=None, enabled=True, innovation=0):
+        self.from_node = from_node
+        self.to_node = to_node
         self.connection_type = connection_type
         self.enabled = enabled
         self.innovation = innovation
@@ -10,7 +10,7 @@ class Connection:
         return 'innovation: ' + str(self.innovation)
 
     def __eq__(self, other):
-        return self.in_node == other.in_node and self.out_node == other.out_node
+        return self.from_node == other.from_node and self.to_node == other.to_node
 
     def __hash__(self):
         return self.innovation

@@ -43,7 +43,17 @@ class Genome:
         self.node_ids.add(node.id)
         self.nodes.append(node)
 
-    # TODO split into 2 methods
+    def distance_to(self, other_indv, c1=1, c2=1):
+        n = max(len(self.connections), len(other_indv.connections))
+        self_d, self_e = self.get_disjoint_excess(other_indv)
+        other_d, other_e = other_indv.get_disjoint_excess(self)
+
+        d = len(self_d) + len(other_d)
+        e = len(self_e) + len(other_e)
+
+        compatibility = (c1 * d + c2 * e) / n
+        return compatibility
+
     # This is not as efficient but it is cleaner than a single pass
     def get_disjoint_excess(self, other):
         """Finds all of self's disjoint and excess genes when compared to other"""
@@ -59,52 +69,67 @@ class Genome:
 
         return disjoint, excess
 
-    def adjust_fitness(self, fitness=None):
-        if fitness is not None:
-            self.fitness = fitness
-        # TODO
+    def _mutate_add_node(self, curr_gen_mutations: set, innov: int, node_id: int):
+        conn = random.choice(self.connections)
+        conn.enabled = False
 
-    # TODO this should not belong to Genome
-    def crossover(self, other_parent):
-        # Choosing the fittest parent
-        if other_parent.adjusted_fitness == self.adjusted_fitness:
-            best_parent = self if len(self.connections) < other_parent.connections else other_parent
+        # initially set id to -1 will be set properly bellow
+        mutated_node = Node(-1, conn.from_node.midpoint(conn.to_node))
+        mutated_from_conn = Connection(conn.in_node, mutated_node)
+        mutated_to_conn = Connection(mutated_node, conn.out_node)
+
+        mutation = NodeMutation(mutated_node.id, mutated_from_conn.innovation, mutated_to_conn.innovation)
+        # New mutation
+        if mutation not in curr_gen_mutations:
+            innov += 1
+            mutated_from_conn.innovation = innov
+            innov += 1
+            mutated_to_conn.innovation = innov
+            node_id += 1
+            mutated_node.id = node_id
+
+            curr_gen_mutations.add(mutated_node)
+        # Mutation has already been done
         else:
-            best_parent = self if self.fitness > other_parent.fitness else other_parent
+            for prev_mutation in curr_gen_mutations:
+                if mutation == prev_mutation:
+                    # Use previous innovation numbers
+                    mutated_from_conn.innovation = prev_mutation.from_conn.innovation
+                    mutated_to_conn.innovation = prev_mutation.to_conn.innovation
+                    mutated_node.id = prev_mutation.node_id
+                    break
 
-        # disjoint + excess are inherited from the most fit parent
-        d, e = best_parent.get_disjoint_excess(self)  # TODO create copy
-        child = Genome(d + e, list(set(self.nodes + other_parent.nodes)))
+        self.add_connection(mutated_from_conn)
+        self.add_connection(mutated_to_conn)
+        self.add_node(mutated_node)
 
-        for conn in self.connections:
-            if conn.innovation in other_parent.innov_nums:
-                other_conn = other_parent.get_connection(conn.innovation)  # TODO create copy
-                child.add_connection(random.choice([conn, other_conn]))
+    def _mutate_connection(self, curr_gen_mutations: set, innov: int):
+        node1 = random.choice(self.nodes)
+        node2 = random.choice(self.nodes)
 
-        return child
+        from_node, to_node = (node1, node2) if node1.x < node2.x else (node2, node1)
+        mutated_conn = Connection(from_node, to_node)
+        # Make sure nodes aren't equal and there isn't already a connection between them
+        if node1 == node2 or mutated_conn in self.connections or Connection(to_node, from_node) in self.connections:
+            return self
 
-    def mutate(self, curr_gen_mutations: set, node_chance=0.03, conn_chance=0.5):
+        # Check if the connection exist
+        mutation = ConnectionMutation(mutated_conn)
+        if mutation not in curr_gen_mutations:
+            innov += 1
+            mutated_conn.innovation = innov
+        else:
+            for prev_mutation in curr_gen_mutations:
+                if mutation == prev_mutation:
+                    mutated_conn.innovation = prev_mutation.conn.innovation
+                    break
+
+        self.add_connection(mutated_conn)
+
+    def mutate(self, curr_gen_mutations: set, innov: int, node_id: int, node_chance=0.03, conn_chance=0.5):
         chance = random.randint(0, 1)
 
-        # Add a new node
-        if chance < node_chance:
-            conn = random.choice(self.connections)
-            conn.enabled = False
-            # TODO innovation numbers and node ID
-            mutated_node = Node(1)  # TODO global ID
-            conn_from = Connection(conn.in_node, mutated_node)
-            conn_to = Connection(mutated_node, conn.out_node)
-
-            self.add_connection(conn_from)
-            self.add_connection(conn_to)
-            self.add_node(mutated_node)
-
-            return NodeMutation(mutated_node.id, conn_from.innovation, conn_to.innovation)
-        # Add a new connection
-        elif chance > conn_chance:
-            node1 = random.choice(self.nodes)
-            node2 = random.choice(self.nodes)
-
-            if node1 != node2:  # and there is not already a connection and connection does not create cycle
-                # create connection (direction?)
-                pass
+        if chance < node_chance:  # Add a new node
+            self._mutate_add_node(curr_gen_mutations, innov, node_id)
+        elif chance > conn_chance:  # Add a new connection
+            self._mutate_connection(curr_gen_mutations, innov)
