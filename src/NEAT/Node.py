@@ -18,4 +18,10 @@ class Node:
         return mn + abs(self.x - other.x) / 2
 
     def __eq__(self, other):
-        return other.id == self.id
+        return other.id == self.id and self.x == other.x
+
+    def __hash__(self):
+        return self.id
+
+    def __repr__(self):
+        return str(self.id)

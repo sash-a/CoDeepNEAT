@@ -6,12 +6,12 @@ from src.NEAT.Genotype import Genome
 
 def crossover(parent1, parent2):
     # Choosing the fittest parent
-    if parent1.adjusted_fitness == parent2.adjusted_fitness:  # if the fitness is the same choose the shortest
+    if parent1.fitness == parent2.fitness:  # if the fitness is the same choose the shortest
         best_parent, worst_parent = (parent2, parent1) \
             if len(parent2.connections) < len(parent1.connections) else (parent1, parent2)
     else:
         best_parent, worst_parent = (parent2, parent1) \
-            if parent2.adjusted_fitness > parent1.adjusted_fitness else (parent1, parent2)
+            if parent2.fitness > parent1.fitness else (parent1, parent2)
 
     # disjoint + excess are inherited from the most fit parent
     d, e = copy.deepcopy(best_parent.get_disjoint_excess(worst_parent))

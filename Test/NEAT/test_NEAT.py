@@ -1,8 +1,11 @@
-from src.NEAT.Connection import Connection
+import random
 
+from src.NEAT.Connection import Connection
 from src.NEAT.Node import Node, NodeType
 from src.NEAT.Genotype import Genome
 from src.NEAT.Species import Species
+from src.NEAT.Mutation import ConnectionMutation, NodeMutation
+from src.NEAT.Crossover import crossover
 
 nodes = [Node(0, 0, NodeType.INPUT),
          Node(1, 0, NodeType.INPUT),
@@ -85,12 +88,90 @@ def test_is_compatible():
 
 
 def test_mutation():
-    pass
+    # Add node
+    g = Genome(connections, nodes)
+    current_gen_mutations = set()
+
+    n_innov, n_node_id = g._mutate_add_node(connections[2], current_gen_mutations, 3, 4)
+    expected_node = Node(5, 1)
+    expected_from_conn = Connection(nodes[2], expected_node)
+    expected_to_conn = Connection(expected_node, nodes[4])
+
+    assert expected_node in g.nodes
+    assert expected_from_conn in g.connections
+    assert expected_to_conn in g.connections
+    assert not connections[2].enabled
+    assert n_innov == 5
+    assert n_node_id == 5
+
+    # Add connection
+    n_innov = g._mutate_connection(nodes[2], nodes[3], current_gen_mutations, 5)
+    expected_conn = Connection(nodes[2], nodes[3])
+    assert expected_conn in g.connections
+    assert n_innov == 6
+
+    # Innovation numbers shouldnt increase mutation already exists
+    fake_node = Node(6, 0.5)
+    fake_connection_from = Connection(nodes[0], fake_node, innovation=7)
+    fake_connection_to = Connection(fake_node, nodes[3], innovation=8)
+    fake_mutation = NodeMutation(fake_node.id, fake_connection_from, fake_connection_to)
+
+    current_gen_mutations.add(fake_mutation)
+
+    n_innov, n_node_id = g._mutate_add_node(connections[0], current_gen_mutations, 8, 5)
+    assert n_innov == 8
+    assert n_node_id == 5
+    assert fake_node in g.nodes
+    assert fake_connection_to in g.connections
+    assert fake_connection_from in g.connections
 
 
 def test_crossover():
-    pass
+    # g1 and g2 have no overlapping genes
+    g1 = Genome([connections[1], connections[3]], nodes)
+    g2 = Genome([connections[0], connections[2]], nodes)
+    g1.fitness = 10
+    g2.fitness = 1
+
+    child = crossover(g1, g2)
+    assert child.connections == g1.connections
+    assert child.connections != g2.connections
+
+    g3 = Genome(connections, nodes)
+    g3.fitness = 10
+    child = crossover(g3, g2)
+    assert child.connections == connections
+
+    g2.fitness = 11
+    child = crossover(g3, g2)
+    assert child.connections == g2.connections
+
+    # Cannot test randomness
 
 
 def test_mutation_hashing():
-    pass
+    # Connection mutation
+    c1 = ConnectionMutation(connections[0])
+    c1_fake = ConnectionMutation(Connection(nodes[0], nodes[3], innovation=150))
+
+    c2 = ConnectionMutation(connections[1])
+
+    # Node Mutation
+    n1 = NodeMutation(nodes[3], connections[0], connections[3])
+    n1_fake = NodeMutation(nodes[3],
+                           Connection(nodes[0], nodes[3], innovation=11),
+                           Connection(nodes[3], nodes[4], innovation=10))
+
+    n2 = NodeMutation(nodes[3], connections[1], connections[3])
+
+    s = set()
+    s.add(c1)
+    s.add(n1)
+
+    assert c1 in s
+    assert c1_fake in s
+    assert c2 not in s
+
+    assert n1 in s
+    assert n1_fake in s
+    assert n2 not in s

@@ -69,16 +69,15 @@ class Genome:
 
         return disjoint, excess
 
-    def _mutate_add_node(self, curr_gen_mutations: set, innov: int, node_id: int):
-        conn = random.choice(self.connections)
+    def _mutate_add_node(self, conn: Connection, curr_gen_mutations: set, innov: int, node_id: int):
         conn.enabled = False
 
-        # initially set id to -1 will be set properly bellow
-        mutated_node = Node(-1, conn.from_node.midpoint(conn.to_node))
-        mutated_from_conn = Connection(conn.in_node, mutated_node)
-        mutated_to_conn = Connection(mutated_node, conn.out_node)
+        mutated_node = Node(node_id + 1, conn.from_node.midpoint(conn.to_node))
+        mutated_from_conn = Connection(conn.from_node, mutated_node)
+        mutated_to_conn = Connection(mutated_node, conn.to_node)
 
-        mutation = NodeMutation(mutated_node.id, mutated_from_conn.innovation, mutated_to_conn.innovation)
+        mutation = NodeMutation(mutated_node.id, mutated_from_conn, mutated_to_conn)
+
         # New mutation
         if mutation not in curr_gen_mutations:
             innov += 1
@@ -103,10 +102,9 @@ class Genome:
         self.add_connection(mutated_to_conn)
         self.add_node(mutated_node)
 
-    def _mutate_connection(self, curr_gen_mutations: set, innov: int):
-        node1 = random.choice(self.nodes)
-        node2 = random.choice(self.nodes)
+        return innov, node_id
 
+    def _mutate_connection(self, node1: Node, node2: Node, curr_gen_mutations: set, innov: int):
         from_node, to_node = (node1, node2) if node1.x < node2.x else (node2, node1)
         mutated_conn = Connection(from_node, to_node)
         # Make sure nodes aren't equal and there isn't already a connection between them
@@ -125,11 +123,12 @@ class Genome:
                     break
 
         self.add_connection(mutated_conn)
+        return innov
 
     def mutate(self, curr_gen_mutations: set, innov: int, node_id: int, node_chance=0.03, conn_chance=0.5):
         chance = random.randint(0, 1)
 
         if chance < node_chance:  # Add a new node
-            self._mutate_add_node(curr_gen_mutations, innov, node_id)
+            self._mutate_add_node(random.choice(self.connections), curr_gen_mutations, innov, node_id)
         elif chance > conn_chance:  # Add a new connection
-            self._mutate_connection(curr_gen_mutations, innov)
+            self._mutate_connection(random.choice(self.nodes), random.choice(self.nodes), curr_gen_mutations, innov)

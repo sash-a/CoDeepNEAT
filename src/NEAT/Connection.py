@@ -7,7 +7,7 @@ class Connection:
         self.innovation = innovation
 
     def __repr__(self):
-        return 'innovation: ' + str(self.innovation)
+        return 'from: ' + str(self.from_node) + ' to: ' + str(self.to_node)
 
     def __eq__(self, other):
         return self.from_node == other.from_node and self.to_node == other.to_node
