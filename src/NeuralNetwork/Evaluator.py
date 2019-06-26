@@ -5,6 +5,7 @@ from torch import no_grad, nn
 import torch.nn.functional as F
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
+from src.DataAugmentation import placeholder
 
 import time
 
@@ -32,6 +33,7 @@ def train(model, device, train_loader, epoch, test_loader, print_accuracy=True):
     for batch_idx, (inputs, targets) in enumerate(train_loader):
         inputs, targets = inputs.to(device), targets.to(device)
         model.optimizer.zero_grad()
+        augmented_inputs, augmented_labels = placeholder.augment_batch(inputs,targets)
 
         output = model(inputs)
         m_loss = model.loss_fn(output, targets.float())
@@ -39,6 +41,12 @@ def train(model, device, train_loader, epoch, test_loader, print_accuracy=True):
         model.optimizer.step()
 
         loss += m_loss.item()
+
+        if(not augmented_inputs is None):
+            output = model(augmented_inputs)
+            m_loss = model.loss_fn(output, augmented_labels.float())
+            m_loss.backward()
+            model.optimizer.step()
 
         if batch_idx % printBatchEvery == 0 and not printBatchEvery == -1:
             print("\tepoch:", epoch, "batch:", batch_idx, "loss:", m_loss.item(), "running time:", time.time() - s)

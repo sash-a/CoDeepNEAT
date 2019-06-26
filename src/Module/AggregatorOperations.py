@@ -1,6 +1,34 @@
 import torch.nn.functional as F
 import torch
+from src.Utilities import Utils
+import math
 
+def merge_linear_and_conv(linear, conv, lossy= True):
+    """takes in a single linear shaped tensor and a single conv2d shaped tensor and merges them"""
+    if(lossy):
+        #reduce conv features until it can be reshaped to match dimensionality of linear - then sum
+        conv_features = Utils.get_tensor_flat_number(conv)
+        linear_features = linear.size()[1].item()
+
+        if(conv_features > linear_features):
+            reduction_factor = math.ceil(math.pow(conv_features/linear_features, 0.5))#square root because max pool reduces on two dims x*y
+            if(reduction_factor > 3):
+                print("lossy merge of conv+linear has reduction factor of:",reduction_factor)
+            batch_size = conv.size()[0].item()
+            conv = F.max_pool2d(conv, kernel_size = (reduction_factor, reduction_factor)).view(batch_size,-1)
+            conv_features = conv.size()[1].item()
+
+            if(conv_features > linear_features):
+                print("error: reduced conv in lossy merge with linear. but conv still has more features")
+                return
+
+        featureDiff = linear_features - conv_features
+        conv = F.pad(input=conv, pad=(featureDiff//2, featureDiff - featureDiff//2))
+        return torch.sum(torch.stack([conv, linear],dim=0))
+
+    else:
+        #use an additional linear layer to map the conv features to a linear the same shape as the given linear
+        pass
 
 def merge_linear_outputs( previous_inputs, new_input, cat = False):
     print("merging linear layers with different feature counts")

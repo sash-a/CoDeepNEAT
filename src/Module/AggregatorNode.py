@@ -53,16 +53,12 @@ class AggregatorNode(Module):
             return out
 
     def pass_input_through_layer(self, _):
-        output = None
-        previous_inputs = []  # method ensures that previous_inputs is always homogenous as new inputs are added
-        input_type = None
-        previous_features = -1
-
-        input_shapes = ""
-
         conv_outputs = []
         linear_outputs = []
         outputs_deep_layers = {}
+
+        has_linear = False
+        has_conv = False
 
         for parent in self.module_node_input_ids:
             #separte inputs by typee
@@ -71,15 +67,25 @@ class AggregatorNode(Module):
             outputs_deep_layers[new_input] = deep_layer
             if(type(deep_layer) == nn.Conv2d):
                 conv_outputs.append(new_input)
+                has_conv=True
             elif(type(deep_layer) == nn.Linear):
                 linear_outputs.append(new_input)
+                has_linear = True
 
-        conv_outputs = self.homogenise_outputs_list(conv_outputs, AggregatorOperations.merge_conv_outputs,outputs_deep_layers)
-        linear_outputs= self.homogenise_outputs_list(linear_outputs, AggregatorOperations.merge_linear_outputs,outputs_deep_layers)
+        if(has_linear and not has_conv):
+            linear_outputs = self.homogenise_outputs_list(linear_outputs, AggregatorOperations.merge_linear_outputs,outputs_deep_layers)
+            return torch.sum(torch.stack(linear_outputs), dim=0)
+        elif(has_conv and not has_linear):
+            conv_outputs = self.homogenise_outputs_list(conv_outputs, AggregatorOperations.merge_conv_outputs,outputs_deep_layers)
+            return torch.sum(torch.stack(conv_outputs), dim=0)
+        elif(has_linear and has_conv):
+            linear_outputs = self.homogenise_outputs_list(linear_outputs, AggregatorOperations.merge_linear_outputs,outputs_deep_layers)
+            conv_outputs = self.homogenise_outputs_list(conv_outputs, AggregatorOperations.merge_conv_outputs,outputs_deep_layers)
+            return AggregatorOperations.merge_linear_and_conv(torch.sum(torch.stack(linear_outputs), dim=0),torch.sum(torch.stack(conv_outputs), dim=0) )
+        else:
+            print("error - agg node received neither conv or linear inputs")
+            return None
 
-        output = torch.sum(torch.stack(conv_outputs), dim=0)
-
-        return output
 
     def homogenise_outputs_list(self, outputs, homogeniser, outputs_deep_layers):
         """
