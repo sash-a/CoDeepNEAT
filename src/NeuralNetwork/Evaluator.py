@@ -128,7 +128,7 @@ def evaluate(model, epochs, dataset='mnist', path='../../data', device=torch.dev
     e = time.time()
 
     print('Took:', e - s, 'seconds')
-    test(model, device, test_loader)
+    return test(model, device, test_loader)
 
 
 def sample_data(dataset='mnist', path='../../data', device=torch.device('cuda:0'), batchSize = 64):

@@ -7,7 +7,7 @@ class NodeType(Enum):
     OUTPUT = 2
 
 
-class Node:
+class NEATNode:
     def __init__(self, id, x, node_type=NodeType.HIDDEN):
         self.id = id
         self.x = x

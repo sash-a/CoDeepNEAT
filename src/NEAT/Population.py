@@ -1,5 +1,5 @@
 from src.NEAT.Connection import Connection
-from src.NEAT.Node import Node, NodeType
+from src.NEAT.NEATNode import NEATNode, NodeType
 from src.NEAT.Genotype import Genome
 from src.NEAT.Species import Species
 from src.NEAT.Crossover import crossover
@@ -118,7 +118,7 @@ class Population:
 
 
 def main():
-    nodes = [Node(0, NodeType.INPUT), Node(1, NodeType.HIDDEN), Node(2, NodeType.OUTPUT)]
+    nodes = [NEATNode(0, NodeType.INPUT), NEATNode(1, NodeType.HIDDEN), NEATNode(2, NodeType.OUTPUT)]
     connections = \
         [
             Connection(nodes[0], nodes[1], innovation=0),

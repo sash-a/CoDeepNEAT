@@ -1,7 +1,6 @@
 from src.Module.Species import Species
 from src.Blueprint.Blueprint import BlueprintNode
 from src.Graph import Node
-from src.NeuralNetwork.Net import ModuleNet
 
 from src.NeuralNetwork import Evaluator
 import torch.tensor
@@ -36,6 +35,7 @@ class Generation:
         self.speciesNumbers.append(species.speciesNumber)
 
     def generate_from_previous_generation(self, previous_gen):
+        print("generating new generation from previous")
         pass
 
     def evaluate(self, device=torch.device("cuda:0"), print_graphs = False):
@@ -55,17 +55,9 @@ class Generation:
         for blueprint in self.blueprintCollection:
 
             module_graph = blueprint.parseto_module(self)
-            module_graph.create_layers(in_features=1, device=device)
-            module_graph.insert_aggregator_nodes()
-            if(print_graphs):
-                module_graph.plot_tree()
-
-            net = ModuleNet(module_graph).to(device)
+            net = module_graph.toNN(in_features=1, device=device)
             net.specify_output_dimensionality(inputs, device=device)
 
+            acc = Evaluator.evaluate(net, 15, dataset='mnist', path='../../data', device=device, batch_size= 256)
 
-            Evaluator.evaluate(net, 15, dataset='mnist', path='../../data', device=device, batch_size= 256)
-            #batchsize:128, time:255, max GPU: 12, acc: 97.5
-            #batchsize:256, time:217, max GPU: 12, acc: 96.5
-            #batchsize:512, time:216, max GPU: 12, acc: 94.5
 

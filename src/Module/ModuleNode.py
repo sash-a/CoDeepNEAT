@@ -3,6 +3,8 @@ import torch.nn as nn
 import torch
 import torch.nn.functional as F
 import random
+from src.NeuralNetwork.Net import ModuleNet
+
 
 #random.seed(0)
 
@@ -34,6 +36,13 @@ class ModuleNode(Node):
         else:
             self.reduction = None
         self.regularisation = None
+
+    def toNN(self, in_features, device ,print_graphs=False):
+        self.create_layers(in_features=in_features, device=device)
+        self.insert_aggregator_nodes()
+        if (print_graphs):
+            self.plot_tree()
+        return ModuleNet(self).to(device)
 
     def create_layers(self, in_features=None, out_features=25, device=torch.device("cpu")):
         self.outFeatures = out_features

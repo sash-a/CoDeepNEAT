@@ -1,10 +1,11 @@
 import random
 from src.NEAT.Connection import Connection
-from src.NEAT.Node import Node
+from src.NEAT.NEATNode import NEATNode
 from src.NEAT.Mutation import NodeMutation, ConnectionMutation
 
 
 class Genome:
+
     def __init__(self, connections, nodes):
         self.fitness = 0
         self.adjusted_fitness = 0
@@ -72,7 +73,7 @@ class Genome:
     def _mutate_add_node(self, conn: Connection, curr_gen_mutations: set, innov: int, node_id: int):
         conn.enabled = False
 
-        mutated_node = Node(node_id + 1, conn.from_node.midpoint(conn.to_node))
+        mutated_node = NEATNode(node_id + 1, conn.from_node.midpoint(conn.to_node))
         mutated_from_conn = Connection(conn.from_node, mutated_node)
         mutated_to_conn = Connection(mutated_node, conn.to_node)
 
@@ -104,7 +105,7 @@ class Genome:
 
         return innov, node_id
 
-    def _mutate_connection(self, node1: Node, node2: Node, curr_gen_mutations: set, innov: int):
+    def _mutate_connection(self, node1: NEATNode, node2: NEATNode, curr_gen_mutations: set, innov: int):
         from_node, to_node = (node1, node2) if node1.x < node2.x else (node2, node1)
         mutated_conn = Connection(from_node, to_node)
         # Make sure nodes aren't equal and there isn't already a connection between them
