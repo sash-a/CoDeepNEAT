@@ -9,6 +9,7 @@ import random
 
 
 class Population:
+
     def __init__(self, nodes: dict, connections: set, population: list, curr_innov, max_node_id):
         """
         :param nodes: dictionary mapping node IDs to nodes

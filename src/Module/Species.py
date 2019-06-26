@@ -12,7 +12,7 @@ class Species:
     """
 
     moduleCollection = []
-    speciesNumber = -1
+    speciesNumber = 0
 
     def __init__(self):
         global speciesCounter

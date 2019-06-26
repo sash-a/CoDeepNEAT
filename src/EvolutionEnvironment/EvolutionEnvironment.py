@@ -16,6 +16,8 @@ def main():
 
     for i in range(numGenerations):
         current_generation.evaluate()
+        previousGeneration = currentGeneration
+        currentGeneration = Generation(previousGeneration)
 
 
 if __name__ == '__main__':

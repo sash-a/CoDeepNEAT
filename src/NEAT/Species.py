@@ -2,6 +2,7 @@ import src.NEAT.NeatProperties as Props
 
 
 class Species:
+
     def __init__(self, representative):
         self.representative = representative
         self.members = [representative]
