@@ -4,7 +4,7 @@ import torch
 import torch.nn.functional as F
 import random
 
-random.seed(0)
+#random.seed(0)
 
 
 class ModuleNode(Node):
@@ -158,12 +158,23 @@ class ModuleNode(Node):
         else:
             return out
 
+    def get_plot_colour(self):
+        # print("plotting agg node")
+        if (self.deepLayer is None):
+            return "rs"
+        if (type(self.deepLayer) == nn.Conv2d):
+            return "go"
+        elif (type(self.deepLayer) == nn.Linear):
+            return "co"
+
     def get_dimensionality(self):
         print("need to implement get dimensionality")
         # 10*10 because by the time the 28*28 has gone through all the convs - it has been reduced to 10810
         return 10 * 10 * self.deepLayer.out_channels
 
     def get_out_features(self, deep_layer=None):
+        """:returns out_channels if deep_layer is a Conv2d | out_features if deep_layer is Linear
+        :parameter deep_layer: if none - performs operation on this nodes deep_layer, else performs on the provided layer"""
         if deep_layer is None:
             deep_layer = self.deepLayer
 
@@ -176,3 +187,10 @@ class ModuleNode(Node):
             return None
 
         return num_features
+
+    def get_feature_tuple(self, deep_layer, new_input):
+        """:returns channelsOut,x,y if Conv2D | out_features if Linear"""
+        if(type(deep_layer) == nn.Conv2d):
+            return self.get_out_features(deep_layer=deep_layer), new_input.size()[2], new_input.size()[3]
+        elif(type(deep_layer) == nn.Linear):
+            return self.get_out_features(deep_layer=deep_layer)

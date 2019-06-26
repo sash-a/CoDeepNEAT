@@ -2,6 +2,7 @@ from src.Module.ModuleNode import ModuleNode as Module
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from src.Module import AggregatorOperations
 
 
 class AggregatorNode(Module):
@@ -34,6 +35,10 @@ class AggregatorNode(Module):
         """
         self.accountedForInputIDs = {}
 
+    def get_plot_colour(self):
+        return 'bo'
+
+
     def pass_ann_input_up_graph(self, input, parent_id=""):
         self.accountedForInputIDs[parent_id] = input
 
@@ -48,117 +53,66 @@ class AggregatorNode(Module):
             return out
 
     def pass_input_through_layer(self, _):
-        output = None
-        inputs = []  # method ensures that inputs is always homogenous as new inputs are added
-        input_type = None
-        num_features = -1
+        conv_outputs = []
+        linear_outputs = []
+        outputs_deep_layers = {}
 
-        input_shapes = ""
+        has_linear = False
+        has_conv = False
+
         for parent in self.module_node_input_ids:
+            #separte inputs by typee
             deep_layer = parent.deepLayer
-            input = self.accountedForInputIDs[parent.traversalID]
-            # combine inputs
+            new_input = self.accountedForInputIDs[parent.traversalID]
+            outputs_deep_layers[new_input] = deep_layer
+            if(type(deep_layer) == nn.Conv2d):
+                conv_outputs.append(new_input)
+                has_conv=True
+            elif(type(deep_layer) == nn.Linear):
+                linear_outputs.append(new_input)
+                has_linear = True
 
-            if input_type is None:
-                # first input. no issue by default
-                input_type = type(deep_layer)
-                num_features = self.get_out_features(deep_layer=parent.deepLayer), input.size()[2], input.size()[3]
-            else:
-                if type(deep_layer) == input_type:
-                    # same layer type as seen up till now
-                    new_num_features = self.get_out_features(deep_layer=deep_layer), input.size()[2], input.size()[3]
-
-                    if new_num_features == num_features:
-                        # no issue can sum
-                        pass
-                    else:
-                        # different input shapes
-                        if input_type == nn.Conv2d:
-                            # print("merging conv layers")
-                            input, inputs = self.merge_conv_outputs(num_features, new_num_features, input, inputs)
-
-                        elif input_type == nn.Linear:
-                            print("merging linear layers with different layer counts")
-                        else:
-                            print("not yet implemented merge of layer type:", input_type)
-                else:
-                    print("trying to merge layers of different types:", type(deep_layer), ";", input_type,
-                          "this has not been implemented yet")
-            inputs.append(input)
-            input_shapes += "," + repr(input.size())
-
-        output = torch.sum(torch.stack(inputs), dim=0)
-
-        return output
-
-    def get_plot_colour(self):
-        return 'bo'
-
-    # TODO only do this check on the first pass through
-    def merge_conv_outputs(self, num_features, new_num_features, input, inputs):
-        # print("merging two diff conv tensors")
-        # conv layers here do not have
-        channels1, x1, y1 = num_features
-        channels2, x2, y2 = new_num_features
-        if channels1 != channels2:
-            print("trying to merge two conv layers with differing numbers of channels :", channels1, channels2)
-            return
+        if(has_linear and not has_conv):
+            linear_outputs = self.homogenise_outputs_list(linear_outputs, AggregatorOperations.merge_linear_outputs,outputs_deep_layers)
+            return torch.sum(torch.stack(linear_outputs), dim=0)
+        elif(has_conv and not has_linear):
+            conv_outputs = self.homogenise_outputs_list(conv_outputs, AggregatorOperations.merge_conv_outputs,outputs_deep_layers)
+            return torch.sum(torch.stack(conv_outputs), dim=0)
+        elif(has_linear and has_conv):
+            linear_outputs = self.homogenise_outputs_list(linear_outputs, AggregatorOperations.merge_linear_outputs,outputs_deep_layers)
+            conv_outputs = self.homogenise_outputs_list(conv_outputs, AggregatorOperations.merge_conv_outputs,outputs_deep_layers)
+            return AggregatorOperations.merge_linear_and_conv(torch.sum(torch.stack(linear_outputs), dim=0),torch.sum(torch.stack(conv_outputs), dim=0) )
         else:
-            size_ratio = (x1 + y1) / (x2 + y2)
-            if size_ratio < 1:
-                size_ratio = 1 / size_ratio
+            print("error - agg node received neither conv or linear inputs")
+            return None
 
-            if round(size_ratio) > 1:
-                # tensors are significantly different - should use a maxPool here to shrink the larger of the two
-                if (x1 + y1) > (x2 + y2):
-                    # previous inputs must be pooled
-                    for i in range(len(inputs)):
-                        inputs[i] = F.max_pool2d(inputs[i], kernel_size=(round(size_ratio), round(size_ratio)))
-                        num_features = channels1, inputs[i].size()[2], inputs[i].size()[3]
 
-                else:
-                    input = F.max_pool2d(input, kernel_size=(round(size_ratio), round(size_ratio)))
-                    new_num_features = channels2, input.size()[2], input.size()[3]
+    def homogenise_outputs_list(self, outputs, homogeniser, outputs_deep_layers):
+        """
 
-                channels1, x1, y1 = num_features
-                channels2, x2, y2 = new_num_features
-                if x1 != x2 or y1 != y2:
-                    input, inputs = self.pad_conv_input(x1, x2, y1, y2, input, inputs)
-
+        :param outputs: full list of unhomogenous output tensors - of the same layer type (dimensionality)
+        :param homogeniser: the function used to return the homogenous list for this layer type
+        :param outputs_deep_layers: a map of output tensor to deep layer it came from
+        :return: a homogenous list of tensors
+        """
+        homogenous_conv_features = None
+        for i in range(len(outputs)):
+            #all list items from 0:i-1 are homogenous
+            conv_layer = outputs_deep_layers[outputs[i]]
+            if (homogenous_conv_features is None):
+                homogenous_conv_features = self.get_feature_tuple(conv_layer, outputs[i])
+                #print("setting hom features to:",homogenous_conv_features, "num outs:",len(outputs))
             else:
-                # tensors are similar size - can be padded
-                input, inputs = self.pad_conv_input(x1, x2, y1, y2, input, inputs)
+                new_conv_features = self.get_feature_tuple(conv_layer, outputs[i])
+                if (not new_conv_features == homogenous_conv_features):
+                    # either the list up till this point or the new  input needs modification
+                    if(len(outputs)>i+1):
+                        outputs = homogeniser(homogenous_conv_features,outputs[:i], new_conv_features,outputs[i]) + outputs[i+1:]
+                    else:
+                        outputs = homogeniser(homogenous_conv_features,outputs[:i], new_conv_features,outputs[i])
 
-        return input, inputs
+                    #print("hom shape:",outputs[0].size(),"new shape:",outputs[i].size(), "i:",i)
 
-    def pad_conv_input(self, x1, x2, y1, y2, new_input, inputs):
-        if x1 < x2:
-            # previous inputs are smalller on the x axis
-            left_pad = (x2 - x1) // 2
-            right_pad = (x2 - x1) - left_pad
-            for i in range(len(inputs)):
-                inputs[i] = F.pad(input=inputs[i], pad=(0, 0, left_pad, right_pad), mode='constant', value=0)
+        return outputs
 
-        elif x2 < x1:
-            # new found input is smaller on x than previous
-            left_pad = (x1 - x2) // 2
-            right_pad = (x1 - x2) - left_pad
 
-            new_input = F.pad(input=new_input, pad=(0, 0, left_pad, right_pad), mode='constant', value=0)
-
-        if y1 < y2:
-            # previous inputs are smalller on the x axis
-            left_pad = (y2 - y1) // 2
-            right_pad = (y2 - y1) - left_pad
-            for i in range(len(inputs)):
-                inputs[i] = F.pad(input=inputs[i], pad=(left_pad, right_pad),
-                                  mode='constant', value=0)
-
-        elif y2 < y1:
-            # new found input is smaller on x than previous
-            left_pad = (y1 - y2) // 2
-            right_pad = (y1 - y2) - left_pad
-
-            new_input = F.pad(input=new_input, pad=(left_pad, right_pad), mode='constant', value=0)
-
-        return new_input, inputs

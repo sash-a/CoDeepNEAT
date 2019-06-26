@@ -95,6 +95,14 @@ class Node:
         y = len(self.traversalID)
         x = 0
 
+        count = 0
+        for id in self.traversalID.split(","):
+            if(id == "_"):
+                continue
+            y+= int(id)*count
+            count+=1
+
+
         for i in range(4):
             x += self.traversalID.count(repr(i)) * i
 
@@ -126,25 +134,34 @@ class Node:
         return 'ro'
 
 
-def gen_node_graph(node_type, graph_type="diamond", linear_count=3):
+def gen_node_graph(node_type, graph_type="diamond", linear_count=1):
     """the basic starting points of both blueprints and modules"""
+    #print("initialising graph",node_type,"of shape",graph_type)
     input = node_type()
 
     if graph_type == "linear":
-        input.add_child(node_type())
-        input.children[0].add_child(node_type())
+        head = input
+        for i in range(linear_count - 1):
+            head.add_child(node_type())
+            head = head.children[0]
 
     if graph_type == "diamond":
-        input.add_child(node_type())
-        input.add_child(node_type())
-        input.children[0].add_child(node_type())
-        input.children[1].add_child(input.children[0].children[0])
+        head = input
+        for i in range(linear_count):
+            head.add_child(node_type())
+            head.add_child(node_type())
+            head.children[0].add_child(node_type())
+            head.children[1].add_child(head.children[0].children[0])
+            head = head.children[0].children[0]
 
     if graph_type == "triangle":
         """feeds input node to a child and straight to output node"""
-        input.add_child(node_type())
-        input.children[0].add_child(node_type())
-        input.add_child(input.children[0].children[0])
+        head = input
+        for i in range(linear_count):
+            head.add_child(node_type())
+            head.children[0].add_child(node_type())
+            head.add_child(head.children[0].children[0])
+            head = head.children[0].children[0]
 
     if graph_type == "single":
         pass
