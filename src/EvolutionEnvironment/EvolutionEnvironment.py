@@ -12,12 +12,12 @@ previousGeneration = None
 
 
 def main():
-    current_generation = Generation(True)
+    current_generation = Generation()
 
     for i in range(numGenerations):
         current_generation.evaluate()
-        previousGeneration = currentGeneration
-        currentGeneration = Generation(previousGeneration)
+        currentGeneration.step()
+
 
 
 if __name__ == '__main__':

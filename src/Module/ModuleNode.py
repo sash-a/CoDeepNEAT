@@ -35,7 +35,7 @@ class ModuleNode(Node):
             pass
         else:
             self.reduction = None
-        self.regularisation = None
+            self.regularisation = None
 
     def toNN(self, in_features, device ,print_graphs=False):
         self.create_layers(in_features=in_features, device=device)

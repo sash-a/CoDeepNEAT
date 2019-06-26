@@ -18,6 +18,7 @@ class Genome:
         for connection in connections:
             self.add_connection(connection)
 
+
     def add_connection(self, new_connection):
         """Adds a new connection maintaining the order of the connections list"""
         pos = 0
@@ -127,9 +128,9 @@ class Genome:
         return innov
 
     def mutate(self, curr_gen_mutations: set, innov: int, node_id: int, node_chance=0.03, conn_chance=0.5):
-        chance = random.randint(0, 1)
+        chance = random.random(0, 1)
 
         if chance < node_chance:  # Add a new node
             self._mutate_add_node(random.choice(self.connections), curr_gen_mutations, innov, node_id)
-        elif chance > conn_chance:  # Add a new connection
+        elif chance < conn_chance:  # Add a new connection
             self._mutate_connection(random.choice(self.nodes), random.choice(self.nodes), curr_gen_mutations, innov)

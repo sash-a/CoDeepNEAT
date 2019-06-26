@@ -1,17 +1,7 @@
-from enum import Enum
-
-
-class NodeType(Enum):
-    INPUT = 0
-    HIDDEN = 1
-    OUTPUT = 2
-
-
 class NEATNode:
-    def __init__(self, id, x, node_type=NodeType.HIDDEN):
+    def __init__(self, id, x):
         self.id = id
         self.x = x
-        self.node_type = node_type
 
     def midpoint(self, other):
         mn = min(self.x, other.x)
