@@ -56,24 +56,24 @@ class ModuleNode(Node):
 
             """decide in features"""
             if in_features is None:
-                self.inFeatures = self.parents[0].outFeatures  # only aggregator nodes should have more than one parent
+                self.inFeatures = self.parents[0].out_features  # only aggregator nodes should have more than one parent
             else:
                 self.inFeatures = in_features
 
             layer_type = self.module_NEAT_node.layer_type
-            if (type(layer_type.get_value()) == nn.Conv2d):
+            if layer_type.get_value() == nn.Conv2d:
                 self.deepLayer = nn.Conv2d(self.inFeatures, self.out_features,
                                            kernel_size=layer_type.get_sub_value( "conv_window_size"),
                                            stride=layer_type.get_sub_value("conv_stride")).to(device)
             else:
-                self.deepLayer = self.module_NEAT_node.layer_type.get_value()(self.inFeatures, self.out_features)
+                self.deepLayer = layer_type.get_value()(self.inFeatures, self.out_features)
 
             if not (self.module_NEAT_node.regularisation.get_value()) is None:
                 self.regularisation = self.module_NEAT_node.regularisation.get_value()(self.out_features).to(device)
 
             if not (self.module_NEAT_node.reduction.get_value() is  None):
                 reduction = self.module_NEAT_node.reduction
-                if type(reduction.get_value()) ==  nn.MaxPool2d:
+                if reduction.get_value() ==  nn.MaxPool2d:
                     pool_size = reduction.get_sub_value("pool_size")
                     self.reduction = nn.MaxPool2d(pool_size, pool_size).to(device)
                 else:

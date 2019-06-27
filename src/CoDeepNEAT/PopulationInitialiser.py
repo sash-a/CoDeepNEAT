@@ -3,11 +3,12 @@ from src.CoDeepNEAT.BlueprintNEATNode import BlueprintNEATNode
 from src.CoDeepNEAT.ModuleGenome import ModuleGenome
 from src.CoDeepNEAT.BlueprintGenome import BlueprintGenome
 from src.NEAT.Connection import Connection
+from src.NEAT.NEATNode import NodeType
 
 from copy import deepcopy
 
-mod_start = ModulenNEATNode(0, 0)
-blue_start = BlueprintNEATNode(0, 0)
+mod_start = ModulenNEATNode(0, 0, node_type=NodeType.INPUT)
+blue_start = BlueprintNEATNode(0, 0, node_type=NodeType.INPUT)
 
 
 def initialise_blueprints():

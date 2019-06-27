@@ -25,16 +25,19 @@ class Generation:
         self.blueprint_population.step()  # TODO should blueprints be speciatied ?
         self.module_population.step()
 
-    def evaluate(self, device=torch.device("cuda:0"), print_graphs=False):
+    def evaluate(self, device=torch.device("cuda:0"), print_graphs=True):
         inputs, targets = Evaluator.sample_data('mnist', '../../data', device=device)
 
         for blueprint_individual in self.blueprint_population.individuals:
 
             blueprint = blueprint_individual.to_blueprint()
             module_graph = blueprint.parseto_module_graph(self)
+            if(print_graphs):
+                module_graph.plot_tree()
             net = module_graph.toNN(in_features=1, device=device)
 
             net.specify_output_dimensionality(inputs, device=device)
+            continue
 
             acc = Evaluator.evaluate(net, 15, dataset='mnist', path='../../data', device=device, batch_size=256)
             blueprint_individual.report_fitness(acc)

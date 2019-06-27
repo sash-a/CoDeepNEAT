@@ -18,7 +18,7 @@ class Mutagen():
         if (len(discreet_options) > 0):
             self.possible_values = discreet_options
             self.current_value_id = current_value
-            print("possible values:", discreet_options)
+            #print("possible values:", discreet_options)
 
         elif (not (start_range is None) and not (end_range is None)):
             if(start_range > current_value or end_range < current_value):
@@ -31,15 +31,7 @@ class Mutagen():
             print(
                 "error in initialising mutagen. value must either be discreet and provided with options. or numerical values with a provided range")
 
-        if (len(sub_mutagens) > 0):
-            """initialise sub values - each need to have their value set via set_sub_value"""
-            self.sub_values = {}
-            for value, sub_value in sub_mutagens.iteritems():
-                sub_value_name, sub_value_mutagen = sub_value
-                if (value in self.sub_values):
-                    self.sub_values[value][sub_value_name] = sub_value_mutagen
-                else:
-                    self.sub_values[value] = {sub_value_name: sub_value_mutagen}
+        self.sub_values= sub_mutagens
 
     def get_value(self):
         """returns the number value, or the option at curent_value_id
@@ -64,6 +56,7 @@ class Mutagen():
             self.current_value = value
 
     def set_sub_value(self, sub_value_name, sub_value, value = None):
+
         if value is None:
             self.sub_values[self.get_value()][sub_value_name].set_value(sub_value)
         else:
