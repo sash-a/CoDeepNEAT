@@ -23,19 +23,26 @@ class ModuleNode(Node):
     reduction = None
     regularisation = None
 
-    def __init__(self, device=torch.device("cpu")):
+    def __init__(self, module_NEAT_node, module_genome):
         Node.__init__(self)
         self.deepLayer = None  # an nn layer object such as    nn.Conv2d(3, 6, 5) or nn.Linear(84, 10)
         self.inFeatures = -1
-        self.outFeatures = -1
-        self.traversalID = ""
-        self.activation = F.relu
-        if random.randint(0, 0) == 0:
-            self.reduction = nn.MaxPool2d(2, 2)
-            pass
+        self.out_features = -1
+        self.activation = None
+
+        self.reduction = None
+        self.regularisation = None
+
+        self.module_NEAT_node = module_NEAT_node
+        self.generate_module_node_from_gene(module_NEAT_node)
+
+
+    def generate_module_node_from_gene(self,gene):
+        self.out_features = gene.out_features
+        if(gene.activation == "relu"):
+            self.activation = F.relu
         else:
-            self.reduction = None
-            self.regularisation = None
+            print("do not recognise activation:", gene.activation)
 
     def toNN(self, in_features, device ,print_graphs=False):
         self.create_layers(in_features=in_features, device=device)
@@ -45,16 +52,33 @@ class ModuleNode(Node):
         return ModuleNet(self).to(device)
 
     def create_layers(self, in_features=None, out_features=25, device=torch.device("cpu")):
-        self.outFeatures = out_features
+        self.out_features = out_features
         if self.deepLayer is None:
+
+            """decide in features"""
             if in_features is None:
                 self.inFeatures = self.parents[0].outFeatures  # only aggregator nodes should have more than one parent
             else:
                 self.inFeatures = in_features
-            self.deepLayer = nn.Conv2d(self.inFeatures, self.outFeatures, 3, 1).to(device)
-            if random.randint(0, 1) == 0:
-                self.regularisation = nn.BatchNorm2d(self.outFeatures).to(device)
-                pass
+
+            if (self.module_NEAT_node.layer_type == "Conv2d"):
+                self.deepLayer = nn.Conv2d(self.inFeatures, self.out_features, self.module_NEAT_node.conv_window_size, self.module_NEAT_node.conv_stride).to(device)
+            elif(self.module_NEAT_node.layer_type == "Linear"):
+                self.deepLayer = nn.Linear(self.inFeatures, self.out_features)
+            else:
+                print("did not recognise layer_type:",self.module_NEAT_node.layer_type)
+
+            if(not (self.module_NEAT_node.regularisation)):
+                if(self.module_NEAT_node.regularisation == "BatchNorm2d"):
+                    self.regularisation = nn.BatchNorm2d(self.out_features).to(device)
+                else:
+                    print("did not recognise regularisation:",self.module_NEAT_node.regularisation )
+
+            if (not (self.module_NEAT_node.reduction)):
+                if (self.module_NEAT_node.reduction == "MaxPool2d"):
+                    self.reduction = nn.MaxPool2d(2, 2).to(device)
+                else:
+                    print("did not recognise reduction:", self.module_NEAT_node.reduction)
 
             for child in self.children:
                 child.create_layers(device=device)

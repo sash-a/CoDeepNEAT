@@ -9,16 +9,16 @@ class Node:
 
     children = []
     parents = []
-    value = None
+    species_number = None
 
     # a string structured as '1,1,3,2,0' where each number represents which child to move to along the path from
-    # input to output
-    traversalID = ""
+
 
     def __init__(self, val=None):
-        self.value = val
+        self.species_number = val
         self.children = []
         self.parents = []
+        self.traversalID = ""# input to output
 
     def add_child(self, value=None):
         self.add_child(Node(value))

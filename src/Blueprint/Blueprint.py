@@ -10,13 +10,20 @@ class BlueprintNode(Node):
 
     speciesIndexesUsed = []
 
-    def __init__(self, blueprint_genome):
+    def __init__(self, blueprint_NEAT_node , blueprint_genome ):
         Node.__init__(self)
-        self.value = 0#which species to sample from
+        self.species_number = 0#which species to sample from
         self.speciesIndexesUsed = []
         self.module_root = None#when this blueprint node is parsed to a module - this will be a ref to the input node of that module
-        self.module_leaf = None#upon parsing this will hold the output node of the module\
+        self.module_leaf = None#upon parsing this will hold the output node of the module
         self.blueprint_genome = blueprint_genome
+
+        self.generate_blueprint_node_from_gene(blueprint_NEAT_node)
+
+    def generate_blueprint_node_from_gene(self, gene):
+        """applies the properties of the blueprint gene for this node"""
+        self.species_number = gene.species_number
+
 
     def parseto_module_graph(self, generation, moduleConstruct=None, speciesindexes=None):
         """
@@ -26,9 +33,9 @@ class BlueprintNode(Node):
 
         if(self.module_root is None and self.module_leaf is None):
             #first time this blueprint node has been reached in the traversal
-            inputModuleIndividual, index = generation.module_population.species[self.value].sample_individual()  # to be added as child to existing module construct
+            inputModuleIndividual, index = generation.module_population.species[self.species_number].sample_individual()  # to be added as child to existing module construct
             self.blueprint_genome.modules_used.append(inputModuleIndividual)
-            inputModuleNode = inputModuleIndividual.to_module()
+            inputModuleNode = inputModuleIndividual.to_module_node()
 
             outputModuleNode = inputModuleNode.get_output_node()  # many branching modules may be added to this module
             self.module_leaf = outputModuleNode

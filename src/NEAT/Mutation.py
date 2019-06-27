@@ -2,6 +2,7 @@ from src.NEAT.Connection import Connection
 
 
 class NodeMutation:
+
     def __init__(self, node_id, from_conn, to_conn):
         self.node_id = node_id
         self.from_conn = from_conn
@@ -19,6 +20,7 @@ class NodeMutation:
 
 
 class ConnectionMutation:
+
     def __init__(self, conn):
         self.conn: Connection = conn
 
