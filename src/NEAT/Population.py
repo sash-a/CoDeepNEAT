@@ -9,22 +9,18 @@ import random
 Population persists across whole run time
 """
 
+
 class Population:
 
-    #TODO initialise nodes, connections, population in this init method
-    def __init__(self, nodes: dict, connections: set, population: list):
+    def __init__(self, population: list):
         """
-        :param nodes: dictionary mapping node IDs to nodes
-        :param connections: set of all connections
         :param population: list of all individuals
         """
 
         self.gen_mutations = set()
-        self.curr_innov = 1
-        self.max_node_id = len(nodes.keys())
+        self.curr_innov = max(indv.connections[-1].innovation for indv in population)
+        self.max_node_id = len(population)  # this assumes that no nodes are disabled in initial population
 
-        self.nodes = nodes
-        self.connections = connections
         self.individuals = population
         self.species = []
 
@@ -69,7 +65,7 @@ class Population:
 
         indv.adjusted_fitness = indv.adjusted_fitness / shared_fitness
 
-    def run(self):
+    def step(self):
         new_pop = []
 
         # calculate adjusted fitness
@@ -111,4 +107,3 @@ class Population:
         self.individuals = new_pop
         self.speciate()
         self.gen_mutations.clear()
-

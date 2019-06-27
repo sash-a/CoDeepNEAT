@@ -10,8 +10,7 @@ class Generation:
 
     def __init__(self):
         self.speciesNumbers = []
-        self.module_population , self.blueprint_population = self.initialise_populations()
-
+        self.module_population, self.blueprint_population = self.initialise_populations()
 
     def initialise_populations(self):
         print("initialising random population")
@@ -21,14 +20,10 @@ class Generation:
 
         return module_population, blueprint_population
 
-
     def step(self):
-        """
-        runs CDN for one generation - must be called after fitness evaluation
-        """
-        self.blueprint_population.run()#TODO should blueprints be speciatied ?
-        self.module_population.run()
-
+        """Runs CDN for one generation - must be called after fitness evaluation"""
+        self.blueprint_population.step()  # TODO should blueprints be speciatied ?
+        self.module_population.step()
 
     def evaluate(self, device=torch.device("cuda:0"), print_graphs=False):
         inputs, targets = Evaluator.sample_data('mnist', '../../data', device=device)
@@ -51,5 +46,3 @@ class Generation:
 
         for module_individual in self.module_population.individuals:
             module_individual.clear()
-
-
