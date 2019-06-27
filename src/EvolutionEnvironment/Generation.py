@@ -39,8 +39,7 @@ class Generation:
 
             net = module_graph.toNN(in_features=1, device=device)
             net.specify_output_dimensionality(inputs, device=device)
-            continue
-
+            
             acc = Evaluator.evaluate(net, 15, dataset='mnist', path='../../data', device=device, batch_size=256)
             blueprint_individual.report_fitness(acc)
 
