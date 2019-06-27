@@ -1,5 +1,6 @@
 from src.NEAT.Genotype import Genome
 from src.Module.ModuleNode import ModuleNode
+import copy
 
 class ModuleGenome(Genome):
 
@@ -14,7 +15,8 @@ class ModuleGenome(Genome):
         :return: the module graph this individual represents
         """
         if(not (self.module_node is None)):
-            return self.module_node
+            print("module genome already has module - returning a copy")
+            return copy.deepcopy(self.module_node)
 
         """needs to generate the module_node"""
 

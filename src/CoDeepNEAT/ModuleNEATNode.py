@@ -31,4 +31,4 @@ class ModulenNEATNode(NEATNode):
         self.reduction.set_value(reduction)
 
         self.regularisation = Mutagen(None, nn.BatchNorm2d)
-        self.regularisation.set_value(nn.BatchNorm2d)
+        self.regularisation.set_value(regularisation)

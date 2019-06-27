@@ -14,6 +14,11 @@ class AggregatorNode(Module):
         Module.__init__(self, None, None)
         self.module_node_input_ids = []
         self.accountedForInputIDs = {}
+        self.out_features = 25#TODO should be determined
+
+    def create_layers(self, in_features=None, device=torch.device("cpu")):
+        for child in self.children:
+            child.create_layers(device = device)
 
     def insert_aggregator_nodes(self, state="start"):
         # if aggregator node has already been created - then the multi parent situation has already been dealt with here
@@ -62,7 +67,7 @@ class AggregatorNode(Module):
 
         for parent in self.module_node_input_ids:
             #separte inputs by typee
-            deep_layer = parent.deepLayer
+            deep_layer = parent.deep_layer
             new_input = self.accountedForInputIDs[parent.traversalID]
             outputs_deep_layers[new_input] = deep_layer
             if(type(deep_layer) == nn.Conv2d):

@@ -1,6 +1,7 @@
 from src.Graph.Node import Node
 from src.Module.ModuleNode import ModuleNode
 from torch import nn
+import torch
 
 class BlueprintNode(Node):
 
@@ -25,7 +26,7 @@ class BlueprintNode(Node):
         self.species_number = gene.species_number
 
 
-    def parseto_module_graph(self, generation, moduleConstruct=None, speciesindexes=None):
+    def parseto_module_graph(self, generation, moduleConstruct=None, speciesindexes=None, in_features = 1, device=torch.device("cpu")):
         """
         :param moduleConstruct: the output module node to have this newly sampled module attached to. None if this is root blueprint node
         :return: a handle on the root node of the newly created module graph
@@ -61,4 +62,7 @@ class BlueprintNode(Node):
         if (len(self.parents) == 0):
             # print("blueprint parsed. getting module node traversal ID's")
             input_module_node.get_traversal_ids("_")
+            input_module_node.insert_aggregator_nodes()
+            input_module_node.create_layers(in_features = in_features)
+
             return input_module_node

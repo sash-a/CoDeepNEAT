@@ -31,11 +31,13 @@ class Generation:
         for blueprint_individual in self.blueprint_population.individuals:
 
             blueprint = blueprint_individual.to_blueprint()
-            module_graph = blueprint.parseto_module_graph(self)
+            module_graph = blueprint.parseto_module_graph(self, device = device)
             if(print_graphs):
-                module_graph.plot_tree()
-            net = module_graph.toNN(in_features=1, device=device)
+                blueprint.plot_tree(title="blueprint")
+                module_graph.plot_tree(title="module graph")
 
+
+            net = module_graph.toNN(in_features=1, device=device)
             net.specify_output_dimensionality(inputs, device=device)
             continue
 

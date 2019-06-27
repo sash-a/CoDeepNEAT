@@ -86,7 +86,7 @@ class Node:
     def print_node(self, print_to_console=True):
         pass
 
-    def plot_tree(self, nodes_plotted=None, rot_degree=0):
+    def plot_tree(self, nodes_plotted=None, rot_degree=0, title = ""):
         if nodes_plotted is None:
             nodes_plotted = set()
 
@@ -126,6 +126,7 @@ class Node:
                           length_includes_head=True)
 
         if self.is_input_node():
+            plt.title(title)
             plt.show()
 
         return x, y

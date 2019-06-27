@@ -5,10 +5,7 @@ Evolution Environment is static as there should only ever be one
 Acts as the collection of current generation
 """
 
-numGenerations = 1
-
-currentGeneration = None
-previousGeneration = None
+numGenerations = 5
 
 
 def main():
@@ -16,7 +13,7 @@ def main():
 
     for i in range(numGenerations):
         current_generation.evaluate()
-        currentGeneration.step()
+        current_generation.step()
 
 
 
