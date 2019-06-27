@@ -11,7 +11,7 @@ class AggregatorNode(Module):
     accountedForInputIDs = {}  # map from ID's to input vectors
 
     def __init__(self):
-        Module.__init__(self)
+        Module.__init__(self, None, None)
         self.module_node_input_ids = []
         self.accountedForInputIDs = {}
 

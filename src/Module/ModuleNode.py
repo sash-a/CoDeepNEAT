@@ -6,7 +6,7 @@ import random
 from src.NeuralNetwork.Net import ModuleNet
 
 
-#random.seed(0)
+# random.seed(0)
 
 
 class ModuleNode(Node):
@@ -33,18 +33,17 @@ class ModuleNode(Node):
         self.reduction = None
         self.regularisation = None
 
+        self.module_NEAT_genome = module_genome
         self.module_NEAT_node = module_NEAT_node
-        self.generate_module_node_from_gene(module_NEAT_node)
 
+        if not (module_NEAT_node is None):
+            self.generate_module_node_from_gene()
 
-    def generate_module_node_from_gene(self,gene):
-        self.out_features = gene.out_features
-        if(gene.activation == "relu"):
-            self.activation = F.relu
-        else:
-            print("do not recognise activation:", gene.activation)
+    def generate_module_node_from_gene(self, ):
+        self.out_features = self.module_NEAT_node.out_features.get_value()
+        self.activation = self.module_NEAT_node.activation.get_value()
 
-    def toNN(self, in_features, device ,print_graphs=False):
+    def toNN(self, in_features, device, print_graphs=False):
         self.create_layers(in_features=in_features, device=device)
         self.insert_aggregator_nodes()
         if (print_graphs):
@@ -61,24 +60,24 @@ class ModuleNode(Node):
             else:
                 self.inFeatures = in_features
 
-            if (self.module_NEAT_node.layer_type == "Conv2d"):
-                self.deepLayer = nn.Conv2d(self.inFeatures, self.out_features, self.module_NEAT_node.conv_window_size, self.module_NEAT_node.conv_stride).to(device)
-            elif(self.module_NEAT_node.layer_type == "Linear"):
-                self.deepLayer = nn.Linear(self.inFeatures, self.out_features)
+            layer_type = self.module_NEAT_node.layer_type
+            if (type(layer_type.get_value()) == nn.Conv2d):
+                self.deepLayer = nn.Conv2d(self.inFeatures, self.out_features,
+                                           kernel_size=layer_type.get_sub_value( "conv_window_size"),
+                                           stride=layer_type.get_sub_value("conv_stride")).to(device)
             else:
-                print("did not recognise layer_type:",self.module_NEAT_node.layer_type)
+                self.deepLayer = self.module_NEAT_node.layer_type.get_value()(self.inFeatures, self.out_features)
 
-            if(not (self.module_NEAT_node.regularisation)):
-                if(self.module_NEAT_node.regularisation == "BatchNorm2d"):
-                    self.regularisation = nn.BatchNorm2d(self.out_features).to(device)
-                else:
-                    print("did not recognise regularisation:",self.module_NEAT_node.regularisation )
+            if not (self.module_NEAT_node.regularisation.get_value()) is None:
+                self.regularisation = self.module_NEAT_node.regularisation.get_value()(self.out_features).to(device)
 
-            if (not (self.module_NEAT_node.reduction)):
-                if (self.module_NEAT_node.reduction == "MaxPool2d"):
-                    self.reduction = nn.MaxPool2d(2, 2).to(device)
+            if not (self.module_NEAT_node.reduction.get_value() is  None):
+                reduction = self.module_NEAT_node.reduction
+                if type(reduction.get_value()) ==  nn.MaxPool2d:
+                    pool_size = reduction.get_sub_value("pool_size")
+                    self.reduction = nn.MaxPool2d(pool_size, pool_size).to(device)
                 else:
-                    print("did not recognise reduction:", self.module_NEAT_node.reduction)
+                    self.reduction = reduction.get_value()().to(device)
 
             for child in self.children:
                 child.create_layers(device=device)
@@ -223,7 +222,7 @@ class ModuleNode(Node):
 
     def get_feature_tuple(self, deep_layer, new_input):
         """:returns channelsOut,x,y if Conv2D | out_features if Linear"""
-        if(type(deep_layer) == nn.Conv2d):
+        if (type(deep_layer) == nn.Conv2d):
             return self.get_out_features(deep_layer=deep_layer), new_input.size()[2], new_input.size()[3]
-        elif(type(deep_layer) == nn.Linear):
+        elif (type(deep_layer) == nn.Linear):
             return self.get_out_features(deep_layer=deep_layer)

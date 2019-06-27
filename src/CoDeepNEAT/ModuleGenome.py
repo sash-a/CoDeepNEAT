@@ -17,6 +17,7 @@ class ModuleGenome(Genome):
             return self.module_node
 
         """needs to generate the module_node"""
+
         module_graph_node_map = {}
         root_node = None
         """initialises blueprint nodes and maps them to their genes"""
@@ -24,6 +25,7 @@ class ModuleGenome(Genome):
             module_graph_node_map[module_neat_node] = ModuleNode(module_neat_node, self)
             if (module_neat_node.is_input_node):
                 root_node = module_graph_node_map[module_neat_node]
+
         """connects the blueprint nodes as indicated by the genome"""
         for connection in self.connections:
             parent = module_graph_node_map[connection.from_node]
@@ -31,6 +33,7 @@ class ModuleGenome(Genome):
 
             parent.add_child(child)
 
+        self.module_node = root_node
         return root_node
 
     def report_fitness(self, fitness):

@@ -33,37 +33,32 @@ class BlueprintNode(Node):
 
         if(self.module_root is None and self.module_leaf is None):
             #first time this blueprint node has been reached in the traversal
-            inputModuleIndividual, index = generation.module_population.species[self.species_number].sample_individual()  # to be added as child to existing module construct
-            self.blueprint_genome.modules_used.append(inputModuleIndividual)
-            inputModuleNode = inputModuleIndividual.to_module_node()
+            input_module_individual, index = generation.module_population.species[self.species_number].sample_individual()  # to be added as child to existing module construct
+            self.blueprint_genome.modules_used.append(input_module_individual)
+            input_module_node = input_module_individual.to_module_node()
 
-            outputModuleNode = inputModuleNode.get_output_node()  # many branching modules may be added to this module
-            self.module_leaf = outputModuleNode
-            self.module_root = inputModuleNode
+            output_module_node = input_module_node.get_output_node()  # many branching modules may be added to this module
+            self.module_leaf = output_module_node
+            self.module_root = input_module_node
             first_traversal = True
         else:
-            inputModuleNode = self.module_root
-            outputModuleNode = self.module_leaf
+            input_module_node = self.module_root
+            output_module_node = self.module_leaf
             first_traversal = False
 
 
         if (not moduleConstruct == None):
-            moduleConstruct.add_child(inputModuleNode)
+            moduleConstruct.add_child(input_module_node)
         else:
             if (not self.is_input_node()):
                 print("null module construct passed to non root blueprint node")
 
-        # if (self.is_input_node()):
-        #     self.speciesIndexesUsed = []
-        #     speciesindexes = self.speciesIndexesUsed
-        #     speciesindexes.append(index)
-
 
         if(first_traversal):
             for childBlueprintNode in self.children:
-                childBlueprintNode.parseto_module_graph(generation, outputModuleNode, speciesindexes)  # passes species index down to collect all species indexes used to construct this blueprint in one list
+                childBlueprintNode.parseto_module_graph(generation, output_module_node, speciesindexes)  # passes species index down to collect all species indexes used to construct this blueprint in one list
 
         if (len(self.parents) == 0):
             # print("blueprint parsed. getting module node traversal ID's")
-            inputModuleNode.get_traversal_ids("_")
-            return inputModuleNode
+            input_module_node.get_traversal_ids("_")
+            return input_module_node
