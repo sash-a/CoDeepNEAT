@@ -17,12 +17,12 @@ class BlueprintGenome(Genome):
 
         blueprint_graph_node_map = {}
         root_node = None
-        """initialises blueprint nodes and maps them to their genes"""
+        # initialises blueprint nodes and maps them to their genes
         for blueprint_neat_node in self.nodes:
             blueprint_graph_node_map[blueprint_neat_node] = BlueprintNode(blueprint_neat_node, self)
-            if (blueprint_neat_node.is_input_node()):
+            if blueprint_neat_node.is_input_node():
                 root_node = blueprint_graph_node_map[blueprint_neat_node]
-        """connects the blueprint nodes as indicated by the genome"""
+        # connects the blueprint nodes as indicated by the genome
         for connection in self.connections:
             parent = blueprint_graph_node_map[connection.from_node]
             child = blueprint_graph_node_map[connection.to_node]
@@ -33,6 +33,7 @@ class BlueprintGenome(Genome):
         return root_node
 
     def report_fitness(self, fitness):
+        print('blueprint fitness')
         self.fitness = fitness
 
     def clear(self):

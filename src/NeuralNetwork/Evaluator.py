@@ -128,7 +128,7 @@ def evaluate(model, epochs, dataset='mnist', path='../../data', device=torch.dev
         train(model, device, train_loader, epoch, test_loader)
     e = time.time()
 
-    print('All', epochs, 'epochs took', e - s, 'seconds')
+    print('Evaluation took', e - s, 'seconds')
     return test(model, device, test_loader)
 
 

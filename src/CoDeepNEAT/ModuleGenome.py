@@ -15,21 +15,21 @@ class ModuleGenome(Genome):
         returns the stored module_node of this gene, or generates and returns it if module_node is null
         :return: the module graph this individual represents
         """
-        if (not (self.module_node is None)):
+        if self.module_node is not None:
             print("module genome already has module - returning a copy")
             return copy.deepcopy(self.module_node)
 
-        """needs to generate the module_node"""
+        # needs to generate the module_node
 
         module_graph_node_map = {}
         root_node = None
-        """initialises blueprint nodes and maps them to their genes"""
+        # initialises blueprint nodes and maps them to their genes
         for module_neat_node in self.nodes:
             module_graph_node_map[module_neat_node] = ModuleNode(module_neat_node, self)
             if module_neat_node.is_input_node():
                 root_node = module_graph_node_map[module_neat_node]
 
-        """connects the blueprint nodes as indicated by the genome"""
+        # connects the blueprint nodes as indicated by the genome
         for connection in self.connections:
             parent = module_graph_node_map[connection.from_node]
             child = module_graph_node_map[connection.to_node]
@@ -40,8 +40,10 @@ class ModuleGenome(Genome):
         return root_node
 
     def report_fitness(self, fitness):
+        print('module fitness')
         self.fitness = (self.fitness * self.fitness_reports + fitness) / (self.fitness_reports + 1)
         self.fitness_reports += 1
 
     def clear(self):
         self.fitness_reports = 0
+        self.fitness = 0

@@ -128,7 +128,7 @@ class Genome:
         return innov
 
     def mutate(self, curr_gen_mutations: set, innov: int, node_id: int, node_chance=0.03, conn_chance=0.5):
-        chance = random.random(0, 1)
+        chance = random.random()
 
         if chance < node_chance:  # Add a new node
             self._mutate_add_node(random.choice(self.connections), curr_gen_mutations, innov, node_id)

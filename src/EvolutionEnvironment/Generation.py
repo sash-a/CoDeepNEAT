@@ -24,6 +24,12 @@ class Generation:
         self.blueprint_population.step()  # TODO should blueprints be speciatied ?
         self.module_population.step()
 
+        for blueprint_individual in self.blueprint_population.individuals:
+            blueprint_individual.clear()
+
+        for module_individual in self.module_population.individuals:
+            module_individual.clear()  # this also sets fitness to zero
+
     def evaluate(self, device=torch.device("cuda:0"), print_graphs=True):
         inputs, targets = Evaluator.sample_data('mnist', '../../data', device=device)
 
@@ -39,13 +45,8 @@ class Generation:
             net = module_graph.to_nn(in_features=1, device=device)
             net.specify_output_dimensionality(inputs, device=device)
 
-            acc = Evaluator.evaluate(net, 1, dataset='mnist', path='../../data', device=device, batch_size=256)
+            acc = 46  # Evaluator.evaluate(net, 1, dataset='mnist', path='../../data', device=device, batch_size=64)
             blueprint_individual.report_fitness(acc)
 
             for module_individual in blueprint_individual.modules_used:
                 module_individual.report_fitness(acc)
-
-            blueprint_individual.clear()
-
-        for module_individual in self.module_population.individuals:
-            module_individual.clear()
