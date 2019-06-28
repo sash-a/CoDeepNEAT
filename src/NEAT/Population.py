@@ -81,8 +81,8 @@ class Population:
         for spc in self.species:
             # find num_children given adjusted fitness sum for species
             species_adj_fitness = sum([x.adjusted_fitness for x in spc.members])
-            num_children = max(Props.MIN_CHILDREN_PER_SPECIES,
-                               int(species_adj_fitness / tot_adj_fitness) * Props.POP_SIZE)
+            num_children = max(Props.MIN_CHILDREN_PER_SPECIES, int(species_adj_fitness / tot_adj_fitness) * (
+                    Props.POP_SIZE - Props.PERCENT_TO_SAVE * Props.POP_SIZE))
 
             # only allow top x% to reproduce
             spc.members.sort(key=lambda indv: indv.fitness, reverse=True)

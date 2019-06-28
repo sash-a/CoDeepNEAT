@@ -1,7 +1,8 @@
 import copy
 import random
 
-from src.NEAT.Genotype import Genome
+from src.CoDeepNEAT.BlueprintGenome import BlueprintGenome
+from src.CoDeepNEAT.ModuleGenome import ModuleGenome
 
 
 def crossover(parent1, parent2):
@@ -15,7 +16,12 @@ def crossover(parent1, parent2):
 
     # disjoint + excess are inherited from the most fit parent
     d, e = copy.deepcopy(best_parent.get_disjoint_excess(worst_parent))
-    child = Genome(d + e, list(set(parent2.nodes + parent1.nodes)))
+
+    # TODO how to inherit connection genes?
+    if type(parent1) == ModuleGenome:
+        child = ModuleGenome(d + e, list(set(parent2.nodes + parent1.nodes)))
+    else:
+        child = BlueprintGenome(d + e, list(set(parent2.nodes + parent1.nodes)))
 
     # Finding the remaining matching genes and choosing randomly between them
     for best_conn in best_parent.connections:

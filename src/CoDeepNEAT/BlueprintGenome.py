@@ -33,7 +33,6 @@ class BlueprintGenome(Genome):
         return root_node
 
     def report_fitness(self, fitness):
-        print('blueprint fitness')
         self.fitness = fitness
 
     def clear(self):

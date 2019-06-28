@@ -21,4 +21,4 @@ class Species:
 
     def sample_individual(self):
         index = randint(0, len(self.members) - 1)
-        return copy.deepcopy(self.members[index]), index
+        return self.members[index], index

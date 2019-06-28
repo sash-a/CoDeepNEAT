@@ -40,7 +40,6 @@ class ModuleGenome(Genome):
         return root_node
 
     def report_fitness(self, fitness):
-        print('module fitness')
         self.fitness = (self.fitness * self.fitness_reports + fitness) / (self.fitness_reports + 1)
         self.fitness_reports += 1
 
