@@ -13,11 +13,10 @@ class Generation:
         self.module_population, self.blueprint_population = self.initialise_populations()
 
     def initialise_populations(self):
-        print("initialising random population")
-
+        print('initialising population')
         module_population = Population(PopulationInitialiser.initialise_modules())
         blueprint_population = Population(PopulationInitialiser.initialise_blueprints())
-
+        print('population initialized')
         return module_population, blueprint_population
 
     def step(self):
@@ -29,22 +28,22 @@ class Generation:
         inputs, targets = Evaluator.sample_data('mnist', '../../data', device=device)
 
         for blueprint_individual in self.blueprint_population.individuals:
-
+            print('\n\nTraining next blueprint')
             blueprint = blueprint_individual.to_blueprint()
-            module_graph = blueprint.parseto_module_graph(self, device = device)
-            if(print_graphs):
+            module_graph = blueprint.parseto_module_graph(self, device=device)
+
+            if print_graphs:
                 blueprint.plot_tree(title="blueprint")
                 module_graph.plot_tree(title="module graph")
 
-
-            net = module_graph.toNN(in_features=1, device=device)
+            net = module_graph.to_nn(in_features=1, device=device)
             net.specify_output_dimensionality(inputs, device=device)
-            
-            acc = Evaluator.evaluate(net, 15, dataset='mnist', path='../../data', device=device, batch_size=256)
+
+            acc = Evaluator.evaluate(net, 1, dataset='mnist', path='../../data', device=device, batch_size=256)
             blueprint_individual.report_fitness(acc)
 
             for module_individual in blueprint_individual.modules_used:
-                module_individual.report_fitness()
+                module_individual.report_fitness(acc)
 
             blueprint_individual.clear()
 

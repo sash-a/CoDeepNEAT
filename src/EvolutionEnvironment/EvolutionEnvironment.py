@@ -12,9 +12,9 @@ def main():
     current_generation = Generation()
 
     for i in range(numGenerations):
+        print('Running gen', i)
         current_generation.evaluate()
         current_generation.step()
-
 
 
 if __name__ == '__main__':

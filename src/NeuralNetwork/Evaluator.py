@@ -26,14 +26,15 @@ def train(model, device, train_loader, epoch, test_loader, print_accuracy=True):
     """
     model.train()
 
-    s = time.time()
     loss = 0
     batch_idx = 0
+
+    s = time.time()
 
     for batch_idx, (inputs, targets) in enumerate(train_loader):
         inputs, targets = inputs.to(device), targets.to(device)
         model.optimizer.zero_grad()
-        augmented_inputs, augmented_labels = placeholder.augment_batch(inputs,targets)
+        augmented_inputs, augmented_labels = placeholder.augment_batch(inputs, targets)
 
         output = model(inputs)
         m_loss = model.loss_fn(output, targets.float())
@@ -42,7 +43,7 @@ def train(model, device, train_loader, epoch, test_loader, print_accuracy=True):
 
         loss += m_loss.item()
 
-        if(not augmented_inputs is None):
+        if augmented_inputs is not None:
             output = model(augmented_inputs)
             m_loss = model.loss_fn(output, augmented_labels.float())
             m_loss.backward()
@@ -52,6 +53,7 @@ def train(model, device, train_loader, epoch, test_loader, print_accuracy=True):
             print("\tepoch:", epoch, "batch:", batch_idx, "loss:", m_loss.item(), "running time:", time.time() - s)
 
     end_time = time.time()
+
     if epoch % print_epoch_every == 0:
         if print_accuracy:
             print("epoch", epoch, "average loss:", loss / batch_idx, "accuracy:",
@@ -94,17 +96,16 @@ def test(model, device, test_loader, print_acc=True):
                 correct += pred.eq(targets.view_as(pred)).sum().item()
 
     test_loss /= len(test_loader.dataset)
+    acc = 100. * correct / len(test_loader.dataset)
 
     if print_acc:
         print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
-            test_loss, correct, len(test_loader.dataset),
-            100. * correct / len(test_loader.dataset)))
-    else:
-        return 100. * correct / len(test_loader.dataset)
+            test_loss, correct, len(test_loader.dataset), acc))
+
+    return acc
 
 
-def evaluate(model, epochs, dataset='mnist', path='../../data', device=torch.device('cuda:0'), timer=False,
-             batch_size=64):
+def evaluate(model, epochs, dataset='mnist', path='../../data', device=torch.device('cuda:0'), batch_size=64):
     """
     Runs all epochs and tests the model after all epochs have run
 
@@ -120,29 +121,27 @@ def evaluate(model, epochs, dataset='mnist', path='../../data', device=torch.dev
     # num_workers=1 is giving issues, but 0 runs slower
     data_loader_args = {'num_workers': 0, 'pin_memory': True} if device == 'cuda' else {}
 
-    train_loader, test_loader = load_data('mnist','../../data')
+    train_loader, test_loader = load_data(dataset, path, batch_size)
 
     s = time.time()
     for epoch in range(1, epochs + 1):
         train(model, device, train_loader, epoch, test_loader)
     e = time.time()
 
-    print('Took:', e - s, 'seconds')
+    print('All', epochs, 'epochs took', e - s, 'seconds')
     return test(model, device, test_loader)
 
 
-def sample_data(dataset='mnist', path='../../data', device=torch.device('cuda:0'), batchSize = 64):
-    train_loader, test_loader = load_data('mnist','../../data')
+def sample_data(dataset='mnist', path='../../data', device=torch.device('cuda:0'), batch_size=64):
+    train_loader, test_loader = load_data(dataset, path, batch_size)
     for batch_idx, (inputs, targets) in enumerate(train_loader):
         return inputs.to(device), targets.to(device)
 
 
-def load_data(dataset, path, batchSize = 64):
-    #data_loader_args = {'num_workers': 0, 'pin_memory': True} if device == 'cuda' else {}
+def load_data(dataset, path, batch_size=64):
+    # data_loader_args = {'num_workers': 0, 'pin_memory': True} if device == 'cuda' else {}
     data_loader_args = {}
 
-    train_loader = None
-    test_loader = None
     if dataset.lower() == 'mnist':
         train_loader = DataLoader(
             datasets.MNIST(path,
@@ -152,7 +151,7 @@ def load_data(dataset, path, batchSize = 64):
                                transforms.ToTensor(),
                                transforms.Normalize((0.1307,), (0.3081,))
                            ])),
-            batch_size=batchSize, shuffle=True, **data_loader_args)
+            batch_size=batch_size, shuffle=True, **data_loader_args)
 
         test_loader = DataLoader(
             datasets.MNIST(path,
@@ -162,7 +161,7 @@ def load_data(dataset, path, batchSize = 64):
                                transforms.ToTensor(),
                                transforms.Normalize((0.1307,), (0.3081,))
                            ])),
-            batch_size=batchSize, shuffle=True, **data_loader_args)
+            batch_size=batch_size, shuffle=True, **data_loader_args)
 
     elif dataset.lower() == 'imgnet':
         train_loader = DataLoader(
@@ -175,4 +174,4 @@ def load_data(dataset, path, batchSize = 64):
     else:
         raise Exception('Invalid dataset name, options are imgnet or mnist')
 
-    return train_loader,test_loader
+    return train_loader, test_loader
