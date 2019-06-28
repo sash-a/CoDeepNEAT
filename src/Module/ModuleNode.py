@@ -23,8 +23,11 @@ class ModuleNode(Node):
     reduction = None
     regularisation = None
 
+
     def __init__(self, module_NEAT_node, module_genome):
         Node.__init__(self)
+        self.blueprint_connections = []#blueprints connect module nodes vai aprent/child relationships - these must be recored so they may be severed when the blueprint is dissolved
+
         self.deep_layer = None  # an nn layer object such as    nn.Conv2d(3, 6, 5) or nn.Linear(84, 10)
         self.in_features = -1
         self.out_features = -1
@@ -39,8 +42,12 @@ class ModuleNode(Node):
         if not (module_NEAT_node is None):
             self.generate_module_node_from_gene()
 
-    def generate_module_node_from_gene(self, ):
-        self.out_features = self.module_NEAT_node.out_features.get_value()
+    def generate_module_node_from_gene(self ):
+        try:
+            self.out_features = self.module_NEAT_node.out_features.get_value()
+        except:
+            print("no out features attached to",type(self.module_NEAT_node))
+
         self.activation = self.module_NEAT_node.activation.get_value()
 
     def to_nn(self, in_features, device, print_graphs=False):
@@ -145,6 +152,7 @@ class ModuleNode(Node):
             return child_out
 
         if self.is_output_node():
+            #print("output node reached in module graph - returning output == none ~", (output is None))
             return output  # output of final output node must be bubbled back up to the top entry point of the nn
 
     def pass_input_through_layer(self, input):
@@ -173,17 +181,22 @@ class ModuleNode(Node):
             return F.pad(input=self.activation(output), pad=(ykernel, ykernel, xkernel, xkernel), mode='constant',
                          value=0)
 
-    def get_parameters(self, parametersDict):
+    def get_parameters(self, parametersDict, top = True):
+
         if self not in parametersDict:
             if (self.deep_layer is None):
                 print("no deep layer - ", self)
+
+            # if(top ):
+            #     print("top is input:",self.is_input_node())
             myParams = self.deep_layer.parameters()
             parametersDict[self] = myParams
 
             for child in self.children:
-                child.get_parameters(parametersDict)
+                child.get_parameters(parametersDict, top = False)
 
             if self.is_input_node():
+                #print("input node returned to from get parameters")
                 params = None
                 for param in parametersDict.values():
 
@@ -236,3 +249,16 @@ class ModuleNode(Node):
             return self.get_out_features(deep_layer=deep_layer), new_input.size()[2], new_input.size()[3]
         elif type(deep_layer) == nn.Linear:
             return self.get_out_features(deep_layer=deep_layer)
+
+    def add_child(self, child_node, connection_type_is_module = True):
+        super(ModuleNode,self).add_child(child_node,connection_type_is_module)
+        if(not connection_type_is_module):
+            self.blueprint_connections.append(child_node)
+
+    def clear(self):
+        for blueprint_connection in self.blueprint_connections:
+            self.remove_child(blueprint_connection)
+
+        self.blueprint_connections = []
+        for child in self.children:
+            child.clear()

@@ -26,9 +26,9 @@ class AggregatorNode(Module):
         # traverse its decendants again
         pass
 
-    def get_parameters(self, parameters_dict):
+    def get_parameters(self, parameters_dict, top = False):
         for child in self.children:
-            child.get_parameters(parameters_dict)
+            child.get_parameters(parameters_dict, top = False)
 
     def add_parent(self, parent):
         self.module_node_input_ids.append(parent)

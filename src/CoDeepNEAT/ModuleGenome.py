@@ -46,3 +46,4 @@ class ModuleGenome(Genome):
     def clear(self):
         self.fitness_reports = 0
         self.fitness = 0
+        self.module_node = None

@@ -19,6 +19,8 @@ class BlueprintNode(Node):
         self.module_leaf = None  # upon parsing this will hold the output node of the module
         self.blueprint_genome = blueprint_genome
 
+        if(blueprint_NEAT_node is None):
+            print("null neat node passed to blueprint")
         self.generate_blueprint_node_from_gene(blueprint_NEAT_node)
 
     def generate_blueprint_node_from_gene(self, gene):
@@ -39,6 +41,8 @@ class BlueprintNode(Node):
                 self.species_number].sample_individual()
             self.blueprint_genome.modules_used.append(input_module_individual)
             input_module_node = input_module_individual.to_module_node()
+            if (not input_module_node.is_input_node()):
+                print("error! sampled module node is not root node")
 
             # many branching modules may be added to this module
             output_module_node = input_module_node.get_output_node()
@@ -51,7 +55,7 @@ class BlueprintNode(Node):
             first_traversal = False
 
         if module_construct is not None:
-            module_construct.add_child(input_module_node)
+            module_construct.add_child(input_module_node, connection_type_is_module= False)
         else:
             if not self.is_input_node():
                 print("null module construct passed to non root blueprint node")
@@ -66,5 +70,6 @@ class BlueprintNode(Node):
             input_module_node.get_traversal_ids("_")
             input_module_node.insert_aggregator_nodes()
             input_module_node.create_layers(in_features=in_features)
+
 
             return input_module_node
