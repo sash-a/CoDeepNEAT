@@ -45,7 +45,7 @@ class Generation:
                 blueprint.plot_tree(title="blueprint")
                 module_graph.plot_tree(title="module graph")
 
-            if (not module_graph.is_input_node()):
+            if not module_graph.is_input_node():
                 print("module graph handle node is not root node")
 
             net = module_graph.to_nn(in_features=1, device=device)

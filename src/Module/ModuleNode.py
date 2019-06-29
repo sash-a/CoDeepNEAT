@@ -6,6 +6,7 @@ import random
 from src.NeuralNetwork.Net import ModuleNet
 import copy
 
+
 # random.seed(0)
 
 
@@ -23,11 +24,9 @@ class ModuleNode(Node):
     reduction = None
     regularisation = None
 
-
     def __init__(self, module_NEAT_node, module_genome):
         Node.__init__(self)
         self.traversed = False
-
 
         self.deep_layer = None  # an nn layer object such as    nn.Conv2d(3, 6, 5) or nn.Linear(84, 10)
         self.in_features = -1
@@ -43,11 +42,11 @@ class ModuleNode(Node):
         if not (module_NEAT_node is None):
             self.generate_module_node_from_gene()
 
-    def generate_module_node_from_gene(self ):
+    def generate_module_node_from_gene(self):
         try:
             self.out_features = self.module_NEAT_node.out_features.get_value()
         except:
-            print("no out features attached to",type(self.module_NEAT_node))
+            print("no out features attached to", type(self.module_NEAT_node))
 
         self.activation = self.module_NEAT_node.activation.get_value()
 
@@ -78,6 +77,7 @@ class ModuleNode(Node):
                     print("failed to create conv", self, self.in_features, self.out_features,
                           layer_type.get_sub_value("conv_window_size"),
                           layer_type.get_sub_value("conv_stride"))
+                    print('Module with error', self.module_NEAT_genome.connections)
             else:
                 self.deep_layer = layer_type.get_value()(self.in_features, self.out_features).to(device)
 
@@ -187,7 +187,7 @@ class ModuleNode(Node):
             return F.pad(input=self.activation(output), pad=(ykernel, ykernel, xkernel, xkernel), mode='constant',
                          value=0)
 
-    def get_parameters(self, parametersDict, top = True):
+    def get_parameters(self, parametersDict, top=True):
 
         if self not in parametersDict:
             if (self.deep_layer is None):
@@ -199,10 +199,10 @@ class ModuleNode(Node):
             parametersDict[self] = myParams
 
             for child in self.children:
-                child.get_parameters(parametersDict, top = False)
+                child.get_parameters(parametersDict, top=False)
 
             if self.is_input_node():
-                #print("input node returned to from get parameters")
+                # print("input node returned to from get parameters")
                 params = None
                 for param in parametersDict.values():
 

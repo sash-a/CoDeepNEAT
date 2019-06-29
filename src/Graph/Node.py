@@ -13,12 +13,11 @@ class Node:
 
     # a string structured as '1,1,3,2,0' where each number represents which child to move to along the path from
 
-
     def __init__(self, val=None):
         self.species_number = val
         self.children = []
         self.parents = []
-        self.traversalID = ""# input to output
+        self.traversalID = ""  # input to output
 
     def add_child(self, value=None):
         self.add_child(Node(value))
@@ -29,7 +28,6 @@ class Node:
         """
         self.children.append(child_node)
         child_node.parents.append(self)
-
 
     def get_child(self, childNum):
         return self.children[childNum]
@@ -75,7 +73,7 @@ class Node:
 
         return False
 
-    def plot_tree(self, nodes_plotted=None, rot_degree=0, title = ""):
+    def plot_tree(self, nodes_plotted=None, rot_degree=0, title=""):
         if nodes_plotted is None:
             nodes_plotted = set()
 
@@ -86,11 +84,10 @@ class Node:
 
         count = 0
         for id in self.traversalID.split(","):
-            if(id == "_"):
+            if (id == "_"):
                 continue
-            y+= int(id)*count
-            count+=1
-
+            y += int(id) * count
+            count += 1
 
         for i in range(4):
             x += self.traversalID.count(repr(i)) * i
@@ -128,8 +125,8 @@ class Node:
         for node in self.get_all_nodes(set()):
             node.traversalID = ""
 
-    def get_all_nodes(self, nodes:set):
-        if(self in nodes):
+    def get_all_nodes(self, nodes: set):
+        if (self in nodes):
             return
 
         nodes.add(self)
@@ -141,7 +138,7 @@ class Node:
 
 def gen_node_graph(node_type, graph_type="diamond", linear_count=1):
     """the basic starting points of both blueprints and modules"""
-    #print("initialising graph",node_type,"of shape",graph_type)
+    # print("initialising graph",node_type,"of shape",graph_type)
     input = node_type()
 
     if graph_type == "linear":
@@ -172,4 +169,3 @@ def gen_node_graph(node_type, graph_type="diamond", linear_count=1):
         pass
 
     return input
-

@@ -1,6 +1,5 @@
 from src.Graph.Node import Node
 from src.Module.ModuleNode import ModuleNode
-from torch import nn
 import torch
 
 
@@ -71,9 +70,14 @@ class BlueprintNode(Node):
             try:
                 input_module_node.insert_aggregator_nodes()
             except:
-                input_module_node.plot_tree()
-                print("failed to inser")
-            input_module_node.create_layers(in_features=in_features)
+                print('BP conns', self.blueprint_genome.connections)
+                print('BP nodes', self.blueprint_genome.nodes)
 
+                for mod in self.blueprint_genome.modules_used:
+                    print(mod.connections)
+
+                input_module_node.plot_tree()
+                print("failed to insert")
+            input_module_node.create_layers(in_features=in_features)
 
             return input_module_node

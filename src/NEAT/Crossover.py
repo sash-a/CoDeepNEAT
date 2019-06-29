@@ -14,14 +14,16 @@ def update_connection(conn: Connection, genome):
         conn.from_node = new_from
     else:
         # If the node is in the genome make the connection point to that node
-        conn.from_node = genome.get_node(conn.from_node.id)
+        new_from = conn.from_node = genome.get_node(conn.from_node.id)
 
     if conn.to_node.id not in genome.node_ids:
         new_to = copy.deepcopy(conn.to_node)
         genome.add_node(new_to)
         conn.to_node = new_to
     else:
-        conn.to_node = genome.get_node(conn.to_node.id)
+        new_to = conn.to_node = genome.get_node(conn.to_node.id)
+
+    return new_from, new_to
 
 
 def crossover(parent1, parent2):
@@ -52,6 +54,8 @@ def crossover(parent1, parent2):
             choice = copy.deepcopy(random.choice([best_conn, worst_conn]))
             child.add_connection(choice)
 
-            update_connection(choice, child)
+            from_node, to_node = update_connection(choice, child)
+            if from_node.x > to_node.x or from_node.id == to_node.id:
+                print('Crossed over and received node with bad x values or connections points from node to same node')
 
     return child

@@ -15,10 +15,10 @@ class NEATNode:
         self.node_type = node_type
 
     def midpoint(self, other):
-        return abs(self.x - other.x) / 2
+        return abs(self.x + other.x) / 2
 
     def __eq__(self, other):
-        return other.id == self.id and self.x == other.x
+        return other.id == self.id  # and self.x == other.x
 
     def __hash__(self):
         return self.id
