@@ -68,7 +68,11 @@ class BlueprintNode(Node):
         if len(self.parents) == 0:
             # print("blueprint parsed. getting module node traversal ID's")
             input_module_node.get_traversal_ids("_")
-            input_module_node.insert_aggregator_nodes()
+            try:
+                input_module_node.insert_aggregator_nodes()
+            except:
+                input_module_node.plot_tree()
+                print("failed to inser")
             input_module_node.create_layers(in_features=in_features)
 
 

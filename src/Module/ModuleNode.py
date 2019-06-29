@@ -4,7 +4,7 @@ import torch
 import torch.nn.functional as F
 import random
 from src.NeuralNetwork.Net import ModuleNet
-
+import copy
 
 # random.seed(0)
 
@@ -134,7 +134,10 @@ class ModuleNode(Node):
             self.parents[0].insert_aggregator_nodes("fromTop")
 
         if self.is_output_node():
-            self.get_input_node().get_traversal_ids('_')
+            input_node = self.get_input_node()
+            input_copy = copy.deepcopy(input_node)
+            input_node.clear()
+            input_node.get_traversal_ids('_')
 
     def pass_ann_input_up_graph(self, input, parent_id=""):
         """

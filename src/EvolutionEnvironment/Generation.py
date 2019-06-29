@@ -38,6 +38,7 @@ class Generation:
             blueprint = blueprint_individual.to_blueprint()
             if not blueprint.is_input_node():
                 print("blueprint graph handle node is not root node")
+
             module_graph = blueprint.parseto_module_graph(self, device=device)
 
             if print_graphs:

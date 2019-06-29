@@ -35,13 +35,13 @@ class Node:
         return self.children[childNum]
 
     def get_output_node(self):
-        if (len(self.children) == 0):
+        if self.is_output_node():
             return self
 
         return self.children[0].get_output_node()
 
     def get_input_node(self):
-        if len(self.parents) == 0:
+        if self.is_input_node():
             return self
 
         return self.parents[0].get_input_node()
@@ -50,6 +50,10 @@ class Node:
         """should be called on root node
             calculates all nodes traversal ID
         """
+
+        if not self.traversalID == "":
+            return
+
         self.traversalID = current_id
         # print(self,"num children:", len(self.children))
         # print("Me:",self,"child:",self.children[0])
@@ -70,22 +74,6 @@ class Node:
                 return True
 
         return False
-
-    def print_tree(self, nodes_printed=None):
-        if nodes_printed is None:
-            nodes_printed = set()
-
-        if self in nodes_printed:
-            return
-
-        nodes_printed.add(self)
-        self.print_node()
-
-        for child in self.children:
-            child.print_tree(nodes_printed)
-
-    def print_node(self, print_to_console=True):
-        pass
 
     def plot_tree(self, nodes_plotted=None, rot_degree=0, title = ""):
         if nodes_plotted is None:
@@ -135,6 +123,21 @@ class Node:
     def get_plot_colour(self):
         return 'ro'
 
+    def clear(self):
+
+        for node in self.get_all_nodes(set()):
+            node.traversalID = ""
+
+    def get_all_nodes(self, nodes:set):
+        if(self in nodes):
+            return
+
+        nodes.add(self)
+        for child in self.children:
+            child.get_all_nodes(nodes)
+
+        return nodes
+
 
 def gen_node_graph(node_type, graph_type="diamond", linear_count=1):
     """the basic starting points of both blueprints and modules"""
@@ -169,3 +172,4 @@ def gen_node_graph(node_type, graph_type="diamond", linear_count=1):
         pass
 
     return input
+
