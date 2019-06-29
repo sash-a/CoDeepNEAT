@@ -37,18 +37,26 @@ class Generation:
             print('\n\nTraining next blueprint')
             blueprint = blueprint_individual.to_blueprint()
             if not blueprint.is_input_node():
-                print("blueprint graph handle node is not root node")
+                print("Error: blueprint graph handle node is not root node")
 
             module_graph = blueprint.parseto_module_graph(self, device=device)
+            if(module_graph is None):
+                print("failed parsing blueprint to module graph")
+                continue
 
             if print_graphs:
                 blueprint.plot_tree(title="blueprint")
                 module_graph.plot_tree(title="module graph")
 
             if not module_graph.is_input_node():
-                print("module graph handle node is not root node")
+                print("Error: module graph handle node is not root node")
 
-            net = module_graph.to_nn(in_features=1, device=device)
+            try:
+                net = module_graph.to_nn(in_features=1, device=device)
+            except:
+                print("Error: failed to parse module graph into nn")
+                module_graph.plot_tree()
+                continue
 
             try:
                 net.specify_output_dimensionality(inputs, device=device)
@@ -56,7 +64,8 @@ class Generation:
                 #     module_graph.plot_tree(title="module graph without error")
 
             except Exception as e:
-                print(e)
+                print("Error:",e)
+                print("Error: nn failed to have input passed through")
                 module_graph.plot_tree(title="module graph with error")
                 continue
 

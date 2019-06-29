@@ -52,7 +52,6 @@ class ModuleNode(Node):
 
     def to_nn(self, in_features, device, print_graphs=False):
         self.create_layers(in_features=in_features, device=device)
-        self.insert_aggregator_nodes()
         if print_graphs:
             self.plot_tree()
         return ModuleNet(self).to(device)
@@ -72,12 +71,20 @@ class ModuleNode(Node):
                 try:
                     self.deep_layer = nn.Conv2d(self.in_features, self.out_features,
                                                 kernel_size=layer_type.get_sub_value("conv_window_size"),
-                                                stride=layer_type.get_sub_value("conv_stride")).to(device)
-                except:
+                                                stride=layer_type.get_sub_value("conv_stride"))
+                    try:
+                        self.deep_layer = self.deep_layer.to(device)
+                    except:
+                        print("created conv layer - but failed to move it to device",device)
+
+                except Exception as e:
+                    print("Error:",e)
                     print("failed to create conv", self, self.in_features, self.out_features,
                           layer_type.get_sub_value("conv_window_size"),
-                          layer_type.get_sub_value("conv_stride"))
+                          layer_type.get_sub_value("conv_stride"), "deep layer:",self.deep_layer)
                     print('Module with error', self.module_NEAT_genome.connections)
+
+
             else:
                 self.deep_layer = layer_type.get_value()(self.in_features, self.out_features).to(device)
 
@@ -135,7 +142,6 @@ class ModuleNode(Node):
 
         if self.is_output_node():
             input_node = self.get_input_node()
-            input_copy = copy.deepcopy(input_node)
             input_node.clear()
             input_node.get_traversal_ids('_')
 

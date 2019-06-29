@@ -64,7 +64,7 @@ class BlueprintNode(Node):
             for childBlueprintNode in self.children:
                 childBlueprintNode.parseto_module_graph(generation, output_module_node, species_indexes)
 
-        if len(self.parents) == 0:
+        if self.is_input_node():
             # print("blueprint parsed. getting module node traversal ID's")
             input_module_node.get_traversal_ids("_")
             try:
@@ -78,6 +78,6 @@ class BlueprintNode(Node):
 
                 input_module_node.plot_tree()
                 print("failed to insert")
-            input_module_node.create_layers(in_features=in_features)
+                return
 
             return input_module_node
