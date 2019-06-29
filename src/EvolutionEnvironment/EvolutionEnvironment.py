@@ -5,7 +5,7 @@ Evolution Environment is static as there should only ever be one
 Acts as the collection of current generation
 """
 
-numGenerations = 5
+numGenerations = 500
 
 
 def main():
