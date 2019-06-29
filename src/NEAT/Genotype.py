@@ -10,9 +10,11 @@ class Genome:
         self.fitness = 0
         self.adjusted_fitness = 0
 
+        # TODO make this a map
         self.nodes = nodes
         self.node_ids = set([node.id for node in nodes])
 
+        # TODO make this a map
         self.innov_nums = set()
         self.connections = []
         for connection in connections:

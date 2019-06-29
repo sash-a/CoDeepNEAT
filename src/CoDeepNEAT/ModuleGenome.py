@@ -28,14 +28,14 @@ class ModuleGenome(Genome):
         root_node = None
         # initialises blueprint nodes and maps them to their genes
         for module_neat_node in self.nodes:
-            module_graph_node_map[module_neat_node] = ModuleNode(module_neat_node, self)
+            module_graph_node_map[module_neat_node.id] = ModuleNode(module_neat_node, self)
             if module_neat_node.is_input_node():
-                root_node = module_graph_node_map[module_neat_node]
+                root_node = module_graph_node_map[module_neat_node.id]
 
         # connects the blueprint nodes as indicated by the genome
         for connection in self.connections:
-            parent = module_graph_node_map[connection.from_node]
-            child = module_graph_node_map[connection.to_node]
+            parent = module_graph_node_map[connection.from_node.id]
+            child = module_graph_node_map[connection.to_node.id]
 
             parent.add_child(child)
 

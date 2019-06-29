@@ -22,13 +22,13 @@ class BlueprintGenome(Genome):
         root_node = None
         # initialises blueprint nodes and maps them to their genes
         for blueprint_neat_node in self.nodes:
-            blueprint_graph_node_map[blueprint_neat_node] = BlueprintNode(blueprint_neat_node, self)
+            blueprint_graph_node_map[blueprint_neat_node.id] = BlueprintNode(blueprint_neat_node, self)
             if blueprint_neat_node.is_input_node():
-                root_node = blueprint_graph_node_map[blueprint_neat_node]
+                root_node = blueprint_graph_node_map[blueprint_neat_node.id]
         # connects the blueprint nodes as indicated by the genome
         for connection in self.connections:
-            parent = blueprint_graph_node_map[connection.from_node]
-            child = blueprint_graph_node_map[connection.to_node]
+            parent = blueprint_graph_node_map[connection.from_node.id]
+            child = blueprint_graph_node_map[connection.to_node.id]
 
             parent.add_child(child)
 

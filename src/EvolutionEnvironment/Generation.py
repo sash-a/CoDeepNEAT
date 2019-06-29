@@ -51,8 +51,8 @@ class Generation:
 
             try:
                 net.specify_output_dimensionality(inputs, device=device)
-                if (generation > 0):
-                    module_graph.plot_tree(title="module graph without error")
+                # if (generation > 0):
+                #     module_graph.plot_tree(title="module graph without error")
 
             except Exception as e:
                 print(e)
