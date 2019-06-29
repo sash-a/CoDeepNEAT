@@ -9,6 +9,8 @@ class NodeMutation:
         self.to_conn = to_conn
 
     def __eq__(self, other):
+        if type(other) != NodeMutation:
+            return False
         return other.node_id == self.node_id and other.from_conn == self.from_conn and other.to_conn == self.to_conn
 
     def __hash__(self):
@@ -25,6 +27,9 @@ class ConnectionMutation:
         self.conn: Connection = conn
 
     def __eq__(self, other):
+        if type(other) != ConnectionMutation:
+            return False
+
         return other.conn == self.conn
 
     def __hash__(self):
