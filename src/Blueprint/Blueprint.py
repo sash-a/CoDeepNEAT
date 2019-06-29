@@ -19,7 +19,7 @@ class BlueprintNode(Node):
         self.module_leaf = None  # upon parsing this will hold the output node of the module
         self.blueprint_genome = blueprint_genome
 
-        if(blueprint_NEAT_node is None):
+        if blueprint_NEAT_node is None:
             print("null neat node passed to blueprint")
         self.generate_blueprint_node_from_gene(blueprint_NEAT_node)
 

@@ -1,5 +1,5 @@
-from src.NEAT.NEATNode import NEATNode
-from src.NEAT.NEATNode import NodeType
+from src.NEAT.NEATNode import NEATNode, NodeType
+
 
 
 class BlueprintNEATNode(NEATNode):
@@ -8,4 +8,3 @@ class BlueprintNEATNode(NEATNode):
         super(BlueprintNEATNode, self).__init__(id, x, node_type=node_type)
         self.species_number = 0
 
-    pass

@@ -18,7 +18,6 @@ class Genome:
         for connection in connections:
             self.add_connection(connection)
 
-
     def add_connection(self, new_connection):
         """Adds a new connection maintaining the order of the connections list"""
         pos = 0
@@ -71,15 +70,8 @@ class Genome:
 
         return disjoint, excess
 
-    def _mutate_add_node(self, conn: Connection, curr_gen_mutations: set, innov: int, node_id: int):
-        conn.enabled = False
-
-        mutated_node = NEATNode(node_id + 1, conn.from_node.midpoint(conn.to_node))
-        mutated_from_conn = Connection(conn.from_node, mutated_node)
-        mutated_to_conn = Connection(mutated_node, conn.to_node)
-
-        mutation = NodeMutation(mutated_node.id, mutated_from_conn, mutated_to_conn)
-
+    def _check_node_mutation(self, mutation, mutated_node, mutated_from_conn, mutated_to_conn, curr_gen_mutations,
+                             innov, node_id):
         # New mutation
         if mutation not in curr_gen_mutations:
             innov += 1
@@ -100,6 +92,24 @@ class Genome:
                     mutated_node.id = prev_mutation.node_id
                     break
 
+        return innov, node_id
+
+    def _mutate_add_node(self, conn: Connection, curr_gen_mutations: set, innov: int, node_id: int):
+        conn.enabled = False
+
+        mutated_node = NEATNode(node_id + 1, conn.from_node.midpoint(conn.to_node))
+        mutated_from_conn = Connection(conn.from_node, mutated_node)
+        mutated_to_conn = Connection(mutated_node, conn.to_node)
+
+        mutation = NodeMutation(mutated_node.id, mutated_from_conn, mutated_to_conn)
+
+        innov, node_id = self._check_node_mutation(mutation,
+                                                   mutated_node,
+                                                   mutated_from_conn,
+                                                   mutated_to_conn,
+                                                   curr_gen_mutations, innov,
+                                                   node_id)
+
         self.add_connection(mutated_from_conn)
         self.add_connection(mutated_to_conn)
         self.add_node(mutated_node)
@@ -113,11 +123,12 @@ class Genome:
         if node1 == node2 or mutated_conn in self.connections or Connection(to_node, from_node) in self.connections:
             return self
 
-        # Check if the connection exist
+        # Check if the connection exist somewhere else
         mutation = ConnectionMutation(mutated_conn)
         if mutation not in curr_gen_mutations:
             innov += 1
             mutated_conn.innovation = innov
+            curr_gen_mutations.add(mutation)
         else:
             for prev_mutation in curr_gen_mutations:
                 if mutation == prev_mutation:

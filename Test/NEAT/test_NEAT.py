@@ -1,17 +1,17 @@
 import random
 
 from src.NEAT.Connection import Connection
-from src.NEAT.Node import Node, NodeType
+from src.NEAT.NEATNode import NEATNode, NodeType
 from src.NEAT.Genotype import Genome
 from src.NEAT.Species import Species
 from src.NEAT.Mutation import ConnectionMutation, NodeMutation
 from src.NEAT.Crossover import crossover
 
-nodes = [Node(0, 0, NodeType.INPUT),
-         Node(1, 0, NodeType.INPUT),
-         Node(2, 0, NodeType.INPUT),
-         Node(3, 1, NodeType.HIDDEN),
-         Node(4, 2, NodeType.OUTPUT)
+nodes = [NEATNode(0, 0, NodeType.INPUT),
+         NEATNode(1, 0, NodeType.INPUT),
+         NEATNode(2, 0, NodeType.INPUT),
+         NEATNode(3, 1, NodeType.HIDDEN),
+         NEATNode(4, 2, NodeType.OUTPUT)
          ]
 """
     4
@@ -93,7 +93,7 @@ def test_mutation():
     current_gen_mutations = set()
 
     n_innov, n_node_id = g._mutate_add_node(connections[2], current_gen_mutations, 3, 4)
-    expected_node = Node(5, 1)
+    expected_node = NEATNode(5, 1)
     expected_from_conn = Connection(nodes[2], expected_node)
     expected_to_conn = Connection(expected_node, nodes[4])
 
@@ -111,7 +111,7 @@ def test_mutation():
     assert n_innov == 6
 
     # Innovation numbers shouldnt increase mutation already exists
-    fake_node = Node(6, 0.5)
+    fake_node = NEATNode(6, 0.5)
     fake_connection_from = Connection(nodes[0], fake_node, innovation=7)
     fake_connection_to = Connection(fake_node, nodes[3], innovation=8)
     fake_mutation = NodeMutation(fake_node.id, fake_connection_from, fake_connection_to)
