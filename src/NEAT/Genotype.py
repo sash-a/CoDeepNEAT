@@ -20,6 +20,9 @@ class Genome:
 
     def add_connection(self, new_connection):
         """Adds a new connection maintaining the order of the connections list"""
+        if new_connection.innovation in self.innov_nums:
+            return -1
+
         pos = 0
         for i, connection in enumerate(self.connections, 0):
             if new_connection.innovation < connection.innovation:
