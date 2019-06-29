@@ -26,7 +26,8 @@ class ModuleNode(Node):
 
     def __init__(self, module_NEAT_node, module_genome):
         Node.__init__(self)
-        self.blueprint_connections = []#blueprints connect module nodes vai aprent/child relationships - these must be recored so they may be severed when the blueprint is dissolved
+        self.traversed = False
+
 
         self.deep_layer = None  # an nn layer object such as    nn.Conv2d(3, 6, 5) or nn.Linear(84, 10)
         self.in_features = -1
@@ -148,12 +149,14 @@ class ModuleNode(Node):
             if co is not None:
                 child_out = co
 
-        if child_out is not None:
-            return child_out
+        # if child_out is not None:
+        #     return child_out
 
         if self.is_output_node():
-            #print("output node reached in module graph - returning output == none ~", (output is None))
+            print("output node reached in module graph - returning output == none ~", (output is None))
             return output  # output of final output node must be bubbled back up to the top entry point of the nn
+
+        return child_out
 
     def pass_input_through_layer(self, input):
         if input is None:
@@ -249,16 +252,3 @@ class ModuleNode(Node):
             return self.get_out_features(deep_layer=deep_layer), new_input.size()[2], new_input.size()[3]
         elif type(deep_layer) == nn.Linear:
             return self.get_out_features(deep_layer=deep_layer)
-
-    def add_child(self, child_node, connection_type_is_module = True):
-        super(ModuleNode,self).add_child(child_node,connection_type_is_module)
-        if(not connection_type_is_module):
-            self.blueprint_connections.append(child_node)
-
-    def clear(self):
-        for blueprint_connection in self.blueprint_connections:
-            self.remove_child(blueprint_connection)
-
-        self.blueprint_connections = []
-        for child in self.children:
-            child.clear()

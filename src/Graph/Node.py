@@ -23,19 +23,13 @@ class Node:
     def add_child(self, value=None):
         self.add_child(Node(value))
 
-    def add_child(self, child_node, connection_type_is_module = True):
+    def add_child(self, child_node):
         """
         :param childNode: Node to be added - can have subtree underneath
         """
         self.children.append(child_node)
         child_node.parents.append(self)
 
-    def remove_child(self, child):
-        if(not child in self.children):
-            print("cannot remove child",child," from",self, " it is not present in children list")
-            return
-        self.children.remove(child)
-        child.parents.remove(self)
 
     def get_child(self, childNum):
         return self.children[childNum]

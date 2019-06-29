@@ -40,7 +40,7 @@ class ModuleGenome(Genome):
             parent.add_child(child)
 
         self.module_node = root_node
-        return root_node
+        return copy.deepcopy(root_node)
 
     def _mutate_add_node(self, conn: Connection, curr_gen_mutations: set, innov: int, node_id: int):
         conn.enabled = False

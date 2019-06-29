@@ -40,6 +40,8 @@ class ModuleNet(nn.Module):
         x = self.moduleGraph.pass_ann_input_up_graph(x)
         if (x is None):
             print("received null output from module graph given non null input")
+            return
+
         if self.dimensionality_configured:
 
             batch_size = x.size()[0]

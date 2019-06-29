@@ -55,7 +55,7 @@ class BlueprintNode(Node):
             first_traversal = False
 
         if module_construct is not None:
-            module_construct.add_child(input_module_node, connection_type_is_module= False)
+            module_construct.add_child(input_module_node)
         else:
             if not self.is_input_node():
                 print("null module construct passed to non root blueprint node")
