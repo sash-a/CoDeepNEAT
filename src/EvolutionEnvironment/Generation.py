@@ -30,23 +30,21 @@ class Generation:
         for module_individual in self.module_population.individuals:
             module_individual.clear()  # this also sets fitness to zero
 
-    def evaluate(self,generation, device=torch.device("cuda:0"), print_graphs=True):
+    def evaluate(self, generation, device=torch.device("cuda:0"), print_graphs=True):
         inputs, targets = Evaluator.sample_data('mnist', '../../data', device=device)
 
         for blueprint_individual in self.blueprint_population.individuals:
             print('\n\nTraining next blueprint')
             blueprint = blueprint_individual.to_blueprint()
-            if (not blueprint.is_input_node()):
+            if not blueprint.is_input_node():
                 print("blueprint graph handle node is not root node")
             module_graph = blueprint.parseto_module_graph(self, device=device)
-
-
 
             if print_graphs:
                 blueprint.plot_tree(title="blueprint")
                 module_graph.plot_tree(title="module graph")
 
-            if(not module_graph.is_input_node()):
+            if (not module_graph.is_input_node()):
                 print("module graph handle node is not root node")
 
             net = module_graph.to_nn(in_features=1, device=device)

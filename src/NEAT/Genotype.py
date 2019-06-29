@@ -41,8 +41,17 @@ class Genome:
         return None
 
     def add_node(self, node):
-        self.node_ids.add(node.id)
-        self.nodes.append(node)
+        if node.id not in self.node_ids:
+            self.node_ids.add(node.id)
+            self.nodes.append(node)
+
+    def get_node(self, id):
+        if id not in self.node_ids:
+            return None
+
+        for node in self.nodes:
+            if node.id == id:
+                return node
 
     def distance_to(self, other_indv, c1=1, c2=1):
         n = max(len(self.connections), len(other_indv.connections))
@@ -61,9 +70,11 @@ class Genome:
         disjoint = []
         excess = []
 
+        other_max_innov = other.connections[-1].innovation
+
         for connection in self.connections:
             if connection.innovation not in other.innov_nums:
-                if connection.innovation > other.connections[-1].innovation:
+                if connection.innovation > other_max_innov:
                     excess.append(connection)
                 else:
                     disjoint.append(connection)
