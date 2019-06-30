@@ -20,7 +20,11 @@ class Population:
 
         self.gen_mutations = set()
         self.curr_innov = max(indv.connections[-1].innovation for indv in population)
-        self.max_node_id = len(population)  # this assumes that no nodes are disabled in initial population
+        self.max_node_id = 6  # TODO len(population)  # this assumes that no nodes are disabled in initial population
+
+        # Either connection mutation: nodeid#nodeid : innovation number
+        # Or node mutation: innovation number : nodeid
+        self.mutation = dict()
 
         self.individuals = population
         self.species: List[Species] = []
@@ -101,14 +105,19 @@ class Population:
                 parent2 = random.choice(remaining_members)
 
                 child = crossover(parent1, parent2)
-                child.mutate(self.gen_mutations,
-                             self.curr_innov,
-                             self.max_node_id,
-                             Props.NODE_MUTATION_CHANCE,
-                             Props.CONNECTION_MUTATION_CHANCE)
+
+                self.curr_innov, self.max_node_id = child.mutate(self.gen_mutations,
+                                                                 self.curr_innov,
+                                                                 self.max_node_id,
+                                                                 Props.NODE_MUTATION_CHANCE,
+                                                                 Props.CONNECTION_MUTATION_CHANCE)
 
                 new_pop.append(child)
 
         self.individuals = new_pop
         self.speciate()
+
         self.gen_mutations.clear()
+        for indv in self.individuals:
+            for conn in indv.connections:
+                conn.validate()

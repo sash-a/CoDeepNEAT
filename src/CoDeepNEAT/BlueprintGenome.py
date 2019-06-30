@@ -27,6 +27,8 @@ class BlueprintGenome(Genome):
                 root_node = blueprint_graph_node_map[blueprint_neat_node.id]
         # connects the blueprint nodes as indicated by the genome
         for connection in self.connections:
+            if not connection.enabled:
+                continue
             parent = blueprint_graph_node_map[connection.from_node.id]
             child = blueprint_graph_node_map[connection.to_node.id]
 
@@ -54,6 +56,8 @@ class BlueprintGenome(Genome):
         self.add_connection(mutated_from_conn)
         self.add_connection(mutated_to_conn)
         self.add_node(mutated_node)
+
+        print('mutated node', node_id, mutated_from_conn, mutated_to_conn)
 
         return innov, node_id
 

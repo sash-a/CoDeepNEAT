@@ -40,7 +40,7 @@ def initialise_blueprints():
     for nodes, connections in zip(blueprint_node_lists, blueprint_connection_lists):
         blueprint_reps.append(BlueprintGenome(connections, nodes))
 
-    return blueprint_reps
+    return [blueprint_reps[0], blueprint_reps[1]]
 
 
 def initialise_modules():

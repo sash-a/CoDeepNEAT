@@ -6,6 +6,13 @@ class Connection:
         self.enabled = enabled
         self.innovation = innovation
 
+    def validate(self):
+        if self.from_node.x > self.to_node.x:
+            print('Issue with to connection')
+
+        if self.from_node.x > self.to_node.x:
+            print('Issue with from connection')
+
     def __repr__(self):
         return str(self.from_node) + ' -> ' + str(self.to_node) + ' innov: ' + str(self.innovation)
 

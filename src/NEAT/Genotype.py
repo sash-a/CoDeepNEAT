@@ -138,7 +138,7 @@ class Genome:
         # Make sure nodes aren't equal and there isn't already a connection between them
         if node1.id == node2.id or mutated_conn in self.connections or Connection(to_node,
                                                                                   from_node) in self.connections:
-            return self
+            return innov
 
         # Check if the connection exist somewhere else
         mutation = ConnectionMutation(mutated_conn)
@@ -154,15 +154,15 @@ class Genome:
 
         self.add_connection(mutated_conn)
 
-        if from_node.x > to_node.x or from_node.id == to_node.id:
-            print('Mutated and received node with bad x values or connections points from node to same node')
+        print('mutated connection', mutated_conn)
 
         return innov
 
     def mutate(self, curr_gen_mutations: set, innov: int, node_id: int, node_chance=0.03, conn_chance=0.5):
-        chance = random.random()
+        if random.random() < node_chance:  # Add a new node
+            return self._mutate_add_node(random.choice(self.connections), curr_gen_mutations, innov, node_id)
+        elif random.random() < conn_chance:  # Add a new connection
+            return self._mutate_connection(random.choice(self.nodes), random.choice(self.nodes), curr_gen_mutations,
+                                           innov), node_id
 
-        if chance < node_chance:  # Add a new node
-            self._mutate_add_node(random.choice(self.connections), curr_gen_mutations, innov, node_id)
-        elif chance < conn_chance:  # Add a new connection
-            self._mutate_connection(random.choice(self.nodes), random.choice(self.nodes), curr_gen_mutations, innov)
+        return innov, node_id

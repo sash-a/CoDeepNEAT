@@ -40,7 +40,7 @@ class Generation:
                 print("Error: blueprint graph handle node is not root node")
 
             module_graph = blueprint.parseto_module_graph(self, device=device)
-            if(module_graph is None):
+            if module_graph is None:
                 print("failed parsing blueprint to module graph")
                 continue
 
@@ -64,7 +64,7 @@ class Generation:
                 #     module_graph.plot_tree(title="module graph without error")
 
             except Exception as e:
-                print("Error:",e)
+                print("Error:", e)
                 print("Error: nn failed to have input passed through")
                 module_graph.plot_tree(title="module graph with error")
                 continue
