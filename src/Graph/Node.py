@@ -122,19 +122,37 @@ class Node:
 
     def clear(self):
 
-        for node in self.get_all_nodes(set()):
+        for node in self.get_all_nodes_via_bottom_up(set()):
             node.traversalID = ""
 
-    def get_all_nodes(self, nodes: set):
+    def get_all_nodes_via_bottom_up(self, nodes: set):
         if (self in nodes):
             return
 
         nodes.add(self)
         for child in self.children:
-            child.get_all_nodes(nodes)
+            child.get_all_nodes_via_bottom_up(nodes)
 
         return nodes
 
+    def get_all_nodes_via_top_down(self, nodes: set):
+        """should be called from the output node"""
+        if (self in nodes):
+            return
+
+        nodes.add(self)
+        for parent in self.parents:
+            parent.get_all_nodes_via_top_down(nodes)
+
+        return nodes
+
+    def severe_node(self):
+        """removes this node entirely from the graph.
+        removes self as a child of all parents and removes self as a parent of all children"""
+        for parent in self.parents:
+            parent.children.remove(self)
+        for child in self.children:
+            child.parents.remove(self)
 
 def gen_node_graph(node_type, graph_type="diamond", linear_count=1):
     """the basic starting points of both blueprints and modules"""

@@ -32,7 +32,7 @@ class Generation:
         for module_individual in self.module_population.individuals:
             module_individual.clear()  # this also sets fitness to zero
 
-    def evaluate(self, generation, device=torch.device("cuda:0"), print_graphs=True):
+    def evaluate(self, generation_number, device=torch.device("cuda:0"), print_graphs=True):
         inputs, targets = Evaluator.sample_data('mnist', '../../data', device=device)
 
         for blueprint_individual in self.blueprint_population.individuals:

@@ -158,23 +158,10 @@ class Genome:
         """
 
         graph_node_map = {}
-        nodes_with_incomming_conn = set()
-        nodes_with_outgoing_conn = set()
         root_node = None
 
-        # Only consider nodes with connections
-        for conn in self.connections:
-            if conn.enabled:
-                nodes_with_incomming_conn.add(conn.to_node)
-                nodes_with_outgoing_conn.add(conn.from_node)
-
-        active_nodes = nodes_with_incomming_conn.intersection(nodes_with_outgoing_conn)
-        for node in self.nodes:
-            if node.node_type == NodeType.INPUT or node.node_type == NodeType.OUTPUT:
-                active_nodes.add(node)
-
         # initialises nodes and maps them to their genes
-        for neat_node in active_nodes:
+        for neat_node in self.nodes:
             graph_node_map[neat_node.id] = Phenotype(neat_node, self)
             if neat_node.is_input_node():
                 root_node = graph_node_map[neat_node.id]
@@ -190,6 +177,17 @@ class Genome:
                 parent.add_child(child)
             except KeyError:
                 pass
+
+        output_reaching_nodes = root_node.get_all_nodes_via_bottom_up(set())
+        input_reaching_nodes = root_node.get_output_node().get_all_nodes_top_down(set())
+
+        fully_connected_nodes = output_reaching_nodes.intersect(input_reaching_nodes)
+        for neat_node in self.nodes:
+            graph_node = graph_node_map[neat_node.id]
+            if(graph_node in fully_connected_nodes):
+                continue
+            graph_node.severe_node()
+
 
         root_node.get_traversal_ids("_")
         return root_node
