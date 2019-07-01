@@ -46,10 +46,10 @@ class Generation:
                 print("failed parsing blueprint to module graph")
                 continue
 
-            if print_graphs and random.random() < 0.01:
+            if print_graphs and random.random() > 0.8:
                 print('\n\nPRINTING BLUEPRINTS AND MODULES\n')
-                blueprint.plot_tree(title="blueprint sample")
-                module_graph.plot_tree(title="module graph created from sample")
+                # blueprint.plot_tree(title="blueprint")
+                module_graph.plot_tree(title="module graph")
                 print('Blueprint')
                 print(blueprint_individual)
                 print('modules')

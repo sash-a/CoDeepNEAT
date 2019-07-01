@@ -10,11 +10,9 @@ class Genome:
         self.fitness = 0
         self.adjusted_fitness = 0
 
-        # TODO make this a map
         self.nodes = nodes
         self.node_ids = set([node.id for node in nodes])
 
-        # TODO make this a map
         self.innov_nums = set()
         self.connections = []
         for connection in connections:
@@ -45,10 +43,20 @@ class Genome:
 
         return None
 
-    def add_node(self, node):
-        if node.id not in self.node_ids:
-            self.node_ids.add(node.id)
-            self.nodes.append(node)
+    def add_node(self, new_node):
+        """Adds a new node maintaining the order of the node list"""
+        if new_node.id in self.node_ids:
+            return -1
+
+        pos = 0
+        for i, node in enumerate(self.nodes, 0):
+            if new_node.id < node.id:
+                break
+            pos += 1
+
+        self.nodes.insert(pos, new_node)
+        self.node_ids.add(new_node.id)
+        return pos
 
     def get_node(self, id):
         if id not in self.node_ids:
@@ -97,7 +105,10 @@ class Genome:
         node_id += 1
 
         if conn.innovation in mutations:
-            prev_id, from_innov, to_innov = mutations[conn.innovation]
+            prev_id = mutations[conn.innovation]
+            from_innov = mutations[(conn.from_node.id, prev_id)]
+            to_innov = mutations[(prev_id, conn.to_node.id)]
+
             mutated_node.id = prev_id
             mutated_from_conn.innovation = from_innov
             mutated_to_conn.innovation = to_innov
@@ -105,11 +116,11 @@ class Genome:
             innov -= 2
             node_id -= 1
         else:
-            # Tracking the added nodes
-            mutations[conn.innovation] = (node_id, mutated_from_conn.innovation, mutated_to_conn.innovation)
+            # Tracking the added node
+            mutations[conn.innovation] = node_id
             # Tracking the added connections
-            mutations[(mutated_from_conn.from_node.id, mutated_from_conn.to_node.id)] = mutated_from_conn.innovation
-            mutations[(mutated_to_conn.from_node.id, mutated_to_conn.to_node.id)] = mutated_to_conn.innovation
+            mutations[(conn.from_node.id, node_id)] = mutated_from_conn.innovation
+            mutations[(node_id, conn.to_node.id)] = mutated_to_conn.innovation
 
         self.add_connection(mutated_from_conn)
         self.add_connection(mutated_to_conn)
@@ -118,22 +129,14 @@ class Genome:
         return innov, node_id
 
     def _mutate_add_connection(self, node1: NEATNode, node2: NEATNode, mutations: dict, innov: int):
-        #
-        for i in range(Props.MUTATION_TRIES):
-            from_node, to_node = (node1, node2) if node1.x < node2.x else (node2, node1)
-            mutated_conn = Connection(from_node, to_node)
+        from_node, to_node = (node1, node2) if node1.x < node2.x else (node2, node1)
+        mutated_conn = Connection(from_node, to_node)
 
-            # If run enough times and can't mutate then just return
-            if i == Props.MUTATION_TRIES - 1:
-                return innov
-
-            # Make sure nodes aren't equal and there isn't already a connection between them
-            if node1.id == node2.id or \
-                    mutated_conn in self.connections or \
-                    Connection(to_node, from_node) in self.connections:
-                continue  # try again
-            else:
-                break  # do mutation
+        # Make sure nodes aren't equal and there isn't already a connection between them
+        if node1.id == node2.id or \
+                mutated_conn in self.connections or \
+                Connection(to_node, from_node) in self.connections:
+            return None
 
         # Check if the connection exist somewhere else
         possible_mutation = (from_node.id, to_node.id)
@@ -154,13 +157,22 @@ class Genome:
                conn_chance=Props.CONNECTION_MUTATION_CHANCE, enabled_chance=Props.ENABLE_DISABLE_CHANCE):
 
         if random.random() < node_chance:  # Add a new node
+            print('Mutated node')
             innov, node_id = self._mutate_add_node(random.choice(self.connections), mutations, innov, node_id)
 
         if random.random() < conn_chance:  # Add a new connection
-            innov = self._mutate_add_connection(
-                random.choice(self.nodes),
-                random.choice(self.nodes),
-                mutations, innov)
+            # Try until find acceptable nodes
+            for _ in range(Props.MUTATION_TRIES):
+                outcome = self._mutate_add_connection(
+                    random.choice(self.nodes),
+                    random.choice(self.nodes),
+                    mutations, innov)
+
+                # Found acceptable nodes
+                if outcome is not None:
+                    innov = outcome
+                    print('Mutated connection')
+                    break
 
         for mutagen in self.get_all_mutagens():
             mutagen.mutate()
