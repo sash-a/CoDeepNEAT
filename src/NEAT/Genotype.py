@@ -192,9 +192,9 @@ class Genome:
                 pass
 
         output_reaching_nodes = root_node.get_all_nodes_via_bottom_up(set())
-        input_reaching_nodes = root_node.get_output_node().get_all_nodes_top_down(set())
+        input_reaching_nodes = root_node.get_output_node().get_all_nodes_via_top_down(set())
 
-        fully_connected_nodes = output_reaching_nodes.intersect(input_reaching_nodes)
+        fully_connected_nodes = output_reaching_nodes.intersection(input_reaching_nodes)
         for neat_node in self.nodes:
             graph_node = graph_node_map[neat_node.id]
             if graph_node in fully_connected_nodes:

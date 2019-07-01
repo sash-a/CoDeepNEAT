@@ -10,7 +10,7 @@ class ValueType(Enum):  # TODO assign node type
 class Mutagen():
 
     def __init__(self, *discreet_options, current_value=-1, start_range=None, end_range=None,
-                 value_type=ValueType.DISCRETE, sub_mutagens: dict = None):
+                 value_type=ValueType.DISCRETE, sub_mutagens: dict = None, discreet_value = None):
         """defaults to discrete values. can hold whole numbers/ real numbers in a range"""
 
         self.value_type = value_type
@@ -32,6 +32,8 @@ class Mutagen():
                 "error in initialising mutagen. value must either be discreet and provided with options. or numerical values with a provided range")
 
         self.sub_values= sub_mutagens
+        if not (discreet_value is None):
+            self.set_value(discreet_value)
 
     def get_value(self):
         """returns the number value, or the option at curent_value_id

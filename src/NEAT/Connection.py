@@ -8,8 +8,7 @@ class Connection:
         self.to_node: NEATNode = to_node
         self.connection_type = connection_type
         # self.enabled = enabled
-        self.enabled = Mutagen(True, False)
-        self.enabled.set_value(enabled)
+        self.enabled = Mutagen(True, False,discreet_value=enabled)
         self.innovation = innovation
 
     def validate(self):
