@@ -162,7 +162,7 @@ class ModuleNode(Node):
         #     return child_out
 
         if self.is_output_node():
-            print("output node reached in module graph - returning output == none ~", (output is None))
+            #print("output node reached in module graph - returning output == none ~", (output is None))
             return output  # output of final output node must be bubbled back up to the top entry point of the nn
 
         return child_out

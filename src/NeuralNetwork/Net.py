@@ -33,6 +33,7 @@ class ModuleNet(nn.Module):
         self.dimensionality_configured = True
         self.outputDimensionality = output_dimensionality
 
+
     def forward(self, x):
         if (x is None):
             print("null x passed to forward 1")

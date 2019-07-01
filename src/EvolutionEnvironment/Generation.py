@@ -18,6 +18,7 @@ class Generation:
         print('initialising population')
         module_population = Population(PopulationInitialiser.initialise_modules())
         blueprint_population = Population(PopulationInitialiser.initialise_blueprints())
+
         print('population initialized')
         return module_population, blueprint_population
 
@@ -36,49 +37,20 @@ class Generation:
         inputs, targets = Evaluator.sample_data('mnist', '../../data', device=device)
 
         for blueprint_individual in self.blueprint_population.individuals:
-            print('\n\nTraining next blueprint')
+            #print('\n\nTraining next blueprint')
             blueprint = blueprint_individual.to_blueprint()
-            if not blueprint.is_input_node():
-                print("Error: blueprint graph handle node is not root node")
 
             module_graph = blueprint.parseto_module_graph(self, device=device)
-            if module_graph is None:
-                print("failed parsing blueprint to module graph")
-                continue
 
-            if print_graphs and random.random() > 0.8:
-                print('\n\nPRINTING BLUEPRINTS AND MODULES\n')
-                blueprint.plot_tree(title="blueprint")
-                module_graph.plot_tree(title="module graph")
-                print('Blueprint')
-                print(blueprint_individual)
-                print('modules')
-                for module in blueprint_individual.modules_used:
-                    print(module)
+            net = module_graph.to_nn(in_features=1, device=device)
 
-            if not module_graph.is_input_node():
-                print("Error: module graph handle node is not root node")
+            net.specify_output_dimensionality(inputs, device=device)
 
-            try:
-                net = module_graph.to_nn(in_features=1, device=device)
-            except:
-                print("Error: failed to parse module graph into nn")
-                module_graph.plot_tree()
-                continue
 
-            try:
-                net.specify_output_dimensionality(inputs, device=device)
-                # if (generation > 0):
-                #     module_graph.plot_tree(title="module graph without error")
-
-            except Exception as e:
-                print("Error:", e)
-                print("Error: nn failed to have input passed through")
-                module_graph.plot_tree(title="module graph with error")
-                continue
-
-            acc = 46  # Evaluator.evaluate(net, 1, dataset='mnist', path='../../data', device=device, batch_size=64)
+            acc = Evaluator.evaluate(net, 1, dataset='mnist', path='../../data', device=device, batch_size=64)
             blueprint_individual.report_fitness(acc)
 
             for module_individual in blueprint_individual.modules_used:
                 module_individual.report_fitness(acc)
+
+

@@ -1,5 +1,5 @@
 # modified from https://github.com/pytorch/examples/blob/master/mnist/main.py
-
+import Augmentor
 import torch
 from torch import no_grad, nn
 import torch.nn.functional as F
@@ -31,10 +31,19 @@ def train(model, device, train_loader, epoch, test_loader, print_accuracy=True):
 
     s = time.time()
 
+    #
+    pipe = Augmentor.Pipeline()
+    pipe.flip_left_right(1)
+    pipe.rotate90(1)
+    #
+
     for batch_idx, (inputs, targets) in enumerate(train_loader):
         inputs, targets = inputs.to(device), targets.to(device)
         model.optimizer.zero_grad()
-        augmented_inputs, augmented_labels = placeholder.augment_batch(inputs, targets)
+        batch = transforms.ToPILImage()(inputs[0])
+        batch = pipe(batch)
+        print(batch)
+        #augmented_inputs, augmented_labels = placeholder.augment_batch(inputs, targets)
 
         output = model(inputs)
         m_loss = model.loss_fn(output, targets.float())
