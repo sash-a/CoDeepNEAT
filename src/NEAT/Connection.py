@@ -1,7 +1,10 @@
+from src.NEAT.NEATNode import NEATNode
+
+
 class Connection:
     def __init__(self, from_node, to_node, connection_type=None, enabled=True, innovation=0):
-        self.from_node = from_node
-        self.to_node = to_node
+        self.from_node: NEATNode = from_node
+        self.to_node: NEATNode = to_node
         self.connection_type = connection_type
         self.enabled = enabled
         self.innovation = innovation

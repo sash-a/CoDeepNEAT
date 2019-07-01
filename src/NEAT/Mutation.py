@@ -3,10 +3,14 @@ from src.NEAT.Connection import Connection
 
 class NodeMutation:
 
-    def __init__(self, node_id, from_conn, to_conn):
+    def __init__(self, node_id, from_conn, to_conn, old_conn_innov):
         self.node_id = node_id
         self.from_conn: Connection = from_conn
         self.to_conn: Connection = to_conn
+        self.old_conn_innov = old_conn_innov
+
+    def get_lookup(self):
+        return str(self.old_conn_innov)
 
     def __eq__(self, other):
         if type(other) != NodeMutation:
@@ -25,6 +29,9 @@ class ConnectionMutation:
 
     def __init__(self, conn):
         self.conn: Connection = conn
+
+    def get_lookup(self):
+        return str(self.conn.from_node.id) + ':' + str(self.conn.to_node.id)
 
     def __eq__(self, other):
         if type(other) != ConnectionMutation:
