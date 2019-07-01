@@ -7,9 +7,6 @@ from src.NeuralNetwork.Net import ModuleNet
 import copy
 
 
-# random.seed(0)
-
-
 class ModuleNode(Node):
     """
     ModuleNode represents a node in a module
@@ -75,13 +72,13 @@ class ModuleNode(Node):
                     try:
                         self.deep_layer = self.deep_layer.to(device)
                     except:
-                        print("created conv layer - but failed to move it to device",device)
+                        print("created conv layer - but failed to move it to device", device)
 
                 except Exception as e:
-                    print("Error:",e)
+                    print("Error:", e)
                     print("failed to create conv", self, self.in_features, self.out_features,
                           layer_type.get_sub_value("conv_window_size"),
-                          layer_type.get_sub_value("conv_stride"), "deep layer:",self.deep_layer)
+                          layer_type.get_sub_value("conv_stride"), "deep layer:", self.deep_layer)
                     print('Module with error', self.module_NEAT_genome.connections)
 
 
@@ -162,7 +159,8 @@ class ModuleNode(Node):
         #     return child_out
 
         if self.is_output_node():
-            print("output node reached in module graph - returning output == none ~", (output is None))
+            if output is None:
+                print('Reached output and was none: error!')
             return output  # output of final output node must be bubbled back up to the top entry point of the nn
 
         return child_out

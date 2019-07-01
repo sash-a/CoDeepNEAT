@@ -1,17 +1,21 @@
 import random
 from src.NEAT.Connection import Connection
-from src.NEAT.NEATNode import NEATNode, NodeType
+from src.NEAT.NEATNode import NEATNode
 import src.NEAT.NeatProperties as Props
+
+from typing import Iterable
 
 
 class Genome:
 
-    def __init__(self, connections, nodes):
+    def __init__(self, connections: Iterable[Connection], nodes: Iterable[NEATNode]):
         self.fitness = 0
         self.adjusted_fitness = 0
 
-        self.nodes = nodes
-        self.node_ids = set([node.id for node in nodes])
+        self.nodes = []
+        self.node_ids = set()
+        for node in nodes:
+            self.add_node(node)
 
         self.innov_nums = set()
         self.connections = []

@@ -13,12 +13,12 @@ Population persists across whole run time
 
 class Population:
 
-    def __init__(self, population: List[Genome]):
+    def __init__(self, population: List[Genome], mutations: dict):
         """
         :param population: list of all individuals
         """
 
-        self.mutations = {}
+        self.mutations = mutations
         self.curr_innov = max(indv.connections[-1].innovation for indv in population)
         self.max_node_id = 6  # TODO len(population)  # this assumes that no nodes are disabled in initial population
 
@@ -117,6 +117,4 @@ class Population:
         self.individuals = new_pop
         self.speciate()
 
-        for indv in self.individuals:
-            for conn in indv.connections:
-                conn.validate()
+        print('New population size:', len(self.individuals))

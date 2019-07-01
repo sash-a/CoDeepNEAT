@@ -5,63 +5,46 @@ from src.CoDeepNEAT.BlueprintGenome import BlueprintGenome
 from src.NEAT.Connection import Connection
 from src.NEAT.NEATNode import NodeType
 
-from copy import deepcopy
-
-mod_start = ModulenNEATNode(0, 0, node_type=NodeType.INPUT)
-blue_start = BlueprintNEATNode(0, 0, node_type=NodeType.INPUT)
-
 
 def initialise_blueprints():
-    nodes = [BlueprintNEATNode(0, 0, node_type=NodeType.INPUT),
-             BlueprintNEATNode(1, 1, node_type=NodeType.OUTPUT)]  # no hidden
+    linear_nodes = [BlueprintNEATNode(0, 0, node_type=NodeType.INPUT),
+                    BlueprintNEATNode(1, 1, node_type=NodeType.OUTPUT)]
+    tri_nodes = [BlueprintNEATNode(0, 0, node_type=NodeType.INPUT),
+                 BlueprintNEATNode(2, 0, node_type=NodeType.HIDDEN),
+                 BlueprintNEATNode(1, 1, node_type=NodeType.OUTPUT)]
 
-    # no hidden
-    connections = [Connection(nodes[0], nodes[1], innovation=0)]
+    linear_connections = [Connection(linear_nodes[0], linear_nodes[1], innovation=0)]
+    tri_connections = [Connection(tri_nodes[0], tri_nodes[2], innovation=0),
+                       Connection(tri_nodes[0], tri_nodes[1], innovation=1),
+                       Connection(tri_nodes[1], tri_nodes[2], innovation=2)]
 
     return \
         [
-            BlueprintGenome(deepcopy(connections), deepcopy(nodes)),
-            BlueprintGenome(deepcopy(connections), deepcopy(nodes))
+            BlueprintGenome(linear_connections, linear_nodes),
+            BlueprintGenome(tri_connections, tri_nodes)
         ]
 
 
 def initialise_modules():
-    nodes = [ModulenNEATNode(0, 0, node_type=NodeType.INPUT),
-             ModulenNEATNode(1, 1, node_type=NodeType.OUTPUT)]  # no hidden
+    linear_nodes = [ModulenNEATNode(0, 0, node_type=NodeType.INPUT),
+                    ModulenNEATNode(1, 1, node_type=NodeType.OUTPUT)]
+    tri_nodes = [ModulenNEATNode(0, 0, node_type=NodeType.INPUT),
+                 ModulenNEATNode(2, 0, node_type=NodeType.HIDDEN),
+                 ModulenNEATNode(1, 1, node_type=NodeType.OUTPUT)]
 
-    # no hidden
-    connections = [Connection(nodes[0], nodes[1], innovation=0)]
-
+    linear_connections = [Connection(linear_nodes[0], linear_nodes[1], innovation=0)]
+    tri_connections = [Connection(tri_nodes[0], tri_nodes[2], innovation=0),
+                       Connection(tri_nodes[0], tri_nodes[1], innovation=1),
+                       Connection(tri_nodes[1], tri_nodes[2], innovation=2)]
     return \
         [
-            ModuleGenome(deepcopy(connections), deepcopy(nodes)),
-            ModuleGenome(deepcopy(connections), deepcopy(nodes))
+            ModuleGenome(linear_connections, linear_nodes),
+            ModuleGenome(tri_connections, tri_nodes)
         ]
 
 
-def get_mutations():
-    return {(0, 1): 1}
-
-
-def test():
-    nodes = [BlueprintNEATNode(0, 0, node_type=NodeType.INPUT),
-             BlueprintNEATNode(1, 1, node_type=NodeType.OUTPUT),
-             BlueprintNEATNode(2, 0)]
-
-    mutations = {}
-    node_id = 2
-    innov = 0
-    initial = BlueprintGenome([Connection(nodes[0], nodes[1], innovation=0)], deepcopy(nodes))
-    initial.to_blueprint().plot_tree()
-
-    linear = deepcopy(initial)
-    innov, node_id = linear._mutate_add_node(linear.connections[0], mutations, innov, node_id)
-
-    tri = deepcopy(initial)
-    innov = tri._mutate_add_connection(tri.nodes[0], tri.nodes[2], mutations, innov)
-    tri.to_blueprint().plot_tree()
-    linear.to_blueprint().plot_tree()
-    for conn in linear.connections:
-        print(conn, conn.enabled)
-
-# test()
+def initialize_mutations():
+    return {(0, 1): 0,  # linear connection
+            0: 2,  # node mutation on linear connection
+            (0, 2): 1,  # connection mutation for above node mutation
+            (2, 1): 2}  # connection mutation for above node mutation

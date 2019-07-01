@@ -3,11 +3,10 @@ from src.NEAT.Mutagen import Mutagen
 
 
 class Connection:
-    def __init__(self, from_node, to_node, connection_type=None, enabled=True, innovation=0):
+    def __init__(self, from_node: NEATNode, to_node: NEATNode, connection_type=None, enabled=True, innovation=0):
         self.from_node: NEATNode = from_node
         self.to_node: NEATNode = to_node
         self.connection_type = connection_type
-        # self.enabled = enabled
         self.enabled = Mutagen(True, False, discreet_value=enabled)
         self.innovation = innovation
 
