@@ -105,7 +105,7 @@ def test_mutation():
     assert n_node_id == 5
 
     # Add connection
-    n_innov = g._mutate_connection(nodes[2], nodes[3], current_gen_mutations, 5)
+    n_innov = g._mutate_add_connection(nodes[2], nodes[3], current_gen_mutations, 5)
     expected_conn = Connection(nodes[2], nodes[3])
     assert expected_conn in g.connections
     assert n_innov == 6

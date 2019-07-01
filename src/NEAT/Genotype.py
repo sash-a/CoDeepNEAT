@@ -1,7 +1,6 @@
 import random
 from src.NEAT.Connection import Connection
 from src.NEAT.NEATNode import NEATNode, NodeType
-from src.NEAT.Mutation import NodeMutation, ConnectionMutation
 import src.NEAT.NeatProperties as Props
 
 
@@ -88,7 +87,7 @@ class Genome:
         return disjoint, excess
 
     def _mutate_add_node(self, conn: Connection, mutations: dict, innov: int, node_id: int, MutationType=NEATNode):
-        conn.enabled = False
+        conn.enabled.set_value(False)
 
         mutated_node = MutationType(node_id + 1, conn.from_node.midpoint(conn.to_node))
         mutated_from_conn = Connection(conn.from_node, mutated_node, innovation=innov + 1)
@@ -118,13 +117,23 @@ class Genome:
 
         return innov, node_id
 
-    def _mutate_connection(self, node1: NEATNode, node2: NEATNode, mutations: dict, innov: int):
-        from_node, to_node = (node1, node2) if node1.x < node2.x else (node2, node1)
-        mutated_conn = Connection(from_node, to_node)
-        # Make sure nodes aren't equal and there isn't already a connection between them
-        if node1.id == node2.id or mutated_conn in self.connections or Connection(to_node,
-                                                                                  from_node) in self.connections:
-            return innov
+    def _mutate_add_connection(self, node1: NEATNode, node2: NEATNode, mutations: dict, innov: int):
+        #
+        for i in range(Props.MUTATION_TRIES):
+            from_node, to_node = (node1, node2) if node1.x < node2.x else (node2, node1)
+            mutated_conn = Connection(from_node, to_node)
+
+            # If run enough times and can't mutate then just return
+            if i == Props.MUTATION_TRIES - 1:
+                return innov
+
+            # Make sure nodes aren't equal and there isn't already a connection between them
+            if node1.id == node2.id or \
+                    mutated_conn in self.connections or \
+                    Connection(to_node, from_node) in self.connections:
+                continue  # try again
+            else:
+                break  # do mutation
 
         # Check if the connection exist somewhere else
         possible_mutation = (from_node.id, to_node.id)
@@ -142,12 +151,16 @@ class Genome:
         return innov
 
     def mutate(self, mutations: dict, innov: int, node_id: int, node_chance=Props.NODE_MUTATION_CHANCE,
-               conn_chance=Props.CONNECTION_MUTATION_CHANCE):
+               conn_chance=Props.CONNECTION_MUTATION_CHANCE, enabled_chance=Props.ENABLE_DISABLE_CHANCE):
+
         if random.random() < node_chance:  # Add a new node
-            return self._mutate_add_node(random.choice(self.connections), mutations, innov, node_id)
-        elif random.random() < conn_chance:  # Add a new connection
-            return self._mutate_connection(random.choice(self.nodes), random.choice(self.nodes), mutations, innov), \
-                   node_id
+            innov, node_id = self._mutate_add_node(random.choice(self.connections), mutations, innov, node_id)
+
+        if random.random() < conn_chance:  # Add a new connection
+            innov = self._mutate_add_connection(
+                random.choice(self.nodes),
+                random.choice(self.nodes),
+                mutations, innov)
 
         return innov, node_id
 
@@ -168,7 +181,7 @@ class Genome:
 
         # connects the blueprint nodes as indicated by the genome
         for connection in self.connections:
-            if not connection.enabled:
+            if not connection.enabled.get_value():
                 continue
             try:
                 parent = graph_node_map[connection.from_node.id]
@@ -184,10 +197,9 @@ class Genome:
         fully_connected_nodes = output_reaching_nodes.intersect(input_reaching_nodes)
         for neat_node in self.nodes:
             graph_node = graph_node_map[neat_node.id]
-            if(graph_node in fully_connected_nodes):
+            if graph_node in fully_connected_nodes:
                 continue
             graph_node.severe_node()
-
 
         root_node.get_traversal_ids("_")
         return root_node

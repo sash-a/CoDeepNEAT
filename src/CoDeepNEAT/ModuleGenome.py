@@ -1,7 +1,6 @@
 from src.NEAT.Genotype import Genome
 from src.Module.ModuleNode import ModuleNode
 from src.NEAT.Connection import Connection
-from src.NEAT.Mutation import NodeMutation
 from src.CoDeepNEAT.ModuleNEATNode import ModulenNEATNode
 import copy
 

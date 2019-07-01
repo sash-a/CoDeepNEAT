@@ -1,4 +1,5 @@
 from src.NEAT.NEATNode import NEATNode
+from src.CoDeepNEAT.Mutagen import Mutagen
 
 
 class Connection:
@@ -6,7 +7,9 @@ class Connection:
         self.from_node: NEATNode = from_node
         self.to_node: NEATNode = to_node
         self.connection_type = connection_type
-        self.enabled = enabled
+        # self.enabled = enabled
+        self.enabled = Mutagen(True, False)
+        self.enabled.set_value(enabled)
         self.innovation = innovation
 
     def validate(self):

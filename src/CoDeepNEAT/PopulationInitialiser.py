@@ -58,7 +58,7 @@ def test():
     innov, node_id = linear._mutate_add_node(linear.connections[0], mutations, innov, node_id)
 
     tri = deepcopy(initial)
-    innov = tri._mutate_connection(tri.nodes[0], tri.nodes[2], mutations, innov)
+    innov = tri._mutate_add_connection(tri.nodes[0], tri.nodes[2], mutations, innov)
     tri.to_blueprint().plot_tree()
     linear.to_blueprint().plot_tree()
     for conn in linear.connections:
