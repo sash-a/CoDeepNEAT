@@ -12,73 +12,56 @@ blue_start = BlueprintNEATNode(0, 0, node_type=NodeType.INPUT)
 
 
 def initialise_blueprints():
-    blueprint_node_lists = [
-        [deepcopy(blue_start), BlueprintNEATNode(1, 1, node_type=NodeType.OUTPUT)],  # no hidden
-        [deepcopy(blue_start), BlueprintNEATNode(3, 1), BlueprintNEATNode(1, 2, node_type=NodeType.OUTPUT)],  # linear
-        # [deepcopy(blue_start), BlueprintNEATNode(4, 0), BlueprintNEATNode(1, 1, node_type=NodeType.OUTPUT)],  # triangle
-        # [deepcopy(blue_start), BlueprintNEATNode(5, 1), BlueprintNEATNode(6, 1),
-        #  BlueprintNEATNode(1, 2, node_type=NodeType.OUTPUT)]  # diamond
-    ]
+    nodes = [BlueprintNEATNode(0, 0, node_type=NodeType.INPUT),
+             BlueprintNEATNode(1, 1, node_type=NodeType.OUTPUT)]  # no hidden
 
-    blueprint_connection_lists = [
-        # no hidden
-        [Connection(blueprint_node_lists[0][0], blueprint_node_lists[0][1], innovation=0)],
-        # linear
-        [Connection(blueprint_node_lists[1][0], blueprint_node_lists[1][1], innovation=1),
-         Connection(blueprint_node_lists[1][1], blueprint_node_lists[1][2], innovation=2)],
-        # # triangle
-        # [Connection(blueprint_node_lists[2][0], blueprint_node_lists[2][1], innovation=1),
-        #  Connection(blueprint_node_lists[2][0], blueprint_node_lists[2][2], innovation=2),
-        #  Connection(blueprint_node_lists[2][1], blueprint_node_lists[2][2], innovation=3)],
-        # # diamond
-        # [Connection(blueprint_node_lists[3][0], blueprint_node_lists[3][1], innovation=1),
-        #  Connection(blueprint_node_lists[3][0], blueprint_node_lists[3][2], innovation=2),
-        #  Connection(blueprint_node_lists[3][1], blueprint_node_lists[3][3], innovation=3),
-        #  Connection(blueprint_node_lists[3][2], blueprint_node_lists[3][3], innovation=4)]
-    ]
+    # no hidden
+    connections = [Connection(nodes[0], nodes[1], innovation=0)]
 
-    blueprint_reps = []
-    for nodes, connections in zip(blueprint_node_lists, blueprint_connection_lists):
-        blueprint_reps.append(BlueprintGenome(connections, nodes))
-
-    return blueprint_reps
+    return \
+        [
+            BlueprintGenome(deepcopy(connections), deepcopy(nodes)),
+            BlueprintGenome(deepcopy(connections), deepcopy(nodes))
+        ]
 
 
 def initialise_modules():
-    module_node_lists = [
-        [deepcopy(mod_start), ModulenNEATNode(1, 1, node_type=NodeType.OUTPUT)],  # no hidden
-        [deepcopy(mod_start), ModulenNEATNode(3, 1), ModulenNEATNode(1, 2, node_type=NodeType.OUTPUT)],  # linear
-        # [deepcopy(mod_start), ModulenNEATNode(4, 0), ModulenNEATNode(1, 1, node_type=NodeType.OUTPUT)],  # triangle
-        # [deepcopy(mod_start), ModulenNEATNode(5, 1), ModulenNEATNode(6, 1),
-        #  ModulenNEATNode(1, 2, node_type=NodeType.OUTPUT)]  # diamond
-    ]
+    nodes = [ModulenNEATNode(0, 0, node_type=NodeType.INPUT),
+             ModulenNEATNode(1, 1, node_type=NodeType.OUTPUT)]  # no hidden
 
-    module_connection_lists = [
-        # no hidden
-        [Connection(module_node_lists[0][0], module_node_lists[0][1], innovation=0)],
-        # linear
-        [Connection(module_node_lists[1][0], module_node_lists[1][1], innovation=1),
-         Connection(module_node_lists[1][1], module_node_lists[1][2], innovation=2)],
-        # # triangle
-        # [Connection(module_node_lists[2][0], module_node_lists[2][1], innovation=1),
-        #  Connection(module_node_lists[2][0], module_node_lists[2][2], innovation=2),
-        #  Connection(module_node_lists[2][1], module_node_lists[2][2], innovation=3)],
-        # # diamond
-        # [Connection(module_node_lists[3][0], module_node_lists[3][1], innovation=1),
-        #  Connection(module_node_lists[3][0], module_node_lists[3][2], innovation=2),
-        #  Connection(module_node_lists[3][1], module_node_lists[3][3], innovation=3),
-        #  Connection(module_node_lists[3][2], module_node_lists[3][3], innovation=4)]
-    ]
+    # no hidden
+    connections = [Connection(nodes[0], nodes[1], innovation=0)]
 
-    module_reps = []
-    for nodes, connections in zip(module_node_lists, module_connection_lists):
-        module_reps.append(ModuleGenome(connections, nodes))
-
-    return module_reps
+    return \
+        [
+            ModuleGenome(deepcopy(connections), deepcopy(nodes)),
+            ModuleGenome(deepcopy(connections), deepcopy(nodes))
+        ]
 
 
 def get_mutations():
-    return {(0, 1): 1,
-            0: (2, 1, 2),
-            (0, 2): 1,
-            (2, 1): 2}
+    return {(0, 1): 1}
+
+
+def test():
+    nodes = [BlueprintNEATNode(0, 0, node_type=NodeType.INPUT),
+             BlueprintNEATNode(1, 1, node_type=NodeType.OUTPUT),
+             BlueprintNEATNode(2, 0)]
+
+    mutations = {}
+    node_id = 2
+    innov = 0
+    initial = BlueprintGenome([Connection(nodes[0], nodes[1], innovation=0)], deepcopy(nodes))
+    initial.to_blueprint().plot_tree()
+
+    linear = deepcopy(initial)
+    innov, node_id = linear._mutate_add_node(linear.connections[0], mutations, innov, node_id)
+
+    tri = deepcopy(initial)
+    innov = tri._mutate_connection(tri.nodes[0], tri.nodes[2], mutations, innov)
+    tri.to_blueprint().plot_tree()
+    linear.to_blueprint().plot_tree()
+    for conn in linear.connections:
+        print(conn, conn.enabled)
+
+# test()

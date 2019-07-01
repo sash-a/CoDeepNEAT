@@ -2,6 +2,7 @@ import random
 from src.NEAT.Connection import Connection
 from src.NEAT.NEATNode import NEATNode, NodeType
 from src.NEAT.Mutation import NodeMutation, ConnectionMutation
+import src.NEAT.NeatProperties as Props
 
 
 class Genome:
@@ -140,7 +141,8 @@ class Genome:
 
         return innov
 
-    def mutate(self, mutations: dict, innov: int, node_id: int, node_chance=0.03, conn_chance=0.5):
+    def mutate(self, mutations: dict, innov: int, node_id: int, node_chance=Props.NODE_MUTATION_CHANCE,
+               conn_chance=Props.CONNECTION_MUTATION_CHANCE):
         if random.random() < node_chance:  # Add a new node
             return self._mutate_add_node(random.choice(self.connections), mutations, innov, node_id)
         elif random.random() < conn_chance:  # Add a new connection

@@ -6,7 +6,7 @@ from src.CoDeepNEAT.ModuleGenome import ModuleGenome
 from src.NEAT.Connection import Connection
 
 
-def update_connection(conn: Connection, genome):
+def add_nodes_from_connections(conn: Connection, genome):
     # Add the node to the genome if it is not already there
     if conn.from_node.id not in genome.node_ids:
         new_from = copy.deepcopy(conn.from_node)
@@ -45,7 +45,7 @@ def crossover(parent1, parent2):
         child = BlueprintGenome(d + e, [])
 
     for conn in child.connections:
-        update_connection(conn, child)
+        add_nodes_from_connections(conn, child)
 
     # Finding the remaining matching genes and choosing randomly between them
     for best_conn in best_parent.connections:
@@ -54,7 +54,8 @@ def crossover(parent1, parent2):
             choice = copy.deepcopy(random.choice([best_conn, worst_conn]))
             child.add_connection(choice)
 
-            from_node, to_node = update_connection(choice, child)
+            from_node, to_node = add_nodes_from_connections(choice, child)
+
             if from_node.x > to_node.x or from_node.id == to_node.id:
                 print('Crossed over and received node with bad x values or connections points from node to same node')
 

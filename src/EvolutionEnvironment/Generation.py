@@ -77,7 +77,7 @@ class Generation:
                 module_graph.plot_tree(title="module graph with error")
                 continue
 
-            acc = 46  # Evaluator.evaluate(net, 1, dataset='mnist', path='../../data', device=device, batch_size=64)
+            acc = hash(net)  # Evaluator.evaluate(net, 1, dataset='mnist', path='../../data', device=device, batch_size=64)
             blueprint_individual.report_fitness(acc)
 
             for module_individual in blueprint_individual.modules_used:
