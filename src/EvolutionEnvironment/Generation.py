@@ -61,7 +61,7 @@ class Generation:
             if not module_graph.is_input_node():
                 print("Error: module graph handle node is not root node")
 
-            net = module_graph.to_nn(in_features=1, device=device)
+            # net = module_graph.to_nn(in_features=1, device=device)
             try:
                 net = module_graph.to_nn(in_features=1, device=device)
             except Exception as e:
@@ -81,9 +81,9 @@ class Generation:
                 module_graph.plot_tree(title="module graph with error")
                 continue
 
-            acc = 20  # Evaluator.evaluate(net, 1, dataset='mnist', path='../../data', device=device, batch_size=64)
+            acc = Evaluator.evaluate(net, 2, dataset='mnist', path='../../data', device=device, batch_size=256)
             if acc >= best_acc:
-                best_bp = blueprint
+                best_bp = module_graph
 
             blueprint_individual.report_fitness(acc)
 
