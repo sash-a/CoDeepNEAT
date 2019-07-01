@@ -46,10 +46,10 @@ class Generation:
                 print("failed parsing blueprint to module graph")
                 continue
 
-            if print_graphs and random.random() > 0.8:
+            if print_graphs and random.random() < 0.01:
                 print('\n\nPRINTING BLUEPRINTS AND MODULES\n')
-                blueprint.plot_tree(title="blueprint")
-                module_graph.plot_tree(title="module graph")
+                blueprint.plot_tree(title="blueprint sample")
+                module_graph.plot_tree(title="module graph created from sample")
                 print('Blueprint')
                 print(blueprint_individual)
                 print('modules')
@@ -59,12 +59,14 @@ class Generation:
             if not module_graph.is_input_node():
                 print("Error: module graph handle node is not root node")
 
-            try:
-                net = module_graph.to_nn(in_features=1, device=device)
-            except:
-                print("Error: failed to parse module graph into nn")
-                module_graph.plot_tree()
-                continue
+            net = module_graph.to_nn(in_features=1, device=device)
+            # try:
+            #     net = module_graph.to_nn(in_features=1, device=device)
+            # except Exception as e:
+            #     print("Error:",e)
+            #     print("Error: failed to parse module graph into nn")
+            #     module_graph.plot_tree()
+            #     continue
 
             try:
                 net.specify_output_dimensionality(inputs, device=device)

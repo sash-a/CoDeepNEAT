@@ -1,9 +1,10 @@
 from src.NEAT.NEATNode import NEATNode
 from src.NEAT.NEATNode import NodeType
-from src.CoDeepNEAT.Mutagen import Mutagen
-from src.CoDeepNEAT.Mutagen import ValueType
+from src.NEAT.Mutagen import Mutagen
+from src.NEAT.Mutagen import ValueType
 import torch.nn as nn
 import torch.nn.functional as F
+import torch
 
 
 class ModulenNEATNode(NEATNode):
@@ -14,14 +15,17 @@ class ModulenNEATNode(NEATNode):
         super(ModulenNEATNode, self).__init__(id, x, node_type)
 
 
-        self.activation = Mutagen(F.relu, F.leaky_relu, F.sigmoid, F.relu6, discreet_value= activation)  # TODO try add in Selu, Elu
+        self.activation = Mutagen(F.relu, F.leaky_relu, torch.sigmoid, F.relu6, discreet_value= activation)  # TODO try add in Selu, Elu
 
         self.out_features = Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=out_features, start_range=1,
                                     end_range=100)
 
-        self.layer_type = Mutagen(nn.Conv2d, nn.Linear, sub_mutagens= {
-            nn.Conv2d: {"conv_window_size": Mutagen(3,5,7), "conv_stride": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=conv_stride, start_range=1,end_range=5)}
-        }, discreet_value= layer_type)
+        # self.layer_type = Mutagen(nn.Conv2d, nn.Linear, sub_mutagens= {
+        #     nn.Conv2d: {"conv_window_size": Mutagen(3,5,7), "conv_stride": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=conv_stride, start_range=1,end_range=5)}
+        # }, discreet_value= layer_type)
+        self.layer_type = Mutagen(nn.Conv2d, sub_mutagens={
+                nn.Conv2d: {"conv_window_size": Mutagen(3,5,7), "conv_stride": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=conv_stride, start_range=1,end_range=5)}
+            }, discreet_value= layer_type)
         self.layer_type.set_sub_value( "conv_window_size", conv_window_size, value=nn.Conv2d)
 
         self.reduction = Mutagen(None, nn.MaxPool2d, sub_mutagens={
@@ -29,3 +33,6 @@ class ModulenNEATNode(NEATNode):
                                  , discreet_value=reduction)
 
         self.regularisation = Mutagen(None, nn.BatchNorm2d,discreet_value=regularisation)
+
+    def get_all_mutagens(self):
+        return [self.activation,self.out_features,self.layer_type, self.reduction, self.regularisation]

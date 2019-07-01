@@ -162,6 +162,15 @@ class Genome:
                 random.choice(self.nodes),
                 mutations, innov)
 
+        for mutagen in self.get_all_mutagens():
+            mutagen.mutate()
+
+        for node in self.nodes:
+            node.mutate()
+
+        for connection in self.connections:
+            connection.mutate()
+
         return innov, node_id
 
     def to_phenotype(self, Phenotype):
@@ -206,3 +215,6 @@ class Genome:
 
     def __repr__(self):
         return str(self.connections)
+
+    def get_all_mutagens(self):
+        return []

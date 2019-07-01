@@ -28,3 +28,7 @@ class NEATNode:
 
     def is_input_node(self):
         return self.node_type == NodeType.INPUT
+
+    def mutate(self):
+        for mutagen in self.get_all_mutagens():
+            mutagen.mutate()

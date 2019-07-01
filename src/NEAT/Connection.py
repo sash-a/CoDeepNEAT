@@ -1,5 +1,5 @@
 from src.NEAT.NEATNode import NEATNode
-from src.CoDeepNEAT.Mutagen import Mutagen
+from src.NEAT.Mutagen import Mutagen
 
 
 class Connection:
@@ -26,3 +26,10 @@ class Connection:
 
     def __hash__(self):
         return self.innovation
+
+    def get_all_mutagens(self):
+        return [self.enabled]
+
+    def mutate(self):
+        for mutagen in self.get_all_mutagens():
+            mutagen.mutate()
