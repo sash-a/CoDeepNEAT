@@ -17,25 +17,7 @@ class BlueprintGenome(Genome):
         turns blueprintNEATNodes from self.nodes into BlueprintNodes and connects them into a graph with self.connections
         :return: the blueprint graph this individual represents
         """
-
-        blueprint_graph_node_map = {}
-        root_node = None
-        # initialises blueprint nodes and maps them to their genes
-        for blueprint_neat_node in self.nodes:
-            blueprint_graph_node_map[blueprint_neat_node.id] = BlueprintNode(blueprint_neat_node, self)
-            if blueprint_neat_node.is_input_node():
-                root_node = blueprint_graph_node_map[blueprint_neat_node.id]
-        # connects the blueprint nodes as indicated by the genome
-        for connection in self.connections:
-            if not connection.enabled:
-                continue
-            parent = blueprint_graph_node_map[connection.from_node.id]
-            child = blueprint_graph_node_map[connection.to_node.id]
-
-            parent.add_child(child)
-
-        root_node.get_traversal_ids("_")
-        return root_node
+        return super().to_phenotype(BlueprintNode)
 
     def _mutate_add_node(self, conn: Connection, curr_gen_mutations: set, innov: int, node_id: int):
         conn.enabled = False
@@ -57,7 +39,7 @@ class BlueprintGenome(Genome):
         self.add_connection(mutated_to_conn)
         self.add_node(mutated_node)
 
-        print('mutated node', node_id, mutated_from_conn, mutated_to_conn)
+        print('mutated blueprint node', node_id, mutated_from_conn, mutated_to_conn)
 
         return innov, node_id
 

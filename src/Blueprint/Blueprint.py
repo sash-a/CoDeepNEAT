@@ -39,7 +39,7 @@ class BlueprintNode(Node):
             input_module_individual, index = generation.module_population.species[
                 self.species_number].sample_individual()
             self.blueprint_genome.modules_used.append(input_module_individual)
-            input_module_node = input_module_individual.to_module_node()
+            input_module_node = input_module_individual.to_module()
             if (not input_module_node.is_input_node()):
                 print("error! sampled module node is not root node")
 

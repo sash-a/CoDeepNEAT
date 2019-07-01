@@ -18,6 +18,7 @@ class Population:
         :param population: list of all individuals
         """
 
+        self.mutations = {}
         self.gen_mutations = set()
         self.curr_innov = max(indv.connections[-1].innovation for indv in population)
         self.max_node_id = 6  # TODO len(population)  # this assumes that no nodes are disabled in initial population

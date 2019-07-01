@@ -3,6 +3,8 @@ from src.NeuralNetwork import Evaluator
 from src.CoDeepNEAT import PopulationInitialiser
 import torch.tensor
 
+import random
+
 
 class Generation:
     numBlueprints = 1
@@ -44,9 +46,15 @@ class Generation:
                 print("failed parsing blueprint to module graph")
                 continue
 
-            if print_graphs:
+            if print_graphs and random.random() > 0.8:
+                print('\n\nPRINTING BLUEPRINTS AND MODULES\n')
                 blueprint.plot_tree(title="blueprint")
                 module_graph.plot_tree(title="module graph")
+                print('Blueprint')
+                print(blueprint_individual)
+                print('modules')
+                for module in blueprint_individual.modules_used:
+                    print(module)
 
             if not module_graph.is_input_node():
                 print("Error: module graph handle node is not root node")

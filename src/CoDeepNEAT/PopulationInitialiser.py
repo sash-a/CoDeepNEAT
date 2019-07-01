@@ -13,10 +13,11 @@ blue_start = BlueprintNEATNode(0, 0, node_type=NodeType.INPUT)
 
 def initialise_blueprints():
     blueprint_node_lists = [
-        [deepcopy(blue_start), BlueprintNEATNode(1, 1)],  # no hidden
-        [deepcopy(blue_start), BlueprintNEATNode(3, 1), BlueprintNEATNode(1, 2)],  # linear
-        [deepcopy(blue_start), BlueprintNEATNode(4, 0), BlueprintNEATNode(1, 1)],  # triangle
-        [deepcopy(blue_start), BlueprintNEATNode(5, 1), BlueprintNEATNode(6, 1), BlueprintNEATNode(1, 2)]  # diamond
+        [deepcopy(blue_start), BlueprintNEATNode(1, 1, node_type=NodeType.OUTPUT)],  # no hidden
+        [deepcopy(blue_start), BlueprintNEATNode(3, 1), BlueprintNEATNode(1, 2, node_type=NodeType.OUTPUT)],  # linear
+        [deepcopy(blue_start), BlueprintNEATNode(4, 0), BlueprintNEATNode(1, 1, node_type=NodeType.OUTPUT)],  # triangle
+        [deepcopy(blue_start), BlueprintNEATNode(5, 1), BlueprintNEATNode(6, 1),
+         BlueprintNEATNode(1, 2, node_type=NodeType.OUTPUT)]  # diamond
     ]
 
     blueprint_connection_lists = [
@@ -45,10 +46,11 @@ def initialise_blueprints():
 
 def initialise_modules():
     module_node_lists = [
-        [deepcopy(mod_start), ModulenNEATNode(1, 1)],  # no hidden
-        [deepcopy(mod_start), ModulenNEATNode(3, 1), ModulenNEATNode(1, 2)],  # linear
-        [deepcopy(mod_start), ModulenNEATNode(4, 0), ModulenNEATNode(1, 1)],  # triangle
-        [deepcopy(mod_start), ModulenNEATNode(5, 1), ModulenNEATNode(6, 1), ModulenNEATNode(1, 2)]  # diamond
+        [deepcopy(mod_start), ModulenNEATNode(1, 1, node_type=NodeType.OUTPUT)],  # no hidden
+        [deepcopy(mod_start), ModulenNEATNode(3, 1), ModulenNEATNode(1, 2, node_type=NodeType.OUTPUT)],  # linear
+        [deepcopy(mod_start), ModulenNEATNode(4, 0), ModulenNEATNode(1, 1, node_type=NodeType.OUTPUT)],  # triangle
+        [deepcopy(mod_start), ModulenNEATNode(5, 1), ModulenNEATNode(6, 1),
+         ModulenNEATNode(1, 2, node_type=NodeType.OUTPUT)]  # diamond
     ]
 
     module_connection_lists = [

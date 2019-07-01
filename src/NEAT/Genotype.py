@@ -1,6 +1,6 @@
 import random
 from src.NEAT.Connection import Connection
-from src.NEAT.NEATNode import NEATNode
+from src.NEAT.NEATNode import NEATNode, NodeType
 from src.NEAT.Mutation import NodeMutation, ConnectionMutation
 
 
@@ -166,3 +166,49 @@ class Genome:
                                            innov), node_id
 
         return innov, node_id
+
+    def to_phenotype(self, Phenotype):
+        """
+        turns blueprintNEATNodes from self.nodes into BlueprintNodes and connects them into a graph with self.connections
+        :return: the blueprint graph this individual represents
+        """
+
+        graph_node_map = {}
+        nodes_with_incomming_conn = set()
+        nodes_with_outgoing_conn = set()
+        root_node = None
+
+        # Only consider nodes with connections
+        for conn in self.connections:
+            if conn.enabled:
+                nodes_with_incomming_conn.add(conn.to_node)
+                nodes_with_outgoing_conn.add(conn.from_node)
+
+        active_nodes = nodes_with_incomming_conn.intersection(nodes_with_outgoing_conn)
+        for node in self.nodes:
+            if node.node_type == NodeType.INPUT or node.node_type == NodeType.OUTPUT:
+                active_nodes.add(node)
+
+        # initialises nodes and maps them to their genes
+        for neat_node in active_nodes:
+            graph_node_map[neat_node.id] = Phenotype(neat_node, self)
+            if neat_node.is_input_node():
+                root_node = graph_node_map[neat_node.id]
+
+        # connects the blueprint nodes as indicated by the genome
+        for connection in self.connections:
+            if not connection.enabled:
+                continue
+            try:
+                parent = graph_node_map[connection.from_node.id]
+                child = graph_node_map[connection.to_node.id]
+
+                parent.add_child(child)
+            except KeyError:
+                pass
+
+        root_node.get_traversal_ids("_")
+        return root_node
+
+    def __repr__(self):
+        return str(self.connections)

@@ -1,5 +1,5 @@
 from src.EvolutionEnvironment.Generation import Generation
-
+import torch
 """
 Evolution Environment is static as there should only ever be one
 Acts as the collection of current generation
@@ -13,7 +13,7 @@ def main():
 
     for i in range(numGenerations):
         print('Running gen', i)
-        current_generation.evaluate(i, print_graphs=False)
+        current_generation.evaluate(i, print_graphs=True, device=torch.device('cpu'))
         current_generation.step()
 
 
