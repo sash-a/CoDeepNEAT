@@ -67,12 +67,12 @@ class ModuleNode(Node):
                 print("Error not implemented reduction ", neat_reduction.get_value())
 
     def to_nn(self, in_features, device, print_graphs=False):
-        self.create_layers(in_features=in_features, device=device)
+        self.create_layer(in_features=in_features, device=device)
         if print_graphs:
             self.plot_tree()
         return ModuleNet(self).to(device)
 
-    def create_layers(self, in_features=None, device=torch.device("cpu")):
+    def create_layer(self, in_features=None, device=torch.device("cuda:0")):
         if self.deep_layer is None or True:
 
             """decide in features"""
@@ -109,8 +109,6 @@ class ModuleNode(Node):
             if not (self.regularisation is None):
                 self.regularisation = self.regularisation.to(device)
 
-            for child in self.children:
-                child.create_layers(device=device)
 
         else:
             print("already has deep layers", self.is_input_node())
@@ -215,8 +213,9 @@ class ModuleNode(Node):
                          value=0)
 
     def add_reshape_node(self, input_shape):
-        features = self.get_in_features()
         input_flat_size = Utils.get_flat_number(sizes=input_shape)
+        features = input_shape[1]
+
 
         if(self.is_conv2d()):
             #TODO non square conv dims
@@ -228,9 +227,11 @@ class ModuleNode(Node):
             #print('adding convreshape node for', input_shape, "num features:",features, "out shape:",output_shape)
 
         if(self.is_linear()):
+            features = input_flat_size
             output_shape = [input_shape[0], input_flat_size]
             #print('adding linear reshape node for', input_shape, "num features:",features, "out shape:",output_shape)
 
+        self.create_layer(features)
         if input_shape == output_shape:
             return
         print("using reshape node from",input_shape,"to",output_shape)

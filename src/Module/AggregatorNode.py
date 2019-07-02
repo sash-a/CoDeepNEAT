@@ -16,9 +16,9 @@ class AggregatorNode(Module):
         self.accountedForInputIDs = {}
         self.out_features = 25#TODO should be determined
 
-    def create_layers(self, in_features=None, device=torch.device("cpu")):
+    def create_layer(self, in_features=None, device=torch.device("cpu")):
         for child in self.children:
-            child.create_layers(device = device)
+            child.create_layer(device = device)
 
     def insert_aggregator_nodes(self, state="start"):
         # if aggregator node has already been created - then the multi parent situation has already been dealt with here
