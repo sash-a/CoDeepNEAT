@@ -11,6 +11,20 @@ class MultiobjectivePopulation(Population):
     def __init__(self, population: List[Union[BlueprintGenome, ModuleGenome]], mutations: dict):
         super().__init__(population, mutations)
 
+    def adjust_fitness(self, indv: Union[BlueprintGenome, ModuleGenome]):
+        shared_fitness = 0
+        for other_indv in self.individuals:
+            # TODO should you measure distance to self?
+            # Result will always be 1, but allows for species of a single member
+            # if other_indv == indv:
+            #     continue
+
+            if other_indv.distance_to(indv) <= Props.SPECIES_DISTANCE_THRESH:
+                shared_fitness += 1
+
+        # TODO how to do this for multiobjective populations
+        indv.adjusted_fitness = indv.fitness[0] / shared_fitness
+
     def save_elite(self, species):
         pf = species.pareto_front()
         species.members = species.members[len(pf):]
@@ -19,13 +33,11 @@ class MultiobjectivePopulation(Population):
             next_front = species.pareto_front()
             pf.extend(next_front)
             species.members = species.members[len(next_front):]
-
         # editing the old species
         species.representative = pf[0]
 
-        members_to_save = Props.PERCENT_TO_SAVE * len(pf)
+        members_to_save = max(2, int(Props.PERCENT_TO_SAVE * len(pf)))
         pf = pf[:members_to_save]
-
         # TODO CDN say species.members=pf, but this doesn't make sense given how Population works
         # species.members = pf
         species.members.clear()

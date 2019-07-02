@@ -1,8 +1,11 @@
 from src.NEAT.Population import Population
+from src.NEAT.MultiobjectivePopulation import MultiobjectivePopulation
+
 from src.NeuralNetwork import Evaluator
 from src.CoDeepNEAT import PopulationInitialiser as PopInit
 import torch.tensor
 
+from src.NeuralNetwork.Net import ModuleNet
 import random
 
 
@@ -16,8 +19,8 @@ class Generation:
 
     def initialise_populations(self):
         print('initialising population')
-        module_population = Population(PopInit.initialise_modules(), PopInit.initialize_mutations())
-        blueprint_population = Population(PopInit.initialise_blueprints(), PopInit.initialize_mutations())
+        module_population = MultiobjectivePopulation(PopInit.initialise_modules(), PopInit.initialize_mutations())
+        blueprint_population = MultiobjectivePopulation(PopInit.initialise_blueprints(), PopInit.initialize_mutations())
         print('population initialized')
         return module_population, blueprint_population
 
@@ -61,7 +64,7 @@ class Generation:
                 print("Error: module graph handle node is not root node")
 
             try:
-                net = module_graph.to_nn(in_features=1, device=device)
+                net: ModuleNet = module_graph.to_nn(in_features=1, device=device)
             except Exception as e:
                 print("Error:", e)
                 print("Error: failed to parse module graph into nn")
@@ -80,10 +83,12 @@ class Generation:
                 best_acc = acc
                 best_bp = module_graph
 
-            blueprint_individual.report_fitness(acc)
+            net_size = sum(p.numel() for p in net.parameters() if p.requires_grad)
+            blueprint_individual.report_fitness(acc, net_size)
 
             for module_individual in blueprint_individual.modules_used:
-                module_individual.report_fitness(acc)
+                # TODO second objective should only be params of module
+                module_individual.report_fitness(acc, net_size)
 
+        print('best acc', best_acc)
         best_bp.plot_tree()
-        print('\n\nbest acc', best_acc)

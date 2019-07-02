@@ -13,7 +13,7 @@ def main():
     current_generation = Generation()
 
     for i in range(numGenerations):
-        print('Running gen', i)
+        print('\nRunning gen', i)
         current_generation.evaluate(i, print_graphs=False)
         current_generation.step()
 
