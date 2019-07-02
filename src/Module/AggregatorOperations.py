@@ -7,7 +7,7 @@ def merge_linear_and_conv(linear, conv, lossy= True):
     """takes in a single linear shaped tensor and a single conv2d shaped tensor and merges them"""
     if(lossy):
         #reduce conv features until it can be reshaped to match dimensionality of linear - then sum
-        conv_features = Utils.get_tensor_flat_number(conv)
+        conv_features = Utils.get_flat_number(conv)
         linear_features = linear.size()[1].item()
 
         if(conv_features > linear_features):

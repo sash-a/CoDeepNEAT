@@ -1,11 +1,16 @@
 from src.Graph.Node import Node
+from src.Module.ReshapeNode import ReshapeNode
+from src.Utilities import Utils
 import torch.nn as nn
 import torch
 import torch.nn.functional as F
 import random
+import math
 from src.NeuralNetwork.Net import ModuleNet
 import copy
 
+
+minimum_conv_dim = 8
 
 class ModuleNode(Node):
     """
@@ -33,6 +38,8 @@ class ModuleNode(Node):
         self.reduction = None
         self.regularisation = None
 
+        self.reshape = None# reshapes the input given before passing it through this nodes deeplayer
+
         self.module_NEAT_genome = module_genome
         self.module_NEAT_node = module_NEAT_node
 
@@ -40,12 +47,24 @@ class ModuleNode(Node):
             self.generate_module_node_from_gene()
 
     def generate_module_node_from_gene(self):
-        try:
-            self.out_features = self.module_NEAT_node.out_features.get_value()
-        except:
-            print("no out features attached to", type(self.module_NEAT_node))
-
+        self.out_features = self.module_NEAT_node.out_features.get_value()
         self.activation = self.module_NEAT_node.activation.get_value()
+
+        neat_regularisation = self.module_NEAT_node.layer_type.get_sub_value("regularisation", return_mutagen=True)
+        neat_reduction = self.module_NEAT_node.layer_type.get_sub_value("reduction", return_mutagen=True)
+
+        if not (neat_regularisation.get_value() is None):
+            self.regularisation = neat_regularisation.get_value()(self.out_features)
+
+        if not (neat_reduction.get_value() is None):
+            if neat_reduction.get_value() == nn.MaxPool2d or neat_reduction.get_value() == nn.MaxPool1d:
+                pool_size = neat_reduction.get_sub_value("pool_size")
+                if neat_reduction.get_value() == nn.MaxPool2d:
+                    self.reduction = nn.MaxPool2d(pool_size, pool_size)
+                if neat_reduction.get_value() == nn.MaxPool1d:
+                    self.reduction = nn.MaxPool1d(pool_size)
+            else:
+                print("Error not implemented reduction ", neat_reduction.get_value())
 
     def to_nn(self, in_features, device, print_graphs=False):
         self.create_layers(in_features=in_features, device=device)
@@ -81,20 +100,14 @@ class ModuleNode(Node):
                           layer_type.get_sub_value("conv_stride"), "deep layer:", self.deep_layer)
                     print('Module with error', self.module_NEAT_genome.connections)
 
-
             else:
                 self.deep_layer = layer_type.get_value()(self.in_features, self.out_features).to(device)
 
-            if not (self.module_NEAT_node.regularisation.get_value()) is None:
-                self.regularisation = self.module_NEAT_node.regularisation.get_value()(self.out_features).to(device)
+            if not (self.reduction is None):
+                self.reduction = self.reduction.to(device)
 
-            if not (self.module_NEAT_node.reduction.get_value() is None):
-                reduction = self.module_NEAT_node.reduction
-                if reduction.get_value() == nn.MaxPool2d:
-                    pool_size = reduction.get_sub_value("pool_size")
-                    self.reduction = nn.MaxPool2d(pool_size, pool_size).to(device)
-                else:
-                    self.reduction = reduction.get_value()().to(device)
+            if not (self.regularisation is None):
+                self.regularisation = self.regularisation.to(device)
 
             for child in self.children:
                 child.create_layers(device=device)
@@ -169,27 +182,56 @@ class ModuleNode(Node):
         if input is None:
             return None
 
+        if not (self.reshape is None):
+            if not (self.is_input_node()):
+                print("non input node with a reshape node")
+            input = self.reshape.shape(input)
+
         if self.regularisation is None:
             output = self.deep_layer(input)
         else:
             output = self.regularisation(self.deep_layer(input))
 
         if not self.reduction is None:
-            if type(self.reduction) == nn.MaxPool2d:
+            if type(self.reduction) == nn.MaxPool2d or type(self.reduction) == nn.MaxPool1d:
                 # a reduction should only be done on inputs large enough to reduce
-                if list(input.size())[2] > 5:
-                    return self.reduction(self.activation(output))
+                if list(input.size())[2] > minimum_conv_dim:
+                   output = self.reduction(self.activation(output))
             else:
-                return self.reduction(self.activation(output))
+                print("Error: reduction", self.reduction, " is not implemented")
 
-        if type(self.deep_layer) == nn.Linear or (type(self.deep_layer) == nn.Conv2d and list(input.size())[2] > 5):
+        #print("conv dim size of output:",list(output.size())[2])
+        if self.is_linear() or (self.is_conv2d() and list(output.size())[2] > minimum_conv_dim):
             return self.activation(output)
         else:
             # is conv layer - is small. needs padding
             xkernel, ykernel = self.deep_layer.kernel_size
             xkernel, ykernel = (xkernel - 1) // 2, (ykernel - 1) // 2
+
             return F.pad(input=self.activation(output), pad=(ykernel, ykernel, xkernel, xkernel), mode='constant',
                          value=0)
+
+    def add_reshape_node(self, input_shape):
+        features = self.get_in_features()
+        input_flat_size = Utils.get_flat_number(sizes=input_shape)
+
+        if(self.is_conv2d()):
+            #TODO non square conv dims
+            conv_dim = int(math.pow(input_flat_size,0.5))
+            if not (math.pow(conv_dim,2) == input_flat_size):
+                print("error calculating conv dim from input flat size:",input_flat_size, " tried conv size",conv_dim)
+                return
+            output_shape = [input_shape[0], features, conv_dim,conv_dim]
+            #print('adding convreshape node for', input_shape, "num features:",features, "out shape:",output_shape)
+
+        if(self.is_linear()):
+            output_shape = [input_shape[0], input_flat_size]
+            #print('adding linear reshape node for', input_shape, "num features:",features, "out shape:",output_shape)
+
+        if input_shape == output_shape:
+            return
+
+        self.reshape = ReshapeNode(input_shape, output_shape)
 
     def get_parameters(self, parametersDict, top=True):
 
@@ -227,15 +269,15 @@ class ModuleNode(Node):
         # print("plotting agg node")
         if self.deep_layer is None:
             return "rs"
-        if type(self.deep_layer) == nn.Conv2d:
+        if self.is_conv2d():
             return "go"
-        elif type(self.deep_layer) == nn.Linear:
+        elif self.is_linear():
             return "co"
 
-    def get_dimensionality(self):
-        print("need to implement get dimensionality")
-        # 10*10 because by the time the 28*28 has gone through all the convs - it has been reduced to 10810
-        return 10 * 10 * self.deep_layer.out_channels
+    # def get_dimensionality(self):
+    #     print("need to implement get dimensionality")
+    #     # 10*10 because by the time the 28*28 has gone through all the convs - it has been reduced to 10810
+    #     return 10 * 10 * self.deep_layer.out_channels
 
     def get_out_features(self, deep_layer=None):
         """:returns out_channels if deep_layer is a Conv2d | out_features if deep_layer is Linear
@@ -246,7 +288,23 @@ class ModuleNode(Node):
         if type(deep_layer) == nn.Conv2d:
             num_features = deep_layer.out_channels
         elif type(deep_layer) == nn.Linear:
-            num_features = deep_layer.deepLayer.out_features
+            num_features = deep_layer.out_features
+        else:
+            print("cannot extract num features from layer type:", type(deep_layer))
+            return None
+
+        return num_features
+
+    def get_in_features(self, deep_layer=None):
+        """:returns out_channels if deep_layer is a Conv2d | out_features if deep_layer is Linear
+        :parameter deep_layer: if none - performs operation on this nodes deep_layer, else performs on the provided layer"""
+        if deep_layer is None:
+            deep_layer = self.deep_layer
+
+        if type(deep_layer) == nn.Conv2d:
+            num_features = deep_layer.in_channels
+        elif type(deep_layer) == nn.Linear:
+            num_features = deep_layer.in_features
         else:
             print("cannot extract num features from layer type:", type(deep_layer))
             return None
@@ -259,3 +317,20 @@ class ModuleNode(Node):
             return self.get_out_features(deep_layer=deep_layer), new_input.size()[2], new_input.size()[3]
         elif type(deep_layer) == nn.Linear:
             return self.get_out_features(deep_layer=deep_layer)
+        else:
+            print("have not implemented layer type",deep_layer)
+    def is_linear(self):
+        return type(self.deep_layer) == nn.Linear
+
+    def is_conv2d(self):
+        return type(self.deep_layer) == nn.Conv2d
+
+    def get_first_feature_count(self, input):
+        layer_type = self.module_NEAT_node.layer_type
+        if layer_type.get_value() == nn.Conv2d:
+            return list(input.size())[1]
+
+        elif layer_type.get_value() == nn.Linear:
+            return Utils.get_flat_number(input)
+        else:
+            print("layer type",layer_type.get_value(),"not implemented")

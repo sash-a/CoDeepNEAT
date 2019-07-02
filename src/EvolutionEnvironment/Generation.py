@@ -3,6 +3,7 @@ from src.NeuralNetwork import Evaluator
 from src.CoDeepNEAT import PopulationInitialiser as PopInit
 import torch.tensor
 from src.Analysis import RuntimeAnalysis
+import traceback
 
 import random
 
@@ -42,36 +43,31 @@ class Generation:
 
         for blueprint_individual in self.blueprint_population.individuals:
             blueprint = blueprint_individual.to_blueprint()
-            if not blueprint.is_input_node():
-                print("Error: blueprint graph handle node is not root node")
-
             module_graph = blueprint.parseto_module_graph(self, device=device)
-            if module_graph is None:
-                print("failed parsing blueprint to module graph")
-                continue
-
-            if not module_graph.is_input_node():
-                print("Error: module graph handle node is not root node")
 
             # net = module_graph.to_nn(in_features=1, device=device)
             try:
-                net = module_graph.to_nn(in_features=1, device=device)
+                print("using infeatures = ",module_graph.get_first_feature_count(inputs))
+                net = module_graph.to_nn(in_features=module_graph.get_first_feature_count(inputs), device=device)
             except Exception as e:
                 print("Error:", e)
                 print("Error: failed to parse module graph into nn")
-                module_graph.plot_tree()
+                module_graph.plot_tree("module graph which failed to parse to nn")
                 continue
 
-            try:
-                net.specify_output_dimensionality(inputs, device=device)
-            except Exception as e:
-                print("Error:", e)
-                print("Error: nn failed to have input passed through")
-                module_graph.plot_tree(title="module graph with error")
-                continue
+            net.specify_dimensionality(inputs, device=device)
+            # try:
+            #     net.specify_output_dimensionality(inputs, device=device)
+            # except Exception as e:
+            #     print("Error:", e)
+            #     print("Error: nn failed to have input passed through")
+            #     print(traceback.print_stack())
+            #     module_graph.plot_tree(title="module graph with error passing input through net")
+            #     continue
 
-            #acc = Evaluator.evaluate(net, 2, dataset='mnist', path='../../data', device=device, batch_size=256)
-            acc = hash(net)
+
+            acc = Evaluator.evaluate(net, 2, dataset='mnist', path='../../data', device=device, batch_size=256)
+            #acc = hash(net)
             if acc >= best_acc:
                 best_acc = acc
                 best_bp = module_graph

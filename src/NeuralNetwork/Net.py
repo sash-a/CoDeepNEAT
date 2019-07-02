@@ -18,15 +18,18 @@ class ModuleNet(nn.Module):
             print("null parameters object gotten from module graph", module_graph)
         self.optimizer = optim.Adam(params, lr=self.lr, betas=(beta1, beta2))
 
-    def specify_output_dimensionality(self, input_sample, output_dimensionality=torch.tensor([1]),
-                                      device=torch.device("cpu")):
+    def specify_dimensionality(self, input_sample, output_dimensionality=torch.tensor([1]),
+                               device=torch.device("cpu")):
         if self.dimensionality_configured:
             print("warning - trying to configure dimensionality multiple times on the same network")
             return
-        # print("configuring output dims with in=", input_sample.size(), end=" ")
-        output_nodes = Utils.get_tensor_flat_number(output_dimensionality, 0)
+        print("configuring output dims with in=", input_sample.size())
+
+        self.moduleGraph.add_reshape_node(list(input_sample.size()))
+
+        output_nodes = Utils.get_flat_number(output_dimensionality, 0)
         output = self(input_sample)
-        in_layers = Utils.get_tensor_flat_number(output)
+        in_layers = Utils.get_flat_number(output)
         # print("out = ", output.size(), "using linear layer (", in_layers, ",", output_nodes, ")")
 
         self.final_layer = nn.Linear(in_layers, output_nodes).to(device)

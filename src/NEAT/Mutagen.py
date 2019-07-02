@@ -69,11 +69,17 @@ class Mutagen():
         else:
             return self.current_value
 
-    def get_sub_value(self, sub_value_name, value=None):
+    def get_sub_value(self, sub_value_name, value=None, return_mutagen = False):
+
         if value is None:
-            return self.sub_values[self.get_value()][sub_value_name].get_value()
+            mutagen =  self.sub_values[self.get_value()][sub_value_name]
         else:
-            return self.sub_values[value][sub_value_name].get_value()
+            mutagen =  self.sub_values[value][sub_value_name]
+
+        if return_mutagen:
+            return mutagen
+        else:
+            return mutagen.get_value()
 
     def set_value(self, value):
         """sets current_value=value, or curent_value_id = index(value)
