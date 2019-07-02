@@ -37,7 +37,7 @@ class Generation:
     def evaluate(self, generation_number, device=torch.device("cuda:0"), print_graphs=True):
         inputs, targets = Evaluator.sample_data('mnist', '../../data', device=device)
 
-        best_acc = -9999999999999999
+        best_acc = -9999999999999999999
         best_bp = None
         accuracies = []
 
@@ -66,8 +66,8 @@ class Generation:
             #     continue
 
 
-            acc = Evaluator.evaluate(net, 2, dataset='mnist', path='../../data', device=device, batch_size=256)
-            #acc = hash(net)
+            #acc = Evaluator.evaluate(net, 2, dataset='mnist', path='../../data', device=device, batch_size=256)
+            acc = hash(net)
             if acc >= best_acc:
                 best_acc = acc
                 best_bp = module_graph

@@ -1,0 +1,6 @@
+gen: 0 accuracy~ max: -9223371898187137655 ; average: -9.223371898191122e+18
+gen: 1 accuracy~ max: 138664393529 ; average: -4.6116858797711816e+18
+gen: 2 accuracy~ max: 138692189402 ; average: -5.339846830034056e+18
+gen: 3 accuracy~ max: 138692201038 ; average: -5.339846830038147e+18
+gen: 4 accuracy~ max: 138684550955 ; average: -5.825287463553878e+18
+gen: 5 accuracy~ max: 138722768760 ; average: -3.8835249294813235e+18

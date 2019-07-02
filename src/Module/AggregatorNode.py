@@ -44,7 +44,7 @@ class AggregatorNode(Module):
         return 'bo'
 
 
-    def pass_ann_input_up_graph(self, input, parent_id=""):
+    def pass_ann_input_up_graph(self, input, parent_id="",configuration_run = False ):
         self.accountedForInputIDs[parent_id] = input
 
         if len(self.module_node_input_ids) == len(self.accountedForInputIDs):

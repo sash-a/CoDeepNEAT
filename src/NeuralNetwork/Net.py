@@ -7,16 +7,15 @@ from src.Utilities import Utils
 class ModuleNet(nn.Module):
     def __init__(self, module_graph, lr=0.001, beta1=0.9, beta2=0.999, loss_fn=nn.MSELoss()):
         super(ModuleNet, self).__init__()
-        self.moduleGraph = module_graph
+        self.module_graph = module_graph
         self.loss_fn = loss_fn
         self.lr = lr
         self.dimensionality_configured = False
         self.outputDimensionality = None
         # self.optimizer = optim.Adam(module_graph.get_parameters({}), lr=self.lr, betas=(beta1, beta2))
-        params = module_graph.get_parameters({})
-        if (params is None):
-            print("null parameters object gotten from module graph", module_graph)
-        self.optimizer = optim.Adam(params, lr=self.lr, betas=(beta1, beta2))
+        self.beta1 = beta1
+        self.beta2 = beta2
+        self.optimizer = None
 
     def specify_dimensionality(self, input_sample, output_dimensionality=torch.tensor([1]),
                                device=torch.device("cpu")):
@@ -25,10 +24,10 @@ class ModuleNet(nn.Module):
             return
         print("configuring output dims with in=", input_sample.size())
 
-        self.moduleGraph.add_reshape_node(list(input_sample.size()))
+        self.module_graph.add_reshape_node(list(input_sample.size()))
 
         output_nodes = Utils.get_flat_number(output_dimensionality, 0)
-        output = self(input_sample)
+        output = self(input_sample, configuration_run = True)
         in_layers = Utils.get_flat_number(output)
         # print("out = ", output.size(), "using linear layer (", in_layers, ",", output_nodes, ")")
 
@@ -36,11 +35,13 @@ class ModuleNet(nn.Module):
         self.dimensionality_configured = True
         self.outputDimensionality = output_dimensionality
 
-    def forward(self, x):
+        self.optimizer = optim.Adam(self.module_graph.get_parameters({}), lr=self.lr, betas=(self.beta1, self.beta2))
+
+    def forward(self, x, configuration_run = False):
         if (x is None):
             print("null x passed to forward 1")
             return
-        x = self.moduleGraph.pass_ann_input_up_graph(x)
+        x = self.module_graph.pass_ann_input_up_graph(x, configuration_run = configuration_run)
         if (x is None):
             print("received null output from module graph given non null input")
             return

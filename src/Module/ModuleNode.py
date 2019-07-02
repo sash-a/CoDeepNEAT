@@ -155,7 +155,7 @@ class ModuleNode(Node):
             input_node.clear()
             input_node.get_traversal_ids('_')
 
-    def pass_ann_input_up_graph(self, input, parent_id=""):
+    def pass_ann_input_up_graph(self, input, parent_id="",configuration_run = False):
         """
         Called by the forward method of the NN - traverses the module graph passes the nn's input all the way up through
         the graph aggregator nodes wait for all inputs before passing outputs
@@ -320,10 +320,10 @@ class ModuleNode(Node):
         else:
             print("have not implemented layer type",deep_layer)
     def is_linear(self):
-        return type(self.deep_layer) == nn.Linear
+        return self.module_NEAT_node.layer_type.get_value() == nn.Linear
 
     def is_conv2d(self):
-        return type(self.deep_layer) == nn.Conv2d
+        return self.module_NEAT_node.layer_type.get_value() == nn.Conv2d
 
     def get_first_feature_count(self, input):
         layer_type = self.module_NEAT_node.layer_type

@@ -1,0 +1,1 @@
+gen: 0 accuracy~ max: 102445612657 ; average: 102443826534.5
