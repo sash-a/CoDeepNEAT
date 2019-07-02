@@ -2,6 +2,7 @@ from src.NEAT.Population import Population
 from src.NeuralNetwork import Evaluator
 from src.CoDeepNEAT import PopulationInitialiser as PopInit
 import torch.tensor
+from src.Analysis import RuntimeAnalysis
 
 import random
 
@@ -35,8 +36,9 @@ class Generation:
     def evaluate(self, generation_number, device=torch.device("cuda:0"), print_graphs=True):
         inputs, targets = Evaluator.sample_data('mnist', '../../data', device=device)
 
-        best_acc = 0
+        best_acc = -9999999999999999
         best_bp = None
+        accuracies = []
 
         for blueprint_individual in self.blueprint_population.individuals:
             blueprint = blueprint_individual.to_blueprint()
@@ -47,16 +49,6 @@ class Generation:
             if module_graph is None:
                 print("failed parsing blueprint to module graph")
                 continue
-
-            if print_graphs and random.random() > 0.8:
-                print('\n\nPRINTING BLUEPRINTS AND MODULES\n')
-                # blueprint.plot_tree(title="blueprint")
-                module_graph.plot_tree(title="module graph")
-                print('NEAT Blueprint')
-                print(blueprint_individual)
-                print('NEAT Modules')
-                for module in blueprint_individual.modules_used:
-                    print(module)
 
             if not module_graph.is_input_node():
                 print("Error: module graph handle node is not root node")
@@ -72,24 +64,24 @@ class Generation:
 
             try:
                 net.specify_output_dimensionality(inputs, device=device)
-                # if (generation > 0):
-                #     module_graph.plot_tree(title="module graph without error")
-
             except Exception as e:
                 print("Error:", e)
                 print("Error: nn failed to have input passed through")
                 module_graph.plot_tree(title="module graph with error")
                 continue
 
-            acc = Evaluator.evaluate(net, 2, dataset='mnist', path='../../data', device=device, batch_size=256)
+            #acc = Evaluator.evaluate(net, 2, dataset='mnist', path='../../data', device=device, batch_size=256)
+            acc = hash(net)
             if acc >= best_acc:
                 best_acc = acc
                 best_bp = module_graph
+            accuracies.append(acc)
 
             blueprint_individual.report_fitness(acc)
 
             for module_individual in blueprint_individual.modules_used:
                 module_individual.report_fitness(acc)
 
-        best_bp.plot_tree()
+        best_bp.plot_tree(title="gen:"+str(generation_number)+" acc:"+str(best_acc))
+        RuntimeAnalysis.log_new_generation(accuracies,generation_number)
         print('\n\nbest acc', best_acc)
