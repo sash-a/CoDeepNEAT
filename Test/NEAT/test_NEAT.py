@@ -4,7 +4,6 @@ from src.NEAT.Connection import Connection
 from src.NEAT.NEATNode import NEATNode, NodeType
 from src.NEAT.Genotype import Genome
 from src.NEAT.Species import Species
-from src.NEAT.Mutation import ConnectionMutation, NodeMutation
 from src.NEAT.Crossover import crossover
 
 nodes = [NEATNode(0, 0, NodeType.INPUT),

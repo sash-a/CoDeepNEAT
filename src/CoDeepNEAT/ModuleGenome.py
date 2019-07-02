@@ -1,4 +1,4 @@
-from src.NEAT.Genotype import Genome
+from src.NEAT.Genome import Genome
 from src.Module.ModuleNode import ModuleNode
 from src.NEAT.Connection import Connection
 from src.CoDeepNEAT.ModuleNEATNode import ModulenNEATNode

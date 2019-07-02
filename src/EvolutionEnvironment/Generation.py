@@ -50,7 +50,6 @@ class Generation:
 
             if print_graphs and random.random() > 0.8:
                 print('\n\nPRINTING BLUEPRINTS AND MODULES\n')
-                # blueprint.plot_tree(title="blueprint")
                 module_graph.plot_tree(title="module graph")
                 print('NEAT Blueprint')
                 print(blueprint_individual)
@@ -61,7 +60,6 @@ class Generation:
             if not module_graph.is_input_node():
                 print("Error: module graph handle node is not root node")
 
-            # net = module_graph.to_nn(in_features=1, device=device)
             try:
                 net = module_graph.to_nn(in_features=1, device=device)
             except Exception as e:
@@ -72,16 +70,12 @@ class Generation:
 
             try:
                 net.specify_output_dimensionality(inputs, device=device)
-                # if (generation > 0):
-                #     module_graph.plot_tree(title="module graph without error")
-
             except Exception as e:
-                print("Error:", e)
-                print("Error: nn failed to have input passed through")
+                print("Error: nn failed to have input passed through\n", e)
                 module_graph.plot_tree(title="module graph with error")
                 continue
 
-            acc = Evaluator.evaluate(net, 2, dataset='mnist', path='../../data', device=device, batch_size=256)
+            acc = 20  # Evaluator.evaluate(net, 2, dataset='mnist', path='../../data', device=device, batch_size=256)
             if acc >= best_acc:
                 best_acc = acc
                 best_bp = module_graph

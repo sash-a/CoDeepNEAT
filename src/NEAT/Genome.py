@@ -153,15 +153,12 @@ class Genome:
 
         self.add_connection(mutated_conn)
 
-        print('mutated connection', mutated_conn)
-
         return innov
 
     def mutate(self, mutations: dict, innov: int, node_id: int, node_chance=Props.NODE_MUTATION_CHANCE,
                conn_chance=Props.CONNECTION_MUTATION_CHANCE, enabled_chance=Props.ENABLE_DISABLE_CHANCE):
 
         if random.random() < node_chance:  # Add a new node
-            print('Mutated node')
             innov, node_id = self._mutate_add_node(random.choice(self.connections), mutations, innov, node_id)
 
         if random.random() < conn_chance:  # Add a new connection
@@ -175,7 +172,6 @@ class Genome:
                 # Found acceptable nodes
                 if outcome is not None:
                     innov = outcome
-                    print('Mutated connection')
                     break
 
         for mutagen in self.get_all_mutagens():

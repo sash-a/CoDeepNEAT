@@ -1,7 +1,6 @@
-from src.NEAT.Genotype import Genome
+from src.NEAT.Genome import Genome
 from src.Blueprint.Blueprint import BlueprintNode
 from src.NEAT.Connection import Connection
-from src.NEAT.Mutation import NodeMutation
 from src.CoDeepNEAT.BlueprintNEATNode import BlueprintNEATNode
 
 

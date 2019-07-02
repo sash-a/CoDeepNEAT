@@ -1,10 +1,12 @@
-from src.NEAT.Genotype import Genome
+from src.NEAT.Genome import Genome
 from src.NEAT.Species import Species
 from src.NEAT.Crossover import crossover
+from src.CoDeepNEAT.BlueprintGenome import BlueprintGenome
+from src.CoDeepNEAT.ModuleGenome import ModuleGenome
 import src.NEAT.NeatProperties as Props
 
 import random
-from typing import List
+from typing import List, Union
 
 """
 Population persists across whole run time
@@ -13,7 +15,8 @@ Population persists across whole run time
 
 class Population:
 
-    def __init__(self, population: List[Genome], mutations: dict):
+    def __init__(self, population: List[Union[BlueprintGenome, ModuleGenome, Genome]],
+                 mutations: dict):
         """
         :param population: list of all individuals
         """
@@ -22,16 +25,17 @@ class Population:
         self.curr_innov = max(indv.connections[-1].innovation for indv in population)
         self.max_node_id = 6  # TODO len(population)  # this assumes that no nodes are disabled in initial population
 
-        # Either connection mutation: nodeid#nodeid : innovation number
+        # Either connection mutation: tuple(nodeid,nodeid) : innovation number
         # Or node mutation: innovation number : nodeid
         self.mutation = dict()
 
-        self.individuals = population
+        self.individuals: List[Union[BlueprintGenome, ModuleGenome, Genome]] = population
+
+        self.speciation_thresh = Props.SPECIES_DISTANCE_THRESH
         self.species: List[Species] = []
+        self.speciate(True)
 
-        self.speciate()
-
-    def speciate(self):
+    def speciate(self, first_gen=False):
         """
         Place all individuals in their first compatible species if one exists
         Otherwise create new species with current individual as its representative
@@ -46,7 +50,7 @@ class Population:
         for individual in self.individuals:
             found_species = False
             for spc in self.species:
-                if spc.is_compatible(individual):
+                if spc.is_compatible(individual, thresh=self.speciation_thresh):
                     spc.add_member(individual)
                     found_species = True
                     break
@@ -55,9 +59,16 @@ class Population:
                 self.species.append(Species(individual))
 
         # Remove all empty species
-        species = [spc for spc in self.species if spc.members]
+        self.species = [spc for spc in self.species if spc.members]
+        # Dynamic speciation threshold
+        if not first_gen:
+            mod = 1
+            if len(self.species) < Props.TARGET_NUM_SPECIES:
+                mod = -1
 
-        return species
+            self.speciation_thresh = max(0.3, self.speciation_thresh + (mod * Props.SPECIES_DISTANCE_THRESH_MOD))
+
+        return self.species
 
     def adjust_fitness(self, indv: Genome):
         shared_fitness = 0
@@ -67,7 +78,7 @@ class Population:
             # if other_indv == indv:
             #     continue
 
-            if other_indv.distance_to(indv) <= Props.DISTANCE_THRESH:
+            if other_indv.distance_to(indv) <= Props.SPECIES_DISTANCE_THRESH:
                 shared_fitness += 1
 
         indv.adjusted_fitness = indv.fitness / shared_fitness
@@ -90,7 +101,7 @@ class Population:
 
             # only allow top x% to reproduce
             spc.members.sort(key=lambda indv: indv.fitness, reverse=True)
-            # min of two bc need two parents to create child
+            # min of two because need two parents to crossover
             num_remaining_mem = max(2, int(len(spc.members) * Props.PERCENT_TO_SAVE))
             remaining_members = spc.members[:num_remaining_mem]
             spc.members.clear()  # reset species
@@ -100,21 +111,20 @@ class Population:
             new_pop.extend(remaining_members[:elite])
 
             # Create children
-            for _ in range(num_children):
-                parent1 = random.choice(remaining_members)
-                parent2 = random.choice(remaining_members)
+            if remaining_members:
+                for _ in range(num_children):
+                    parent1 = random.choice(remaining_members)
+                    parent2 = random.choice(remaining_members)
 
-                child = crossover(parent1, parent2)
+                    child = crossover(parent1, parent2)
 
-                self.curr_innov, self.max_node_id = child.mutate(self.mutations,
-                                                                 self.curr_innov,
-                                                                 self.max_node_id,
-                                                                 Props.NODE_MUTATION_CHANCE,
-                                                                 Props.CONNECTION_MUTATION_CHANCE)
+                    self.curr_innov, self.max_node_id = child.mutate(self.mutations,
+                                                                     self.curr_innov,
+                                                                     self.max_node_id,
+                                                                     Props.NODE_MUTATION_CHANCE,
+                                                                     Props.CONNECTION_MUTATION_CHANCE)
 
-                new_pop.append(child)
+                    new_pop.append(child)
 
         self.individuals = new_pop
         self.speciate()
-
-        print('New population size:', len(self.individuals))
