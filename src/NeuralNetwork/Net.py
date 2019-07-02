@@ -24,7 +24,7 @@ class ModuleNet(nn.Module):
             return
         print("configuring output dims with in=", input_sample.size())
 
-        self.module_graph.add_reshape_node(list(input_sample.size()))
+        #self.module_graph.add_reshape_node(list(input_sample.size()))
 
         output_nodes = Utils.get_flat_number(output_dimensionality, 0)
         output = self(input_sample, configuration_run = True)

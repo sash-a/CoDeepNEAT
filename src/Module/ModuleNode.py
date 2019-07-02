@@ -160,11 +160,14 @@ class ModuleNode(Node):
         Called by the forward method of the NN - traverses the module graph passes the nn's input all the way up through
         the graph aggregator nodes wait for all inputs before passing outputs
         """
+        if configuration_run and not (input is None):
+            self.add_reshape_node(list(input.size()))
+
         output = self.pass_input_through_layer(input)  # will call aggregation if is aggregator node
 
         child_out = None
         for child in self.children:
-            co = child.pass_ann_input_up_graph(output, self.traversalID)
+            co = child.pass_ann_input_up_graph(output, self.traversalID, configuration_run=configuration_run)
             if co is not None:
                 child_out = co
 
@@ -217,8 +220,8 @@ class ModuleNode(Node):
 
         if(self.is_conv2d()):
             #TODO non square conv dims
-            conv_dim = int(math.pow(input_flat_size,0.5))
-            if not (math.pow(conv_dim,2) == input_flat_size):
+            conv_dim = int(math.pow(input_flat_size/features,0.5))
+            if not (math.pow(conv_dim,2)*features == input_flat_size):
                 print("error calculating conv dim from input flat size:",input_flat_size, " tried conv size",conv_dim)
                 return
             output_shape = [input_shape[0], features, conv_dim,conv_dim]
@@ -230,6 +233,7 @@ class ModuleNode(Node):
 
         if input_shape == output_shape:
             return
+        print("using reshape node from",input_shape,"to",output_shape)
 
         self.reshape = ReshapeNode(input_shape, output_shape)
 
@@ -273,11 +277,6 @@ class ModuleNode(Node):
             return "go"
         elif self.is_linear():
             return "co"
-
-    # def get_dimensionality(self):
-    #     print("need to implement get dimensionality")
-    #     # 10*10 because by the time the 28*28 has gone through all the convs - it has been reduced to 10810
-    #     return 10 * 10 * self.deep_layer.out_channels
 
     def get_out_features(self, deep_layer=None):
         """:returns out_channels if deep_layer is a Conv2d | out_features if deep_layer is Linear

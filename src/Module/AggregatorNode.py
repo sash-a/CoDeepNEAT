@@ -50,7 +50,7 @@ class AggregatorNode(Module):
         if len(self.module_node_input_ids) == len(self.accountedForInputIDs):
             # all inputs have arrived
             # may now aggregate and pass upwards
-            out = super(AggregatorNode, self).pass_ann_input_up_graph(None)
+            out = super(AggregatorNode, self).pass_ann_input_up_graph(None, configuration_run=configuration_run)
             # if(not out is None):
             #     print("agg got non null out")
             self.reset_node()

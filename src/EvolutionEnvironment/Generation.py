@@ -47,7 +47,7 @@ class Generation:
 
             # net = module_graph.to_nn(in_features=1, device=device)
             try:
-                print("using infeatures = ",module_graph.get_first_feature_count(inputs))
+                #print("using infeatures = ",module_graph.get_first_feature_count(inputs))
                 net = module_graph.to_nn(in_features=module_graph.get_first_feature_count(inputs), device=device)
             except Exception as e:
                 print("Error:", e)
