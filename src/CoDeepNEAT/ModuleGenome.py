@@ -11,6 +11,7 @@ class ModuleGenome(Genome):
         super(ModuleGenome, self).__init__(connections, nodes)
         self.fitness_reports = 0
         self.module_node = None  # the module node created from this gene
+        self.fitness = []
 
     def to_module(self):
         """

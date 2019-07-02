@@ -15,8 +15,7 @@ Population persists across whole run time
 
 class Population:
 
-    def __init__(self, population: List[Union[BlueprintGenome, ModuleGenome, Genome]],
-                 mutations: dict):
+    def __init__(self, population: List[Union[BlueprintGenome, ModuleGenome, Genome]], mutations: dict):
         """
         :param population: list of all individuals
         """
@@ -51,7 +50,7 @@ class Population:
             found_species = False
             for spc in self.species:
                 if spc.is_compatible(individual, thresh=self.speciation_thresh):
-                    spc.add_member(individual)
+                    spc.add_member_safe(individual)
                     found_species = True
                     break
 
@@ -60,6 +59,7 @@ class Population:
 
         # Remove all empty species
         self.species = [spc for spc in self.species if spc.members]
+
         # Dynamic speciation threshold
         if not first_gen:
             mod = 1
@@ -83,6 +83,17 @@ class Population:
 
         indv.adjusted_fitness = indv.fitness / shared_fitness
 
+    def save_elite(self, species):
+        # only allow top x% to reproduce
+        # return species sorted by fitness
+        species.members.sort(key=lambda indv: indv.fitness, reverse=True)
+        # min of two because need two parents to crossover
+        num_remaining_mem = max(2, int(len(species.members) * Props.PERCENT_TO_SAVE))
+        remaining_members = species.members[:num_remaining_mem]
+        species.members.clear()  # reset species
+
+        return remaining_members
+
     def step(self):
         new_pop = []
 
@@ -99,16 +110,9 @@ class Population:
             num_children = max(Props.MIN_CHILDREN_PER_SPECIES, int((species_adj_fitness / tot_adj_fitness) * (
                     Props.POP_SIZE - Props.PERCENT_TO_SAVE * Props.POP_SIZE)))
 
-            # only allow top x% to reproduce
-            spc.members.sort(key=lambda indv: indv.fitness, reverse=True)
-            # min of two because need two parents to crossover
-            num_remaining_mem = max(2, int(len(spc.members) * Props.PERCENT_TO_SAVE))
-            remaining_members = spc.members[:num_remaining_mem]
-            spc.members.clear()  # reset species
-
-            # Elitism
-            elite = min(Props.ELITE_TO_KEEP, num_remaining_mem)
-            new_pop.extend(remaining_members[:elite])
+            remaining_members = self.save_elite(spc)
+            # Add elite back into new population
+            new_pop.extend(remaining_members)
 
             # Create children
             if remaining_members:

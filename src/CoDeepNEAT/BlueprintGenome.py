@@ -10,6 +10,7 @@ class BlueprintGenome(Genome):
         super(BlueprintGenome, self).__init__(connections, nodes)
         # TODO clear after eval
         self.modules_used = []  # holds ref to module individuals used - can multiple represent
+        self.fitness = []
 
     def to_blueprint(self):
         """
