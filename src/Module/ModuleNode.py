@@ -159,7 +159,10 @@ class ModuleNode(Node):
         the graph aggregator nodes wait for all inputs before passing outputs
         """
         if configuration_run and not (input is None):
-            self.add_reshape_node(list(input.size()))
+            try:
+                self.add_reshape_node(list(input.size()))
+            except:
+                print("failed on",input.size(), input)
 
         output = self.pass_input_through_layer(input)  # will call aggregation if is aggregator node
 
@@ -184,9 +187,15 @@ class ModuleNode(Node):
             return None
 
         if not (self.reshape is None):
-            if not (self.is_input_node()):
-                print("non input node with a reshape node")
             input = self.reshape.shape(input)
+
+
+
+        if self.is_conv2d() and list(input.size())[2] < minimum_conv_dim:
+            xkernel, ykernel = self.deep_layer.kernel_size
+            xkernel, ykernel = (xkernel - 1) // 2, (ykernel - 1) // 2
+            input = F.pad(input=input, pad=(ykernel, ykernel, xkernel, xkernel), mode='constant',
+                         value=0)
 
         if self.regularisation is None:
             output = self.deep_layer(input)
@@ -214,7 +223,10 @@ class ModuleNode(Node):
 
     def add_reshape_node(self, input_shape):
         input_flat_size = Utils.get_flat_number(sizes=input_shape)
-        features = input_shape[1]
+        try:
+            features = input_shape[1]
+        except:
+            print("could not extract features from",input_shape)
 
 
         if(self.is_conv2d()):
@@ -234,7 +246,7 @@ class ModuleNode(Node):
         self.create_layer(features)
         if input_shape == output_shape:
             return
-        print("using reshape node from",input_shape,"to",output_shape)
+        #print("using reshape node from",input_shape,"to",output_shape)
 
         self.reshape = ReshapeNode(input_shape, output_shape)
 

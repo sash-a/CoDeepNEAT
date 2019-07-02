@@ -5,26 +5,29 @@ import math
 
 def merge_linear_and_conv(linear, conv, lossy= True):
     """takes in a single linear shaped tensor and a single conv2d shaped tensor and merges them"""
+    #print("merging linear",linear.size(), "and conv",conv.size())
     if(lossy):
         #reduce conv features until it can be reshaped to match dimensionality of linear - then sum
         conv_features = Utils.get_flat_number(conv)
-        linear_features = linear.size()[1].item()
+        linear_features = list(linear.size())[1]
 
         if(conv_features > linear_features):
             reduction_factor = math.ceil(math.pow(conv_features/linear_features, 0.5))#square root because max pool reduces on two dims x*y
             if(reduction_factor > 3):
-                print("lossy merge of conv+linear has reduction factor of:",reduction_factor)
-            batch_size = conv.size()[0].item()
+                #print("lossy merge of conv+linear has reduction factor of:",reduction_factor)
+                pass
+            batch_size = list(conv.size())[0]
             conv = F.max_pool2d(conv, kernel_size = (reduction_factor, reduction_factor)).view(batch_size,-1)
-            conv_features = conv.size()[1].item()
+            conv_features = list(conv.size())[1]
 
             if(conv_features > linear_features):
                 print("error: reduced conv in lossy merge with linear. but conv still has more features")
                 return
 
-        featureDiff = linear_features - conv_features
-        conv = F.pad(input=conv, pad=(featureDiff//2, featureDiff - featureDiff//2))
-        return torch.sum(torch.stack([conv, linear],dim=0))
+        feature_diff = linear_features - conv_features
+        conv = F.pad(input=conv, pad=(feature_diff//2, feature_diff - feature_diff//2))
+        #print("summing",conv.size(), "and",linear.size(),"to",torch.sum(torch.stack([conv, linear],dim=0), dim = 0))
+        return torch.sum(torch.stack([conv, linear],dim=0), dim=0)
 
     else:
         #use an additional linear layer to map the conv features to a linear the same shape as the given linear

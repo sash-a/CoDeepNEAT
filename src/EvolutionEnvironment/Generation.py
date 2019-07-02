@@ -66,8 +66,10 @@ class Generation:
             #     continue
 
 
-            #acc = Evaluator.evaluate(net, 2, dataset='mnist', path='../../data', device=device, batch_size=256)
-            acc = hash(net)
+            if(generation_number > 5):
+                acc = Evaluator.evaluate(net, 2, dataset='mnist', path='../../data', device=device, batch_size=256)
+            else:
+                acc = hash(net)
             if acc >= best_acc:
                 best_acc = acc
                 best_bp = module_graph

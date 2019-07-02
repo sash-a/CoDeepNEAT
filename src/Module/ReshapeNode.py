@@ -2,7 +2,7 @@
 class ReshapeNode:
 
     def __init__(self, input_shape, output_shape):
-        print("creating new reshape node with in:",input_shape, " out:", output_shape)
+        #print("creating new reshape node with in:",input_shape, " out:", output_shape)
         self.output_shape = output_shape
 
     def shape(self, input):

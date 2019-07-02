@@ -22,7 +22,7 @@ class ModuleNet(nn.Module):
         if self.dimensionality_configured:
             print("warning - trying to configure dimensionality multiple times on the same network")
             return
-        print("configuring output dims with in=", input_sample.size())
+        #print("configuring output dims with in=", input_sample.size())
 
         #self.module_graph.add_reshape_node(list(input_sample.size()))
 
@@ -49,16 +49,7 @@ class ModuleNet(nn.Module):
         if self.dimensionality_configured:
 
             batch_size = x.size()[0]
-            x = x.view(batch_size, -1)
-            if (x is None):
-                print("null x 2")
-            x = self.final_layer(x)
-            if (x is None):
-                print("null x 2")
-            x = F.relu(x)
-            if (x is None):
-                print("null x 2")
-            # x = F.relu(self.final_layer(x.view(batch_size, -1)))
+            x = F.relu(self.final_layer(x.view(batch_size, -1)))
             # only works with 1 output dimension
             x = x.view(batch_size, self.outputDimensionality[0].item(), -1)
         else:
