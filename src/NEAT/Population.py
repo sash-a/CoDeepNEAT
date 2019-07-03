@@ -75,11 +75,17 @@ class Population:
     def step(self):
         new_pop = []
 
+        if(len(self.individuals) == 0):
+            raise Exception("no individuals in population, cannot step")
+
         # calculate adjusted fitness
         tot_adj_fitness = 0
         for indv in self.individuals:
             self.adjust_fitness(indv)
             tot_adj_fitness += indv.adjusted_fitness
+
+        if(tot_adj_fitness == 0):
+            raise Exception("individuals have not been assigned fitnesses")
 
         # Reproduce within species
         for spc in self.species:

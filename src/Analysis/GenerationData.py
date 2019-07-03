@@ -7,6 +7,8 @@ class GenerationData:
         self.generation_number = generation_number
 
     def average_accuracy(self):
+        if(len(self.accuracies) == 0):
+            return 0
         total_accuracy = 0
         for acc in self.accuracies:
             total_accuracy += acc

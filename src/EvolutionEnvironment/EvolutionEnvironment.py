@@ -10,7 +10,7 @@ Acts as the driver of current generation
 """
 
 numGenerations = 500
-
+protect_parsing_from_errors = True
 
 def main():
     current_generation = Generation()
@@ -20,7 +20,7 @@ def main():
     for i in range(numGenerations):
         print('Running gen', i)
         gen_start_time = time.time()
-        current_generation.evaluate(i, print_graphs=False)
+        current_generation.evaluate(i, print_graphs=False, protect_parsing_from_errors=True)
         current_generation.step()
         print('completed gen',i,"in", (time.time() - gen_start_time),"elapsed time:",(time.time() - start_time))
 
