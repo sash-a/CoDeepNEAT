@@ -10,8 +10,7 @@ def get_flat_number(tensor = None, sizes = None, start_dim=1):
     elif not (sizes is None ):
         items = sizes
     else:
-        print("error using get flat number")
-        return
+        raise Exception("Error using get flat number - both tensor and sizes arg is none")
     for i in range(start_dim, len(items)):
         prod *= items[i]
 

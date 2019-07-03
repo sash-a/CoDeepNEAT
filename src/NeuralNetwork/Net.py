@@ -28,6 +28,8 @@ class ModuleNet(nn.Module):
 
         output_nodes = Utils.get_flat_number(output_dimensionality, 0)
         output = self(input_sample, configuration_run = True)
+        if(output is None):
+            raise Exception("Error: failed to pass input through nn")
         in_layers = Utils.get_flat_number(output)
         # print("out = ", output.size(), "using linear layer (", in_layers, ",", output_nodes, ")")
 

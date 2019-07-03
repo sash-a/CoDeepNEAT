@@ -46,7 +46,7 @@ def merge_linear_outputs( previous_num_features, previous_inputs, new_num_featur
 
     
 def pad_linear_outputs(previous_inputs, new_input):
-    sizeDiff = previous_inputs[0].out_features - new_input.out_features
+    sizeDiff = list(previous_inputs[0].size())[1] - list(new_input.size())[1]
     if(sizeDiff > 0):
         #previous is larger
         for i in range(len(previous_inputs)):

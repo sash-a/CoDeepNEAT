@@ -109,14 +109,14 @@ class AggregatorNode(Module):
         :return: a homogenous list of tensors
         """
         if(outputs is None):
-            print("Error: trying to homogenise null outputs list")
-            raise Exception()
+            raise Exception("Error: trying to homogenise null outputs list")
 
         homogenous_conv_features = None
-        for i in range(len(outputs)):
+        length_of_outputs = len(outputs)
+        for i in range(length_of_outputs):
             #all list items from 0:i-1 are homogenous
             conv_layer = outputs_deep_layers[outputs[i]]
-            if (homogenous_conv_features is None):
+            if (i == 0):
                 homogenous_conv_features = self.get_feature_tuple(conv_layer, outputs[i])
                 #print("setting hom features to:",homogenous_conv_features, "num outs:",len(outputs))
             else:
@@ -127,6 +127,15 @@ class AggregatorNode(Module):
                         outputs = homogeniser(homogenous_conv_features,outputs[:i], new_conv_features,outputs[i]) + outputs[i+1:]
                     else:
                         outputs = homogeniser(homogenous_conv_features,outputs[:i], new_conv_features,outputs[i])
+                    if(outputs is None):
+                        raise Exception("null outputs returned from homogeniser")
+                    if(len(outputs) < length_of_outputs):
+                        """homogeniser can sometimes collapse the previous inputs into one in certain circumstances"""
+                        change = length_of_outputs - len(outputs)
+                        i-=change
+                        length_of_outputs = len(outputs)
+                        print("outputs list returned shorter than expected - readjusting")
+                        #raise Exception("length of outputs list has shrunk while homogenising at i=",i," origonal length:",length_of_outputs,"new length:",len(outputs))
 
                     new_conv_features = self.get_feature_tuple(conv_layer, outputs[i])
                     hom = self.get_feature_tuple(conv_layer, outputs[0])
@@ -134,8 +143,7 @@ class AggregatorNode(Module):
                         print("Error: homogeniser",homogeniser,"failed to homogenise list")
                     #print("hom shape:",outputs[0].size(),"new shape:",outputs[i].size(), "i:",i)
         if(outputs is None):
-            print("Error: outputs turned null from homogenising using",homogeniser)
-            raise Exception()
+            raise Exception("Error: outputs turned null from homogenising using" + repr(homogeniser))
         return outputs
 
 
