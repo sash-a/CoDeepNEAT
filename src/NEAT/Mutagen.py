@@ -1,5 +1,6 @@
 from enum import Enum
 import random
+import math
 
 class ValueType(Enum):  # TODO assign node type
     DISCRETE = 0
@@ -57,9 +58,30 @@ class Mutagen():
                 self.current_value_id = new_current_value_id
                 return
             if (self.value_type == ValueType.WHOLE_NUMBERS):
-                pass
+                if(random.random()< 0.2):
+                    """random reset"""
+                    new_current_value= random.randint(self.start_range, self.end_range)
+                else:
+                    new_current_value = self.current_value + int((math.pow(random.random(),3)-0.5)*(self.end_range - self.start_range))
+
+                if (new_current_value == self.current_value):
+                    new_current_value = (self.current_value + (1 if random.random()<0.5 else -1) - self.start_range) % (self.end_range - self.start_range) + self.start_range
+                    self.current_value = new_current_value
             if (self.value_type == ValueType.CONTINUOUS):
-                pass
+                if (random.random() < 0.1):
+                    """random reset"""
+                    new_current_value = random.random(self.start_range, self.end_range)
+                else:
+                    new_current_value = self.current_value + (math.pow(random.random(), 3) - 0.5) * (self.end_range - self.start_range)
+
+
+            self.mutate_sub_mutagens()
+
+    def mutate_sub_mutagens(self):
+        if not (self.sub_values is None):
+            for subs in self.sub_values.values():
+                for sub_mut in subs.values():
+                    sub_mut.mutate()
 
     def get_value(self):
         """returns the number value, or the option at curent_value_id

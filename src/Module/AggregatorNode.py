@@ -82,7 +82,15 @@ class AggregatorNode(Module):
             return torch.sum(torch.stack(linear_outputs), dim=0)
         elif(has_conv and not has_linear):
             conv_outputs = self.homogenise_outputs_list(conv_outputs, AggregatorOperations.merge_conv_outputs,outputs_deep_layers)
-            return torch.sum(torch.stack(conv_outputs), dim=0)
+            if(conv_outputs is None):
+                print("Error: null conv outputs returned from homogeniser")
+            try:
+                return torch.sum(torch.stack(conv_outputs), dim=0)
+            except Exception as e:
+                print("failed to sum non homogenous inputs: ",end = "")
+                for conv in conv_outputs:
+                    print(conv.size(),end=",")
+                raise e
         elif(has_linear and has_conv):
             linear_outputs = self.homogenise_outputs_list(linear_outputs, AggregatorOperations.merge_linear_outputs,outputs_deep_layers)
             conv_outputs = self.homogenise_outputs_list(conv_outputs, AggregatorOperations.merge_conv_outputs,outputs_deep_layers)
@@ -100,6 +108,10 @@ class AggregatorNode(Module):
         :param outputs_deep_layers: a map of output tensor to deep layer it came from
         :return: a homogenous list of tensors
         """
+        if(outputs is None):
+            print("Error: trying to homogenise null outputs list")
+            raise Exception()
+
         homogenous_conv_features = None
         for i in range(len(outputs)):
             #all list items from 0:i-1 are homogenous
@@ -116,8 +128,14 @@ class AggregatorNode(Module):
                     else:
                         outputs = homogeniser(homogenous_conv_features,outputs[:i], new_conv_features,outputs[i])
 
+                    new_conv_features = self.get_feature_tuple(conv_layer, outputs[i])
+                    hom = self.get_feature_tuple(conv_layer, outputs[0])
+                    if not (hom == new_conv_features):
+                        print("Error: homogeniser",homogeniser,"failed to homogenise list")
                     #print("hom shape:",outputs[0].size(),"new shape:",outputs[i].size(), "i:",i)
-
+        if(outputs is None):
+            print("Error: outputs turned null from homogenising using",homogeniser)
+            raise Exception()
         return outputs
 
 

@@ -33,7 +33,7 @@ def merge_linear_and_conv(linear, conv, lossy= True):
         #use an additional linear layer to map the conv features to a linear the same shape as the given linear
         pass
 
-def merge_linear_outputs( previous_inputs, new_input, cat = False):
+def merge_linear_outputs( previous_num_features, previous_inputs, new_num_features, new_input, cat = False):
     print("merging linear layers with different feature counts")
     if(cat):
         previous = torch.sum(torch.stack(previous_inputs), dim=0)
@@ -62,35 +62,40 @@ def merge_conv_outputs(previous_num_features, previous_inputs, new_num_features,
     # conv layers here do not have
     channels1, x1, y1 = previous_num_features
     channels2, x2, y2 = new_num_features
-    if channels1 != channels2:
-        print("trying to merge two conv layers with differing numbers of channels :", channels1, channels2)
-        return
-    else:
-
-        size_ratio = (x1 + y1) / (x2 + y2)
-        if size_ratio < 1:
-            size_ratio = 1 / size_ratio
-
-        if round(size_ratio) > 1.45:#a ratio less than 1.45 will be made worse by maxPooling, requiring even more padding
-            # tensors are significantly different - should use a maxPool here to shrink the larger of the two
-            #print("using max pooling for prev:", x1,y1,"new:",x2,y2)
-            new_input, previous_inputs = max_pool_conv_input(x1, x2, y1, y2, new_input, previous_inputs)
-            x1,y1, x2, y2 = previous_inputs[0].size()[2],  previous_inputs[0].size()[3],new_input.size()[2], new_input.size()[3]
-            if x1 != x2 or y1 != y2:
-                #print("using padding for prev:", x1,y1,"new:",x2,y2)
-                #larger convs have been pooled. however a small misalignment remains
-                new_input, previous_inputs = pad_conv_input(x1, x2, y1, y2, new_input, previous_inputs)
-            x1,y1, x2, y2 = new_input.size()[2], new_input.size()[3], previous_inputs[0].size()[2],  previous_inputs[0].size()[3]
-            #print("returning prev:", x1, y1, "new:", x2, y2)
 
 
-        else:
-            # tensors are similar size - can be padded
-            #print("using padding, prev:", x1,y1,"new:",x2,y2)
+    size_ratio = (x1 + y1) / (x2 + y2)
+    if size_ratio < 1:
+        size_ratio = 1 / size_ratio
+
+    if round(size_ratio) > 1.45:#a ratio less than 1.45 will be made worse by maxPooling, requiring even more padding
+        # tensors are significantly different - should use a maxPool here to shrink the larger of the two
+        #print("using max pooling for prev:", x1,y1,"new:",x2,y2)
+        new_input, previous_inputs = max_pool_conv_input(x1, x2, y1, y2, new_input, previous_inputs)
+        x1,y1, x2, y2 = previous_inputs[0].size()[2],  previous_inputs[0].size()[3],new_input.size()[2], new_input.size()[3]
+        if x1 != x2 or y1 != y2:
+            #print("using padding for prev:", x1,y1,"new:",x2,y2)
+            #larger convs have been pooled. however a small misalignment remains
             new_input, previous_inputs = pad_conv_input(x1, x2, y1, y2, new_input, previous_inputs)
+        x1,y1, x2, y2 = new_input.size()[2], new_input.size()[3], previous_inputs[0].size()[2],  previous_inputs[0].size()[3]
+        #print("returning prev:", x1, y1, "new:", x2, y2)
+
+
+    else:
+        # tensors are similar size - can be padded
+        #print("using padding, prev:", x1,y1,"new:",x2,y2)
+        new_input, previous_inputs = pad_conv_input(x1, x2, y1, y2, new_input, previous_inputs)
+
+    previous_channels, new_channels = previous_inputs[-1].size()[1], new_input.size()[1]
+    if not (previous_channels == new_channels):
+        print("differing channel counts", previous_channels, new_channels)
+        return [merge_differing_channel_convs(new_input, torch.sum(torch.stack(previous_inputs,dim=0), dim=0))]
 
     previous_inputs.append(new_input)
     return previous_inputs
+
+def merge_differing_channel_convs(conv_a, conv_b):
+    return torch.cat([conv_a,conv_b], dim=1)
 
 
 def max_pool_conv_input(x1, x2, y1, y2, new_input, previous_inputs):

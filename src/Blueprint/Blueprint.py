@@ -36,8 +36,13 @@ class BlueprintNode(Node):
         if self.module_root is None and self.module_leaf is None:
             # first time this blueprint node has been reached in the traversal
             # to be added as child to existing module construct
-            input_module_individual, index = \
-                generation.module_population.species[self.species_number.get_value()].sample_individual()
+
+            try:
+                input_module_individual, index = \
+                    generation.module_population.species[self.species_number.get_value()].sample_individual()
+            except:
+                print("failed to sample indv from species",self.species_number.get_value(), "num species available:", len(generation.module_population.species))
+                raise Exception( )
             self.blueprint_genome.modules_used.append(input_module_individual)
             input_module_node = input_module_individual.to_module()
             if (not input_module_node.is_input_node()):

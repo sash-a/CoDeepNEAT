@@ -66,7 +66,7 @@ class Generation:
             #     continue
 
 
-            if(generation_number > 5):
+            if(generation_number > 500):
                 acc = Evaluator.evaluate(net, 2, dataset='mnist', path='../../data', device=device, batch_size=256)
             else:
                 acc = hash(net)
@@ -80,6 +80,7 @@ class Generation:
             for module_individual in blueprint_individual.modules_used:
                 module_individual.report_fitness(acc)
 
-        best_bp.plot_tree(title="gen:"+str(generation_number)+" acc:"+str(best_acc))
+        if(generation_number % 10 == 0):
+            best_bp.plot_tree(title="gen:"+str(generation_number)+" acc:"+str(best_acc))
         RuntimeAnalysis.log_new_generation(accuracies,generation_number)
         print('\n\nbest acc', best_acc)
