@@ -23,7 +23,8 @@ class MultiobjectivePopulation(Population):
                 shared_fitness += 1
 
         # TODO how to do this for multiobjective populations
-        indv.adjusted_fitness = indv.fitness[0] / shared_fitness
+        aggeraged_fitness = sum([f * f for f in indv.fitness])
+        indv.adjusted_fitness = aggeraged_fitness / shared_fitness
 
     def save_elite(self, species):
         pf = species.pareto_front()
@@ -33,13 +34,9 @@ class MultiobjectivePopulation(Population):
             next_front = species.pareto_front()
             pf.extend(next_front)
             species.members = species.members[len(next_front):]
-        # editing the old species
-        species.representative = pf[0]
 
         members_to_save = max(2, int(Props.PERCENT_TO_SAVE * len(pf)))
         pf = pf[:members_to_save]
-        # TODO CDN say species.members=pf, but this doesn't make sense given how Population works
-        # species.members = pf
-        species.members.clear()
+        species.members = pf
 
         return pf

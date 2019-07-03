@@ -90,7 +90,6 @@ class Population:
         # min of two because need two parents to crossover
         num_remaining_mem = max(2, int(len(species.members) * Props.PERCENT_TO_SAVE))
         remaining_members = species.members[:num_remaining_mem]
-        species.members.clear()  # reset species
 
         return remaining_members
 
