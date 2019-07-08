@@ -56,7 +56,7 @@ class Mutagen():
                 #print("mutating", self.get_value(), "from id", self.current_value_id,"to",new_current_value_id,"poss=",self.possible_values)
                 #print("mutating value from",self.get_value(),"to",self.possible_values[new_current_value_id])
                 self.current_value_id = new_current_value_id
-                return
+
             if (self.value_type == ValueType.WHOLE_NUMBERS):
                 if(random.random()< 0.2):
                     """random reset"""
@@ -73,15 +73,21 @@ class Mutagen():
                     new_current_value = random.random(self.start_range, self.end_range)
                 else:
                     new_current_value = self.current_value + (math.pow(random.random(), 3) - 0.5) * (self.end_range - self.start_range)
-
+                self.current_value = new_current_value
 
             self.mutate_sub_mutagens()
 
     def mutate_sub_mutagens(self):
+        #print("called mutate_sub_mutagens",self.sub_values)
         if not (self.sub_values is None):
-            for subs in self.sub_values.values():
-                for sub_mut in subs.values():
-                    sub_mut.mutate()
+            #print("trying to mutate subs")
+            for val in self.sub_values.keys():
+                subs = self.sub_values[val]
+                #print("trying to mutate sub mut, my val=",self.get_value(), "subs key value=",val)
+                if val == self.get_value():
+                    for sub_mut in subs.values():
+                        #print("mutating submutagen")
+                        sub_mut.mutate()
 
     def get_value(self):
         """returns the number value, or the option at curent_value_id
