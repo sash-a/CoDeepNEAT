@@ -3,10 +3,8 @@ from src.NeuralNetwork import Evaluator
 from src.CoDeepNEAT import PopulationInitialiser as PopInit
 import torch.tensor
 from src.Analysis import RuntimeAnalysis
-import traceback
 
-import random
-
+module_population = None
 
 class Generation:
     numBlueprints = 1
@@ -15,11 +13,14 @@ class Generation:
     def __init__(self):
         self.speciesNumbers = []
         self.module_population, self.blueprint_population = self.initialise_populations()
+        global module_population
 
     def initialise_populations(self):
         print('initialising population')
+        global module_population
         module_population = Population(PopInit.initialise_modules(), PopInit.initialize_mutations())
-        blueprint_population = Population(PopInit.initialise_blueprints(), PopInit.initialize_mutations())
+
+        blueprint_population = Population(PopInit.initialise_blueprints(module_population), PopInit.initialize_mutations())
         print('population initialized')
         return module_population, blueprint_population
 

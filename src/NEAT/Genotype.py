@@ -1,6 +1,7 @@
 import random
 from src.NEAT.Connection import Connection
 from src.NEAT.NEATNode import NEATNode
+from src.CoDeepNEAT.BlueprintNEATNode import BlueprintNEATNode
 import src.NEAT.NeatProperties as Props
 
 from typing import Iterable
@@ -98,10 +99,11 @@ class Genome:
 
         return disjoint, excess
 
-    def _mutate_add_node(self, conn: Connection, mutations: dict, innov: int, node_id: int, MutationType=NEATNode):
+    def _mutate_add_node(self, conn: Connection, mutations: dict, innov: int, node_id: int,  MutationType=NEATNode):
         conn.enabled.set_value(False)
 
         mutated_node = MutationType(node_id + 1, conn.from_node.midpoint(conn.to_node))
+
         mutated_from_conn = Connection(conn.from_node, mutated_node, innovation=innov + 1)
         mutated_to_conn = Connection(mutated_node, conn.to_node, innovation=innov + 2)
 

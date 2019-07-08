@@ -7,7 +7,7 @@ import torch.nn.functional as F
 import torch
 
 use_convs = True
-use_linears =False
+use_linears =True
 
 
 

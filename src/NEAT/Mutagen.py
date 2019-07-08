@@ -11,10 +11,12 @@ class ValueType(Enum):  # TODO assign node type
 class Mutagen():
 
     def __init__(self, *discreet_options, current_value=-1, start_range=None, end_range=None,
-                 value_type=ValueType.DISCRETE, sub_mutagens: dict = None, discreet_value=None, mutation_chance = None):
+                 value_type=ValueType.DISCRETE, sub_mutagens: dict = None, discreet_value=None, mutation_chance = None, print_when_mutating = False):
         """defaults to discrete values. can hold whole numbers/ real numbers in a range"""
 
         self.value_type = value_type
+        self._end_range = end_range
+        self.print_when_mutating = print_when_mutating
 
         if (len(discreet_options) > 0):
             self.possible_values = discreet_options
@@ -22,11 +24,10 @@ class Mutagen():
             # print("possible values:", discreet_options)
 
         elif (not (start_range is None) and not (end_range is None)):
-            if (start_range > current_value or end_range < current_value):
+            if (start_range > current_value or self.end_range < current_value):
                 print("warning: setting current value (", current_value, ") of a mutagen to outside the range(",
-                      start_range, ":", end_range, ")")
+                      start_range, ":", self.end_range, ")")
             self.start_range = start_range
-            self.end_range = end_range
             self.current_value = current_value
 
         else:
@@ -46,8 +47,20 @@ class Mutagen():
                 self.mutation_chance = 0.2
         else:
             self.mutation_chance = mutation_chance
+    def __call__(self):
+        return self.get_value()
+
+    @property
+    def end_range(self):
+        if(isinstance(self._end_range, int) or  isinstance(self._end_range, float)):
+            return self._end_range
+        else:
+            return self._end_range()
 
     def mutate(self):
+        if(self.print_when_mutating):
+            print("mutating !")
+
         if(random.random()<self.mutation_chance):
             if (self.value_type == ValueType.DISCRETE):
                 new_current_value_id = random.randint(0,len(self.possible_values)-1)
@@ -67,6 +80,8 @@ class Mutagen():
                 if (new_current_value == self.current_value):
                     new_current_value = (self.current_value + (1 if random.random()<0.5 else -1) - self.start_range) % (self.end_range - self.start_range) + self.start_range
                     self.current_value = new_current_value
+                if (self.print_when_mutating):
+                    print("mutated value to:", self.current_value)
             if (self.value_type == ValueType.CONTINUOUS):
                 if (random.random() < 0.1):
                     """random reset"""

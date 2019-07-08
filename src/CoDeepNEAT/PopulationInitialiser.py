@@ -6,7 +6,7 @@ from src.NEAT.Connection import Connection
 from src.NEAT.NEATNode import NodeType
 
 
-def initialise_blueprints():
+def initialise_blueprints(module_population):
     linear_nodes = [BlueprintNEATNode(0, 0, node_type=NodeType.INPUT),
                     BlueprintNEATNode(1, 1, node_type=NodeType.OUTPUT)]
     tri_nodes = [BlueprintNEATNode(0, 0, node_type=NodeType.INPUT),

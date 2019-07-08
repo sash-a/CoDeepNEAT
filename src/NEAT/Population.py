@@ -124,3 +124,8 @@ class Population:
         self.speciate()
 
         print('New population size:', len(self.individuals))
+
+    def get_num_species(self):
+        # if(len(self.species) > 1):
+        #     print("more than one species!")
+        return len(self.species)

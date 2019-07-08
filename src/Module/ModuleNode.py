@@ -47,71 +47,62 @@ class ModuleNode(Node):
             self.generate_module_node_from_gene()
 
     def generate_module_node_from_gene(self):
-        self.out_features = self.module_NEAT_node.out_features.get_value()
-        self.activation = self.module_NEAT_node.activation.get_value()
+        self.out_features = self.module_NEAT_node.out_features()
+        self.activation = self.module_NEAT_node.activation()
 
         neat_regularisation = self.module_NEAT_node.layer_type.get_sub_value("regularisation", return_mutagen=True)
         neat_reduction = self.module_NEAT_node.layer_type.get_sub_value("reduction", return_mutagen=True)
 
-        if not (neat_regularisation.get_value() is None):
-            self.regularisation = neat_regularisation.get_value()(self.out_features)
+        if not (neat_regularisation() is None):
+            self.regularisation = neat_regularisation()(self.out_features)
 
-        if not (neat_reduction.get_value() is None):
-            if neat_reduction.get_value() == nn.MaxPool2d or neat_reduction.get_value() == nn.MaxPool1d:
+        if not (neat_reduction() is None):
+            if neat_reduction() == nn.MaxPool2d or neat_reduction() == nn.MaxPool1d:
                 pool_size = neat_reduction.get_sub_value("pool_size")
-                if neat_reduction.get_value() == nn.MaxPool2d:
+                if neat_reduction() == nn.MaxPool2d:
                     self.reduction = nn.MaxPool2d(pool_size, pool_size)
-                if neat_reduction.get_value() == nn.MaxPool1d:
+                if neat_reduction() == nn.MaxPool1d:
                     self.reduction = nn.MaxPool1d(pool_size)
             else:
-                print("Error not implemented reduction ", neat_reduction.get_value())
+                print("Error not implemented reduction ", neat_reduction())
 
     def to_nn(self, in_features, device, print_graphs=False):
-        self.create_layer(in_features=in_features, device=device)
+        self.create_layer(in_features, device=device)
         if print_graphs:
             self.plot_tree()
         return ModuleNet(self).to(device)
 
-    def create_layer(self, in_features=None, device=torch.device("cuda:0")):
-        if self.deep_layer is None or True:
+    def create_layer(self, in_features, device=torch.device("cuda:0")):
 
-            """decide in features"""
-            if in_features is None:
-                self.in_features = self.parents[
-                    0].out_features  # only aggregator nodes should have more than one parent
-            else:
-                self.in_features = in_features
+        self.in_features = in_features
 
-            layer_type = self.module_NEAT_node.layer_type
-            if layer_type.get_value() == nn.Conv2d:
+        layer_type = self.module_NEAT_node.layer_type
+        if layer_type() == nn.Conv2d:
+            try:
+                self.deep_layer = nn.Conv2d(self.in_features, self.out_features,
+                                            kernel_size=layer_type.get_sub_value("conv_window_size"),
+                                            stride=layer_type.get_sub_value("conv_stride"))
                 try:
-                    self.deep_layer = nn.Conv2d(self.in_features, self.out_features,
-                                                kernel_size=layer_type.get_sub_value("conv_window_size"),
-                                                stride=layer_type.get_sub_value("conv_stride"))
-                    try:
-                        self.deep_layer = self.deep_layer.to(device)
-                    except:
-                        print("created conv layer - but failed to move it to device", device)
+                    self.deep_layer = self.deep_layer.to(device)
+                except:
+                    print("created conv layer - but failed to move it to device", device)
 
-                except Exception as e:
-                    print("Error:", e)
-                    print("failed to create conv", self, self.in_features, self.out_features,
-                          layer_type.get_sub_value("conv_window_size"),
-                          layer_type.get_sub_value("conv_stride"), "deep layer:", self.deep_layer)
-                    print('Module with error', self.module_NEAT_genome.connections)
-
-            else:
-                self.deep_layer = layer_type.get_value()(self.in_features, self.out_features).to(device)
-
-            if not (self.reduction is None):
-                self.reduction = self.reduction.to(device)
-
-            if not (self.regularisation is None):
-                self.regularisation = self.regularisation.to(device)
-
+            except Exception as e:
+                print("Error:", e)
+                print("failed to create conv", self, self.in_features, self.out_features,
+                      layer_type.get_sub_value("conv_window_size"),
+                      layer_type.get_sub_value("conv_stride"), "deep layer:", self.deep_layer)
+                print('Module with error', self.module_NEAT_genome.connections)
 
         else:
-            print("already has deep layers", self.is_input_node())
+            self.deep_layer = layer_type()(self.in_features, self.out_features).to(device)
+
+        if not (self.reduction is None):
+            self.reduction = self.reduction.to(device)
+
+        if not (self.regularisation is None):
+            self.regularisation = self.regularisation.to(device)
+
 
     # could be made more efficient as a breadth first instead of depth first because of duplicate paths
     def insert_aggregator_nodes(self, state="start"):

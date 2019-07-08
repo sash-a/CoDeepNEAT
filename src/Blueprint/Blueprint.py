@@ -24,7 +24,9 @@ class BlueprintNode(Node):
 
     def generate_blueprint_node_from_gene(self, gene):
         """applies the properties of the blueprint gene for this node"""
-        self.species_number = gene.species_number
+        self.species_number = gene.species_number()
+        if(self.species_number > 0):
+            print("blueprint with species no:", self.species_number)
 
     def parseto_module_graph(self, generation, module_construct=None, species_indexes=None, in_features=1,
                              device=torch.device("cpu")):
@@ -36,12 +38,11 @@ class BlueprintNode(Node):
         if self.module_root is None and self.module_leaf is None:
             # first time this blueprint node has been reached in the traversal
             # to be added as child to existing module construct
-
             try:
                 input_module_individual, index = \
-                    generation.module_population.species[self.species_number.get_value()].sample_individual()
+                    generation.module_population.species[self.species_number].sample_individual()
             except:
-                print("failed to sample indv from species",self.species_number.get_value(), "num species available:", len(generation.module_population.species))
+                print("failed to sample indv from species",self.species_number, "num species available:", len(generation.module_population.species))
                 raise Exception( )
             self.blueprint_genome.modules_used.append(input_module_individual)
             input_module_node = input_module_individual.to_module()

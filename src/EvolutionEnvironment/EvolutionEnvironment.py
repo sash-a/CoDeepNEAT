@@ -9,15 +9,18 @@ Evolution Environment is static as there should only ever be one
 Acts as the driver of current generation
 """
 
-numGenerations = 500
+num_generations = 500
 protect_parsing_from_errors = True
+current_generation = None
 
 def main():
+    global current_generation
+
     current_generation = Generation()
     RuntimeAnalysis.configure(log_file_name="test")
     start_time = time.time()
 
-    for i in range(numGenerations):
+    for i in range(num_generations):
         print('Running gen', i)
         gen_start_time = time.time()
         current_generation.evaluate(i, print_graphs=False, protect_parsing_from_errors=False)
