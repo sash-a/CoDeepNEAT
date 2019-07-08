@@ -116,7 +116,7 @@ class Generation:
         else:
             acc = Evaluator.evaluate(net, 2, dataset='mnist', path='../../data', device=device, batch_size=256)
 
-        net_size = net.moduleGraph.get_net_size()
+        net_size = net.module_graph.get_net_size()
 
         blueprint_individual.report_fitness(acc,net_size)
 
