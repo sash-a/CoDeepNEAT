@@ -78,13 +78,14 @@ def merge_conv_outputs(previous_num_features, previous_inputs, new_num_features,
             #larger convs have been pooled. however a small misalignment remains
             new_input, previous_inputs = pad_conv_input(x1, x2, y1, y2, new_input, previous_inputs)
         x1,y1, x2, y2 = new_input.size()[2], new_input.size()[3], previous_inputs[0].size()[2],  previous_inputs[0].size()[3]
-        #print("returning prev:", x1, y1, "new:", x2, y2)
+        #print("\treturning prev:", x1, y1, "new:", x2, y2)
 
 
     else:
         # tensors are similar size - can be padded
         #print("using padding, prev:", x1,y1,"new:",x2,y2)
         new_input, previous_inputs = pad_conv_input(x1, x2, y1, y2, new_input, previous_inputs)
+        #print("\treturning prev:",previous_inputs[0].size(),"new:",new_input.size())
 
     previous_channels, new_channels = previous_inputs[-1].size()[1], new_input.size()[1]
     if not (previous_channels == new_channels):

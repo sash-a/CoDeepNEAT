@@ -34,7 +34,7 @@ class Generation:
         for module_individual in self.module_population.individuals:
             module_individual.clear()  # this also sets fitness to zero
 
-    def evaluate(self, generation_number, device=torch.device("cuda:0"), print_graphs=False, protect_parsing_from_errors = True):
+    def evaluate(self, generation_number, device=torch.device("cuda:0"), print_graphs=False, protect_parsing_from_errors = False):
         inputs, targets = Evaluator.sample_data('mnist', '../../data', device=device)
 
         best_acc = -9999999999999999999
@@ -67,6 +67,8 @@ class Generation:
 
         blueprint = blueprint_individual.to_blueprint()
         module_graph = blueprint.parseto_module_graph(self, device=device)
+        if(module_graph is None):
+            raise Exception("null module graph produced from blueprint")
 
         # net = module_graph.to_nn(in_features=1, device=device)
         try:

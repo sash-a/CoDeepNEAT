@@ -6,6 +6,7 @@
 **/data/*
 **/results/*
 **/learner/*
+**/Logs/*
 
 __pycache__/
 *.py[cod]
