@@ -8,7 +8,6 @@ class BlueprintGenome(Genome):
 
     def __init__(self, connections, nodes, objectives=2):
         super(BlueprintGenome, self).__init__(connections, nodes)
-        # TODO clear after eval
         self.modules_used = []  # holds ref to module individuals used - can multiple represent
         self.fitness = [0 for _ in range(objectives)]
 

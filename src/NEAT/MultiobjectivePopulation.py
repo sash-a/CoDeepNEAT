@@ -9,8 +9,10 @@ from typing import List, Union
 
 class MultiobjectivePopulation(Population):
     def __init__(self, population: List[Union[BlueprintGenome, ModuleGenome]], mutations: dict,
-                 pop_size: int, node_mutation_chance: float, connection_mutation_chance: float):
-        super().__init__(population, mutations)
+                 pop_size: int, node_mutation_chance: float, connection_mutation_chance: float,
+                 target_num_species: int):
+        super().__init__(population, mutations, pop_size, node_mutation_chance, connection_mutation_chance,
+                         target_num_species)
 
     def adjust_fitness(self, indv: Union[BlueprintGenome, ModuleGenome]):
         shared_fitness = 0

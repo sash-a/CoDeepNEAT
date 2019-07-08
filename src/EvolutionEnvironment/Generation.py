@@ -24,19 +24,21 @@ class Generation:
                                                      PopInit.initialize_mutations(),
                                                      Props.MODULE_POP_SIZE,
                                                      Props.MODULE_NODE_MUTATION_CHANCE,
-                                                     Props.MODULE_CONN_MUTATION_CHANCE)
+                                                     Props.MODULE_CONN_MUTATION_CHANCE,
+                                                     Props.MODULE_TARGET_NUM_SPECIES)
 
         blueprint_population = MultiobjectivePopulation(PopInit.initialise_blueprints(),
                                                         PopInit.initialize_mutations(),
                                                         Props.BP_POP_SIZE,
                                                         Props.BP_NODE_MUTATION_CHANCE,
-                                                        Props.BP_CONN_MUTATION_CHANCE)
+                                                        Props.BP_CONN_MUTATION_CHANCE,
+                                                        Props.BP_TARGET_NUM_SPECIES)
         print('population initialized')
         return module_population, blueprint_population
 
     def step(self):
         """Runs CDN for one generation - must be called after fitness evaluation"""
-        self.blueprint_population.step()  # TODO should blueprints be speciatied ?
+        self.blueprint_population.step()
         self.module_population.step()
 
         for blueprint_individual in self.blueprint_population.individuals:
@@ -44,6 +46,11 @@ class Generation:
 
         for module_individual in self.module_population.individuals:
             module_individual.clear()  # this also sets fitness to zero
+
+        print('Step done:')
+        print('BP pop:', len(self.blueprint_population), 'Module pop:', len(self.module_population))
+        print('BP num species:', len(self.blueprint_population.species), 'Mod num species:',
+              len(self.module_population.species))
 
     def evaluate(self, generation_number, device=torch.device("cuda:0"), print_graphs=True):
         inputs, targets = Evaluator.sample_data('mnist', '../../data', device=device)
@@ -96,7 +103,8 @@ class Generation:
                 module_graph.plot_tree(title="module graph with error")
                 continue
 
-            acc = 20  # Evaluator.evaluate(net, 2, dataset='mnist', path='../../data', device=device, batch_size=256)
+            acc = random.randint(0,
+                                 50)  # Evaluator.evaluate(net, 2, dataset='mnist', path='../../data', device=device, batch_size=256)
             net_size = net.moduleGraph.get_net_size()
 
             if acc >= best_acc:
@@ -106,7 +114,6 @@ class Generation:
             blueprint_individual.report_fitness(acc, net_size)
 
             for module_individual in blueprint_individual.modules_used:
-                # TODO second objective should only be params of module
                 module_individual.report_fitness(acc, net_size)
 
         print('best acc', best_acc, 'size', best_size)

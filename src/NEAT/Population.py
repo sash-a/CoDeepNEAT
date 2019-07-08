@@ -16,7 +16,8 @@ Population persists across whole run time
 class Population:
 
     def __init__(self, population: List[Union[BlueprintGenome, ModuleGenome, Genome]], mutations: dict,
-                 pop_size: int, node_mutation_chance: float, connection_mutation_chance: float):
+                 pop_size: int, node_mutation_chance: float, connection_mutation_chance: float,
+                 target_num_species: int):
         """
         :param population: list of all individuals
         """
@@ -31,6 +32,10 @@ class Population:
 
         self.individuals: List[Union[BlueprintGenome, ModuleGenome, Genome]] = population
 
+        # Speciation
+        self.target_num_species = target_num_species
+        self.num_species_mod_dir = 0
+        self.num_species_mod = Props.SPECIES_DISTANCE_THRESH_MOD
         self.speciation_thresh = Props.SPECIES_DISTANCE_THRESH
         self.species: List[Species] = []
         self.speciate(True)
@@ -65,15 +70,30 @@ class Population:
         # Remove all empty species
         self.species = [spc for spc in self.species if spc.members]
 
-        # Dynamic speciation threshold
         if not first_gen:
-            mod = 1
-            if len(self.species) < Props.TARGET_NUM_SPECIES:
-                mod = -1
-
-            self.speciation_thresh = max(0.3, self.speciation_thresh + (mod * Props.SPECIES_DISTANCE_THRESH_MOD))
+            self.dynamic_speciation()
 
         return self.species
+
+    def dynamic_speciation(self):
+        # Dynamic speciation threshold
+        if len(self.species) < self.target_num_species:
+            new_dir = -1
+        elif len(self.species) > self.target_num_species:
+            new_dir = 1
+        else:
+            new_dir = 0
+
+        # Exponential growth
+        if new_dir != self.num_species_mod_dir:
+            self.num_species_mod = Props.SPECIES_DISTANCE_THRESH_MOD
+        else:
+            self.num_species_mod *= 2
+
+        self.num_species_mod_dir = new_dir
+
+        self.speciation_thresh = max(0.01, self.speciation_thresh + (self.num_species_mod_dir * self.num_species_mod))
+        print('new thresh mod', type(self.individuals[0]), self.speciation_thresh)
 
     def adjust_fitness(self, indv: Genome):
         shared_fitness = 0
@@ -83,7 +103,7 @@ class Population:
             # if other_indv == indv:
             #     continue
 
-            if other_indv.distance_to(indv) <= Props.SPECIES_DISTANCE_THRESH:
+            if other_indv.distance_to(indv) <= self.speciation_thresh:
                 shared_fitness += 1
 
         indv.adjusted_fitness = indv.fitness / shared_fitness
@@ -111,6 +131,7 @@ class Population:
         for spc in self.species:
             # find num_children given adjusted fitness sum for species
             species_adj_fitness = sum([x.adjusted_fitness for x in spc.members])
+            # TODO this is not creating the correct number of children
             num_children = max(Props.MIN_CHILDREN_PER_SPECIES, int((species_adj_fitness / tot_adj_fitness) * (
                     self.pop_size - Props.PERCENT_TO_SAVE * self.pop_size)))
 
@@ -136,3 +157,6 @@ class Population:
 
         self.individuals = new_pop
         self.speciate()
+
+    def __len__(self):
+        return len(self.individuals)
