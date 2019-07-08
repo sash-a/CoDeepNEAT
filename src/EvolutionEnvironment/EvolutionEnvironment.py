@@ -14,7 +14,7 @@ def main():
 
     for i in range(numGenerations):
         print('\nRunning gen', i)
-        current_generation.evaluate(i, print_graphs=False)
+        current_generation.evaluate(i, print_graphs=False, device=torch.device('cpu'))
         current_generation.step()
 
 

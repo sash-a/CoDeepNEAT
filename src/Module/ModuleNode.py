@@ -213,8 +213,12 @@ class ModuleNode(Node):
                     if params is None:
                         params = list(param)
                     else:
-                        params += list(param)
+                        params.extend(list(param))
                 return params
+
+    def get_net_size(self):
+        net_params = self.get_parameters({})
+        return sum(p.numel() for p in net_params if p.requires_grad)
 
     def print_node(self, print_to_console=True):
         out = " " * (len(self.traversalID)) + self.traversalID

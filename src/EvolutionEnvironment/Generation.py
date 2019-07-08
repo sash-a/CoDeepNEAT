@@ -40,6 +40,7 @@ class Generation:
 
         best_acc = 0
         best_bp = None
+        best_size = 0
 
         for blueprint_individual in self.blueprint_population.individuals:
             blueprint = blueprint_individual.to_blueprint()
@@ -79,16 +80,17 @@ class Generation:
                 continue
 
             acc = 20  # Evaluator.evaluate(net, 2, dataset='mnist', path='../../data', device=device, batch_size=256)
+            net_size = net.moduleGraph.get_net_size()
+
             if acc >= best_acc:
                 best_acc = acc
                 best_bp = module_graph
-
-            net_size = sum(p.numel() for p in net.parameters() if p.requires_grad)
+                best_size = net_size
             blueprint_individual.report_fitness(acc, net_size)
 
             for module_individual in blueprint_individual.modules_used:
                 # TODO second objective should only be params of module
                 module_individual.report_fitness(acc, net_size)
 
-        print('best acc', best_acc)
+        print('best acc', best_acc, 'size', best_size)
         best_bp.plot_tree()

@@ -14,11 +14,11 @@ class AggregatorNode(Module):
         Module.__init__(self, None, None)
         self.module_node_input_ids = []
         self.accountedForInputIDs = {}
-        self.out_features = 25#TODO should be determined
+        self.out_features = 25  # TODO should be determined
 
     def create_layers(self, in_features=None, device=torch.device("cpu")):
         for child in self.children:
-            child.create_layers(device = device)
+            child.create_layers(device=device)
 
     def insert_aggregator_nodes(self, state="start"):
         # if aggregator node has already been created - then the multi parent situation has already been dealt with here
@@ -26,9 +26,9 @@ class AggregatorNode(Module):
         # traverse its decendants again
         pass
 
-    def get_parameters(self, parameters_dict, top = False):
+    def get_parameters(self, parameters_dict, top=False):
         for child in self.children:
-            child.get_parameters(parameters_dict, top = False)
+            child.get_parameters(parameters_dict, top=False)
 
     def add_parent(self, parent):
         self.module_node_input_ids.append(parent)
@@ -42,7 +42,6 @@ class AggregatorNode(Module):
 
     def get_plot_colour(self):
         return 'bo'
-
 
     def pass_ann_input_up_graph(self, input, parent_id=""):
         self.accountedForInputIDs[parent_id] = input
@@ -66,31 +65,35 @@ class AggregatorNode(Module):
         has_conv = False
 
         for parent in self.module_node_input_ids:
-            #separte inputs by typee
+            # separte inputs by typee
             deep_layer = parent.deep_layer
             new_input = self.accountedForInputIDs[parent.traversalID]
             outputs_deep_layers[new_input] = deep_layer
-            if(type(deep_layer) == nn.Conv2d):
+            if (type(deep_layer) == nn.Conv2d):
                 conv_outputs.append(new_input)
-                has_conv=True
-            elif(type(deep_layer) == nn.Linear):
+                has_conv = True
+            elif (type(deep_layer) == nn.Linear):
                 linear_outputs.append(new_input)
                 has_linear = True
 
-        if(has_linear and not has_conv):
-            linear_outputs = self.homogenise_outputs_list(linear_outputs, AggregatorOperations.merge_linear_outputs,outputs_deep_layers)
+        if (has_linear and not has_conv):
+            linear_outputs = self.homogenise_outputs_list(linear_outputs, AggregatorOperations.merge_linear_outputs,
+                                                          outputs_deep_layers)
             return torch.sum(torch.stack(linear_outputs), dim=0)
-        elif(has_conv and not has_linear):
-            conv_outputs = self.homogenise_outputs_list(conv_outputs, AggregatorOperations.merge_conv_outputs,outputs_deep_layers)
+        elif (has_conv and not has_linear):
+            conv_outputs = self.homogenise_outputs_list(conv_outputs, AggregatorOperations.merge_conv_outputs,
+                                                        outputs_deep_layers)
             return torch.sum(torch.stack(conv_outputs), dim=0)
-        elif(has_linear and has_conv):
-            linear_outputs = self.homogenise_outputs_list(linear_outputs, AggregatorOperations.merge_linear_outputs,outputs_deep_layers)
-            conv_outputs = self.homogenise_outputs_list(conv_outputs, AggregatorOperations.merge_conv_outputs,outputs_deep_layers)
-            return AggregatorOperations.merge_linear_and_conv(torch.sum(torch.stack(linear_outputs), dim=0),torch.sum(torch.stack(conv_outputs), dim=0) )
+        elif (has_linear and has_conv):
+            linear_outputs = self.homogenise_outputs_list(linear_outputs, AggregatorOperations.merge_linear_outputs,
+                                                          outputs_deep_layers)
+            conv_outputs = self.homogenise_outputs_list(conv_outputs, AggregatorOperations.merge_conv_outputs,
+                                                        outputs_deep_layers)
+            return AggregatorOperations.merge_linear_and_conv(torch.sum(torch.stack(linear_outputs), dim=0),
+                                                              torch.sum(torch.stack(conv_outputs), dim=0))
         else:
             print("error - agg node received neither conv or linear inputs")
             return None
-
 
     def homogenise_outputs_list(self, outputs, homogeniser, outputs_deep_layers):
         """
@@ -102,22 +105,21 @@ class AggregatorNode(Module):
         """
         homogenous_conv_features = None
         for i in range(len(outputs)):
-            #all list items from 0:i-1 are homogenous
+            # all list items from 0:i-1 are homogenous
             conv_layer = outputs_deep_layers[outputs[i]]
             if (homogenous_conv_features is None):
                 homogenous_conv_features = self.get_feature_tuple(conv_layer, outputs[i])
-                #print("setting hom features to:",homogenous_conv_features, "num outs:",len(outputs))
+                # print("setting hom features to:",homogenous_conv_features, "num outs:",len(outputs))
             else:
                 new_conv_features = self.get_feature_tuple(conv_layer, outputs[i])
                 if (not new_conv_features == homogenous_conv_features):
                     # either the list up till this point or the new  input needs modification
-                    if(len(outputs)>i+1):
-                        outputs = homogeniser(homogenous_conv_features,outputs[:i], new_conv_features,outputs[i]) + outputs[i+1:]
+                    if (len(outputs) > i + 1):
+                        outputs = homogeniser(homogenous_conv_features, outputs[:i], new_conv_features,
+                                              outputs[i]) + outputs[i + 1:]
                     else:
-                        outputs = homogeniser(homogenous_conv_features,outputs[:i], new_conv_features,outputs[i])
+                        outputs = homogeniser(homogenous_conv_features, outputs[:i], new_conv_features, outputs[i])
 
-                    #print("hom shape:",outputs[0].size(),"new shape:",outputs[i].size(), "i:",i)
+                    # print("hom shape:",outputs[0].size(),"new shape:",outputs[i].size(), "i:",i)
 
         return outputs
-
-

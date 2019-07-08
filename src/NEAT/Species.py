@@ -4,7 +4,7 @@ from src.CoDeepNEAT.BlueprintGenome import BlueprintGenome
 from src.CoDeepNEAT.ModuleGenome import ModuleGenome
 from random import randint
 
-from Multiobjective.ParetoFront import CDN_pareto
+from src.Multiobjective.ParetoFront import CDN_pareto
 
 from typing import List, Union
 
