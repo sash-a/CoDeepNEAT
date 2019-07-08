@@ -15,14 +15,15 @@ Population persists across whole run time
 
 class Population:
 
-    def __init__(self, population: List[Union[BlueprintGenome, ModuleGenome, Genome]], mutations: dict):
+    def __init__(self, population: List[Union[BlueprintGenome, ModuleGenome, Genome]], mutations: dict,
+                 pop_size: int, node_mutation_chance: float, connection_mutation_chance: float):
         """
         :param population: list of all individuals
         """
 
         self.mutations = mutations
         self.curr_innov = max(indv.connections[-1].innovation for indv in population)
-        self.max_node_id = 6  # TODO len(population)  # this assumes that no nodes are disabled in initial population
+        self.max_node_id = max(indv.nodes[-1].id for indv in population)  # TODO test
 
         # Either connection mutation: tuple(nodeid,nodeid) : innovation number
         # Or node mutation: innovation number : nodeid
@@ -33,6 +34,10 @@ class Population:
         self.speciation_thresh = Props.SPECIES_DISTANCE_THRESH
         self.species: List[Species] = []
         self.speciate(True)
+
+        self.pop_size = pop_size
+        self.node_mutation_chance = node_mutation_chance
+        self.connection_mutation_chance = connection_mutation_chance
 
     def speciate(self, first_gen=False):
         """
@@ -107,7 +112,7 @@ class Population:
             # find num_children given adjusted fitness sum for species
             species_adj_fitness = sum([x.adjusted_fitness for x in spc.members])
             num_children = max(Props.MIN_CHILDREN_PER_SPECIES, int((species_adj_fitness / tot_adj_fitness) * (
-                    Props.POP_SIZE - Props.PERCENT_TO_SAVE * Props.POP_SIZE)))
+                    self.pop_size - Props.PERCENT_TO_SAVE * self.pop_size)))
 
             remaining_members = self.save_elite(spc)
             # Add elite back into new population
@@ -124,8 +129,8 @@ class Population:
                     self.curr_innov, self.max_node_id = child.mutate(self.mutations,
                                                                      self.curr_innov,
                                                                      self.max_node_id,
-                                                                     Props.NODE_MUTATION_CHANCE,
-                                                                     Props.CONNECTION_MUTATION_CHANCE)
+                                                                     self.node_mutation_chance,
+                                                                     self.connection_mutation_chance)
 
                     new_pop.append(child)
 

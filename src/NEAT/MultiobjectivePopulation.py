@@ -8,7 +8,8 @@ from typing import List, Union
 
 
 class MultiobjectivePopulation(Population):
-    def __init__(self, population: List[Union[BlueprintGenome, ModuleGenome]], mutations: dict):
+    def __init__(self, population: List[Union[BlueprintGenome, ModuleGenome]], mutations: dict,
+                 pop_size: int, node_mutation_chance: float, connection_mutation_chance: float):
         super().__init__(population, mutations)
 
     def adjust_fitness(self, indv: Union[BlueprintGenome, ModuleGenome]):

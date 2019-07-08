@@ -1,4 +1,5 @@
 from src.NEAT.Population import Population
+import src.NEAT.NeatProperties as Props
 from src.NEAT.MultiobjectivePopulation import MultiobjectivePopulation
 
 from src.NeuralNetwork import Evaluator
@@ -19,8 +20,17 @@ class Generation:
 
     def initialise_populations(self):
         print('initialising population')
-        module_population = MultiobjectivePopulation(PopInit.initialise_modules(), PopInit.initialize_mutations())
-        blueprint_population = MultiobjectivePopulation(PopInit.initialise_blueprints(), PopInit.initialize_mutations())
+        module_population = MultiobjectivePopulation(PopInit.initialise_modules(),
+                                                     PopInit.initialize_mutations(),
+                                                     Props.MODULE_POP_SIZE,
+                                                     Props.MODULE_NODE_MUTATION_CHANCE,
+                                                     Props.MODULE_CONN_MUTATION_CHANCE)
+
+        blueprint_population = MultiobjectivePopulation(PopInit.initialise_blueprints(),
+                                                        PopInit.initialize_mutations(),
+                                                        Props.BP_POP_SIZE,
+                                                        Props.BP_NODE_MUTATION_CHANCE,
+                                                        Props.BP_CONN_MUTATION_CHANCE)
         print('population initialized')
         return module_population, blueprint_population
 
@@ -42,7 +52,14 @@ class Generation:
         best_bp = None
         best_size = 0
 
-        for blueprint_individual in self.blueprint_population.individuals:
+        # Randomize the list so that random individuals are sampled more often
+        random.shuffle(self.blueprint_population.individuals)
+
+        for i, blueprint_individual in enumerate(self.blueprint_population.individuals):
+            # Checking if done enough evals
+            if Props.INDIVIDUALS_TO_EVAL < i:
+                break
+
             blueprint = blueprint_individual.to_blueprint()
             if not blueprint.is_input_node():
                 print("Error: blueprint graph handle node is not root node")
