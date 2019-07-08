@@ -1,8 +1,7 @@
 import random
 from src.NEAT.Connection import Connection
 from src.NEAT.NEATNode import NEATNode
-from src.CoDeepNEAT.BlueprintNEATNode import BlueprintNEATNode
-import src.NEAT.NeatProperties as Props
+import src.Config.NeatProperties as Props
 
 from typing import Iterable
 

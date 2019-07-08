@@ -1,14 +1,12 @@
-from src.NEAT.Population import Population
-import src.NEAT.NeatProperties as Props
+import src.Config.NeatProperties as Props
 from src.NEAT.MultiobjectivePopulation import MultiobjectivePopulation
 
 from src.NeuralNetwork import Evaluator
 from src.CoDeepNEAT import PopulationInitialiser as PopInit
-import torch.tensor
 from src.Analysis import RuntimeAnalysis
+from src.Config import Config
 
 module_population = None
-from src.NeuralNetwork.Net import ModuleNet
 import random
 
 
@@ -52,8 +50,8 @@ class Generation:
         for module_individual in self.module_population.individuals:
             module_individual.clear()  # this also sets fitness to zero
 
-    def evaluate(self, generation_number, device=torch.device("cuda:0"), print_graphs=False, protect_parsing_from_errors = False):
-        inputs, targets = Evaluator.sample_data('mnist', '../../data', device=device)
+    def evaluate(self, generation_number):
+        inputs, targets = Evaluator.sample_data('mnist', '../../data')
 
         best_acc = -9999999999999999999
         best_bp = None
@@ -67,14 +65,14 @@ class Generation:
             if Props.INDIVIDUALS_TO_EVAL < i:
                 break
 
-            if protect_parsing_from_errors:
+            if Config.protect_parsing_from_errors:
                 try:
-                    acc, module_graph = self.evaluate_blueprints(blueprint_individual ,device, inputs,generation_number)
+                    acc, module_graph = self.evaluate_blueprints(blueprint_individual , inputs,generation_number)
                 except:
                     print("blueprint indv ran with errors")
                     continue
             else:
-                acc, module_graph, blueprint_individual = self.evaluate_blueprints(blueprint_individual, device, inputs, generation_number)
+                acc, module_graph, blueprint_individual = self.evaluate_blueprints(blueprint_individual, inputs, generation_number)
 
             if acc >= best_acc:
                 best_acc = acc
@@ -82,39 +80,39 @@ class Generation:
             accuracies.append(acc)
 
         if(generation_number % 1 == 0):
-            if(print_graphs):
+            if(Config.print_graphs):
                 best_bp.plot_tree(title="gen:"+str(generation_number)+" acc:"+str(best_acc))
 
         RuntimeAnalysis.log_new_generation(accuracies,generation_number)
         print('\n\nbest acc', best_acc)
 
-    def evaluate_blueprints(self, blueprint_individual, device, inputs,generation_number, dummy_run = True):
+    def evaluate_blueprints(self, blueprint_individual, inputs, generation_number):
 
         blueprint = blueprint_individual.to_blueprint()
-        module_graph = blueprint.parseto_module_graph(self, device=device)
+        module_graph = blueprint.parseto_module_graph(self)
         if(module_graph is None):
             raise Exception("null module graph produced from blueprint")
 
         # net = module_graph.to_nn(in_features=1, device=device)
         try:
             #print("using infeatures = ",module_graph.get_first_feature_count(inputs))
-            net = module_graph.to_nn(in_features=module_graph.get_first_feature_count(inputs), device=device)
+            net = module_graph.to_nn(in_features=module_graph.get_first_feature_count(inputs))
         except Exception as e:
             print("Error:", e)
             module_graph.plot_tree("module graph which failed to parse to nn")
             raise Exception("Error: failed to parse module graph into nn")
 
         try:
-            net.specify_dimensionality(inputs, device=device)
+            net.specify_dimensionality(inputs)
         except Exception as e:
             print("Error:", e)
             module_graph.plot_tree(title="module graph with error passing input through net")
             raise Exception("Error: nn failed to have input passed through")
 
-        if dummy_run and generation_number < 500:
+        if Config.dummy_run and generation_number < 500:
             acc = hash(net)
         else:
-            acc = Evaluator.evaluate(net, 2, dataset='mnist', path='../../data', device=device, batch_size=256)
+            acc = Evaluator.evaluate(net, 2, dataset='mnist', path='../../data', batch_size=256)
 
         net_size = net.module_graph.get_net_size()
 

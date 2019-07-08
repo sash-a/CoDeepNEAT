@@ -2,7 +2,7 @@ import torch
 from torch import nn, optim
 import torch.nn.functional as F
 from src.Utilities import Utils
-
+from src.Config import Config
 
 class ModuleNet(nn.Module):
     def __init__(self, module_graph, lr=0.001, beta1=0.9, beta2=0.999, loss_fn=nn.MSELoss()):
@@ -17,8 +17,7 @@ class ModuleNet(nn.Module):
         self.beta2 = beta2
         self.optimizer = None
 
-    def specify_dimensionality(self, input_sample, output_dimensionality=torch.tensor([1]),
-                               device=torch.device("cpu")):
+    def specify_dimensionality(self, input_sample, output_dimensionality=torch.tensor([1])):
         if self.dimensionality_configured:
             print("warning - trying to configure dimensionality multiple times on the same network")
             return
@@ -33,7 +32,7 @@ class ModuleNet(nn.Module):
         in_layers = Utils.get_flat_number(output)
         # print("out = ", output.size(), "using linear layer (", in_layers, ",", output_nodes, ")")
 
-        self.final_layer = nn.Linear(in_layers, output_nodes).to(device)
+        self.final_layer = nn.Linear(in_layers, output_nodes).to(Config.device)
         self.dimensionality_configured = True
         self.outputDimensionality = output_dimensionality
 

@@ -1,5 +1,3 @@
-import random
-
 from src.NEAT.Connection import Connection
 from src.NEAT.NEATNode import NEATNode, NodeType
 from src.NEAT.Genome import Genome

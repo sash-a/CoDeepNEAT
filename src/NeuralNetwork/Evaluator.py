@@ -6,6 +6,7 @@ import torch.nn.functional as F
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 from src.DataAugmentation import placeholder
+from src.Config import Config
 
 import time
 
@@ -13,7 +14,7 @@ printBatchEvery = 150  # -1 to switch off batch printing
 print_epoch_every = 1
 
 
-def train(model, device, train_loader, epoch, test_loader, print_accuracy=False):
+def train(model, train_loader, epoch, test_loader, print_accuracy=False):
     """
     Run a single train epoch
 
@@ -25,6 +26,7 @@ def train(model, device, train_loader, epoch, test_loader, print_accuracy=False)
     :param print_accuracy: True if should test when printing batch info
     """
     model.train()
+    device = Config.device
 
     loss = 0
     batch_idx = 0
@@ -62,7 +64,7 @@ def train(model, device, train_loader, epoch, test_loader, print_accuracy=False)
             print("epoch", epoch, "average loss:", loss / batch_idx, "time for epoch:", (end_time - s))
 
 
-def test(model, device, test_loader, print_acc=True):
+def test(model, test_loader, print_acc=True):
     """
     Run through a test dataset and return the accuracy
 
@@ -73,6 +75,7 @@ def test(model, device, test_loader, print_acc=True):
     :return: accuracy
     """
     model.eval()
+    device = Config.device
 
     test_loss = 0
     correct = 0
@@ -105,7 +108,7 @@ def test(model, device, test_loader, print_acc=True):
     return acc
 
 
-def evaluate(model, epochs, dataset='mnist', path='../../data', device=torch.device('cuda:0'), batch_size=64):
+def evaluate(model, epochs, dataset='mnist', path='../../data', batch_size=64):
     """
     Runs all epochs and tests the model after all epochs have run
 
@@ -119,21 +122,22 @@ def evaluate(model, epochs, dataset='mnist', path='../../data', device=torch.dev
     """
     # Make this params
     # num_workers=1 is giving issues, but 0 runs slower
-    data_loader_args = {'num_workers': 0, 'pin_memory': True} if device == 'cuda' else {}
+    data_loader_args = {'num_workers': 0, 'pin_memory': True} if  Config.device == 'cuda' else {}
 
     train_loader, test_loader = load_data(dataset, path, batch_size)
 
     s = time.time()
     for epoch in range(1, epochs + 1):
-        train(model, device, train_loader, epoch, test_loader)
+        train(model, train_loader, epoch, test_loader)
     e = time.time()
 
     print('Evaluation took', e - s, 'seconds')
-    return test(model, device, test_loader)
+    return test(model, test_loader)
 
 
-def sample_data(dataset='mnist', path='../../data', device=torch.device('cuda:0'), batch_size=64):
+def sample_data(dataset='mnist', path='../../data', batch_size=64):
     train_loader, test_loader = load_data(dataset, path, batch_size)
+    device = Config.device
     for batch_idx, (inputs, targets) in enumerate(train_loader):
         return inputs.to(device), targets.to(device)
 

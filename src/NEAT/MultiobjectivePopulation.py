@@ -2,7 +2,7 @@ from src.NEAT.Population import Population
 from src.CoDeepNEAT.ModuleGenome import ModuleGenome
 from src.CoDeepNEAT.BlueprintGenome import BlueprintGenome
 
-import src.NEAT.NeatProperties as Props
+import src.Config.NeatProperties as Props
 
 from typing import List, Union
 

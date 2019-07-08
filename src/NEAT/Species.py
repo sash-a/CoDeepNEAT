@@ -1,4 +1,4 @@
-import src.NEAT.NeatProperties as Props
+import src.Config.NeatProperties as Props
 from src.NEAT.Genome import Genome
 from src.CoDeepNEAT.BlueprintGenome import BlueprintGenome
 from src.CoDeepNEAT.ModuleGenome import ModuleGenome

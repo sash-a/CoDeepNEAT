@@ -28,8 +28,7 @@ class BlueprintNode(Node):
         if(self.species_number > 0):
             print("blueprint with species no:", self.species_number)
 
-    def parseto_module_graph(self, generation, module_construct=None, species_indexes=None, in_features=1,
-                             device=torch.device("cpu")):
+    def parseto_module_graph(self, generation, module_construct=None, species_indexes=None, in_features=1,):
         """
         :param module_construct: the output module node to have this newly sampled module attached to. None if this is root blueprint node
         :return: a handle on the root node of the newly created module graph

@@ -2,13 +2,10 @@ from src.Graph.Node import Node
 from src.Module.ReshapeNode import ReshapeNode
 from src.Utilities import Utils
 import torch.nn as nn
-import torch
 import torch.nn.functional as F
-import random
 import math
 from src.NeuralNetwork.Net import ModuleNet
-import copy
-
+from src.Config import Config
 
 minimum_conv_dim = 8
 
@@ -66,15 +63,17 @@ class ModuleNode(Node):
             else:
                 print("Error not implemented reduction ", neat_reduction())
 
-    def to_nn(self, in_features, device, print_graphs=False):
-        self.create_layer(in_features, device=device)
+    def to_nn(self, in_features, print_graphs=False):
+        device = Config.device
+        self.create_layer(in_features)
         if print_graphs:
             self.plot_tree()
         return ModuleNet(self).to(device)
 
-    def create_layer(self, in_features, device=torch.device("cuda:0")):
+    def create_layer(self, in_features):
 
         self.in_features = in_features
+        device = Config.device
 
         layer_type = self.module_NEAT_node.layer_type
         if layer_type() == nn.Conv2d:

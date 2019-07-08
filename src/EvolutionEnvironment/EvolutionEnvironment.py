@@ -1,5 +1,4 @@
 from src.EvolutionEnvironment.Generation import Generation
-import torch
 from src.Analysis import RuntimeAnalysis
 import time
 
@@ -23,7 +22,7 @@ def main():
     for i in range(num_generations):
         print('Running gen', i)
         gen_start_time = time.time()
-        current_generation.evaluate(i, print_graphs=False, protect_parsing_from_errors=False, device=torch.device('cpu'))
+        current_generation.evaluate(i)
         current_generation.step()
         print('completed gen', i, "in", (time.time() - gen_start_time), "elapsed time:", (time.time() - start_time))
 

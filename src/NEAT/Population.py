@@ -3,7 +3,7 @@ from src.NEAT.Species import Species
 from src.NEAT.Crossover import crossover
 from src.CoDeepNEAT.BlueprintGenome import BlueprintGenome
 from src.CoDeepNEAT.ModuleGenome import ModuleGenome
-import src.NEAT.NeatProperties as Props
+import src.Config.NeatProperties as Props
 
 import random
 from typing import List, Union
@@ -162,6 +162,6 @@ class Population:
         return len(self.individuals)
 
     def get_num_species(self):
-        # if(len(self.species) > 1):
-        #     print("more than one species!")
+        if(len(self.species) > 1):
+            print("more than one species!", len(self.species))
         return len(self.species)

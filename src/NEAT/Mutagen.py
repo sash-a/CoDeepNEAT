@@ -58,8 +58,6 @@ class Mutagen():
             return self._end_range()
 
     def mutate(self):
-        if(self.print_when_mutating):
-            print("mutating !")
 
         if(random.random()<self.mutation_chance):
             if (self.value_type == ValueType.DISCRETE):
@@ -73,15 +71,16 @@ class Mutagen():
             if (self.value_type == ValueType.WHOLE_NUMBERS):
                 if(random.random()< 0.2):
                     """random reset"""
-                    new_current_value= random.randint(self.start_range, self.end_range)
+                    new_current_value= random.randint(self.start_range, self.end_range + 1)
                 else:
-                    new_current_value = self.current_value + int((math.pow(random.random(),3)-0.5)*(self.end_range - self.start_range))
+                    new_current_value = self.current_value + int((math.pow(random.random(),3)-0.5)*( 1 + self.end_range - self.start_range))
 
                 if (new_current_value == self.current_value):
                     new_current_value = (self.current_value + (1 if random.random()<0.5 else -1) - self.start_range) % (self.end_range - self.start_range) + self.start_range
                     self.current_value = new_current_value
                 if (self.print_when_mutating):
-                    print("mutated value to:", self.current_value)
+                    print("mutated value to:", self.current_value, "range:",self.start_range, ",",self.end_range)
+
             if (self.value_type == ValueType.CONTINUOUS):
                 if (random.random() < 0.1):
                     """random reset"""
