@@ -55,6 +55,7 @@ class Mutagen():
         if(isinstance(self._end_range, int) or  isinstance(self._end_range, float)):
             return self._end_range
         else:
+            print("using function",self._end_range,"to aquire end of range, found:",self._end_range())
             return self._end_range()
 
     def mutate(self):
@@ -71,9 +72,9 @@ class Mutagen():
             if (self.value_type == ValueType.WHOLE_NUMBERS):
                 if(random.random()< 0.2):
                     """random reset"""
-                    new_current_value= random.randint(self.start_range, self.end_range + 1)
+                    new_current_value= random.randint(self.start_range, self.end_range)
                 else:
-                    new_current_value = self.current_value + int((math.pow(random.random(),3)-0.5)*( 1 + self.end_range - self.start_range))
+                    new_current_value = self.current_value + int((math.pow(random.random(),3)-0.5)*(  self.end_range - self.start_range))
 
                 if (new_current_value == self.current_value):
                     new_current_value = (self.current_value + (1 if random.random()<0.5 else -1) - self.start_range) % (self.end_range - self.start_range) + self.start_range

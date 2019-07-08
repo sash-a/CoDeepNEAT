@@ -41,8 +41,8 @@ class BlueprintNode(Node):
                 input_module_individual, index = \
                     generation.module_population.species[self.species_number].sample_individual()
             except:
-                print("failed to sample indv from species",self.species_number, "num species available:", len(generation.module_population.species))
-                raise Exception( )
+                raise Exception("failed to sample indv from species "+ repr(self.species_number) + " num species available: " + repr( len(generation.module_population.species) ))
+
             self.blueprint_genome.modules_used.append(input_module_individual)
             input_module_node = input_module_individual.to_module()
             if (not input_module_node.is_input_node()):

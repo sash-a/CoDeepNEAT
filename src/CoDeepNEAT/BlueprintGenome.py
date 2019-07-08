@@ -25,5 +25,7 @@ class BlueprintGenome(Genome):
         for i, fitness in enumerate(fitnesses):
             self.fitness[i] = fitness
 
-    def clear(self):
+    def clear(self, num_module_species ):
+        for node in self.nodes:
+            node.set_species_upper_bound(num_module_species)
         self.modules_used = []

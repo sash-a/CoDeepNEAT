@@ -45,12 +45,13 @@ class Generation:
         self.module_population.step()
 
         for blueprint_individual in self.blueprint_population.individuals:
-            blueprint_individual.clear()
+            blueprint_individual.clear(module_population.get_num_species())
 
         for module_individual in self.module_population.individuals:
             module_individual.clear()  # this also sets fitness to zero
 
     def evaluate(self, generation_number):
+        print("num species:", len(self.module_population.species))
         inputs, targets = Evaluator.sample_data('mnist', '../../data')
 
         best_acc = -9999999999999999999
