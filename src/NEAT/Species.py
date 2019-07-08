@@ -15,8 +15,11 @@ class Species:
         self.representative: Union[Genome, ModuleGenome, BlueprintGenome] = representative
         self.members: List[Union[Genome, ModuleGenome, BlueprintGenome]] = [representative]
 
-    def add_member_safe(self, new_member, thresh=Props.SPECIES_DISTANCE_THRESH):
-        if self.is_compatible(new_member, thresh):
+    def add_member(self, new_member, thresh=Props.SPECIES_DISTANCE_THRESH, safe=True):
+        if safe:
+            if self.is_compatible(new_member, thresh):
+                self.members.append(new_member)
+        else:
             self.members.append(new_member)
 
     def is_compatible(self, individual, thresh=Props.SPECIES_DISTANCE_THRESH, c1=1, c2=1):

@@ -60,7 +60,7 @@ class Population:
             found_species = False
             for spc in self.species:
                 if spc.is_compatible(individual, thresh=self.speciation_thresh):
-                    spc.add_member_safe(individual)
+                    spc.add_member(individual)
                     found_species = True
                     break
 
@@ -162,6 +162,4 @@ class Population:
         return len(self.individuals)
 
     def get_num_species(self):
-        if(len(self.species) > 1):
-            print("more than one species!", len(self.species))
         return len(self.species)

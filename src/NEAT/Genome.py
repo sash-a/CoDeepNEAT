@@ -98,7 +98,7 @@ class Genome:
 
         return disjoint, excess
 
-    def _mutate_add_node(self, conn: Connection, mutations: dict, innov: int, node_id: int,  MutationType=NEATNode):
+    def _mutate_add_node(self, conn: Connection, mutations: dict, innov: int, node_id: int, MutationType=NEATNode):
         conn.enabled.set_value(False)
 
         mutated_node = MutationType(node_id + 1, conn.from_node.midpoint(conn.to_node))

@@ -1,9 +1,4 @@
-from typing import List, Union
-from src.CoDeepNEAT.BlueprintGenome import BlueprintGenome
-from src.CoDeepNEAT.ModuleGenome import ModuleGenome
-
-
-def CDN_pareto(individuals: List[Union[BlueprintGenome, ModuleGenome]]):
+def CDN_pareto(individuals):
     # Sorting members on primary fitness
     # TODO need to define if bigger fitness is better or worse
     individuals.sort(key=lambda indv: indv.fitness[0], reverse=True)

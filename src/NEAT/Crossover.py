@@ -1,8 +1,6 @@
 import copy
 import random
 
-from src.CoDeepNEAT.BlueprintGenome import BlueprintGenome
-from src.CoDeepNEAT.ModuleGenome import ModuleGenome
 from src.NEAT.Connection import Connection
 
 
@@ -25,6 +23,7 @@ def add_nodes_from_connections(conn: Connection, genome):
 
     return new_from, new_to
 
+
 def crossover(parent1, parent2):
     # Choosing the fittest parent
     if parent1.fitness == parent2.fitness:  # if the fitness is the same choose the shortest
@@ -34,10 +33,14 @@ def crossover(parent1, parent2):
         best_parent, worst_parent = (parent2, parent1) \
             if parent2.fitness > parent1.fitness else (parent1, parent2)
 
-    if type(parent1) == ModuleGenome:
-        child = ModuleGenome([], [])
-    else:
-        child = BlueprintGenome([], [])
+    # if type(parent1) == ModuleGenome:
+    #     child = ModuleGenome([], [])
+    # else:
+    #     child = BlueprintGenome([], [])
+    if type(parent1) != type(parent2):
+        raise TypeError('Parent 1 and 2 must be of the same type')
+
+    child = type(parent1)([], [])
 
     # Crossing over connections
     for best_conn in best_parent.connections:
