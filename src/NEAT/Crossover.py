@@ -25,43 +25,6 @@ def add_nodes_from_connections(conn: Connection, genome):
 
     return new_from, new_to
 
-
-# def crossover(parent1, parent2):
-#     # Choosing the fittest parent
-#     if parent1.fitness == parent2.fitness:  # if the fitness is the same choose the shortest
-#         best_parent, worst_parent = (parent2, parent1) \
-#             if len(parent2.connections) < len(parent1.connections) else (parent1, parent2)
-#     else:
-#         best_parent, worst_parent = (parent2, parent1) \
-#             if parent2.fitness > parent1.fitness else (parent1, parent2)
-#
-#     # disjoint + excess are inherited from the most fit parent
-#     d, e = copy.deepcopy(best_parent.get_disjoint_excess(worst_parent))
-#
-#     # TODO how to inherit connection genes?
-#     if type(parent1) == ModuleGenome:
-#         child = ModuleGenome(d + e, [])
-#     else:
-#         child = BlueprintGenome(d + e, [])
-#
-#     for conn in child.connections:
-#         add_nodes_from_connections(conn, child)
-#
-#     # Finding the remaining matching genes and choosing randomly between them
-#     for best_conn in best_parent.connections:
-#         if best_conn.innovation in worst_parent.innov_nums:
-#             worst_conn = worst_parent.get_connection(best_conn.innovation)
-#             choice = copy.deepcopy(random.choice([best_conn, worst_conn]))
-#             child.add_connection(choice)
-#
-#             from_node, to_node = add_nodes_from_connections(choice, child)
-#
-#             if from_node.x > to_node.x or from_node.id == to_node.id:
-#                 print('Crossed over and received node with bad x values or connections points from node to same node')
-#
-#     return child
-
-
 def crossover(parent1, parent2):
     # Choosing the fittest parent
     if parent1.fitness == parent2.fitness:  # if the fitness is the same choose the shortest

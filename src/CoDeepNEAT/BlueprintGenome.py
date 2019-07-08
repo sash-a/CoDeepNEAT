@@ -1,16 +1,15 @@
-from src.NEAT.Genotype import Genome
+from src.NEAT.Genome import Genome
 from src.Blueprint.Blueprint import BlueprintNode
 from src.NEAT.Connection import Connection
-from src.NEAT.Mutation import NodeMutation
 from src.CoDeepNEAT.BlueprintNEATNode import BlueprintNEATNode
 
 
 class BlueprintGenome(Genome):
 
-    def __init__(self, connections, nodes):
+    def __init__(self, connections, nodes, objectives=2):
         super(BlueprintGenome, self).__init__(connections, nodes)
-        # TODO clear after eval
         self.modules_used = []  # holds ref to module individuals used - can multiple represent
+        self.fitness = [0 for _ in range(objectives)]
 
     def to_blueprint(self):
         """
@@ -22,8 +21,9 @@ class BlueprintGenome(Genome):
     def _mutate_add_node(self, conn: Connection, mutations: dict, innov: int, node_id: int,MutationType=BlueprintNEATNode):
         return super()._mutate_add_node(conn, mutations, innov, node_id, MutationType)  # innov, node_id
 
-    def report_fitness(self, fitness):
-        self.fitness = fitness
+    def report_fitness(self, *fitnesses):
+        for i, fitness in enumerate(fitnesses):
+            self.fitness[i] = fitness
 
     def clear(self):
         self.modules_used = []

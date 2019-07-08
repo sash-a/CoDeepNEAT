@@ -1,7 +1,7 @@
 # modified from https://github.com/pytorch/examples/blob/master/mnist/main.py
 
 import torch
-from torch import no_grad, nn
+from torch import nn
 import torch.nn.functional as F
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
@@ -77,7 +77,7 @@ def test(model, device, test_loader, print_acc=True):
     test_loss = 0
     correct = 0
     loss_fn = nn.MSELoss()
-    with no_grad():
+    with torch.no_grad():
         for inputs, targets in test_loader:
             inputs, targets = inputs.to(device), targets.to(device)
             output = model(inputs)

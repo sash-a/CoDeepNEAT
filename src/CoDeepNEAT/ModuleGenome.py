@@ -1,4 +1,4 @@
-from src.NEAT.Genotype import Genome
+from src.NEAT.Genome import Genome
 from src.Module.ModuleNode import ModuleNode
 from src.NEAT.Connection import Connection
 from src.CoDeepNEAT.ModuleNEATNode import ModulenNEATNode
@@ -7,10 +7,11 @@ import copy
 
 class ModuleGenome(Genome):
 
-    def __init__(self, connections, nodes):
+    def __init__(self, connections, nodes, objectives=2):
         super(ModuleGenome, self).__init__(connections, nodes)
         self.fitness_reports = 0
         self.module_node = None  # the module node created from this gene
+        self.fitness = [0 for _ in range(objectives)]
 
     def to_module(self):
         """
@@ -27,11 +28,12 @@ class ModuleGenome(Genome):
                          MutationType=ModulenNEATNode):
         return super()._mutate_add_node(conn, mutations, innov, node_id, MutationType)  # innov, node_id
 
-    def report_fitness(self, fitness):
-        self.fitness = (self.fitness * self.fitness_reports + fitness) / (self.fitness_reports + 1)
+    def report_fitness(self, *fitnesses):
+        for i, fitness in enumerate(fitnesses):
+            self.fitness[i] = (self.fitness[i] * self.fitness_reports + fitness) / (self.fitness_reports + 1)
         self.fitness_reports += 1
 
     def clear(self):
         self.fitness_reports = 0
-        self.fitness = 0
+        self.fitness = [0 for _ in self.fitness]
         self.module_node = None

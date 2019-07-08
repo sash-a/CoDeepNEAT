@@ -1,10 +1,12 @@
-from src.NEAT.Genotype import Genome
+from src.NEAT.Genome import Genome
 from src.NEAT.Species import Species
 from src.NEAT.Crossover import crossover
+from src.CoDeepNEAT.BlueprintGenome import BlueprintGenome
+from src.CoDeepNEAT.ModuleGenome import ModuleGenome
 import src.NEAT.NeatProperties as Props
 
 import random
-from typing import List
+from typing import List, Union
 
 """
 Population persists across whole run time
@@ -13,25 +15,36 @@ Population persists across whole run time
 
 class Population:
 
-    def __init__(self, population: List[Genome], mutations: dict):
+    def __init__(self, population: List[Union[BlueprintGenome, ModuleGenome, Genome]], mutations: dict,
+                 pop_size: int, node_mutation_chance: float, connection_mutation_chance: float,
+                 target_num_species: int):
         """
         :param population: list of all individuals
         """
 
         self.mutations = mutations
         self.curr_innov = max(indv.connections[-1].innovation for indv in population)
-        self.max_node_id = 6  # TODO len(population)  # this assumes that no nodes are disabled in initial population
+        self.max_node_id = max(indv.nodes[-1].id for indv in population)  # TODO test
 
-        # Either connection mutation: nodeid#nodeid : innovation number
+        # Either connection mutation: tuple(nodeid,nodeid) : innovation number
         # Or node mutation: innovation number : nodeid
         self.mutation = dict()
 
-        self.individuals = population
+        self.individuals: List[Union[BlueprintGenome, ModuleGenome, Genome]] = population
+
+        # Speciation
+        self.target_num_species = target_num_species
+        self.num_species_mod_dir = 0
+        self.num_species_mod = Props.SPECIES_DISTANCE_THRESH_MOD
+        self.speciation_thresh = Props.SPECIES_DISTANCE_THRESH
         self.species: List[Species] = []
+        self.speciate(True)
 
-        self.speciate()
+        self.pop_size = pop_size
+        self.node_mutation_chance = node_mutation_chance
+        self.connection_mutation_chance = connection_mutation_chance
 
-    def speciate(self):
+    def speciate(self, first_gen=False):
         """
         Place all individuals in their first compatible species if one exists
         Otherwise create new species with current individual as its representative
@@ -46,8 +59,8 @@ class Population:
         for individual in self.individuals:
             found_species = False
             for spc in self.species:
-                if spc.is_compatible(individual):
-                    spc.add_member(individual)
+                if spc.is_compatible(individual, thresh=self.speciation_thresh):
+                    spc.add_member_safe(individual)
                     found_species = True
                     break
 
@@ -55,9 +68,32 @@ class Population:
                 self.species.append(Species(individual))
 
         # Remove all empty species
-        species = [spc for spc in self.species if spc.members]
+        self.species = [spc for spc in self.species if spc.members]
 
-        return species
+        if not first_gen:
+            self.dynamic_speciation()
+
+        return self.species
+
+    def dynamic_speciation(self):
+        # Dynamic speciation threshold
+        if len(self.species) < self.target_num_species:
+            new_dir = -1
+        elif len(self.species) > self.target_num_species:
+            new_dir = 1
+        else:
+            new_dir = 0
+
+        # Exponential growth
+        if new_dir != self.num_species_mod_dir:
+            self.num_species_mod = Props.SPECIES_DISTANCE_THRESH_MOD
+        else:
+            self.num_species_mod *= 2
+
+        self.num_species_mod_dir = new_dir
+
+        self.speciation_thresh = max(0.01, self.speciation_thresh + (self.num_species_mod_dir * self.num_species_mod))
+        print('new thresh mod', type(self.individuals[0]), self.speciation_thresh)
 
     def adjust_fitness(self, indv: Genome):
         shared_fitness = 0
@@ -67,16 +103,23 @@ class Population:
             # if other_indv == indv:
             #     continue
 
-            if other_indv.distance_to(indv) <= Props.DISTANCE_THRESH:
+            if other_indv.distance_to(indv) <= self.speciation_thresh:
                 shared_fitness += 1
 
         indv.adjusted_fitness = indv.fitness / shared_fitness
 
+    def save_elite(self, species):
+        # only allow top x% to reproduce
+        # return species sorted by fitness
+        species.members.sort(key=lambda indv: indv.fitness, reverse=True)
+        # min of two because need two parents to crossover
+        num_remaining_mem = max(2, int(len(species.members) * Props.PERCENT_TO_SAVE))
+        remaining_members = species.members[:num_remaining_mem]
+
+        return remaining_members
+
     def step(self):
         new_pop = []
-
-        if(len(self.individuals) == 0):
-            raise Exception("no individuals in population, cannot step")
 
         # calculate adjusted fitness
         tot_adj_fitness = 0
@@ -84,46 +127,39 @@ class Population:
             self.adjust_fitness(indv)
             tot_adj_fitness += indv.adjusted_fitness
 
-        if(tot_adj_fitness == 0):
-            raise Exception("individuals have not been assigned fitnesses")
-
         # Reproduce within species
         for spc in self.species:
             # find num_children given adjusted fitness sum for species
             species_adj_fitness = sum([x.adjusted_fitness for x in spc.members])
+            # TODO this is not creating the correct number of children
             num_children = max(Props.MIN_CHILDREN_PER_SPECIES, int((species_adj_fitness / tot_adj_fitness) * (
-                    Props.POP_SIZE - Props.PERCENT_TO_SAVE * Props.POP_SIZE)))
+                    self.pop_size - Props.PERCENT_TO_SAVE * self.pop_size)))
 
-            # only allow top x% to reproduce
-            spc.members.sort(key=lambda indv: indv.fitness, reverse=True)
-            # min of two bc need two parents to create child
-            num_remaining_mem = max(2, int(len(spc.members) * Props.PERCENT_TO_SAVE))
-            remaining_members = spc.members[:num_remaining_mem]
-            spc.members.clear()  # reset species
-
-            # Elitism
-            elite = min(Props.ELITE_TO_KEEP, num_remaining_mem)
-            new_pop.extend(remaining_members[:elite])
+            remaining_members = self.save_elite(spc)
+            # Add elite back into new population
+            new_pop.extend(remaining_members)
 
             # Create children
-            for _ in range(num_children):
-                parent1 = random.choice(remaining_members)
-                parent2 = random.choice(remaining_members)
+            if remaining_members:
+                for _ in range(num_children):
+                    parent1 = random.choice(remaining_members)
+                    parent2 = random.choice(remaining_members)
 
-                child = crossover(parent1, parent2)
+                    child = crossover(parent1, parent2)
 
-                self.curr_innov, self.max_node_id = child.mutate(self.mutations,
-                                                                 self.curr_innov,
-                                                                 self.max_node_id,
-                                                                 Props.NODE_MUTATION_CHANCE,
-                                                                 Props.CONNECTION_MUTATION_CHANCE)
+                    self.curr_innov, self.max_node_id = child.mutate(self.mutations,
+                                                                     self.curr_innov,
+                                                                     self.max_node_id,
+                                                                     self.node_mutation_chance,
+                                                                     self.connection_mutation_chance)
 
-                new_pop.append(child)
+                    new_pop.append(child)
 
         self.individuals = new_pop
         self.speciate()
 
-        print('New population size:', len(self.individuals))
+    def __len__(self):
+        return len(self.individuals)
 
     def get_num_species(self):
         # if(len(self.species) > 1):

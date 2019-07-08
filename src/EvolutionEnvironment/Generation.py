@@ -1,10 +1,16 @@
 from src.NEAT.Population import Population
+import src.NEAT.NeatProperties as Props
+from src.NEAT.MultiobjectivePopulation import MultiobjectivePopulation
+
 from src.NeuralNetwork import Evaluator
 from src.CoDeepNEAT import PopulationInitialiser as PopInit
 import torch.tensor
 from src.Analysis import RuntimeAnalysis
 
 module_population = None
+from src.NeuralNetwork.Net import ModuleNet
+import random
+
 
 class Generation:
     numBlueprints = 1
@@ -13,14 +19,25 @@ class Generation:
     def __init__(self):
         self.speciesNumbers = []
         self.module_population, self.blueprint_population = self.initialise_populations()
-        global module_population
 
     def initialise_populations(self):
         print('initialising population')
         global module_population
-        module_population = Population(PopInit.initialise_modules(), PopInit.initialize_mutations())
+        module_population = MultiobjectivePopulation(PopInit.initialise_modules(),
+                                                     PopInit.initialize_mutations(),
+                                                     Props.MODULE_POP_SIZE,
+                                                     Props.MODULE_NODE_MUTATION_CHANCE,
+                                                     Props.MODULE_CONN_MUTATION_CHANCE,
+                                                     Props.MODULE_TARGET_NUM_SPECIES)
 
-        blueprint_population = Population(PopInit.initialise_blueprints(module_population), PopInit.initialize_mutations())
+        blueprint_population = MultiobjectivePopulation(PopInit.initialise_blueprints(),
+                                                        PopInit.initialize_mutations(),
+                                                        Props.BP_POP_SIZE,
+                                                        Props.BP_NODE_MUTATION_CHANCE,
+                                                        Props.BP_CONN_MUTATION_CHANCE,
+                                                        Props.BP_TARGET_NUM_SPECIES)
+
+
         print('population initialized')
         return module_population, blueprint_population
 
@@ -42,7 +59,14 @@ class Generation:
         best_bp = None
         accuracies = []
 
-        for blueprint_individual in self.blueprint_population.individuals:
+        # Randomize the list so that random individuals are sampled more often
+        random.shuffle(self.blueprint_population.individuals)
+
+        for i, blueprint_individual in enumerate(self.blueprint_population.individuals):
+            # Checking if done enough evals
+            if Props.INDIVIDUALS_TO_EVAL < i:
+                break
+
             if protect_parsing_from_errors:
                 try:
                     acc, module_graph = self.evaluate_blueprints(blueprint_individual ,device, inputs,generation_number)
@@ -92,10 +116,12 @@ class Generation:
         else:
             acc = Evaluator.evaluate(net, 2, dataset='mnist', path='../../data', device=device, batch_size=256)
 
-        blueprint_individual.report_fitness(acc)
+        net_size = net.moduleGraph.get_net_size()
+
+        blueprint_individual.report_fitness(acc,net_size)
 
         for module_individual in blueprint_individual.modules_used:
-            module_individual.report_fitness(acc)
+            module_individual.report_fitness(acc,net_size)
 
 
 
