@@ -184,7 +184,7 @@ class Genome:
             node.mutate()
 
         for connection in self.connections:
-            connection.mutate()
+            connection.mutate(self)
 
         return innov, node_id
 

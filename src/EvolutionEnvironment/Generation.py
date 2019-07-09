@@ -148,7 +148,7 @@ class Generation:
         if Config.dummy_run and generation_number < 500:
             acc = hash(net)
         else:
-            acc = Evaluator.evaluate(net, 2, dataset='mnist', path='../../data', batch_size=256)
+            acc = Evaluator.evaluate(net, Config.number_of_epochs_per_evaluation, dataset='mnist', path='../../data', batch_size=256)
 
         second_objective_value = None
         third_objective_value = None

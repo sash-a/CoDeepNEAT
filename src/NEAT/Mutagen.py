@@ -60,6 +60,7 @@ class Mutagen():
             return self._end_range()
 
     def mutate(self):
+        """:returns whether or not this gene mutated"""
         old_value = self()
 
         if(random.random()<self.mutation_chance):
@@ -94,6 +95,7 @@ class Mutagen():
                 print("mutated gene from",old_value,"to",self(), "range: [",self.start_range,",",self.end_range,")")
             self.mutate_sub_mutagens()
 
+            return not old_value == self()
 
     def mutate_sub_mutagens(self):
         #print("called mutate_sub_mutagens",self.sub_values)
