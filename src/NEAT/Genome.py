@@ -1,6 +1,6 @@
 import random
 from src.NEAT.Connection import Connection
-from src.NEAT.NEATNode import NEATNode
+from src.NEAT.NEATNode import NEATNode, NodeType
 import src.Config.NeatProperties as Props
 
 from typing import Iterable
@@ -139,9 +139,11 @@ class Genome:
         mutated_conn = Connection(from_node, to_node)
 
         # Make sure nodes aren't equal and there isn't already a connection between them
+        # and the from node isn't an output node
         if node1.id == node2.id or \
                 mutated_conn in self.connections or \
-                Connection(to_node, from_node) in self.connections:
+                Connection(to_node, from_node) in self.connections or \
+                from_node.node_type == NodeType.OUTPUT:
             return None
 
         # Check if the connection exist somewhere else
@@ -231,3 +233,37 @@ class Genome:
 
     def get_all_mutagens(self):
         return []
+
+    def validate(self):
+        nodes_dict = {}  # dictionary maps node from node to all connected nodes
+        for conn in self.connections:
+            if not conn.enabled:
+                continue
+
+            if conn.from_node.id in nodes_dict:
+                nodes_dict[conn.from_node.id].append(conn.to_node.id)
+            else:
+                nodes_dict[conn.from_node.id] = [conn.to_node.id]
+
+        for node in self.nodes:
+            if node.node_type == NodeType.INPUT:
+                input_id = node.id
+
+            if node.node_type == NodeType.OUTPUT:
+                output_id = node.id
+
+        return self.from_input_to_output(input_id, output_id, nodes_dict, set())
+
+    def from_input_to_output(self, curr_id, output_id, nodes_dict, visited_nodes):
+        if curr_id == output_id:
+            return True
+
+        if curr_id in visited_nodes:
+            return False
+
+        visited_nodes.add(curr_id)
+        for id in nodes_dict[curr_id]:
+            if self.from_input_to_output(id, output_id, nodes_dict, visited_nodes):
+                return True
+
+        return False

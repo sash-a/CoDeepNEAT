@@ -29,6 +29,12 @@ class NEATNode:
     def is_input_node(self):
         return self.node_type == NodeType.INPUT
 
+    def is_output_node(self):
+        return self.node_type == NodeType.OUTPUT
+
+    def get_all_mutagens(self):
+        raise Exception('Get all mutagens called in base class')
+
     def mutate(self):
         for mutagen in self.get_all_mutagens():
             mutagen.mutate()

@@ -32,3 +32,6 @@ class Connection:
     def mutate(self):
         for mutagen in self.get_all_mutagens():
             mutagen.mutate()
+
+    def isvalid(self):
+        return self.from_node.x <= self.to_node.x and self.from_node != self.to_node

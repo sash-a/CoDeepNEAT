@@ -73,6 +73,10 @@ class Generation:
             if Props.INDIVIDUALS_TO_EVAL < i:
                 break
 
+            # All computationally expensive tests go here
+            if Config.test_in_run:
+                print('Blueprint is valid:', blueprint_individual.validate())
+
             if Config.protect_parsing_from_errors:
                 try:
                     module_graph, blueprint_individual, results = self.evaluate_blueprints(blueprint_individual, inputs, generation_number)
