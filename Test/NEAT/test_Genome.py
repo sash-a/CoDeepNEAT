@@ -1,5 +1,5 @@
 from src.NEAT.Genome import Genome
-from Test.NEAT.InitialStructure import nodes, connections, NEATNode, Connection
+from Test.TestingGenomes import nodes, connections, NEATNode, Connection
 
 import random
 

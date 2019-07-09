@@ -16,7 +16,7 @@ Population persists across whole run time
 class Population:
 
     def __init__(self, population: List[Union[BlueprintGenome, ModuleGenome, Genome]], mutations: dict,
-                 pop_size: int, node_mutation_chance: float, connection_mutation_chance: float,
+                 ideal_pop_size: int, node_mutation_chance: float, connection_mutation_chance: float,
                  target_num_species: int):
         """
         :param population: list of all individuals
@@ -24,7 +24,7 @@ class Population:
 
         self.mutations = mutations
         self.curr_innov = max(indv.connections[-1].innovation for indv in population)
-        self.max_node_id = max(indv.nodes[-1].id for indv in population)  # TODO test
+        self.max_node_id = max(indv.nodes[-1].id for indv in population)
 
         # Either connection mutation: tuple(nodeid,nodeid) : innovation number
         # Or node mutation: innovation number : nodeid
@@ -40,7 +40,7 @@ class Population:
         self.species: List[Species] = []
         self.speciate(True)
 
-        self.pop_size = pop_size
+        self.ideal_pop_size = ideal_pop_size
         self.node_mutation_chance = node_mutation_chance
         self.connection_mutation_chance = connection_mutation_chance
 
@@ -128,7 +128,7 @@ class Population:
             species_adj_fitness = sum([x.adjusted_fitness for x in spc.members])
             # TODO this is not creating the correct number of children
             num_children = max(Props.MIN_CHILDREN_PER_SPECIES, int((species_adj_fitness / tot_adj_fitness) * (
-                    self.pop_size - Props.PERCENT_TO_SAVE * self.pop_size)))
+                    self.ideal_pop_size - Props.PERCENT_TO_SAVE * self.ideal_pop_size)))
 
             remaining_members = self.save_elite(spc)
             # Add elite back into new population

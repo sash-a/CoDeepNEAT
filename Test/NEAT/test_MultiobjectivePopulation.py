@@ -1,4 +1,4 @@
-from Test.NEAT.InitialStructure import moo_pop_members
+from Test.TestingGenomes import moo_pop_members
 from src.NEAT.MultiobjectivePopulation import MultiobjectivePopulation
 
 

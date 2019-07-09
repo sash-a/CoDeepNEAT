@@ -1,5 +1,5 @@
 from src.NEAT.Species import Species
-from Test.NEAT.InitialStructure import connections, nodes, moo_pop_members
+from Test.TestingGenomes import connections, nodes, moo_pop_members
 from src.NEAT.Genome import Genome
 
 import copy

@@ -1,4 +1,4 @@
-from Test.NEAT.InitialStructure import nodes
+from Test.TestingGenomes import nodes
 
 
 def test_midpoint():

@@ -1,5 +1,5 @@
 from src.NEAT.Connection import Connection
-from Test.NEAT.InitialStructure import nodes, connections
+from Test.TestingGenomes import nodes, connections
 
 
 def test_eq():

@@ -1,5 +1,5 @@
 from src.Multiobjective.ParetoFront import CDN_pareto
-from Test.NEAT.InitialStructure import moo_pop_members
+from Test.TestingGenomes import moo_pop_members
 
 import random
 import copy

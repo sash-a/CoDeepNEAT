@@ -23,6 +23,7 @@ class BlueprintGenome(Genome):
         return super()._mutate_add_node(conn, mutations, innov, node_id, MutationType)  # innov, node_id
 
     def report_fitness(self, *fitnesses):
+        # print('recieved fitness:', fitnesses)
         for i, fitness in enumerate(fitnesses):
             self.fitness[i] = fitness
 
