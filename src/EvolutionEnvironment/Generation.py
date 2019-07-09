@@ -72,6 +72,7 @@ class Generation:
                 try:
                     acc, module_graph, _ = self.evaluate_blueprints(blueprint_individual, inputs, generation_number)
                 except Exception as e:
+                    blueprint_individual.defective = True
                     print(e)
                     print("blueprint indv ran with errors")
                     continue

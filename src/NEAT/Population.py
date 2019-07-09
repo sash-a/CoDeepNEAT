@@ -93,7 +93,7 @@ class Population:
         self.num_species_mod_dir = new_dir
 
         self.speciation_thresh = max(0.01, self.speciation_thresh + (self.num_species_mod_dir * self.num_species_mod))
-        print('new thresh mod', type(self.individuals[0]), self.speciation_thresh)
+        #print('new thresh mod', type(self.individuals[0]), self.speciation_thresh)
 
     def adjust_fitness(self, indv: Genome):
         shared_fitness = 0

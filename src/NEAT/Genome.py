@@ -21,6 +21,7 @@ class Genome:
         self.connections = []
         for connection in connections:
             self.add_connection(connection)
+        self.defective = False
 
     def add_connection(self, new_connection):
         """Adds a new connection maintaining the order of the connections list"""
