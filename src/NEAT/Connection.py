@@ -30,13 +30,14 @@ class Connection:
         return [self.enabled]
 
     def mutate(self, genome):
+        return
         mutated = False
         for mutagen in self.get_all_mutagens():
             mutated = mutagen.mutate() or mutated
         if mutated:
             """if the gene mutated - and the connection was disabled - a graph validation must be performed"""
             if not self.enabled():
-                print("turned off a connection")
+                #print("turned off a connection")
                 if not genome.validate():
                     """the connection was turned off - and the graph is not valid"""
                     print("turning connection back on as it was off and part of an invalid genome")

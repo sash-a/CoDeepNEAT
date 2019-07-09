@@ -19,6 +19,7 @@ class Node:
         self.parents = []
         self.traversalID = ""  # input to output
 
+
     def add_child(self, value=None):
         self.add_child(Node(value))
 
@@ -149,9 +150,12 @@ class Node:
     def severe_node(self):
         """removes this node entirely from the graph.
         removes self as a child of all parents and removes self as a parent of all children"""
+        #print("severing node",self)
         for parent in self.parents:
+            #print("severing",self, "from parent",parent)
             parent.children.remove(self)
         for child in self.children:
+            #print("severing",self, "from parent",child)
             child.parents.remove(self)
 
 def gen_node_graph(node_type, graph_type="diamond", linear_count=1):

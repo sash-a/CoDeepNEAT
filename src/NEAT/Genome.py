@@ -196,33 +196,70 @@ class Genome:
 
         graph_node_map = {}
         root_node = None
+        output_graph_node = None
+        output_neat_node = None
 
         # initialises nodes and maps them to their genes
         for neat_node in self.nodes:
-            graph_node_map[neat_node.id] = Phenotype(neat_node, self)
-            if neat_node.is_input_node():
-                root_node = graph_node_map[neat_node.id]
+            if neat_node in graph_node_map:
+                raise Exception("duplicate node in genome.nodes")
 
+            graph_node_map[neat_node.id] = Phenotype(neat_node, self)
+
+            if neat_node.is_input_node():
+                if not (root_node is None):
+                    raise Exception("multiple neat nodes labelled input node")
+                root_node = graph_node_map[neat_node.id]
+            if neat_node.is_output_node():
+                if not (output_graph_node is None):
+                    raise Exception("multiple neat nodes labelled output node")
+                output_graph_node = graph_node_map[neat_node.id]
+                output_neat_node = neat_node
+
+        connected_input_node = False
         # connects the blueprint nodes as indicated by the genome
         for connection in self.connections:
-            if not connection.enabled.get_value():
+            if not connection.enabled():
+                #print("found disabled connection")
                 continue
-            try:
-                parent = graph_node_map[connection.from_node.id]
-                child = graph_node_map[connection.to_node.id]
 
-                parent.add_child(child)
-            except KeyError:
-                pass
+            parent = graph_node_map[connection.from_node.id]
+            child = graph_node_map[connection.to_node.id]
+
+            parent.add_child(child)
+            if parent == root_node:
+                connected_input_node = True
+
+        if not connected_input_node:
+            raise Exception("no connections from input node",root_node)
+
+
+        if not graph_node_map[output_neat_node.id].is_output_node():
+            raise Exception("neat node marked as output has a graph node which is not an output node")
+
+        sampled_trailing_node = root_node.get_output_node()
+        while not sampled_trailing_node == output_graph_node:
+            print("sampled a false output node:",sampled_trailing_node, "real output node:",output_graph_node)
+            sampled_trailing_node.severe_node()
+            sampled_trailing_node = root_node.get_output_node()
+            if sampled_trailing_node == root_node:
+                raise Exception("root node is output node - num children:",len(root_node.children))
+
 
         output_reaching_nodes = root_node.get_all_nodes_via_bottom_up(set())
-        input_reaching_nodes = root_node.get_output_node().get_all_nodes_via_top_down(set())
+        input_reaching_nodes = output_graph_node.get_all_nodes_via_top_down(set())
 
         fully_connected_nodes = output_reaching_nodes.intersection(input_reaching_nodes)
+
+        if not output_graph_node in fully_connected_nodes:
+            raise Exception("output node not in fully connected nodes")
+
         for neat_node in self.nodes:
             graph_node = graph_node_map[neat_node.id]
             if graph_node in fully_connected_nodes:
                 continue
+            if neat_node.node_type == NodeType.OUTPUT:
+                raise Exception("severing the neat output node, is_graph_output_node:",graph_node.is_output_node())
             graph_node.severe_node()
 
         root_node.get_traversal_ids("_")
