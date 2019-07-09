@@ -1,11 +1,12 @@
 # modified from https://github.com/pytorch/examples/blob/master/mnist/main.py
-import Augmentor
+
 import torch
 from torch import no_grad, nn
 import torch.nn.functional as F
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 from src.DataAugmentation import BatchAugmentor
+import matplotlib.pyplot as plt
 
 import time
 
@@ -31,19 +32,12 @@ def train(model, device, train_loader, epoch, test_loader, print_accuracy=True):
 
     s = time.time()
 
-    #
-    pipe = Augmentor.Pipeline()
-    pipe.flip_left_right(1)
-    pipe.rotate90(1)
-    #
-
     for batch_idx, (inputs, targets) in enumerate(train_loader):
+
+        augmented_inputs, augmented_labels = BatchAugmentor.augment_batch(inputs.numpy(), targets.numpy())
+        # should this remain the same?
         inputs, targets = inputs.to(device), targets.to(device)
         model.optimizer.zero_grad()
-        batch = transforms.ToPILImage()(inputs[0])
-        batch = pipe(batch)
-        print(batch)
-        # augmented_inputs, augmented_labels = placeholder.augment_batch(inputs, targets)
 
         output = model(inputs)
         m_loss = model.loss_fn(output, targets.float())
