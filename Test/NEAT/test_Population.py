@@ -1,4 +1,4 @@
-from NEAT.Connection import Connection
+from src.NEAT.Connection import Connection
 from src.NEAT.Species import Species
 from src.NEAT.Population import Population
 from src.CoDeepNEAT.BlueprintGenome import BlueprintGenome

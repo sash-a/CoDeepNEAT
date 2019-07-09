@@ -93,7 +93,6 @@ class Population:
         self.num_species_mod_dir = new_dir
 
         self.speciation_thresh = max(0.01, self.speciation_thresh + (self.num_species_mod_dir * self.num_species_mod))
-        #print('new thresh mod', type(self.individuals[0]), self.speciation_thresh)
 
     def adjust_fitness(self, indv: Genome):
         shared_fitness = 0
@@ -129,6 +128,9 @@ class Population:
             # TODO this is not creating the correct number of children
             num_children = max(Props.MIN_CHILDREN_PER_SPECIES, int((species_adj_fitness / tot_adj_fitness) * (
                     self.ideal_pop_size - Props.PERCENT_TO_SAVE * self.ideal_pop_size)))
+
+            # Ignoring defective members
+            spc.members = [mem for mem in spc.members if not mem.defective]
 
             remaining_members = self.save_elite(spc)
             # Add elite back into new population

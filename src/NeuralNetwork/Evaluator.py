@@ -169,7 +169,7 @@ def load_data(dataset, path, batch_size=64):
 
     elif dataset.lower() == 'imgnet':
         train_loader = DataLoader(
-            datasets.ImageNet(path, train=True)  # TODO
+            datasets.ImageNet(path,train=True)  # TODO
         )
 
         test_loader = DataLoader(
