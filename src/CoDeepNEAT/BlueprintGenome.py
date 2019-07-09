@@ -18,7 +18,8 @@ class BlueprintGenome(Genome):
         """
         return super().to_phenotype(BlueprintNode)
 
-    def _mutate_add_node(self, conn: Connection, mutations: dict, innov: int, node_id: int,MutationType=BlueprintNEATNode):
+    def _mutate_add_node(self, conn: Connection, mutations: dict, innov: int, node_id: int,
+                         MutationType=BlueprintNEATNode):
         return super()._mutate_add_node(conn, mutations, innov, node_id, MutationType)  # innov, node_id
 
     def report_fitness(self, *fitnesses):

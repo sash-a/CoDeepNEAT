@@ -16,18 +16,14 @@ class MultiobjectivePopulation(Population):
 
     def adjust_fitness(self, indv: Union[BlueprintGenome, ModuleGenome]):
         shared_fitness = 0
-        for other_indv in self.individuals:
-            # TODO should you measure distance to self?
-            # Result will always be 1, but allows for species of a single member
-            # if other_indv == indv:
-            #     continue
 
-            if other_indv.distance_to(indv) <= Props.SPECIES_DISTANCE_THRESH:
+        for other_indv in self.individuals:
+            if other_indv.distance_to(indv) <= self.speciation_thresh:
                 shared_fitness += 1
 
         # TODO how to do this for multiobjective populations
-        aggeraged_fitness = sum([f * f for f in indv.fitness])
-        indv.adjusted_fitness = aggeraged_fitness / shared_fitness
+        aggregated_fitness = sum([f * f for f in indv.fitness])  # sum of squares of all the fitness values
+        indv.adjusted_fitness = aggregated_fitness / shared_fitness
 
     def save_elite(self, species):
         pf = species.pareto_front()

@@ -23,4 +23,4 @@ connections = \
         Connection(nodes[3], nodes[4], innovation=3)
     ]
 
-moo_pop = initialise_blueprints()
+moo_pop_members = initialise_blueprints()

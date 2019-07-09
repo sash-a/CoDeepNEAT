@@ -60,7 +60,7 @@ class Population:
             found_species = False
             for spc in self.species:
                 if spc.is_compatible(individual, thresh=self.speciation_thresh):
-                    spc.add_member(individual)
+                    spc.add_member(individual, thresh=self.speciation_thresh, safe=True)
                     found_species = True
                     break
 
@@ -98,11 +98,6 @@ class Population:
     def adjust_fitness(self, indv: Genome):
         shared_fitness = 0
         for other_indv in self.individuals:
-            # TODO should you measure distance to self?
-            # Result will always be 1, but allows for species of a single member
-            # if other_indv == indv:
-            #     continue
-
             if other_indv.distance_to(indv) <= self.speciation_thresh:
                 shared_fitness += 1
 

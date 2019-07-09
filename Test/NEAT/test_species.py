@@ -1,10 +1,25 @@
 from src.NEAT.Species import Species
-from Test.NEAT.InitialStructure import connections, nodes
+from Test.NEAT.InitialStructure import connections, nodes, moo_pop_members
 from src.NEAT.Genome import Genome
+
+import copy
 
 
 def test_add_member():
-    pass
+    # g = Genome(connections, nodes)
+    s = Species(moo_pop_members[0])
+    assert s.representative == moo_pop_members[0]
+    assert s.members == [moo_pop_members[0]]
+
+    s.add_member(copy.deepcopy(moo_pop_members[0]), thresh=0.1, safe=True)
+    assert len(s.members) == 2
+
+    s.add_member(copy.deepcopy(moo_pop_members[1]), thresh=0.1, safe=True)
+    assert len(s.members) == 2
+
+    #
+    s.add_member(copy.deepcopy(moo_pop_members[1]), thresh=0.1, safe=False)
+    assert len(s.members) == 3
 
 
 def test_is_compatible():

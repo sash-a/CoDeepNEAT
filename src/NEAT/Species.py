@@ -40,3 +40,19 @@ class Species:
             return CDN_pareto(self.members)
         else:
             raise ValueError('algorithm may only be \'cdn\'')
+
+    # This is better here but it does not allow for easy multiobjectivity
+    # def save_elite(self):
+    #     pf = self.pareto_front()
+    #     self.members = self.members[len(pf):]
+    #
+    #     while self.members:
+    #         next_front = self.pareto_front()
+    #         pf.extend(next_front)
+    #         self.members = self.members[len(next_front):]
+    #
+    #     members_to_save = max(2, int(Props.PERCENT_TO_SAVE * len(pf)))
+    #     pf = pf[:members_to_save]
+    #     self.members = pf
+    #
+    #     return pf
