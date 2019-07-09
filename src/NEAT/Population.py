@@ -100,12 +100,12 @@ class Population:
             if other_indv.distance_to(indv) <= self.speciation_thresh:
                 shared_fitness += 1
 
-        indv.adjusted_fitness = indv.fitness / shared_fitness
+        indv.adjusted_fitness = indv.fitness[0] / shared_fitness  # single obj therefore always fitness[0]
 
     def save_elite(self, species):
         # only allow top x% to reproduce
         # return species sorted by fitness
-        species.members.sort(key=lambda indv: indv.fitness, reverse=True)
+        species.members.sort(key=lambda indv: indv.fitness[0], reverse=True)
         # min of two because need two parents to crossover
         num_remaining_mem = max(2, int(len(species.members) * Props.PERCENT_TO_SAVE))
         remaining_members = species.members[:num_remaining_mem]

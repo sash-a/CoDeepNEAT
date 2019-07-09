@@ -1,5 +1,6 @@
 import src.Config.NeatProperties as Props
 from src.NEAT.MultiobjectivePopulation import MultiobjectivePopulation
+from src.NEAT.Population import Population
 
 from src.NeuralNetwork import Evaluator
 from src.CoDeepNEAT import PopulationInitialiser as PopInit
@@ -21,19 +22,23 @@ class Generation:
     def initialise_populations(self):
         print('initialising population')
         global module_population
-        module_population = MultiobjectivePopulation(PopInit.initialise_modules(),
-                                                     PopInit.initialize_mutations(),
-                                                     Props.MODULE_POP_SIZE,
-                                                     Props.MODULE_NODE_MUTATION_CHANCE,
-                                                     Props.MODULE_CONN_MUTATION_CHANCE,
-                                                     Props.MODULE_TARGET_NUM_SPECIES)
 
-        blueprint_population = MultiobjectivePopulation(PopInit.initialise_blueprints(),
-                                                        PopInit.initialize_mutations(),
-                                                        Props.BP_POP_SIZE,
-                                                        Props.BP_NODE_MUTATION_CHANCE,
-                                                        Props.BP_CONN_MUTATION_CHANCE,
-                                                        Props.BP_TARGET_NUM_SPECIES)
+        PopulationType = Population if Config.second_objective == '' else MultiobjectivePopulation
+        print('type:', PopulationType)
+
+        module_population = PopulationType(PopInit.initialise_modules(),
+                                           PopInit.initialize_mutations(),
+                                           Props.MODULE_POP_SIZE,
+                                           Props.MODULE_NODE_MUTATION_CHANCE,
+                                           Props.MODULE_CONN_MUTATION_CHANCE,
+                                           Props.MODULE_TARGET_NUM_SPECIES)
+
+        blueprint_population = PopulationType(PopInit.initialise_blueprints(),
+                                              PopInit.initialize_mutations(),
+                                              Props.BP_POP_SIZE,
+                                              Props.BP_NODE_MUTATION_CHANCE,
+                                              Props.BP_CONN_MUTATION_CHANCE,
+                                              Props.BP_TARGET_NUM_SPECIES)
 
         print('population initialized')
         return module_population, blueprint_population
@@ -64,7 +69,6 @@ class Generation:
         third_objective_values = []
         best_third = -9999999999999999999
 
-
         # Randomize the list so that random individuals are sampled more often
         random.shuffle(self.blueprint_population.individuals)
 
@@ -79,18 +83,20 @@ class Generation:
 
             if Config.protect_parsing_from_errors:
                 try:
-                    module_graph, blueprint_individual, results = self.evaluate_blueprints(blueprint_individual, inputs, generation_number)
+                    module_graph, blueprint_individual, results = self.evaluate_blueprints(blueprint_individual, inputs,
+                                                                                           generation_number)
                 except Exception as e:
                     blueprint_individual.defective = True
                     print(e)
                     print("blueprint indv ran with errors")
                     continue
             else:
-                module_graph, blueprint_individual, results = self.evaluate_blueprints(blueprint_individual, inputs,generation_number)
+                module_graph, blueprint_individual, results = self.evaluate_blueprints(blueprint_individual, inputs,
+                                                                                       generation_number)
 
             second = third = None
             if len(results) == 1:
-                acc = results
+                acc = results[0]
             elif len(results) == 2:
                 acc, second = results
             elif len(results) == 3:
@@ -110,14 +116,15 @@ class Generation:
                 best_third = max(best_third, third)
                 third_objective_values.append(third)
 
-
         if generation_number % Config.print_best_graph_every_n_generations == 0:
             if Config.print_best_graphs:
                 best_bp.plot_tree(title="gen:" + str(generation_number) + " acc:" + str(best_acc))
 
         RuntimeAnalysis.log_new_generation(accuracies, generation_number,
-                                           second_objective_values= (second_objective_values if len(second_objective_values)>0 else None),
-                                           third_objective_values = (third_objective_values if len(third_objective_values)>0 else None))
+                                           second_objective_values=(
+                                               second_objective_values if len(second_objective_values) > 0 else None),
+                                           third_objective_values=(
+                                               third_objective_values if len(third_objective_values) > 0 else None))
         print('best acc', best_acc)
 
     def evaluate_blueprints(self, blueprint_individual, inputs, generation_number):
@@ -158,10 +165,10 @@ class Generation:
         elif Config.second_objective == "":
             pass
         else:
-            print("Error: did not recognise second objective",Config.second_objective)
+            print("Error: did not recognise second objective", Config.second_objective)
 
         if second_objective_value is None:
-            results = acc
+            results = [acc]
         elif third_objective_value is None:
             results = acc, second_objective_value
         else:
