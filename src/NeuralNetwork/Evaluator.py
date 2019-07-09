@@ -5,7 +5,7 @@ from torch import no_grad, nn
 import torch.nn.functional as F
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
-from src.DataAugmentation import placeholder
+from src.DataAugmentation import BatchAugmentor
 
 import time
 
@@ -43,7 +43,7 @@ def train(model, device, train_loader, epoch, test_loader, print_accuracy=True):
         batch = transforms.ToPILImage()(inputs[0])
         batch = pipe(batch)
         print(batch)
-        #augmented_inputs, augmented_labels = placeholder.augment_batch(inputs, targets)
+        # augmented_inputs, augmented_labels = placeholder.augment_batch(inputs, targets)
 
         output = model(inputs)
         m_loss = model.loss_fn(output, targets.float())

@@ -1,5 +1,8 @@
-# The Augmentor library is integral to this class (must cite)
-import Augmentor
+# The imgaug library is integral to this class (must cite)
+import imgaug.augmenters as iaa
+from src.DataAugmentation.Custom_Operations import CustomOperation
+import copy
+
 
 # The AugmenationScheme class allows for the creation of a pipeline consiting of different augmentations.
 # Once all the desired augmentations are chosen for the pipeline.
@@ -9,223 +12,187 @@ import Augmentor
 class AugmentationScheme:
 
     # Upon initialisation we create our pipeline which will eventually become our DA scheme
-    def __init__(self, imagePath):
-        self.imagePath = imagePath
-        self.pipe = Augmentor.Pipeline(imagePath)
+    def __init__(self, images, labels):
+        self.images = images
+        self.labels = labels
+        self.augs = []
 
-    # Every function requires you to specify a probability, which is used to decide if an operation is applied
-    # to an image as it is passed through the augmentation pipeline.
+        # Dictionary containing all possible augmentations functions
+        self.Augmentations = {
 
-    # Performs Histogram Equalisation on images
-    def histrogramEqualisation(self, probability):
-        self.pipe.histogram_equalisation(probability)
+            # WithColorspace: Apply child augmenters within a specific color space:
 
-    # Converts images into greyscale (images will only have shades of grey)
-    def greyScale(self, probability):
-        self.pipe.greyscale(probability)
+            # Convert images to HSV, then increase each pixel's Hue (H), Saturation (S) or Value/lightness (V) [0, 1, 2]
+            # value by an amount in between lo and hi:
+            "HSV": lambda channel, lo, hi: iaa.WithColorspace
+            (to_colorspace="HSV", from_colorspace="RGB", children=iaa.WithChannels(channel, iaa.Add((lo, hi)))),
 
-    # Negates images (reverses pixel values)
-    def invert(self, probability):
-        self.pipe.invert(probability)
+            # WithChannels: Apply child augmenters to specific channels:
 
-    # Converts images into black and white, (1-bit, monochrome colour palette)
-    def blackAndWhite(self, probability, threshold):
-        self.pipe.black_and_white(probability, threshold)
+            # Increase each pixel’s channel-value (redness/greenness/blueness) [0, 1, 2] by value in between lo and hi:
+            "Increase_Channel": lambda channel, lo, hi: iaa.WithChannels(channel, iaa.Add((lo, hi))),
+            # Rotate each image’s channel [R=0, G=1, B=2] by value in between lo and hi degrees:
+            "Rotate_Channel": lambda channel, lo, hi: iaa.WithChannels(channel, iaa.Affine(rotate=(lo, hi))),
 
-    # Randomly changes image's brightness
-    def randomBrightness(self, probability, min_factor, max_factor):
-        self.pipe.random_brightness(probability,min_factor, max_factor)
+            # Augmenter that never changes input images (“no operation”).
+            "No_Operation": iaa.Noop(),
 
-    # Randomly changes image's colour saturation
-    def randomColor(self, probability, min_factor, max_factor):
-        self.pipe.random_color(probability, min_factor, max_factor)
+            # Pads images, i.e. adds columns/rows to them. Pads image by value in between lo and hi
+            # percent relative to its original size (only accepts positive values in range[0, 1]):
+            # NOTE: automatically resizes images back to their original size after it has augmented them.
+            "Pad": lambda lo, hi: iaa.Pad(percent=(lo, hi)),
 
-    # Randomly changes image's contrast
-    def randomContrast(self, probability, min_factor, max_factor):
-        self.pipe.random_contrast(probability, min_factor, max_factor)
+            # Crops/cuts away pixels at the sides of the image.
+            # Crops images by value in between lo and hi (only accepts positive values in range[0, 1]):
+            # NOTE: automatically resizes images back to their original size after it has augmented them.
+            "Crop": lambda lo, hi: iaa.Crop(percent=(lo, hi)),
 
-    # Performs perspective skewing on images
-    def skew(self, probability, magnitude, skew_type):
+            # Flip/mirror percent (i.e 0.5) of the input images horizontally
+            # The default probability is 0, so to flip all images, percent=1
+            "Flip_lr": lambda percent: iaa.Fliplr(percent),
 
-        # magnitude: degree to which the skew is performed
+            # Flip/mirror percent (i.e 0.5) of the input images vertically
+            # The default probability is 0, so to flip all images, percent=1
+            "Flip_ud": lambda percent: iaa.Flipud(percent),
 
-        # skew_type:
-        # "RANDOM" = 0
-        # "TILT" = 1
-        # "TILT_TOP_BOTTOM" = 2
-        # "TILT_LEFT_RIGHT" = 3
-        # "CORNER" = 4
+            # Completely or partially transform images to their superpixel representation.
+            # Generate s_pix_lo to s_pix_hi superpixels per image. Replace each superpixel with a probability between
+            # prob_lo and prob_hi with range[0, 1] (sampled once per image) by its average pixel color.
+            "Superpixels": lambda prob_lo, prob_hi, s_pix_lo, s_pix_hi:
+            iaa.Superpixels(p_replace=(prob_lo, prob_hi), n_segments=(s_pix_lo, s_pix_hi)),
 
-        if(skew_type == 0):
-            self.pipe.skew(probability, magnitude)
-        elif(skew_type == 1):
-            self.pipe.skew_tilt(probability, magnitude)
-        elif(skew_type == 2):
-            self.pipe.skew_top_bottom(probability, magnitude)
-        elif(skew_type == 3):
-            self.pipe.skew_left_right(probability, magnitude)
-        elif(skew_type == 4):
-            self.pipe.skew_corner(probability, magnitude)
+            # Change images to grayscale and overlay them with the original image by varying strengths,
+            # effectively removing alpha_lo to alpha_hi of the color:
+            "Grayscale": lambda alpha_lo, alpha_hi: iaa.Grayscale(alpha=(alpha_lo, alpha_hi)),
+
+            # Blur each image with a gaussian kernel with a sigma between sigma_lo and sigma_hi:
+            "Gaussian_Blur": lambda sigma_lo, sigma_hi: iaa.GaussianBlur(sigma=(sigma_lo, sigma_hi)),
+
+            # Blur each image using a mean over neighbourhoods that have random sizes,
+            # which can vary between h_lo and h_hi in height and w_lo and w_hi in width:
+            "Average_Blur": lambda h_lo, h_hi, w_lo, w_hi: iaa.AverageBlur(k=((h_lo, h_hi), (w_lo, w_hi))),
+
+            # Blur each image using a median over neighbourhoods that have a random size between lo x lo and hi x hi:
+            "Median_Blur": lambda lo, hi: iaa.MedianBlur(k=(lo, hi)),
+
+            # Sharpen an image, then overlay the results with the original using an alpha between alpha_lo and alpha_hi:
+            "Sharpen": lambda alpha_lo, alpha_hi, lightness_lo, lightness_hi: iaa.Sharpen
+            (alpha=(alpha_lo, alpha_hi), lightness=(lightness_lo, lightness_hi)),
+
+            # Emboss an image, then overlay the results with the original using an alpha between alpha_lo and alpha_hi:
+            "Emboss": lambda alpha_lo, alpha_hi, strength_lo, strength_hi:
+            iaa.Emboss(alpha=(alpha_lo, alpha_hi), strength=(strength_lo, strength_hi)),
+
+            # Detect edges in images, turning them into black and white images and
+            # then overlay these with the original images using random alphas between alpha_lo and alpha_hi:
+            "Detect_Edges": lambda alpha_lo, alpha_hi: iaa.EdgeDetect(alpha=(alpha_lo, alpha_hi)),
+
+            # Detect edges having random directions between dir_lo and dir_hi (i.e (0.0, 1.0) = 0 to 360 degrees) in
+            # images, turning the images into black and white versions and then overlay these with the original images
+            # using random alphas between alpha_lo and alpha_hi:
+            "Directed_edge_Detect": lambda alpha_lo, alpha_hi, dir_lo, dir_hi:
+            iaa.DirectedEdgeDetect(alpha=(alpha_lo, alpha_hi), direction=(dir_lo, dir_hi)),
+
+            # Add random values between lo and hi to images. In percent of all images the values differ per channel
+            # (3 sampled value). In the rest of the images the value is the same for all channels:
+            "Add": lambda lo, hi, percent: iaa.Add((lo, hi), per_channel=percent),
+
+            # Adds random values between lo and hi to images, with each value being sampled per pixel.
+            # In percent of all images the values differ per channel (3 sampled value). In the rest of the images
+            # the value is the same for all channels:
+            "Add_Element_Wise": lambda lo, hi, percent: iaa.AddElementwise((lo, hi), per_channel=percent),
+
+            # Add gaussian noise (aka white noise) to an image, sampled once per pixel from a normal
+            # distribution N(0, s), where s is sampled per image and varies between lo and hi*255 for percent of all
+            # images and sampled three times (channel-wise) for the rest from the same normal distribution:
+            "Additive_Gaussian_Noise": lambda lo, hi, percent:
+            iaa.AdditiveGaussianNoise(scale=(lo, hi * 255), per_channel=percent),
+
+            # Multiply in percent of all images each pixel with random values between lo and hi and multiply
+            # the pixels in the rest of the images channel-wise,
+            # i.e. sample one multiplier independently per channel and pixel:
+            "Multiply": lambda lo, hi, percent: iaa.Multiply((lo, hi), per_channel=percent),
+
+            # Multiply values of pixels with possibly different values for neighbouring pixels,
+            # making each pixel darker or brighter. Multiply each pixel with a random value between lo and hi:
+            "Multiply_Element_Wise": lambda lo, hi, percent: iaa.MultiplyElementwise((0.5, 1.5), per_channel=0.5),
+
+            # Augmenter that sets a certain fraction of pixels in images to zero.
+            # Sample per image a value p from the range lo<=p<=hi and then drop p percent of all pixels in the image
+            # (i.e. convert them to black pixels), but do this independently per channel in percent of all images
+            "Dropout": lambda lo, hi, percent: iaa.Dropout(p=(lo, hi), per_channel=percent),
+
+            # Augmenter that sets rectangular areas within images to zero.
+            # Drop d_lo to d_hi percent of all pixels by converting them to black pixels,
+            # but do that on a lower-resolution version of the image that has s_lo to s_hi percent of the original size,
+            # Also do this in percent of all images channel-wise, so that only the information of some
+            # channels is set to 0 while others remain untouched:
+            "Course_Dropout": lambda d_lo, d_hi, s_lo, s_hi, percent:
+            iaa.CoarseDropout((d_lo, d_hi), size_percent=(s_hi, s_hi), per_channel=percent),
+
+            # Augmenter that inverts all values in images, i.e. sets a pixel from value v to 255-v.
+            # For c_percent of all images, invert all pixels in these images channel-wise with probability=i_percent
+            # (per image). In the rest of the images, invert i_percent of all channels:
+            "Invert": lambda i_percent, c_percent: iaa.Invert(i_percent, per_channel=c_percent),
+
+            # Augmenter that changes the contrast of images.
+            # Normalize contrast by a factor of lo to hi, sampled randomly per image
+            # and for percent of all images also independently per channel:
+            "Contrast_Normalisation": lambda lo, hi, percent: iaa.ContrastNormalization((lo, hi), per_channel=percent),
+
+            # Scale images to a value of lo to hi percent of their original size but do this independently per axis:
+            "Scale": lambda x_lo, x_hi, y_lo, y_hi: iaa.Affine(scale={"x": (x_lo, x_hi), "y": (y_lo, y_hi)}),
+
+            # Translate images by lo to hi percent on x-axis and y-axis independently:
+            "Translate_Percent": lambda lo, hi: iaa.Affine(translate_percent={"x": (-0.2, 0.2), "y": (-0.2, 0.2)}),
+
+            # Translate images by lo to hi pixels on x-axis and y-axis independently:
+            "Translate_Pixels": lambda x_lo, x_hi, y_lo, y_hi:
+            iaa.Affine(translate_px={"x": (x_lo, x_hi), "y": (y_lo, y_hi)}),
+
+            # Rotate images by lo to hi degrees:
+            "Rotate": lambda lo, hi: iaa.Affine(rotate=(lo, hi)),
+
+            # Shear images by lo to hi degrees:
+            "Shear": lambda lo, hi: iaa.Affine(shear=(lo, hi)),
+
+            # Augmenter that places a regular grid of points on an image and randomly moves the neighbourhood of
+            # these point around via affine transformations. This leads to local distortions.
+            # Distort images locally by moving points around, each with a distance v (percent relative to image size),
+            # where v is sampled per point from N(0, z) z is sampled per image from the range lo to hi:
+            "Piecewise_Affine": lambda lo, hi: iaa.PiecewiseAffine(scale=(lo, hi)),
+
+            # Augmenter to transform images by moving pixels locally around using displacement fields.
+            # Distort images locally by moving individual pixels around following a distortions field with
+            # strength sigma_lo to sigma_hi. The strength of the movement is sampled per pixel from the range
+            # alpha_lo to alpha_hi:
+            "Elastic_Transformation": lambda alpha_lo, alpha_hi, sigma_lo, sigma_hi:
+            iaa.ElasticTransformation(alpha=(alpha_lo, alpha_hi), sigma=(sigma_lo, sigma_hi)),
+
+            # ADD WEATHER AUGMENTATIONS
+
+            # Augmenter that calls a custom (lambda) function for each batch of input image.
+            # All custom operations are defined in the Custom_Operations file (customFunc1 is placeholder)
+            'Custom1': iaa.Lambda(CustomOperation.customFunc1, CustomOperation.keypoint_func)
+
+        }
+
+    # This function is used to add a single augmentation to the pipeline
+    # The augmentation added is a combination of the ones found in augmentations
+    # augmentations is a list of numbers that should correspond to the augmentations you want to combine
+    def addAugmentation(self, augmentation_name, **kwargs):
+
+        self.augs.append(self.Augmentations[augmentation_name](**kwargs))
+
+    # This function returns a new list of augmented images based on the pipeline you create
+    def augmentImages(self):
+        if self.augs:
+
+            seq = iaa.Sequential(self.augs)
+            images_aug = seq.augment_image(self.images)
+            self.labels += self.labels
+
+            return images_aug, self.labels
+
         else:
-            print("Error: non-existent skew_type given")
-
-    # Performs rotation without automatically cropping the image
-    def rotateStandard(self, probability, max_left_rotation, max_right_rotation, expand=False):
-        self.pipe.rotate_without_crop(probability, max_left_rotation, max_right_rotation, expand)
-
-    # Performs rotations in multiples of 90 degrees
-    def rotateHard(self, probability, rotation):
-
-        # rotation:
-        # 90: rotate image 90 degrees
-        # 180: rotate image 180 degrees
-        # 270: rotate image 270 degrees
-        # -1: rotate image randomly by either 90, 180 or 270 degrees
-
-        if(rotation == 90):
-            self.pipe.rotate90(probability)
-        elif(rotation == 180):
-            self.pipe.rotate180(probability)
-        elif(rotation == 270):
-            self.pipe.rotate270(probability)
-        elif(rotation == -1):
-            self.pipe.rotate_random_90(probability)
-        else:
-            print("Error: non-existent rotation given")
-
-    # Perofrms rotatations on images by arbitrary numbers of degrees
-    def rotateRange(self, proability, max_left_rotation, max_right_rotation):
-        self.pipe.rotate(proability, max_left_rotation, max_right_rotation)
-
-    # Resizes images
-    def resize(self, probability, width, height, resample_filter):
-
-        # width: width in pixels to resize image to
-        # height: height in pixels to resize image to
-
-        # resample_filter:
-        # "NEAREST" = 0
-        # "BICUBIC" = 1
-        # "ANTIALIAS" = 2
-        # "BILINEAR" = 3
-
-        if(resample_filter == 0):
-            self.pipe.resize(probability, width, height, "NEAREST")
-        elif(resample_filter == 1):
-            self.pipe.resize(probability, width, height, "BICUBIC")
-        elif(resample_filter == 2):
-            self.pipe.resize(probability, width, height, "ANTIALIAS")
-        elif(resample_filter == 3):
-            self.pipe.resize(probability, width, height, "BILINEAR")
-        else:
-            print("Error: non-existent resample_filter given")
-
-    # Mirrors images through the x or y axis
-    def flip(self, probability, direction):
-
-        # direction:
-        # "LEFT_RIGHT" = 0
-        # "TOP_BOTTOM" = 1
-        # "RANDOM" = 2
-
-        if(direction == 0):
-            self.pipe.flip_left_right(probability)
-        elif(direction == 1):
-            self.pipe.flip_top_bottom(probability)
-        elif(direction == 2):
-            self.pipe.flip_random(probability)
-        else:
-            print("Error: non-existent direction given")
-
-    # Crops images based on specified size
-    def crop(self, probability, width, height, centre):
-
-        # width: the width in pixels of the area to crop from the image
-        # height: the height in pixels of the area to crop from the image
-        # centre: whether to crop from the centre of the image or a random location within the image (Boolean)
-
-        self.pipe.crop_by_size(probability, width, height, centre)
-
-    # Crops images based on specified percentage of image
-    def cropPercentage(self, probability, percentage_area, centre):
-
-        # percentage_area: the percentage area of the original image to crop (i.e. 0.5 = 50% of the image area)
-        # centre: whether to crop from the centre of the image or a random location within the image
-
-        if (centre == True):
-            self.pipe.crop_centre(probability, percentage_area)
-        else:
-            self.pipe.crop_random(probability,percentage_area)
-
-    # Shears images: tilts them in a certain direction (along x or y axis)
-    def shear(self, probability, max_shear_left, max_shear_right):
-        self.pipe.shear(probability, max_shear_left, max_shear_right)
-
-    # Increases or decreases image in size by a certain factor (maintains aspect ratio)
-    def scale(self, probability, scale_factor):
-
-        # scale_factor: factor by which to scale i.e factor of 1.5 would scale image up by 150%
-        self.pipe.scale(probability,scale_factor)
-
-    # Performs randomised, elastic distortions on images
-    def distort(self, probability, grid_width, grid_height, magnitude):
-
-        # grid_width: width of the grid overlay
-        # grid_height: height of the grid overlay
-        # magnitude: controls the degree to which each distortion is applied to the overlaying distortion grid
-
-        self.pipe.random_distortion(probability, grid_width, grid_height, magnitude)
-
-    # Performs randomised, elastic gaussian distortions on images
-    def gaussianDistortion(self, probability, grid_width, grid_height, magnitude, corner, method):
-
-        # grid_width: width of the grid overlay
-        # grid_height: height of the grid overlay
-        # magnitude: controls the degree to which each distortion is applied to the overlaying distortion grid
-        # corner: which corner of a picture to distort
-            # "bell" = circular surface to distort
-            # "ul" = upper left
-            # "ur" = upper right
-            # "dl" = down left
-            # "dr" = down right
-        # method:
-        # "in" = apply max magnitude to chosen corner
-        # "out" = inverse of "in"
-
-        # Note: Function has 4 additional parameters (mex, mey, sdx, sdy) which are documented as being
-        # used to generate 3D surfaces for similar distortions (surfaces based on normal distribution)
-        # However, all of them have default values and because I don't really know what they do, have not
-        # coded the functionality to change them (may easily do so if required)
-
-        self.pipe.gaussian_distortion(probability, grid_width, grid_height, magnitude, corner, method)
-
-    # Enlarges images (zooms) but returns a cropped region of zoomed image (of the same size as original image)
-    def zoom(self, probability, min_factor, max_factor):
-        self.pipe.zoom(probability, min_factor, max_factor)
-
-    # Zooms into random areas of the image
-    def zoomRandom(self, probability, percentage_area, randomise):
-
-        # percentage_area: value between 0.1 and 1 that represents the area that will be cropped (0.1 = 10%)
-        # randomise: if True, uses the percentage area as an upper bound and randomises the zoom level from 0.1 to
-        # percentage_area
-        self.pipe.zoom_random(probability, percentage_area, randomise)
-
-    # Randomly selects a rectangle region in an image and erases its pixels with random values
-    def randomErasing(self, probability, rectangle_area):
-
-        # rectangle_area: percentage of the image to occlude
-
-        self.pipe.random_erasing(probability, rectangle_area)
-
-    # NOTE: the DA library provides functionality to create a custom image operation that can be applied to the pipeline
-
-    def generateImages(self, numAugImages):
-        self.pipe.sample(numAugImages)
-
-
-aug = AugmentationScheme("/home/liron/PycharmProjects/DataAugmentation/Sample_Images")
-
-#p = Augmentor.Pipeline("/home/liron/PycharmProjects/DataAugmentation/Sample_Images")
-#p.gaussian_distortion(1, 20, 20, 10, "ul", "in")
-#p.sample(5)
+            raise TypeError("Augmentation pipe is currently empty")
