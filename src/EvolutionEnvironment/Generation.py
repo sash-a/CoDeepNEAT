@@ -40,8 +40,11 @@ class Generation:
 
     def step(self):
         """Runs CDN for one generation - must be called after fitness evaluation"""
-        self.blueprint_population.step()  # TODO should blueprints be speciatied ?
+
         self.module_population.step()
+        for blueprint_individual in self.blueprint_population.individuals:
+            blueprint_individual.reset_number_of_module_species(module_population.get_num_species())
+        self.blueprint_population.step()  # TODO should blueprints be speciatied ?
 
         for blueprint_individual in self.blueprint_population.individuals:
             blueprint_individual.clear()
@@ -50,6 +53,7 @@ class Generation:
             module_individual.clear()  # this also sets fitness to zero
 
     def evaluate(self, generation_number):
+        print("num species:", len(self.module_population.species))
         inputs, targets = Evaluator.sample_data('mnist', '../../data')
 
         best_acc = -9999999999999999999
@@ -67,7 +71,8 @@ class Generation:
             if Config.protect_parsing_from_errors:
                 try:
                     acc, module_graph, _ = self.evaluate_blueprints(blueprint_individual, inputs, generation_number)
-                except:
+                except Exception as e:
+                    print(e)
                     print("blueprint indv ran with errors")
                     continue
             else:
@@ -79,12 +84,12 @@ class Generation:
                 best_bp = module_graph
             accuracies.append(acc)
 
-        if (generation_number % 1 == 0):
-            if (Config.print_graphs):
+        if generation_number % 1 == 0:
+            if (Config.print_best_graphs):
                 best_bp.plot_tree(title="gen:" + str(generation_number) + " acc:" + str(best_acc))
 
         RuntimeAnalysis.log_new_generation(accuracies, generation_number)
-        print('\n\nbest acc', best_acc)
+        print('best acc', best_acc)
 
     def evaluate_blueprints(self, blueprint_individual, inputs, generation_number):
 
@@ -99,14 +104,16 @@ class Generation:
             net = module_graph.to_nn(in_features=module_graph.get_first_feature_count(inputs))
         except Exception as e:
             print("Error:", e)
-            module_graph.plot_tree("module graph which failed to parse to nn")
+            if Config.print_failed_graphs:
+                module_graph.plot_tree("module graph which failed to parse to nn")
             raise Exception("Error: failed to parse module graph into nn")
 
         try:
             net.specify_dimensionality(inputs)
         except Exception as e:
             print("Error:", e)
-            module_graph.plot_tree(title="module graph with error passing input through net")
+            if Config.print_failed_graphs:
+                module_graph.plot_tree(title="module graph with error passing input through net")
             raise Exception("Error: nn failed to have input passed through")
 
         if Config.dummy_run and generation_number < 500:

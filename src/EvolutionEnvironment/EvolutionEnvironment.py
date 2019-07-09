@@ -24,7 +24,7 @@ def main():
         gen_start_time = time.time()
         current_generation.evaluate(i)
         current_generation.step()
-        print('completed gen', i, "in", (time.time() - gen_start_time), "elapsed time:", (time.time() - start_time))
+        print('completed gen', i, "in", (time.time() - gen_start_time), "elapsed time:", (time.time() - start_time),"\n\n")
 
 
 if __name__ == '__main__':

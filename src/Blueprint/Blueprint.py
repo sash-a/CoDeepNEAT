@@ -25,8 +25,8 @@ class BlueprintNode(Node):
     def generate_blueprint_node_from_gene(self, gene):
         """applies the properties of the blueprint gene for this node"""
         self.species_number = gene.species_number()
-        if(self.species_number > 0):
-            print("blueprint with species no:", self.species_number)
+        # if(self.species_number > 0):
+        #     print("blueprint with species no:", self.species_number)
 
     def parseto_module_graph(self, generation, module_construct=None, species_indexes=None, in_features=1,):
         """
@@ -41,12 +41,12 @@ class BlueprintNode(Node):
                 input_module_individual, index = \
                     generation.module_population.species[self.species_number].sample_individual()
             except:
-                print("failed to sample indv from species",self.species_number, "num species available:", len(generation.module_population.species))
-                raise Exception( )
+                raise Exception("failed to sample indv from species "+ repr(self.species_number) + " num species available: " + repr( len(generation.module_population.species) ))
+
             self.blueprint_genome.modules_used.append(input_module_individual)
             input_module_node = input_module_individual.to_module()
             if (not input_module_node.is_input_node()):
-                print("error! sampled module node is not root node")
+                raise Exception("error! sampled module node is not root node")
 
             # many branching modules may be added to this module
             output_module_node = input_module_node.get_output_node()
@@ -62,7 +62,7 @@ class BlueprintNode(Node):
             module_construct.add_child(input_module_node)
         else:
             if not self.is_input_node():
-                print("null module construct passed to non root blueprint node")
+                raise Exception("null module construct passed to non root blueprint node")
 
         if first_traversal:
             # passes species index down to collect all species indexes used to construct this blueprint in one list
