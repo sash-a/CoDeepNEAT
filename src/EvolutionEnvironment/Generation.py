@@ -59,6 +59,11 @@ class Generation:
         best_acc = -9999999999999999999
         best_bp = None
         accuracies = []
+        second_objective_values = []
+        best_second = -9999999999999999999
+        third_objective_values = []
+        best_third = -9999999999999999999
+
 
         # Randomize the list so that random individuals are sampled more often
         random.shuffle(self.blueprint_population.individuals)
@@ -70,33 +75,52 @@ class Generation:
 
             if Config.protect_parsing_from_errors:
                 try:
-                    acc, module_graph, _ = self.evaluate_blueprints(blueprint_individual, inputs, generation_number)
+                    module_graph, blueprint_individual, results = self.evaluate_blueprints(blueprint_individual, inputs, generation_number)
                 except Exception as e:
                     blueprint_individual.defective = True
                     print(e)
                     print("blueprint indv ran with errors")
                     continue
             else:
-                acc, module_graph, blueprint_individual = self.evaluate_blueprints(blueprint_individual, inputs,
-                                                                                   generation_number)
+                module_graph, blueprint_individual, results = self.evaluate_blueprints(blueprint_individual, inputs,generation_number)
+
+            second = third = None
+            if len(results) == 1:
+                acc = results
+            elif len(results) == 2:
+                acc, second = results
+            elif len(results) == 3:
+                acc, second, third = results
+            else:
+                raise Exception("Error: too many result values to unpack")
 
             if acc >= best_acc:
                 best_acc = acc
                 best_bp = module_graph
             accuracies.append(acc)
 
-        if generation_number % 1 == 0:
-            if (Config.print_best_graphs):
+            if not (second is None):
+                best_second = max(best_second, second)
+                second_objective_values.append(second)
+            if not (third is None):
+                best_third = max(best_third, third)
+                third_objective_values.append(third)
+
+
+        if generation_number % Config.print_best_graph_every_n_generations == 0:
+            if Config.print_best_graphs:
                 best_bp.plot_tree(title="gen:" + str(generation_number) + " acc:" + str(best_acc))
 
-        RuntimeAnalysis.log_new_generation(accuracies, generation_number)
+        RuntimeAnalysis.log_new_generation(accuracies, generation_number,
+                                           second_objective_values= (second_objective_values if len(second_objective_values)>0 else None),
+                                           third_objective_values = (third_objective_values if len(third_objective_values)>0 else None))
         print('best acc', best_acc)
 
     def evaluate_blueprints(self, blueprint_individual, inputs, generation_number):
 
         blueprint = blueprint_individual.to_blueprint()
         module_graph = blueprint.parseto_module_graph(self)
-        if (module_graph is None):
+        if module_graph is None:
             raise Exception("null module graph produced from blueprint")
 
         # net = module_graph.to_nn(in_features=1, device=device)
@@ -106,7 +130,7 @@ class Generation:
         except Exception as e:
             print("Error:", e)
             if Config.print_failed_graphs:
-                module_graph.plot_tree("module graph which failed to parse to nn")
+                module_graph.plot_tree_with_matplotlib("module graph which failed to parse to nn")
             raise Exception("Error: failed to parse module graph into nn")
 
         try:
@@ -114,7 +138,7 @@ class Generation:
         except Exception as e:
             print("Error:", e)
             if Config.print_failed_graphs:
-                module_graph.plot_tree(title="module graph with error passing input through net")
+                module_graph.plot_tree_with_matplotlib(title="module graph with error passing input through net")
             raise Exception("Error: nn failed to have input passed through")
 
         if Config.dummy_run and generation_number < 500:
@@ -122,11 +146,25 @@ class Generation:
         else:
             acc = Evaluator.evaluate(net, 2, dataset='mnist', path='../../data', batch_size=256)
 
-        net_size = net.module_graph.get_net_size()
+        second_objective_value = None
+        third_objective_value = None
 
-        blueprint_individual.report_fitness(acc, net_size)
+        if Config.second_objective == "network_size":
+            second_objective_value = net.module_graph.get_net_size()
+        elif Config.second_objective == "":
+            pass
+        else:
+            print("Error: did not recognise second objective",Config.second_objective)
 
+        if second_objective_value is None:
+            results = acc
+        elif third_objective_value is None:
+            results = acc, second_objective_value
+        else:
+            results = acc, second_objective_value, third_objective_value
+
+        blueprint_individual.report_fitness(*results)
         for module_individual in blueprint_individual.modules_used:
-            module_individual.report_fitness(acc, net_size)
+            module_individual.report_fitness(*results)
 
-        return acc, module_graph, blueprint_individual
+        return module_graph, blueprint_individual, results

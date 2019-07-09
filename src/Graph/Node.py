@@ -73,7 +73,7 @@ class Node:
 
         return False
 
-    def plot_tree(self, nodes_plotted=None, rot_degree=0, title=""):
+    def plot_tree_with_matplotlib(self, nodes_plotted=None, rot_degree=0, title=""):
         if nodes_plotted is None:
             nodes_plotted = set()
 
@@ -105,7 +105,7 @@ class Node:
         plt.plot(x, y, self.get_plot_colour(), markersize=10)
 
         for child in self.children:
-            c = child.plot_tree(nodes_plotted, rot_degree)
+            c = child.plot_tree_with_matplotlib(nodes_plotted, rot_degree)
             if c is not None:
                 cx, cy = c
                 plt.arrow(x, y, (cx - x) * arrow_scale_factor, (cy - y) * 0.8 * arrow_scale_factor, head_width=0.13,
