@@ -81,7 +81,7 @@ class BlueprintNode(Node):
                 for mod in self.blueprint_genome.modules_used:
                     print(mod.connections)
 
-                input_module_node.plot_tree()
+                input_module_node.plot_tree_with_matplotlib()
                 print("failed to insert")
                 return
 

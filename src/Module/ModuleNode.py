@@ -67,7 +67,7 @@ class ModuleNode(Node):
         device = Config.device
         self.create_layer(in_features)
         if print_graphs:
-            self.plot_tree()
+            self.plot_tree_with_matplotlib()
         return ModuleNet(self).to(device)
 
     def create_layer(self, in_features):

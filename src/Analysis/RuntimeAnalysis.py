@@ -6,13 +6,14 @@ generations = []
 log_file = None
 
 
-def log_new_generation(accuracies, generation_number=None):
+def log_new_generation(accuracies, generation_number, second_objective_values = None, third_objective_values = None):
     global generations
     global log_file
+
     if generation_number is None:
         generation_number = len(generations)
 
-    generations.append(GenerationData(accuracies, generation_number))
+    generations.append(GenerationData(accuracies, generation_number,second_objective_values,third_objective_values))
 
     with open(get_log_folder() + log_file, "a+") as f:
         f.write(generations[-1].get_summary() + "\n")
