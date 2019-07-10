@@ -1,6 +1,6 @@
 # The imgaug library is integral to this class (must cite)
 import imgaug.augmenters as iaa
-from src.DataAugmentation.Custom_Operations import CustomOperation
+from src.DataAugmentation.CustomOperations import CustomOperation
 import copy
 
 
@@ -169,7 +169,14 @@ class AugmentationScheme:
             "Elastic_Transformation": lambda alpha_lo, alpha_hi, sigma_lo, sigma_hi:
             iaa.ElasticTransformation(alpha=(alpha_lo, alpha_hi), sigma=(sigma_lo, sigma_hi)),
 
-            # ADD WEATHER AUGMENTATIONS
+            # Augmenter to draw clouds in images.
+            "Clouds": iaa.Clouds(),
+
+            # Augmenter to draw fog in images.
+            "Fog": iaa.Fog(),
+
+            # Augmenter to add falling snowflakes to images.
+            "Snowflakes": iaa.Snowflakes(),
 
             # Augmenter that calls a custom (lambda) function for each batch of input image.
             # All custom operations are defined in the Custom_Operations file (customFunc1 is placeholder)
@@ -180,17 +187,17 @@ class AugmentationScheme:
     # This function is used to add a single augmentation to the pipeline
     # The augmentation added is a combination of the ones found in augmentations
     # augmentations is a list of numbers that should correspond to the augmentations you want to combine
-    def addAugmentation(self, augmentation_name, **kwargs):
+    def add_augmentation(self, augmentation_name, **kwargs):
 
         self.augs.append(self.Augmentations[augmentation_name](**kwargs))
 
     # This function returns a new list of augmented images based on the pipeline you create
-    def augmentImages(self):
+    def augment_images(self):
         if self.augs:
 
             seq = iaa.Sequential(self.augs)
-            images_aug = seq.augment_image(self.images)
-            self.labels += self.labels
+            images_aug = seq.augment_images(self.images)
+            self.labels = self.labels  # labels should be identical
 
             return images_aug, self.labels
 

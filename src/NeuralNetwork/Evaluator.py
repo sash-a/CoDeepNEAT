@@ -35,7 +35,7 @@ def train(model, device, train_loader, epoch, test_loader, print_accuracy=True):
     for batch_idx, (inputs, targets) in enumerate(train_loader):
 
         augmented_inputs, augmented_labels = BatchAugmentor.augment_batch(inputs.numpy(), targets.numpy())
-        # should this remain the same?
+
         inputs, targets = inputs.to(device), targets.to(device)
         model.optimizer.zero_grad()
 
