@@ -79,7 +79,8 @@ class Generation:
 
             # All computationally expensive tests go here
             if Config.test_in_run:
-                print('Blueprint is valid:', blueprint_individual.validate())
+                #print('Blueprint is valid:', blueprint_individual.validate())
+                pass
 
             if Config.protect_parsing_from_errors:
                 try:

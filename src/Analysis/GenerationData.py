@@ -44,11 +44,26 @@ class GenerationData:
             if average is None:
                 break
             if i>0:
-                summary+=","
-            summary+=name+"~max:"+repr(max)+";average"+repr(average)
+                summary+="|"
+            summary+=name+"~max:"+repr(max)+";average:"+repr(average)
 
         summary+="}"
         return summary
+
+    def get_data(self):
+        data = "gen:"+ repr(self.generation_number)+"{"
+        for i in range(3):
+            name = get_objective_name(i)
+            values = self.objectives[i]
+            if values is None or len(values) == 0:
+                break
+            datum = ("|" if i>0 else " ") + name+":" + repr(values)
+            print(datum)
+            data += datum
+
+        data += "}"
+        return data
+
 
 def get_objective_name(objective_number):
     if objective_number == 0:

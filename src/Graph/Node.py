@@ -77,6 +77,7 @@ class Node:
         return False
 
     def plot_tree_with_graphvis(self , title="", graph = None,nodes_plotted=None, file = "temp"):
+        file = "../Analysis/Graphs/"+file
         if graph is None:
             graph = graphviz.Digraph(comment = title)
 
