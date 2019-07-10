@@ -61,6 +61,12 @@ def crossover(parent1, parent2, tries=0):
     if not child.validate():
         print('Crossover could not produce a valid child between:', parent1, 'and', parent2, 'trying again', sep='\n')
         return None
-    
-    child.fix_height()
+
+    try:
+        child.fix_height()
+    except Exception as e:
+        print("Error: failed to fix heights of child genome")
+        print(e)
+        return None
+
     return child

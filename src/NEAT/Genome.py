@@ -328,13 +328,19 @@ class Genome:
 
         self._fix_height(input_node, node_dict)
 
-    def _fix_height(self, curr_node, nodes_dict):
-        if curr_node not in nodes_dict:
-            return
+    def _fix_height(self, curr_node, nodes_dict, max_depth = 1000):
+        if  curr_node not in nodes_dict:
+            if not curr_node.is_output_node():
+                raise Exception("node",curr_node,"not in nodes dict")
+            else:
+                return
+
+        if max_depth <=0:
+            raise Exception("cycle present in genome. cannot fix heights")
 
         for node in nodes_dict[curr_node]:
             node.x = max(node.x, curr_node.x + 1)
-            self._fix_height(node, nodes_dict)
+            self._fix_height(node, nodes_dict, max_depth = max_depth-1)
 
     def __repr__(self):
         conns = ''
