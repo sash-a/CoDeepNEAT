@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import math
-
+#from graphviz import Digraph
 
 class Node:
     """
@@ -73,6 +73,9 @@ class Node:
                 return True
 
         return False
+
+    def plot_tree_with_graphvis(self , title=""):
+        pass
 
     def plot_tree_with_matplotlib(self, nodes_plotted=None, rot_degree=0, title=""):
         if nodes_plotted is None:

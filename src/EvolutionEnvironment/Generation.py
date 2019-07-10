@@ -130,7 +130,9 @@ class Generation:
     def evaluate_blueprints(self, blueprint_individual, inputs, generation_number):
 
         blueprint = blueprint_individual.to_blueprint()
-        module_graph = blueprint.parseto_module_graph(self)
+        #module_graph = blueprint.parseto_module_graph(self)
+        module_graph, sans_aggregators = blueprint.parseto_module_graph(self,return_graph_without_aggregators = True)
+
         if module_graph is None:
             raise Exception("null module graph produced from blueprint")
 
@@ -150,6 +152,7 @@ class Generation:
             print("Error:", e)
             if Config.print_failed_graphs:
                 module_graph.plot_tree_with_matplotlib(title="module graph with error passing input through net")
+                sans_aggregators.plot_tree_with_matplotlib(title="previous module graph but without agg nodes")
             raise Exception("Error: nn failed to have input passed through")
 
         if Config.dummy_run and generation_number < 500:

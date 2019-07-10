@@ -1,6 +1,7 @@
 from src.Graph.Node import Node
 from src.Module.ModuleNode import ModuleNode
 import torch
+import copy
 
 
 class BlueprintNode(Node):
@@ -28,7 +29,7 @@ class BlueprintNode(Node):
         # if(self.species_number > 0):
         #     print("blueprint with species no:", self.species_number)
 
-    def parseto_module_graph(self, generation, module_construct=None, species_indexes=None, in_features=1,):
+    def parseto_module_graph(self, generation, module_construct=None, species_indexes=None, in_features=1,return_graph_without_aggregators = False):
         """
         :param module_construct: the output module node to have this newly sampled module attached to. None if this is root blueprint node
         :return: a handle on the root node of the newly created module graph
@@ -72,6 +73,9 @@ class BlueprintNode(Node):
         if self.is_input_node():
             # print("blueprint parsed. getting module node traversal ID's")
             input_module_node.get_traversal_ids("_")
+            if return_graph_without_aggregators:
+                sans_aggregators = copy.deepcopy(input_module_node)
+
             try:
                 input_module_node.insert_aggregator_nodes()
             except:
@@ -82,7 +86,10 @@ class BlueprintNode(Node):
                     print(mod.connections)
 
                 input_module_node.plot_tree_with_matplotlib()
-                print("failed to insert")
-                return
+                raise Exception("failed to insert agg nodes")
 
-            return input_module_node
+
+            if not return_graph_without_aggregators:
+                return input_module_node
+            else:
+                return input_module_node, sans_aggregators

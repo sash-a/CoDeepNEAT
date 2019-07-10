@@ -22,3 +22,5 @@ numpy
 ipython
 
 pytest
+
+#graphvis
