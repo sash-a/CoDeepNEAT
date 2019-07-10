@@ -7,11 +7,11 @@ from src.NEAT.NEATNode import NodeType
 
 
 def initialise_blueprints():
-    linear_nodes = [BlueprintNEATNode(0, 0, node_type=NodeType.INPUT),
-                    BlueprintNEATNode(1, 1, node_type=NodeType.OUTPUT)]
-    tri_nodes = [BlueprintNEATNode(0, 0, node_type=NodeType.INPUT),
-                 BlueprintNEATNode(2, 0, node_type=NodeType.HIDDEN),
-                 BlueprintNEATNode(1, 1, node_type=NodeType.OUTPUT)]
+    linear_nodes = [BlueprintNEATNode(0, 1, node_type=NodeType.INPUT),
+                    BlueprintNEATNode(1, 128, node_type=NodeType.OUTPUT)]
+    tri_nodes = [BlueprintNEATNode(0, 1, node_type=NodeType.INPUT),
+                 BlueprintNEATNode(2, 64, node_type=NodeType.HIDDEN),
+                 BlueprintNEATNode(1, 128, node_type=NodeType.OUTPUT)]
 
     linear_connections = [Connection(linear_nodes[0], linear_nodes[1], innovation=0)]
     tri_connections = [Connection(tri_nodes[0], tri_nodes[2], innovation=0),
@@ -26,11 +26,11 @@ def initialise_blueprints():
 
 
 def initialise_modules():
-    linear_nodes = [ModulenNEATNode(0, 0, node_type=NodeType.INPUT),
-                    ModulenNEATNode(1, 1, node_type=NodeType.OUTPUT)]
-    tri_nodes = [ModulenNEATNode(0, 0, node_type=NodeType.INPUT),
-                 ModulenNEATNode(2, 0, node_type=NodeType.HIDDEN),
-                 ModulenNEATNode(1, 1, node_type=NodeType.OUTPUT)]
+    linear_nodes = [ModulenNEATNode(0, 1, node_type=NodeType.INPUT),
+                    ModulenNEATNode(1, 128, node_type=NodeType.OUTPUT)]
+    tri_nodes = [ModulenNEATNode(0, 1, node_type=NodeType.INPUT),
+                 ModulenNEATNode(2, 64, node_type=NodeType.HIDDEN),
+                 ModulenNEATNode(1, 128, node_type=NodeType.OUTPUT)]
 
     linear_connections = [Connection(linear_nodes[0], linear_nodes[1], innovation=0)]
     tri_connections = [Connection(tri_nodes[0], tri_nodes[2], innovation=0),
