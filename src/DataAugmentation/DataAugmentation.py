@@ -39,13 +39,27 @@ class AugmentationScheme:
 
             # Pads images, i.e. adds columns/rows to them. Pads image by value in between lo and hi
             # percent relative to its original size (only accepts positive values in range[0, 1]):
+            # If s_i is false, The value will be sampled once per image and used for all sides
+            # (i.e. all sides gain/lose the same number of rows/columns)
             # NOTE: automatically resizes images back to their original size after it has augmented them.
-            "Pad": lambda lo, hi: iaa.Pad(percent=(lo, hi)),
+            "Pad_per": lambda lo, hi, s_i: iaa.Pad(percent=(lo, hi), keep_size=True, sample_independently=s_i),
+
+            # Pads images by a number of pixels between lo and hi
+            # If s_i is false, The value will be sampled once per image and used for all sides
+            # (i.e. all sides gain/lose the same number of rows/columns)
+            "Pad_px": lambda lo, hi, s_i: iaa.Pad(px=(lo, hi), keep_size=True, sample_independently=s_i),
 
             # Crops/cuts away pixels at the sides of the image.
             # Crops images by value in between lo and hi (only accepts positive values in range[0, 1]):
+            # If s_i is false, The value will be sampled once per image and used for all sides
+            # (i.e. all sides gain/lose the same number of rows/columns)
             # NOTE: automatically resizes images back to their original size after it has augmented them.
-            "Crop": lambda lo, hi: iaa.Crop(percent=(lo, hi)),
+            "Crop_per": lambda lo, hi, s_i: iaa.Crop(percent=(lo, hi), keep_size=True, sample_independently=s_i),
+
+            # Crops images by a number of pixels between lo and hi
+            # If s_i is false, The value will be sampled once per image and used for all sides
+            # (i.e. all sides gain/lose the same number of rows/columns)
+            "Crop_px": lambda lo, hi, s_i: iaa.Crop(px=(lo, hi), keep_size=True, sample_independently=s_i),
 
             # Flip/mirror percent (i.e 0.5) of the input images horizontally
             # The default probability is 0, so to flip all images, percent=1
@@ -181,6 +195,27 @@ class AugmentationScheme:
             # Augmenter that calls a custom (lambda) function for each batch of input image.
             # All custom operations are defined in the Custom_Operations file (customFunc1 is placeholder)
             'Custom1': iaa.Lambda(CustomOperation.customFunc1, CustomOperation.keypoint_func)
+
+            # List of possible Augmentations that can still be added:
+            # ImpulseNoise
+            # SaltAndPepper
+            # CoarseSaltAndPepper
+            # Salt
+            # CoarseSalt
+            # Pepper
+            # CoarsePepper
+            # BilateralBlur
+            # MotionBlur
+            # GammaContrast
+            # SigmoidContrast
+            # LogContrast
+            # LinearContrast
+            # AllChannelsHistogramEqualization
+            # HistogramEqualization
+            # AllChannelsCLAHE
+            # CLAHE
+            # Convolve (questionable)
+
 
         }
 
