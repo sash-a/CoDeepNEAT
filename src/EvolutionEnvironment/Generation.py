@@ -143,7 +143,7 @@ class Generation:
         except Exception as e:
             print("Error:", e)
             if Config.print_failed_graphs:
-                module_graph.plot_tree_with_matplotlib("module graph which failed to parse to nn")
+                module_graph.plot_tree_with_graphvis("module graph which failed to parse to nn")
             raise Exception("Error: failed to parse module graph into nn")
 
         try:
@@ -151,8 +151,10 @@ class Generation:
         except Exception as e:
             print("Error:", e)
             if Config.print_failed_graphs:
-                module_graph.plot_tree_with_matplotlib(title="module graph with error passing input through net")
-                sans_aggregators.plot_tree_with_matplotlib(title="previous module graph but without agg nodes")
+                module_graph.plot_tree_with_graphvis(title="module graph with error passing input through net", file = "module_graph_with_agg")
+                sans_aggregators.plot_tree_with_graphvis(title="previous module graph but without agg nodes",file = "module_graph_without_agg")
+
+
             raise Exception("Error: nn failed to have input passed through")
 
         if Config.dummy_run and generation_number < 500:

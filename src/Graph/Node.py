@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import math
-#from graphviz import Digraph
+import graphviz
 
 class Node:
     """
@@ -17,7 +17,7 @@ class Node:
         self.species_number = val
         self.children = []
         self.parents = []
-        self.traversalID = ""  # input to output
+        self.traversal_id = ""  # input to output
 
 
     def add_child(self, value=None):
@@ -27,6 +27,8 @@ class Node:
         """
         :param childNode: Node to be added - can have subtree underneath
         """
+        if child_node in self.children:
+            raise Exception("node",child_node,"already childed to",self)
         self.children.append(child_node)
         child_node.parents.append(self)
 
@@ -50,10 +52,10 @@ class Node:
             calculates all nodes traversal ID
         """
 
-        if not self.traversalID == "":
+        if not self.traversal_id == "":
             return
 
-        self.traversalID = current_id
+        self.traversal_id = current_id
         # print(self,"num children:", len(self.children))
         # print("Me:",self,"child:",self.children[0])
         for childNo in range(len(self.children)):
@@ -74,8 +76,32 @@ class Node:
 
         return False
 
-    def plot_tree_with_graphvis(self , title=""):
-        pass
+    def plot_tree_with_graphvis(self , title="", graph = None,nodes_plotted=None, file = "temp"):
+        if graph is None:
+            graph = graphviz.Digraph(comment = title)
+
+        if nodes_plotted is None:
+            nodes_plotted = set()
+        else:
+            if self in nodes_plotted:
+                #print("node",self.traversal_id,self.get_layer_type_name()," already plotted")
+                return
+
+        nodes_plotted.add(self)
+        #print('adding node',self.traversal_id,self.get_layer_type_name()    )
+
+        prefix = 'INPUT\n' if self.is_input_node() else ("OUTPUT\n" if self.is_output_node() else '')
+        #print("pref:",prefix,"id:",self.traversal_id)
+        graph.node(self.traversal_id, (prefix + self.get_layer_type_name()),style="filled",fillcolor = self.get_plot_colour( include_shape=False))
+        for child in self.children:
+            child.plot_tree_with_graphvis(graph=graph, nodes_plotted=nodes_plotted)
+            graph.edge(self.traversal_id,child.traversal_id)
+
+        if self.is_input_node():
+            graph.render(file, view=True)
+
+    def get_layer_type_name(self):
+        raise Exception("override layer type name is super classes")
 
     def plot_tree_with_matplotlib(self, nodes_plotted=None, rot_degree=0, title=""):
         if nodes_plotted is None:
@@ -83,18 +109,18 @@ class Node:
 
         arrow_scale_factor = 1
 
-        y = len(self.traversalID)
+        y = len(self.traversal_id)
         x = 0
 
         count = 0
-        for id in self.traversalID.split(","):
+        for id in self.traversal_id.split(","):
             if (id == "_"):
                 continue
             y += int(id) * count
             count += 1
 
         for i in range(4):
-            x += self.traversalID.count(repr(i)) * i
+            x += self.traversal_id.count(repr(i)) * i
 
         # x +=y*0.05
 
@@ -121,13 +147,12 @@ class Node:
 
         return x, y
 
-    def get_plot_colour(self):
-        return 'ro'
+
 
     def clear(self):
 
         for node in self.get_all_nodes_via_bottom_up(set()):
-            node.traversalID = ""
+            node.traversal_id = ""
 
     def get_all_nodes_via_bottom_up(self, nodes: set):
         if (self in nodes):
@@ -157,6 +182,7 @@ class Node:
         for parent in self.parents:
             #print("severing",self, "from parent",parent)
             parent.children.remove(self)
+
         for child in self.children:
             #print("severing",self, "from parent",child)
             child.parents.remove(self)

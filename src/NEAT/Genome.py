@@ -216,15 +216,25 @@ class Genome:
 
         connected_input_node = False
         # connects the blueprint nodes as indicated by the genome
+        connection_ids = set()
         for connection in self.connections:
             if not connection.enabled():
                 # print("found disabled connection")
                 continue
             if connection.from_node.id == connection.to_node.id or connection.to_node == connection.from_node:
-                raise Exception("connection from and to the same node",connection.from_node)
+                #raise Exception("connection from and to the same node", connection.from_node)
+                continue
+
+            conn_id = (connection.from_node.id,connection.to_node.id )
+            if conn_id in connection_ids:
+                #raise Exception("already connected neat node from",connection.from_node.id,"to",connection.to_node.id)
+                continue
+
+            connection_ids.add(conn_id)
 
             parent = graph_node_map[connection.from_node.id]
             child = graph_node_map[connection.to_node.id]
+
 
             parent.add_child(child)
             if parent == root_node:

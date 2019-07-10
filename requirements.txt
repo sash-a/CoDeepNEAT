@@ -23,4 +23,5 @@ ipython
 
 pytest
 
-#graphvis
+graphviz
+python-graphviz

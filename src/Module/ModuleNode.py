@@ -158,7 +158,7 @@ class ModuleNode(Node):
 
         child_out = None
         for child in self.children:
-            co = child.pass_ann_input_up_graph(output, self.traversalID, configuration_run=configuration_run)
+            co = child.pass_ann_input_up_graph(output, self.traversal_id, configuration_run=configuration_run)
             if co is not None:
                 child_out = co
 
@@ -270,20 +270,39 @@ class ModuleNode(Node):
         return sum(p.numel() for p in net_params if p.requires_grad)
 
     def print_node(self, print_to_console=True):
-        out = " " * (len(self.traversalID)) + self.traversalID
+        out = " " * (len(self.traversal_id)) + self.traversal_id
         if print_to_console:
             print(out)
         else:
             return out
 
-    def get_plot_colour(self):
+    def get_plot_colour(self, include_shape=True):
         # print("plotting agg node")
-        if self.deep_layer is None:
-            return "rs"
-        if self.is_conv2d():
-            return "go"
-        elif self.is_linear():
-            return "co"
+        if include_shape:
+            if self.deep_layer is None:
+                return "rs"
+            if self.is_conv2d():
+                return "go"
+            elif self.is_linear():
+                return "co"
+        else:
+            if self.deep_layer is None:
+                return "orange"
+            if self.is_conv2d():
+                return "red"
+            elif self.is_linear():
+                return "blue"
+
+    def get_layer_type_name(self):
+        layer_type = self.module_NEAT_node.layer_type
+
+        if layer_type() == nn.Conv2d:
+            return "Conv"
+
+        elif layer_type() == nn.Linear:
+            return "Linear"
+        else:
+            print("layer type", layer_type(), "not implemented")
 
     def get_out_features(self, deep_layer=None):
         """:returns out_channels if deep_layer is a Conv2d | out_features if deep_layer is Linear
@@ -333,10 +352,10 @@ class ModuleNode(Node):
 
     def get_first_feature_count(self, input):
         layer_type = self.module_NEAT_node.layer_type
-        if layer_type.get_value() == nn.Conv2d:
+        if layer_type() == nn.Conv2d:
             return list(input.size())[1]
 
-        elif layer_type.get_value() == nn.Linear:
+        elif layer_type() == nn.Linear:
             return Utils.get_flat_number(input)
         else:
-            print("layer type",layer_type.get_value(),"not implemented")
+            print("layer type",layer_type(),"not implemented")

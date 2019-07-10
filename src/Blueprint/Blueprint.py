@@ -78,6 +78,8 @@ class BlueprintNode(Node):
 
             try:
                 input_module_node.insert_aggregator_nodes()
+                input_module_node.clear()
+                input_module_node.get_traversal_ids("_")
             except:
                 print('BP conns', self.blueprint_genome.connections)
                 print('BP nodes', self.blueprint_genome.nodes)
@@ -85,7 +87,7 @@ class BlueprintNode(Node):
                 for mod in self.blueprint_genome.modules_used:
                     print(mod.connections)
 
-                input_module_node.plot_tree_with_matplotlib()
+                input_module_node.plot_tree_with_graphviz("Failed to insert agg nodes")
                 raise Exception("failed to insert agg nodes")
 
 

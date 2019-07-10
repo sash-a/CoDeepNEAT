@@ -29,14 +29,17 @@ class ModuleNet(nn.Module):
         output = self(input_sample, configuration_run = True)
         if(output is None):
             raise Exception("Error: failed to pass input through nn")
+
         in_layers = Utils.get_flat_number(output)
         # print("out = ", output.size(), "using linear layer (", in_layers, ",", output_nodes, ")")
 
         self.final_layer = nn.Linear(in_layers, output_nodes).to(Config.device)
         self.dimensionality_configured = True
         self.outputDimensionality = output_dimensionality
-
-        self.optimizer = optim.Adam(self.module_graph.get_parameters({}), lr=self.lr, betas=(self.beta1, self.beta2))
+        final_params = self.final_layer.parameters()
+        full_parameters = self.module_graph.get_parameters({})
+        full_parameters.extend(final_params)
+        self.optimizer = optim.Adam(full_parameters, lr=self.lr, betas=(self.beta1, self.beta2))
 
     def forward(self, x, configuration_run = False):
         if (x is None):

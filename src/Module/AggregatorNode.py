@@ -40,8 +40,14 @@ class AggregatorNode(Module):
         """
         self.accountedForInputIDs = {}
 
-    def get_plot_colour(self):
-        return 'bo'
+    def get_plot_colour(self, include_shape=True):
+        if include_shape:
+            return 'bo'
+        else:
+            return "green"
+
+    def get_layer_type_name(self):
+        return "Aggregator"
 
 
     def pass_ann_input_up_graph(self, input, parent_id="",configuration_run = False ):
@@ -68,7 +74,7 @@ class AggregatorNode(Module):
         for parent in self.module_node_input_ids:
             #separte inputs by typee
             deep_layer = parent.deep_layer
-            new_input = self.accountedForInputIDs[parent.traversalID]
+            new_input = self.accountedForInputIDs[parent.traversal_id]
             outputs_deep_layers[new_input] = deep_layer
             if(type(deep_layer) == nn.Conv2d):
                 conv_outputs.append(new_input)
