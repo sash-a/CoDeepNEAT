@@ -49,7 +49,7 @@ class Generation:
         self.module_population.step()
         for blueprint_individual in self.blueprint_population.individuals:
             blueprint_individual.reset_number_of_module_species(module_population.get_num_species())
-        self.blueprint_population.step()  # TODO should blueprints be speciatied ?
+        self.blueprint_population.step()
 
         for blueprint_individual in self.blueprint_population.individuals:
             blueprint_individual.clear()

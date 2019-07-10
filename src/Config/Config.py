@@ -10,7 +10,7 @@ third_objective = ""
 
 test_in_run = False
 dummy_run = True
-protect_parsing_from_errors = False
+protect_parsing_from_errors = True
 
 
 number_of_epochs_per_evaluation = 3

@@ -104,11 +104,9 @@ class Genome:
 
         mutated_node = MutationType(node_id + 1, conn.from_node.midpoint(conn.to_node))
 
+        # TODO deepcopy?
         mutated_from_conn = Connection(conn.from_node, mutated_node, innovation=innov + 1)
         mutated_to_conn = Connection(mutated_node, conn.to_node, innovation=innov + 2)
-
-        innov += 2
-        node_id += 1
 
         if conn.innovation in mutations:
             prev_id = mutations[conn.innovation]
@@ -118,15 +116,15 @@ class Genome:
             mutated_node.id = prev_id
             mutated_from_conn.innovation = from_innov
             mutated_to_conn.innovation = to_innov
-
-            innov -= 2
-            node_id -= 1
         else:
             # Tracking the added node
             mutations[conn.innovation] = node_id
             # Tracking the added connections
             mutations[(conn.from_node.id, node_id)] = mutated_from_conn.innovation
             mutations[(node_id, conn.to_node.id)] = mutated_to_conn.innovation
+
+            innov += 2
+            node_id += 1
 
         self.add_connection(mutated_from_conn)
         self.add_connection(mutated_to_conn)
@@ -176,15 +174,15 @@ class Genome:
                 if outcome is not None:
                     innov = outcome
                     break
-
-        for mutagen in self.get_all_mutagens():
-            mutagen.mutate()
-
-        for node in self.nodes:
-            node.mutate()
-
-        for connection in self.connections:
-            connection.mutate(self)
+        #
+        # for mutagen in self.get_all_mutagens():
+        #     mutagen.mutate()
+        #
+        # for node in self.nodes:
+        #     node.mutate()
+        #
+        # for connection in self.connections:
+        #     connection.mutate(self)
 
         return innov, node_id
 
@@ -220,7 +218,7 @@ class Genome:
         # connects the blueprint nodes as indicated by the genome
         for connection in self.connections:
             if not connection.enabled():
-                #print("found disabled connection")
+                # print("found disabled connection")
                 continue
 
             parent = graph_node_map[connection.from_node.id]
@@ -231,20 +229,21 @@ class Genome:
                 connected_input_node = True
 
         if not connected_input_node:
-            raise Exception("no connections from input node",root_node)
-
+            print(self)
+            raise Exception("no connections from input node", root_node)
 
         if not graph_node_map[output_neat_node.id].is_output_node():
+            print(self)
             raise Exception("neat node marked as output has a graph node which is not an output node")
 
         sampled_trailing_node = root_node.get_output_node()
         while not sampled_trailing_node == output_graph_node:
-            print("sampled a false output node:",sampled_trailing_node, "real output node:",output_graph_node)
+            print("sampled a false output node:", sampled_trailing_node, "real output node:", output_graph_node)
             sampled_trailing_node.severe_node()
             sampled_trailing_node = root_node.get_output_node()
             if sampled_trailing_node == root_node:
-                raise Exception("root node is output node - num children:",len(root_node.children))
-
+                print(self)
+                raise Exception("root node is output node - num children:", len(root_node.children))
 
         output_reaching_nodes = root_node.get_all_nodes_via_bottom_up(set())
         input_reaching_nodes = output_graph_node.get_all_nodes_via_top_down(set())
@@ -259,14 +258,11 @@ class Genome:
             if graph_node in fully_connected_nodes:
                 continue
             if neat_node.node_type == NodeType.OUTPUT:
-                raise Exception("severing the neat output node, is_graph_output_node:",graph_node.is_output_node())
+                raise Exception("severing the neat output node, is_graph_output_node:", graph_node.is_output_node())
             graph_node.severe_node()
 
         root_node.get_traversal_ids("_")
         return root_node
-
-    def __repr__(self):
-        return str(self.connections)
 
     def get_all_mutagens(self):
         return []
@@ -274,7 +270,7 @@ class Genome:
     def validate(self):
         nodes_dict = {}  # dictionary maps node from node to all connected nodes
         for conn in self.connections:
-            if not conn.enabled:
+            if not conn.enabled():
                 continue
 
             if conn.from_node.id in nodes_dict:
@@ -299,8 +295,30 @@ class Genome:
             return False
 
         visited_nodes.add(curr_id)
+        if curr_id not in nodes_dict:
+            return False
+
         for id in nodes_dict[curr_id]:
             if self.from_input_to_output(id, output_id, nodes_dict, visited_nodes):
                 return True
 
         return False
+
+    def __repr__(self):
+        conns = ''
+        for conn in self.connections:
+            conns += str(conn) + '\n'
+
+        return 'Connections: ' + conns[:-1] + '\nNodes' + str(self.nodes)
+
+
+inp = NEATNode(0, 0, node_type=NodeType.INPUT)
+outp = NEATNode(1, 1, node_type=NodeType.OUTPUT)
+btw = NEATNode(2, 0, node_type=NodeType.HIDDEN)
+g = Genome(
+    [Connection(inp, outp, enabled=True, innovation=0),
+     Connection(inp, btw, enabled=False, innovation=1),
+     Connection(btw, outp, enabled=False, innovation=2)],
+    [inp, outp, btw])
+
+print(g.validate())

@@ -18,7 +18,8 @@ class Connection:
             print('Issue with from connection')
 
     def __repr__(self):
-        return str(self.from_node) + ' -> ' + str(self.to_node) + ' innov: ' + str(self.innovation)
+        return str(self.from_node) + ' -> ' + str(self.to_node) + ' innov: ' + str(self.innovation) + ' (' + str(
+            self.enabled.get_value()) + ')'
 
     def __eq__(self, other):
         return self.from_node == other.from_node and self.to_node == other.to_node
@@ -37,7 +38,7 @@ class Connection:
         if mutated:
             """if the gene mutated - and the connection was disabled - a graph validation must be performed"""
             if not self.enabled():
-                #print("turned off a connection")
+                # print("turned off a connection")
                 if not genome.validate():
                     """the connection was turned off - and the graph is not valid"""
                     print("turning connection back on as it was off and part of an invalid genome")

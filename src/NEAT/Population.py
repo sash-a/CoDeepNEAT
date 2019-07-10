@@ -139,16 +139,24 @@ class Population:
             # Create children
             if remaining_members:
                 for _ in range(num_children):
-                    parent1 = random.choice(remaining_members)
-                    parent2 = random.choice(remaining_members)
+                    child = None
+                    while child is None:
+                        parent1 = random.choice(remaining_members)
+                        parent2 = random.choice(remaining_members)
 
-                    child = crossover(parent1, parent2)
+                        child = crossover(parent1, parent2)
+
+                    # before = [conn for conn in child.connections if not conn.enabled()]
 
                     self.curr_innov, self.max_node_id = child.mutate(self.mutations,
                                                                      self.curr_innov,
                                                                      self.max_node_id,
                                                                      self.node_mutation_chance,
                                                                      self.connection_mutation_chance)
+
+                    # after = [conn for conn in child.connections if not conn.enabled()]
+                    # if before != after:
+                    #     print(before, after, sep='\n')
 
                     new_pop.append(child)
 

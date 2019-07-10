@@ -24,7 +24,7 @@ def add_nodes_from_connections(conn: Connection, genome):
     return new_from, new_to
 
 
-def crossover(parent1, parent2):
+def crossover(parent1, parent2, tries=0):
     # Choosing the fittest parent
     if parent1.fitness == parent2.fitness:  # if the fitness is the same choose the shortest
         best_parent, worst_parent = (parent2, parent1) \
@@ -33,23 +33,10 @@ def crossover(parent1, parent2):
         best_parent, worst_parent = (parent2, parent1) \
             if parent2.fitness > parent1.fitness else (parent1, parent2)
 
-    # if type(parent1) == ModuleGenome:
-    #     child = ModuleGenome([], [])
-    # else:
-    #     child = BlueprintGenome([], [])
     if type(parent1) != type(parent2):
         raise TypeError('Parent 1 and 2 must be of the same type')
 
     child = type(parent1)([], [])
-
-    # Crossing over connections
-    for best_conn in best_parent.connections:
-        if best_conn.innovation in worst_parent.innov_nums:  # connection in both parent choose 1
-            worst_conn = worst_parent.get_connection(best_conn.innovation)
-            choice = copy.deepcopy(random.choice([best_conn, worst_conn]))
-            child.add_connection(choice)
-        else:  # disjoint/excess
-            child.add_connection(copy.deepcopy(best_conn))
 
     # Crossing over nodes
     for best_node in best_parent.nodes:
@@ -59,5 +46,26 @@ def crossover(parent1, parent2):
             child.add_node(choice)
         else:  # disjoint/excess
             child.add_node(copy.deepcopy(best_node))
+
+    # Crossing over connections
+    for best_conn in best_parent.connections:
+        if best_conn.innovation in worst_parent.innov_nums:  # connection in both parent choose 1
+            worst_conn = worst_parent.get_connection(best_conn.innovation)
+            choice = copy.deepcopy(random.choice([best_conn, worst_conn]))
+
+            # TODO assign to and from nodes from child.nodes
+            if choice.from_node not in child.nodes:
+                child.add_node(copy.deepcopy(choice.from_node))
+                # raise Exception('Child does not contain the nodes necessary for chosen connection')
+            if choice.to_node not in child.nodes:
+                child.add_node(copy.deepcopy(choice.to_node))
+
+            child.add_connection(choice)
+        else:  # disjoint/excess
+            child.add_connection(copy.deepcopy(best_conn))
+
+    if not child.validate():
+        print('Crossover could not produce a valid child between:', parent1, 'and', parent2, 'trying again', sep='\n')
+        return None
 
     return child
