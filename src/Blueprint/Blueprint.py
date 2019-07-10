@@ -72,11 +72,13 @@ class BlueprintNode(Node):
 
         if self.is_input_node():
             # print("blueprint parsed. getting module node traversal ID's")
+            input_module_node.clear()
             input_module_node.get_traversal_ids("_")
             if return_graph_without_aggregators:
                 sans_aggregators = copy.deepcopy(input_module_node)
 
             try:
+
                 input_module_node.insert_aggregator_nodes()
                 input_module_node.clear()
                 input_module_node.get_traversal_ids("_")

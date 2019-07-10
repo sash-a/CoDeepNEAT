@@ -118,7 +118,7 @@ class Generation:
 
         if generation_number % Config.print_best_graph_every_n_generations == 0:
             if Config.print_best_graphs:
-                best_bp.plot_tree(title="gen:" + str(generation_number) + " acc:" + str(best_acc))
+                best_bp.plot_tree_with_graphvis(title="gen:" + str(generation_number) + " acc:" + str(best_acc))
 
         RuntimeAnalysis.log_new_generation(accuracies, generation_number,
                                            second_objective_values=(
