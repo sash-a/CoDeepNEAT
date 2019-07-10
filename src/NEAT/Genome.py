@@ -222,19 +222,18 @@ class Genome:
                 # print("found disabled connection")
                 continue
             if connection.from_node.id == connection.to_node.id or connection.to_node == connection.from_node:
-                #raise Exception("connection from and to the same node", connection.from_node)
+                # raise Exception("connection from and to the same node", connection.from_node)
                 continue
 
-            conn_id = (connection.from_node.id,connection.to_node.id )
+            conn_id = (connection.from_node.id, connection.to_node.id)
             if conn_id in connection_ids:
-                #raise Exception("already connected neat node from",connection.from_node.id,"to",connection.to_node.id)
+                # raise Exception("already connected neat node from",connection.from_node.id,"to",connection.to_node.id)
                 continue
 
             connection_ids.add(conn_id)
 
             parent = graph_node_map[connection.from_node.id]
             child = graph_node_map[connection.to_node.id]
-
 
             parent.add_child(child)
             if parent == root_node:
@@ -280,41 +279,62 @@ class Genome:
         return []
 
     def validate(self):
+        node_dict = self.get_node_dict()
+        for node in self.nodes:
+            if node.node_type == NodeType.INPUT:
+                input_node = node
+
+            if node.node_type == NodeType.OUTPUT:
+                output_node = node
+
+        return self.from_input_to_output(input_node, output_node, node_dict, set())
+
+    def get_node_dict(self):
         nodes_dict = {}  # dictionary maps node from node to all connected nodes
         for conn in self.connections:
             if not conn.enabled():
                 continue
 
-            if conn.from_node.id in nodes_dict:
-                nodes_dict[conn.from_node.id].append(conn.to_node.id)
+            if conn.from_node in nodes_dict:
+                nodes_dict[conn.from_node].append(conn.to_node)
             else:
-                nodes_dict[conn.from_node.id] = [conn.to_node.id]
+                nodes_dict[conn.from_node] = [conn.to_node]
 
-        for node in self.nodes:
-            if node.node_type == NodeType.INPUT:
-                input_id = node.id
+        return nodes_dict
 
-            if node.node_type == NodeType.OUTPUT:
-                output_id = node.id
-
-        return self.from_input_to_output(input_id, output_id, nodes_dict, set())
-
-    def from_input_to_output(self, curr_id, output_id, nodes_dict, visited_nodes):
-        if curr_id == output_id:
+    def from_input_to_output(self, curr_node, output_node, nodes_dict, visited_nodes):
+        if curr_node == output_node:
             return True
 
-        if curr_id in visited_nodes:
+        if curr_node in visited_nodes:
             return False
 
-        visited_nodes.add(curr_id)
-        if curr_id not in nodes_dict:
+        visited_nodes.add(curr_node)
+        if curr_node not in nodes_dict:
             return False
 
-        for id in nodes_dict[curr_id]:
-            if self.from_input_to_output(id, output_id, nodes_dict, visited_nodes):
+        for node in nodes_dict[curr_node]:
+            if self.from_input_to_output(node, output_node, nodes_dict, visited_nodes):
                 return True
 
         return False
+
+    def fix_height(self):
+        node_dict = self.get_node_dict()
+
+        for node in self.nodes:
+            if node.node_type == NodeType.INPUT:
+                input_node = node
+
+        self._fix_height(input_node, node_dict)
+
+    def _fix_height(self, curr_node, nodes_dict):
+        if curr_node not in nodes_dict:
+            return
+
+        for node in nodes_dict[curr_node]:
+            node.x = max(node.x, curr_node.x + 1)
+            self._fix_height(node, nodes_dict)
 
     def __repr__(self):
         conns = ''
@@ -329,7 +349,7 @@ outp = NEATNode(1, 1, node_type=NodeType.OUTPUT)
 btw = NEATNode(2, 0, node_type=NodeType.HIDDEN)
 g = Genome(
     [Connection(inp, outp, enabled=True, innovation=0),
-     Connection(inp, btw, enabled=False, innovation=1),
+     Connection(inp, btw, enabled=True, innovation=1),
      Connection(btw, outp, enabled=False, innovation=2)],
     [inp, outp, btw])
 
