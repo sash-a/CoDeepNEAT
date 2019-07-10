@@ -24,7 +24,7 @@ class NEATNode:
         return self.id
 
     def __repr__(self):
-        return str(self.id) + ' (' + str(self.node_type) + ')'
+        return str(self.id) + ' (' + str(self.node_type) + ', ' + str(self.x) + ')'
 
     def is_input_node(self):
         return self.node_type == NodeType.INPUT

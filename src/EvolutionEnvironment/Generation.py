@@ -82,6 +82,7 @@ class Generation:
                 #print('Blueprint is valid:', blueprint_individual.validate())
                 pass
 
+
             if Config.protect_parsing_from_errors:
                 try:
                     module_graph, blueprint_individual, results = self.evaluate_blueprints(blueprint_individual, inputs,
@@ -131,8 +132,8 @@ class Generation:
     def evaluate_blueprints(self, blueprint_individual, inputs, generation_number):
 
         blueprint = blueprint_individual.to_blueprint()
-        #module_graph = blueprint.parseto_module_graph(self)
-        module_graph, sans_aggregators = blueprint.parseto_module_graph(self,return_graph_without_aggregators = True)
+        # module_graph = blueprint.parseto_module_graph(self)
+        module_graph, sans_aggregators = blueprint.parseto_module_graph(self, return_graph_without_aggregators=True)
 
         if module_graph is None:
             raise Exception("null module graph produced from blueprint")
@@ -152,16 +153,18 @@ class Generation:
         except Exception as e:
             print("Error:", e)
             if Config.print_failed_graphs:
-                module_graph.plot_tree_with_graphvis(title="module graph with error passing input through net", file = "module_graph_with_agg")
-                sans_aggregators.plot_tree_with_graphvis(title="previous module graph but without agg nodes",file = "module_graph_without_agg")
-
+                module_graph.plot_tree_with_graphvis(title="module graph with error passing input through net",
+                                                     file="module_graph_with_agg")
+                sans_aggregators.plot_tree_with_graphvis(title="previous module graph but without agg nodes",
+                                                         file="module_graph_without_agg")
 
             raise Exception("Error: nn failed to have input passed through")
 
         if Config.dummy_run and generation_number < 500:
             acc = hash(net)
         else:
-            acc = Evaluator.evaluate(net, Config.number_of_epochs_per_evaluation, dataset='mnist', path='../../data', batch_size=256)
+            acc = Evaluator.evaluate(net, Config.number_of_epochs_per_evaluation, dataset='mnist', path='../../data',
+                                     batch_size=256)
 
         second_objective_value = None
         third_objective_value = None

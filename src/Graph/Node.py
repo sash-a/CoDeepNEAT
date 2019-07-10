@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import math
 import graphviz
 
+
 class Node:
     """
     All children lead to the leaf node
@@ -19,7 +20,6 @@ class Node:
         self.parents = []
         self.traversal_id = ""  # input to output
 
-
     def add_child(self, value=None):
         self.add_child(Node(value))
 
@@ -28,7 +28,7 @@ class Node:
         :param childNode: Node to be added - can have subtree underneath
         """
         if child_node in self.children:
-            raise Exception("node",child_node,"already childed to",self)
+            raise Exception("node", child_node, "already childed to", self)
         self.children.append(child_node)
         child_node.parents.append(self)
 
@@ -78,25 +78,27 @@ class Node:
 
     def plot_tree_with_graphvis(self , title="", graph = None,nodes_plotted=None, file = "temp"):
         file = "../Analysis/Graphs/"+file
+
         if graph is None:
-            graph = graphviz.Digraph(comment = title)
+            graph = graphviz.Digraph(comment=title)
 
         if nodes_plotted is None:
             nodes_plotted = set()
         else:
             if self in nodes_plotted:
-                #print("node",self.traversal_id,self.get_layer_type_name()," already plotted")
+                # print("node",self.traversal_id,self.get_layer_type_name()," already plotted")
                 return
 
         nodes_plotted.add(self)
-        #print('adding node',self.traversal_id,self.get_layer_type_name()    )
+        # print('adding node',self.traversal_id,self.get_layer_type_name()    )
 
         prefix = 'INPUT\n' if self.is_input_node() else ("OUTPUT\n" if self.is_output_node() else '')
-        #print("pref:",prefix,"id:",self.traversal_id)
-        graph.node(self.traversal_id, (prefix + self.get_layer_type_name()),style="filled",fillcolor = self.get_plot_colour( include_shape=False))
+        # print("pref:",prefix,"id:",self.traversal_id)
+        graph.node(self.traversal_id, (prefix + self.get_layer_type_name()), style="filled",
+                   fillcolor=self.get_plot_colour(include_shape=False))
         for child in self.children:
             child.plot_tree_with_graphvis(graph=graph, nodes_plotted=nodes_plotted)
-            graph.edge(self.traversal_id,child.traversal_id)
+            graph.edge(self.traversal_id, child.traversal_id)
 
         if self.is_input_node():
             graph.render(file, view=True)
@@ -148,8 +150,6 @@ class Node:
 
         return x, y
 
-
-
     def clear(self):
 
         for node in self.get_all_nodes_via_bottom_up(set()):
@@ -179,14 +179,15 @@ class Node:
     def severe_node(self):
         """removes this node entirely from the graph.
         removes self as a child of all parents and removes self as a parent of all children"""
-        #print("severing node",self)
+        # print("severing node",self)
         for parent in self.parents:
-            #print("severing",self, "from parent",parent)
+            # print("severing",self, "from parent",parent)
             parent.children.remove(self)
 
         for child in self.children:
-            #print("severing",self, "from parent",child)
+            # print("severing",self, "from parent",child)
             child.parents.remove(self)
+
 
 def gen_node_graph(node_type, graph_type="diamond", linear_count=1):
     """the basic starting points of both blueprints and modules"""

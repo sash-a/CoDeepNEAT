@@ -53,13 +53,7 @@ def crossover(parent1, parent2, tries=0):
             worst_conn = worst_parent.get_connection(best_conn.innovation)
             choice = copy.deepcopy(random.choice([best_conn, worst_conn]))
 
-            # TODO assign to and from nodes from child.nodes
-            if choice.from_node not in child.nodes:
-                child.add_node(copy.deepcopy(choice.from_node))
-                # raise Exception('Child does not contain the nodes necessary for chosen connection')
-            if choice.to_node not in child.nodes:
-                child.add_node(copy.deepcopy(choice.to_node))
-
+            add_nodes_from_connections(choice, child)
             child.add_connection(choice)
         else:  # disjoint/excess
             child.add_connection(copy.deepcopy(best_conn))
@@ -67,5 +61,6 @@ def crossover(parent1, parent2, tries=0):
     if not child.validate():
         print('Crossover could not produce a valid child between:', parent1, 'and', parent2, 'trying again', sep='\n')
         return None
-
+    
+    child.fix_height()
     return child
