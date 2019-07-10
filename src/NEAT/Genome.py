@@ -220,6 +220,8 @@ class Genome:
             if not connection.enabled():
                 # print("found disabled connection")
                 continue
+            if connection.from_node.id == connection.to_node.id or connection.to_node == connection.from_node:
+                raise Exception("connection from and to the same node",connection.from_node)
 
             parent = graph_node_map[connection.from_node.id]
             child = graph_node_map[connection.to_node.id]
