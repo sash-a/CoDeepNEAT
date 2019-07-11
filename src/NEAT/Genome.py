@@ -141,7 +141,8 @@ class Genome:
         if node1.id == node2.id or \
                 mutated_conn in self.connections or \
                 Connection(to_node, from_node) in self.connections or \
-                from_node.node_type == NodeType.OUTPUT:
+                from_node.node_type == NodeType.OUTPUT or\
+                from_node.x == to_node.x:
             return None
 
         # Check if the connection exist somewhere else

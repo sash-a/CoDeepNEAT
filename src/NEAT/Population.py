@@ -107,7 +107,7 @@ class Population:
         # return species sorted by fitness
         species.members.sort(key=lambda indv: indv.fitness[0], reverse=True)
         # min of two because need two parents to crossover
-        num_remaining_mem = max(2, int(len(species.members) * Props.PERCENT_TO_SAVE))
+        num_remaining_mem = max(2, int(len(species.members) * Props.PERCENT_TO_REPRODUCE))
         remaining_members = species.members[:num_remaining_mem]
 
         return remaining_members
@@ -127,7 +127,7 @@ class Population:
             species_adj_fitness = sum([x.adjusted_fitness for x in spc.members])
             # TODO this is not creating the correct number of children
             num_children = max(Props.MIN_CHILDREN_PER_SPECIES, int((species_adj_fitness / tot_adj_fitness) * (
-                    self.ideal_pop_size - Props.PERCENT_TO_SAVE * self.ideal_pop_size)))
+                    self.ideal_pop_size - Props.PERCENT_TO_REPRODUCE * self.ideal_pop_size)))
 
             # Ignoring defective members
             spc.members = [mem for mem in spc.members if not mem.defective]

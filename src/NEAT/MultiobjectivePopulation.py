@@ -34,7 +34,7 @@ class MultiobjectivePopulation(Population):
             pf.extend(next_front)
             species.members = species.members[len(next_front):]
 
-        members_to_save = max(2, int(Props.PERCENT_TO_SAVE * len(pf)))
+        members_to_save = max(2, int(Props.PERCENT_TO_REPRODUCE * len(pf)))
         pf = pf[:members_to_save]
         species.members = pf
 

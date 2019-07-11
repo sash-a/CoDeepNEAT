@@ -13,7 +13,7 @@ BP_TARGET_NUM_SPECIES = 1
 
 INDIVIDUALS_TO_EVAL = 100
 
-PERCENT_TO_SAVE = 0.15
+PERCENT_TO_REPRODUCE = 0.15
 
 MUTATION_TRIES = 100  # number of tries a mutation gets to pick acceptable individual
 
