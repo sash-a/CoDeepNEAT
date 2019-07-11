@@ -157,7 +157,7 @@ class Generation:
                                                      file="module_graph_with_agg")
                 sans_aggregators.plot_tree_with_graphvis(title="previous module graph but without agg nodes",
                                                          file="module_graph_without_agg")
-
+                print('failed graph:', blueprint_individual)
             raise Exception("Error: nn failed to have input passed through")
 
         if Config.dummy_run and generation_number < 500:
