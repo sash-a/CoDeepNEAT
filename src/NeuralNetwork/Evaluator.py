@@ -5,7 +5,7 @@ from torch import nn
 import torch.nn.functional as F
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
-from src.DataAugmentation import placeholder
+from src.DataAugmentation import BatchAugmentor
 from src.Config import Config
 
 import time
@@ -34,9 +34,11 @@ def train(model, train_loader, epoch, test_loader, print_accuracy=False):
     s = time.time()
 
     for batch_idx, (inputs, targets) in enumerate(train_loader):
+
+        augmented_inputs, augmented_labels = BatchAugmentor.augment_batch(inputs.numpy(), targets.numpy())
+
         inputs, targets = inputs.to(device), targets.to(device)
         model.optimizer.zero_grad()
-        augmented_inputs, augmented_labels = placeholder.augment_batch(inputs, targets)
 
         output = model(inputs)
         m_loss = model.loss_fn(output, targets.float())
