@@ -1,3 +1,5 @@
+from src.NEAT.Mutagen import Mutagen
+
 class Gene:
     _next_id = 0
 
@@ -22,8 +24,24 @@ class Gene:
 
 
 class NodeGene(Gene):
-    pass
+    def __init__(self):
+        super().__init__()
+
+        self.height = -1
+        self.node_type = ""
+
+    def is_output_node(self):
+        pass
+
+    def is_input_node(self):
+        pass
 
 
 class ConnectionGene(Gene):
-    pass
+    def __init__(self, from_node: NodeGene, to_node: NodeGene):
+        super().__init__()
+
+        self.from_node: NodeGene = from_node
+        self.to_node: NodeGene = to_node
+
+        self.enabled = Mutagen(True, False, discreet_value=True)
