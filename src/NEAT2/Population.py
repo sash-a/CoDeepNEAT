@@ -2,15 +2,47 @@ from src.NEAT2.Species import Species
 import src.Config.NeatProperties as Props
 
 
+class MutationRecords:
+    def __init__(self, current_max_node_id, current_max_conn_id):
+        self.mutations = {}
+        self._next_node_id = current_max_node_id
+        self._next_conn_id = current_max_conn_id
+
+    def exists(self, mutation):
+        return mutation in self.mutations
+
+    def add_mutaion(self, mutation):
+        if type(mutation) == tuple:
+            self.mutations[mutation] = self.get_next_connection_id()
+            return self._next_conn_id
+        elif type(mutation) == int:
+            self.mutations[mutation] = self.get_next_node_id()
+            return self._next_node_id
+        else:
+            raise TypeError('Incorrect type passed to mutation: ' + mutation)
+
+    def get_next_node_id(self):
+        self._next_node_id += 1
+        return self._next_node_id
+
+    def get_next_connection_id(self):
+        self._next_conn_id += 1
+        return self._next_conn_id
+
+
 class Population:
-    def __init__(self, individuals, population_size):
+    def __init__(self, individuals, population_size, max_node_id, max_innovation):
         self.species = []
         self.speciate(individuals)
         self.population_size = population_size
-        self.speciation_threshold = 1  # TODO
+
         self.target_num_species = 4  # TODO
 
-        self.current_threshold_dir = 1
+        self.speciation_threshold = 1  # TODO
+        self.current_threshold_dir = 1  # TODO
+        self.num_species_mod = 0.05  # TODO
+
+        self.mutation_record = MutationRecords(max_node_id, max_innovation)
 
     individuals = property(lambda self: self._get_all_individuals())
 
@@ -69,7 +101,7 @@ class Population:
             self.num_species_mod *= 2
 
         self.current_threshold_dir = new_dir
-        self.speciation_thresh = max(0.001, self.speciation_thresh + (new_dir * self.num_species_mod))
+        self.speciation_threshold = max(0.001, self.speciation_threshold + (new_dir * self.num_species_mod))
 
     def update_species_sizes(self):
         """should be called before species.step()"""
@@ -98,8 +130,9 @@ class Population:
     def step(self):
         self.rank_population()
         self.update_species_sizes()
+
         for species in self.species:
-            species.step()
+            species.step(self.mutation_record)
 
         self.adjust_speciation_threshold()
         self.speciate(self._get_all_individuals())

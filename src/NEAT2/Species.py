@@ -22,36 +22,37 @@ class Species:
         if len(self.members) > self.next_species_size:
             raise Exception("added too many individuals to species. max:", self.next_species_size)
 
-    def step(self):
+    def step(self, mutation_record):
         self._rank_species()
         self._cull_species()
-        self._reproduce()
+        self._reproduce(mutation_record)
         if len(self.members) != self.next_species_size:
             raise Exception("created next generation but population size(" + repr(
                 len(self.members)) + ")is wrong should be:(" + repr(self.next_species_size) + ")")
 
         self._select_representative()
 
-    def _reproduce(self):
+    def _reproduce(self, mutation_record):
         elite = int(Props.ELITE_TO_KEEP * len(self.members) / Props.PERCENT_TO_REPRODUCE)
         elite = self.members[:elite]
         children = []
         tries = 10 * (self.next_species_size - len(elite))
+
         while len(children) + len(elite) < self.next_species_size:
             parent1 = random.choice(self.members)
             parent2 = random.choice(self.members)
             if parent1 == parent2:
                 continue
 
-            best = parent1 if parent1.rank < parent2.rank else parent2
-            worst = parent1 if parent1.rank > parent2.rank else parent2
+            best = parent1 if parent1 < parent2 else parent2
+            worst = parent1 if parent1 > parent2 else parent2
 
             child = best.crossover(worst)
             if child is None:
                 raise Exception("Error: cross over produced null child")
 
             if child.validate():
-                children.append(child.mutate())
+                children.append(child.mutate(mutation_record))
 
             tries -= 1
             if tries == 0:
@@ -60,7 +61,7 @@ class Species:
         self.members = elite.extend(children)
 
     def _rank_species(self):
-        # note origonal checks for equal fitnesses and choses one with fewer genes
+        # note original checks for equal fitnesses and chooses one with more genes
         self.members.sort(key=lambda x: x.rank)
 
     def get_average_rank(self):
