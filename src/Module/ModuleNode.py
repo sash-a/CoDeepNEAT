@@ -44,6 +44,7 @@ class ModuleNode(Node):
             self.generate_module_node_from_gene()
 
     def generate_module_node_from_gene(self):
+        # print("generating module node from gene:", self.module_NEAT_node)
         self.out_features = self.module_NEAT_node.out_features()
         self.activation = self.module_NEAT_node.activation()
 

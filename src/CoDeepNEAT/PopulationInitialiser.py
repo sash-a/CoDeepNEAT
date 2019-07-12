@@ -2,45 +2,51 @@ from src.CoDeepNEAT.ModuleNEATNode import ModulenNEATNode
 from src.CoDeepNEAT.BlueprintNEATNode import BlueprintNEATNode
 from src.CoDeepNEAT.ModuleGenome import ModuleGenome
 from src.CoDeepNEAT.BlueprintGenome import BlueprintGenome
-from src.NEAT.Connection import Connection
-from src.NEAT.NEATNode import NodeType
+from src.NEAT.Gene import ConnectionGene, NodeType
 
 
 def initialise_blueprints():
-    linear_nodes = [BlueprintNEATNode(0, 1, node_type=NodeType.INPUT),
-                    BlueprintNEATNode(1, 128, node_type=NodeType.OUTPUT)]
-    tri_nodes = [BlueprintNEATNode(0, 1, node_type=NodeType.INPUT),
-                 BlueprintNEATNode(2, 64, node_type=NodeType.HIDDEN),
-                 BlueprintNEATNode(1, 128, node_type=NodeType.OUTPUT)]
+    linear_nodes = [BlueprintNEATNode(0, node_type=NodeType.INPUT),
+                    BlueprintNEATNode(1, node_type=NodeType.OUTPUT)]
+    tri_nodes = [BlueprintNEATNode(0, node_type=NodeType.INPUT),
+                 BlueprintNEATNode(2, node_type=NodeType.HIDDEN),
+                 BlueprintNEATNode(1, node_type=NodeType.OUTPUT)]
 
-    linear_connections = [Connection(linear_nodes[0], linear_nodes[1], innovation=0)]
-    tri_connections = [Connection(tri_nodes[0], tri_nodes[2], innovation=0),
-                       Connection(tri_nodes[0], tri_nodes[1], innovation=1),
-                       Connection(tri_nodes[1], tri_nodes[2], innovation=2)]
+    linear_connections = [ConnectionGene(0, linear_nodes[0].id, linear_nodes[1].id)]
+    tri_connections = [ConnectionGene(0, tri_nodes[0].id, tri_nodes[2].id),
+                       ConnectionGene(1, tri_nodes[0].id, tri_nodes[1].id),
+                       ConnectionGene(2, tri_nodes[1].id, tri_nodes[2].id)]
 
-    return \
-        [
+    pop = [
             BlueprintGenome(linear_connections, linear_nodes),
             BlueprintGenome(tri_connections, tri_nodes)
         ]
+    for indv in pop:
+        indv.calculate_heights()
+
+    return pop
 
 
 def initialise_modules():
-    linear_nodes = [ModulenNEATNode(0, 1, node_type=NodeType.INPUT),
-                    ModulenNEATNode(1, 128, node_type=NodeType.OUTPUT)]
-    tri_nodes = [ModulenNEATNode(0, 1, node_type=NodeType.INPUT),
-                 ModulenNEATNode(2, 64, node_type=NodeType.HIDDEN),
-                 ModulenNEATNode(1, 128, node_type=NodeType.OUTPUT)]
+    linear_nodes = [ModulenNEATNode(0, node_type=NodeType.INPUT),
+                    ModulenNEATNode(1, node_type=NodeType.OUTPUT)]
+    tri_nodes = [ModulenNEATNode(0, node_type=NodeType.INPUT),
+                 ModulenNEATNode(2, node_type=NodeType.HIDDEN),
+                 ModulenNEATNode(1, node_type=NodeType.OUTPUT)]
 
-    linear_connections = [Connection(linear_nodes[0], linear_nodes[1], innovation=0)]
-    tri_connections = [Connection(tri_nodes[0], tri_nodes[2], innovation=0),
-                       Connection(tri_nodes[0], tri_nodes[1], innovation=1),
-                       Connection(tri_nodes[1], tri_nodes[2], innovation=2)]
-    return \
-        [
-            ModuleGenome(linear_connections, linear_nodes),
-            ModuleGenome(tri_connections, tri_nodes)
-        ]
+    linear_connections = [ConnectionGene(0, linear_nodes[0].id, linear_nodes[1].id)]
+    tri_connections = [ConnectionGene(0, tri_nodes[0].id, tri_nodes[2].id),
+                       ConnectionGene(1, tri_nodes[0].id, tri_nodes[1].id),
+                       ConnectionGene(2, tri_nodes[1].id, tri_nodes[2].id)]
+
+    pop = [
+        ModuleGenome(linear_connections, linear_nodes),
+        ModuleGenome(tri_connections, tri_nodes)
+    ]
+    for indv in pop:
+        indv.calculate_heights()
+
+    return pop
 
 
 def initialize_mutations():

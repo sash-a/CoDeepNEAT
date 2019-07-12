@@ -25,6 +25,7 @@ class BlueprintNode(Node):
 
     def generate_blueprint_node_from_gene(self, gene):
         """applies the properties of the blueprint gene for this node"""
+        # print("generating blueprint node from gene:",gene)
         self.species_number = gene.species_number()
         # if(self.species_number > 0):
         #     print("blueprint with species no:", self.species_number)

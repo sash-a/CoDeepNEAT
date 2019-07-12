@@ -18,7 +18,7 @@ PERCENT_TO_REPRODUCE = 0.15
 MUTATION_TRIES = 100  # number of tries a mutation gets to pick acceptable individual
 
 MIN_CHILDREN_PER_SPECIES = 2
-ELITE_TO_KEEP = 5
+ELITE_TO_KEEP = 0.05
 
 # Speciation
 SPECIES_DISTANCE_THRESH = 1

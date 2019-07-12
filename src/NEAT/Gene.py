@@ -1,4 +1,4 @@
-from src.NEAT.Mutagen import Mutagen
+from NEAT.Mutagen import Mutagen
 from enum import Enum
 
 
@@ -17,6 +17,9 @@ class Gene:
 
     def __eq__(self, other):
         return self.id == other.id
+
+    def __hash__(self):
+        return self.id
 
 
 class NodeType(Enum):
@@ -48,18 +51,29 @@ class ConnectionGene(Gene):
 
         self.enabled = Mutagen(True, False, discreet_value=True)
 
+    def __repr__(self):
+        return "Conn(" + repr(self.from_node) + "->" + repr(self.to_node) + ")"
+
     def mutate_add_node(self, mutation_record, genome):
         mutation = self.id
+        # print("adding node to connection",self)
         if mutation_record.exists(mutation):
             mutated_node_id = mutation_record.mutations[mutation]
             mutated_from_conn_id = mutation_record.mutations[(self.from_node, mutated_node_id)]
             mutated_to_conn_id = mutation_record.mutations[(mutated_node_id, self.to_node)]
+            # print("mutated node already existed - id's: node:",mutated_node_id,"connections:",mutated_from_conn_id,mutated_to_conn_id)
+            if mutated_node_id in genome._nodes:  # this connection has already created a new node
+                return  #TODO retry
+
         else:
             mutated_node_id = mutation_record.add_mutation(mutation)
             mutated_from_conn_id = mutation_record.add_mutation((self.from_node, mutated_node_id))
             mutated_to_conn_id = mutation_record.add_mutation((mutated_node_id, self.to_node))
+            # print("mutated node novel - id's: node:",mutated_node_id,"connections:",mutated_from_conn_id,mutated_to_conn_id)
 
-        mutated_node = NodeGene(mutated_node_id)
+        NodeType = type(list(genome._nodes.values())[0])
+        mutated_node = NodeType(mutated_node_id)
+        mutated_node.height = (genome._nodes[self.from_node].height + genome._nodes[self.to_node].height)/2
         genome.add_node(mutated_node)
 
         mutated_from_conn = ConnectionGene(mutated_from_conn_id, self.from_node, mutated_node_id)

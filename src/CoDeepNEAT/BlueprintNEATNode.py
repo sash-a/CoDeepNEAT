@@ -1,16 +1,16 @@
-from src.NEAT.NEATNode import NEATNode, NodeType
-from src.NEAT.Mutagen import Mutagen
-from src.NEAT.Mutagen import ValueType
+from src.NEAT.Gene import NodeGene, NodeType
+from NEAT.Mutagen import Mutagen
+from NEAT.Mutagen import ValueType
 
 
-class BlueprintNEATNode(NEATNode):
+class BlueprintNEATNode(NodeGene):
 
-    def __init__(self, id, x,  node_type=NodeType.HIDDEN):
-        super(BlueprintNEATNode, self).__init__(id, x, node_type=node_type)
+    def __init__(self, id, node_type=NodeType.HIDDEN):
+        super(BlueprintNEATNode, self).__init__(id, node_type)
 
-        #print("module pop:",Generation.module_population)
-        self.species_number = Mutagen(value_type=ValueType.WHOLE_NUMBERS,current_value=0, start_range=0,
-                                    end_range= 1, print_when_mutating=False)
+        # print("module pop:",Generation.module_population)
+        self.species_number = Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=0, start_range=0,
+                                      end_range=1, print_when_mutating=False)
 
     def get_all_mutagens(self):
         return [self.species_number]

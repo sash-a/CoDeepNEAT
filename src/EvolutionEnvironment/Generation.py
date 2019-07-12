@@ -1,5 +1,5 @@
 import src.Config.NeatProperties as Props
-from src.NEAT.MultiobjectivePopulation import MultiobjectivePopulation
+# from src.NEAT.MultiobjectivePopulation import MultiobjectivePopulation
 from src.NEAT.Population import Population
 
 from src.NeuralNetwork import Evaluator
@@ -23,21 +23,22 @@ class Generation:
         print('initialising population')
         global module_population
 
-        PopulationType = Population if Config.second_objective == '' else MultiobjectivePopulation
+        # PopulationType = Population if Config.second_objective == '' else MultiobjectivePopulation
+        PopulationType = Population
         print('type:', PopulationType)
 
         module_population = PopulationType(PopInit.initialise_modules(),
                                            PopInit.initialize_mutations(),
                                            Props.MODULE_POP_SIZE,
-                                           Props.MODULE_NODE_MUTATION_CHANCE,
-                                           Props.MODULE_CONN_MUTATION_CHANCE,
+                                           2,
+                                           2,
                                            Props.MODULE_TARGET_NUM_SPECIES)
 
         blueprint_population = PopulationType(PopInit.initialise_blueprints(),
                                               PopInit.initialize_mutations(),
                                               Props.BP_POP_SIZE,
-                                              Props.BP_NODE_MUTATION_CHANCE,
-                                              Props.BP_CONN_MUTATION_CHANCE,
+                                              2,
+                                              2,
                                               Props.BP_TARGET_NUM_SPECIES)
 
         print('population initialized')
@@ -79,9 +80,8 @@ class Generation:
 
             # All computationally expensive tests go here
             if Config.test_in_run:
-                #print('Blueprint is valid:', blueprint_individual.validate())
+                # print('Blueprint is valid:', blueprint_individual.validate())
                 pass
-
 
             if Config.protect_parsing_from_errors:
                 try:

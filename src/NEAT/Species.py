@@ -1,58 +1,101 @@
+import random
 import src.Config.NeatProperties as Props
-from src.NEAT.Genome import Genome
-from src.CoDeepNEAT.BlueprintGenome import BlueprintGenome
-from src.CoDeepNEAT.ModuleGenome import ModuleGenome
-from random import randint
-
-from src.Multiobjective.ParetoFront import CDN_pareto
-
-from typing import List, Union
-
+import math
 
 class Species:
+    def __init__(self, representative):
+        # Possible extra attribs:
+        # age, hasBest, noImprovement
+        self.representative = representative
+        self.members = [representative]
+        self.next_species_size = 1000
+        self.fitness = -1
 
-    def __init__(self, representative: Union[Genome, ModuleGenome, BlueprintGenome]):
-        self.representative: Union[Genome, ModuleGenome, BlueprintGenome] = representative
-        self.members: List[Union[Genome, ModuleGenome, BlueprintGenome]] = [representative]
+    def __iter__(self):
+        return iter(self.members)
 
-    def add_member(self, new_member, thresh=Props.SPECIES_DISTANCE_THRESH, safe=True):
-        if safe:
-            if self.is_compatible(new_member, thresh):
-                self.members.append(new_member)
-        else:
-            self.members.append(new_member)
+    def __len__(self):
+        return len(self.members)
 
-    def is_compatible(self, individual, thresh=Props.SPECIES_DISTANCE_THRESH, c1=1, c2=1):
-        return self.representative.distance_to(individual, c1, c2) <= thresh
+    def add(self, individual):
+        self.members.append(individual)
+        """removed becasue speciation redifines species borders  -so allowing more individuals in is acceptable"""
+        # if len(self.members) > self.next_species_size:
+        #     raise Exception("added too many individuals to species. max:", self.next_species_size)
 
-    def clear(self):
-        self.members.clear()
+    def step(self, mutation_record):
+        if len(self.members) == 0:
+            raise Exception("cannot step empty species")
+
+        if self.next_species_size == 0:
+            self.members = []
+            return
+
+        self._rank_species()
+        elite_count = math.ceil(Props.ELITE_TO_KEEP * len(self.members))
+        self._cull_species()
+        print("reproducing species with target member size=", self.next_species_size)
+        self._reproduce(mutation_record, elite_count)
+
+        if len(self.members) != self.next_species_size:
+            raise Exception("created next generation but population size(" + repr(
+                len(self.members)) + ")is wrong should be:(" + repr(self.next_species_size) + ")")
+
+        self._select_representative()
+
+    def _reproduce(self, mutation_record, number_of_elite):
+        print("number of elite:", number_of_elite, "num children to be created:",
+              (self.next_species_size - number_of_elite))
+        elite = self.members[:number_of_elite]
+        children = []
+        tries = 10 * (self.next_species_size - len(elite))
+
+        while len(children) + len(elite) < self.next_species_size:
+            parent1 = random.choice(self.members)
+            parent2 = random.choice(self.members)
+
+            best = parent1 if parent1 < parent2 else parent2
+            worst = parent1 if parent1 > parent2 else parent2
+
+            child = best.crossover(worst)
+            if child is None:
+                raise Exception("Error: cross over produced null child")
+
+
+            if child.validate():
+                # print("found valid child:",child)
+                child = child.mutate(mutation_record)
+                children.append(child)
+                # print("adding new child",child)
+
+            tries -= 1
+            if tries == 0:
+                raise Exception("Error: Species " + repr(self) + " failed to create enough healthy offspring")
+        children.extend(elite)
+        self.members = children
+
+    def _rank_species(self):
+        # note original checks for equal fitnesses and chooses one with more genes
+        self.members.sort(key=lambda x: x.rank)
+
+    def get_average_rank(self):
+        return sum([indv.rank for indv in self.members]) / len(self.members)
+
+    def _cull_species(self):
+        print("culing species with", len(self.members), end="; ")
+        surivors = math.ceil(Props.PERCENT_TO_REPRODUCE * len(self.members))
+        self.members = self.members[:surivors]
+        print("after culling:", len(self.members))
+
+    def _select_representative(self):
+        self.representative = random.choice(self.members)
+
+    def empty_species(self):
+        self.members = []
+
+    def set_next_species_size(self, species_size):
+        self.next_species_size = species_size
 
     def sample_individual(self):
-        index = randint(0, len(self.members) - 1)
+        index = random.randint(0, len(self.members) - 1)
         return self.members[index], index
-
-    def pareto_front(self, algorithm='cdn'):
-        if not (type(self.representative) == ModuleGenome or type(self.representative) == BlueprintGenome):
-            raise TypeError('Genome is not multiobjective, therefore cannot find the pareto front')
-
-        if algorithm == 'cdn':
-            return CDN_pareto(self.members)
-        else:
-            raise ValueError('algorithm may only be \'cdn\'')
-
-    # This is better here but it does not allow for easy multiobjectivity
-    # def save_elite(self):
-    #     pf = self.pareto_front()
-    #     self.members = self.members[len(pf):]
-    #
-    #     while self.members:
-    #         next_front = self.pareto_front()
-    #         pf.extend(next_front)
-    #         self.members = self.members[len(next_front):]
-    #
-    #     members_to_save = max(2, int(Props.PERCENT_TO_SAVE * len(pf)))
-    #     pf = pf[:members_to_save]
-    #     self.members = pf
-    #
-    #     return pf

@@ -76,8 +76,8 @@ class Node:
 
         return False
 
-    def plot_tree_with_graphvis(self , title="", graph = None,nodes_plotted=None, file = "temp"):
-        file = "../Analysis/Graphs/"+file
+    def plot_tree_with_graphvis(self, title="", graph=None, nodes_plotted=None, file="temp"):
+        file = "../Analysis/Graphs/" + file
 
         if graph is None:
             graph = graphviz.Digraph(comment=title)
@@ -177,16 +177,20 @@ class Node:
         return nodes
 
     def severe_node(self):
-        """removes this node entirely from the graph.
-        removes self as a child of all parents and removes self as a parent of all children"""
+        """
+            removes this node entirely from the graph.
+            removes self as a child of all parents and removes self as a parent of all children
+        """
         # print("severing node",self)
         for parent in self.parents:
             # print("severing",self, "from parent",parent)
             parent.children.remove(self)
+        self.parents = []
 
         for child in self.children:
             # print("severing",self, "from parent",child)
             child.parents.remove(self)
+        self.children = []
 
 
 def gen_node_graph(node_type, graph_type="diamond", linear_count=1):
