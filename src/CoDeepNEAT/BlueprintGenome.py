@@ -1,6 +1,6 @@
 from src.NEAT.Genome import Genome
 from src.Blueprint.Blueprint import BlueprintNode
-from src.NEAT.Connection import Connection
+from src.NEAT.Gene import ConnectionGene
 from src.CoDeepNEAT.BlueprintNEATNode import BlueprintNEATNode
 
 
@@ -18,9 +18,8 @@ class BlueprintGenome(Genome):
         """
         return super().to_phenotype(BlueprintNode)
 
-    def _mutate_add_node(self, conn: Connection, mutations: dict, innov: int, node_id: int,
-                         MutationType=BlueprintNEATNode):
-        return super()._mutate_add_node(conn, mutations, innov, node_id, MutationType)  # innov, node_id
+    def mutate(self, mutation_record):
+
 
     def report_fitness(self, *fitnesses):
         # print('recieved fitness:', fitnesses)

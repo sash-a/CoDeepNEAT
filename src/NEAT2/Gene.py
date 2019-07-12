@@ -67,3 +67,5 @@ class ConnectionGene(Gene):
 
         genome.add_connection(mutated_from_conn)
         genome.add_connection(mutated_to_conn)
+
+        self.enabled.set_value(False)

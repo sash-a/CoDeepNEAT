@@ -185,3 +185,55 @@ class Genome:
                 found_output = found_output or self._validate_traversal(child, traversal_dictionary)
 
         return found_output
+
+    def to_phenotype(self, Phenotype):
+        phenotyes = {}
+
+        root_node = None
+        output_node = None
+        for node in self._nodes.values():
+            phenotyes[node.id] = Phenotype(node, self)
+            if node.is_input_node():
+                root_node = phenotyes[node.id]
+            if node.is_output_node():
+                output_node = phenotyes[node.id]
+
+        for conn in self._connections.values():
+            if not conn.enabled():
+                continue
+
+            if conn.from_node == conn.to_node:
+                raise Exception("connection from and to the same node", conn.from_node)
+
+            parent = phenotyes[conn.from_node]
+            child = phenotyes[conn.to_node]
+
+            parent.add_child(child)
+
+        sampled_trailing_node = root_node.get_output_node()
+        while not sampled_trailing_node == output_node:
+            # print("sampled a false output node:", sampled_trailing_node, "real output node:", output_node)
+            sampled_trailing_node.severe_node()
+            sampled_trailing_node = root_node.get_output_node()
+            if sampled_trailing_node == root_node:
+                print(self)
+                raise Exception("root node is output node - num children:", len(root_node.children))
+
+        output_reaching_nodes = root_node.get_all_nodes_via_bottom_up(set())
+        input_reaching_nodes = output_node.get_all_nodes_via_top_down(set())
+
+        fully_connected_nodes = output_reaching_nodes.intersection(input_reaching_nodes)
+
+        if not output_node in fully_connected_nodes:
+            raise Exception("output node not in fully connected nodes")
+
+        for neat_node in self._nodes.values():
+            graph_node = phenotyes[neat_node.id]
+            if graph_node in fully_connected_nodes:
+                continue
+            if neat_node.node_type == NodeType.OUTPUT:
+                raise Exception("severing the neat output node, is_graph_output_node:", graph_node.is_output_node())
+            graph_node.severe_node()
+
+        root_node.get_traversal_ids("_")
+        return root_node

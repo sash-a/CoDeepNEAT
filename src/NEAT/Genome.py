@@ -208,6 +208,7 @@ class Genome:
             if neat_node.is_input_node():
                 if not (root_node is None):
                     raise Exception("multiple neat nodes labelled input node")
+
                 root_node = graph_node_map[neat_node.id]
             if neat_node.is_output_node():
                 if not (output_graph_node is None):
