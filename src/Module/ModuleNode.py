@@ -217,15 +217,15 @@ class ModuleNode(Node):
         try:
             features = input_shape[1]
         except:
-            print("could not extract features from",input_shape)
+            raise Exception("could not extract features from",input_shape)
 
 
         if(self.is_conv2d()):
             #TODO non square conv dims
             conv_dim = int(math.pow(input_flat_size/features,0.5))
             if not (math.pow(conv_dim,2)*features == input_flat_size):
-                print("error calculating conv dim from input flat size:",input_flat_size, " tried conv size",conv_dim)
-                return
+                raise Exception("error calculating conv dim from input flat size:",input_flat_size, " tried conv size",conv_dim)
+
             output_shape = [input_shape[0], features, conv_dim,conv_dim]
             #print('adding convreshape node for', input_shape, "num features:",features, "out shape:",output_shape)
 
@@ -244,7 +244,7 @@ class ModuleNode(Node):
     def get_parameters(self, parametersDict, top=True):
 
         if self not in parametersDict:
-            if (self.deep_layer is None):
+            if self.deep_layer is None:
                 raise Exception("no deep layer - ", self)
 
             myParams = self.deep_layer.parameters()

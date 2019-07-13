@@ -21,8 +21,7 @@ def merge_linear_and_conv(linear, conv, lossy= True):
             conv_features = list(conv.size())[1]
 
             if(conv_features > linear_features):
-                print("error: reduced conv in lossy merge with linear. but conv still has more features")
-                return
+                raise Exception("error: reduced conv in lossy merge with linear. but conv still has more features")
 
         feature_diff = linear_features - conv_features
         conv = F.pad(input=conv, pad=(feature_diff//2, feature_diff - feature_diff//2))
@@ -39,7 +38,7 @@ def merge_linear_outputs( previous_num_features, previous_inputs, new_num_featur
         previous = torch.sum(torch.stack(previous_inputs), dim=0)
         return [torch.cat([previous, new_input],dim=0)]
     else:
-
+        print("padding linear outputs to merge")
         new_input, previous_inputs= pad_linear_outputs(previous_inputs, new_input)
         previous_inputs.append(new_input)
         return previous_inputs
@@ -51,11 +50,15 @@ def pad_linear_outputs(previous_inputs, new_input):
     right_pad = abs(size_diff)-left_pad
     if(size_diff > 0):
         #previous is larger
-        for i in range(len(previous_inputs)):
-            previous_inputs[i] = F.pad(input=previous_inputs[i], pad=(left_pad,right_pad))
+        new_input = F.pad(input=new_input, pad=(left_pad, right_pad))
     else:
         #new is larger
-        new_input = F.pad(input=new_input,  pad=(left_pad,right_pad))
+        for i in range(len(previous_inputs)):
+            previous_inputs[i] = F.pad(input=previous_inputs[i], pad=(left_pad,right_pad))
+
+    size_diff = list(previous_inputs[0].size())[1] - list(new_input.size())[1]
+    if size_diff != 0:
+        raise Exception("padding linear outputs failed. new size:",list(new_input.size())[1],"hom size:",list(previous_inputs[0].size())[1])
 
     return new_input, previous_inputs
 
@@ -81,7 +84,6 @@ def merge_conv_outputs(previous_num_features, previous_inputs, new_num_features,
             new_input, previous_inputs = pad_conv_input(x1, x2, y1, y2, new_input, previous_inputs)
         x1,y1, x2, y2 = new_input.size()[2], new_input.size()[3], previous_inputs[0].size()[2],  previous_inputs[0].size()[3]
         #print("\treturning prev:", x1, y1, "new:", x2, y2)
-
 
     else:
         # tensors are similar size - can be padded
