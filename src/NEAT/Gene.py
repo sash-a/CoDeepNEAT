@@ -1,4 +1,4 @@
-from NEAT.Mutagen import Mutagen
+from src.NEAT.Mutagen import Mutagen
 from enum import Enum
 
 

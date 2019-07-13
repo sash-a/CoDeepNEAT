@@ -1,6 +1,6 @@
 from src.NEAT.Gene import NodeGene, NodeType
-from NEAT.Mutagen import Mutagen
-from NEAT.Mutagen import ValueType
+from src.NEAT.Mutagen import Mutagen
+from src.NEAT.Mutagen import ValueType
 
 
 class BlueprintNEATNode(NodeGene):

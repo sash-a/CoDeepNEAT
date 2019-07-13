@@ -91,7 +91,7 @@ class Population:
                 best_fit_species.add(individual)
             else:
                 self.species.append(Species(individual))
-                print("created new species:", self.species[-1])
+                #print("created new species:", self.species[-1])
 
         self.species = [spc for spc in self.species if spc.members]
         self.adjust_speciation_threshold()
@@ -140,7 +140,7 @@ class Population:
         self.rank_population()
         self.update_species_sizes()
 
-        print("stepping population with", len(self.species), "species")
+        #print("stepping population with", len(self.species), "species")
 
         for species in self.species:
             species.step(self.mutation_record)

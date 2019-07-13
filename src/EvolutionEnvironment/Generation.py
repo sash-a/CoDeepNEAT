@@ -58,6 +58,7 @@ class Generation:
         for module_individual in self.module_population.individuals:
             module_individual.clear()  # this also sets fitness to zero
 
+
     def evaluate(self, generation_number):
         print("num species:", len(self.module_population.species))
         inputs, targets = Evaluator.sample_data('mnist', '../../data')
