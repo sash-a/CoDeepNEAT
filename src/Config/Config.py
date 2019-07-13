@@ -12,6 +12,6 @@ protect_parsing_from_errors = False
 
 number_of_epochs_per_evaluation = 3
 
-print_best_graphs = False
-print_best_graph_every_n_generations = 3
+print_best_graphs = True
+print_best_graph_every_n_generations = 5
 print_failed_graphs = True

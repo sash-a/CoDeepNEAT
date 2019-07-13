@@ -21,10 +21,12 @@ class ModuleGenome(Genome):
         :return: the module graph this individual represents
         """
         if self.module_node is not None:
-            print("module genome already has module - returning a copy")
+            #print("module genome already has module - returning a copy")
             return copy.deepcopy(self.module_node)
 
-        return copy.deepcopy(super().to_phenotype(ModuleNode))
+        module = super().to_phenotype(ModuleNode)
+        self.module_node = module
+        return copy.deepcopy(module)
 
     def mutate(self, mutation_record):
         return super()._mutate(mutation_record, Props.MODULE_NODE_MUTATION_CHANCE, Props.MODULE_CONN_MUTATION_CHANCE)

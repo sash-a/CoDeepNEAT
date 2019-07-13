@@ -17,3 +17,4 @@ class BlueprintNEATNode(NodeGene):
 
     def set_species_upper_bound(self, num_species):
         self.species_number._end_range = num_species
+        self.species_number.set_value(min(self.species_number(), num_species-1))

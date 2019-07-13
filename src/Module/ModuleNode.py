@@ -245,10 +245,8 @@ class ModuleNode(Node):
 
         if self not in parametersDict:
             if (self.deep_layer is None):
-                print("no deep layer - ", self)
+                raise Exception("no deep layer - ", self)
 
-            # if(top ):
-            #     print("top is input:",self.is_input_node())
             myParams = self.deep_layer.parameters()
             parametersDict[self] = myParams
 

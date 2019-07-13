@@ -21,6 +21,16 @@ class Gene:
     def __hash__(self):
         return self.id
 
+    def get_all_mutagens(self):
+        raise NotImplementedError("Implement get all mutagens in super classes")
+
+    def mutate(self):
+        mutated = False
+        for mutagen in self.get_all_mutagens():
+            mutated =mutagen.mutate() or mutated
+
+        return mutated
+
 
 class NodeType(Enum):
     INPUT = 0
@@ -53,6 +63,9 @@ class ConnectionGene(Gene):
 
     def __repr__(self):
         return "Conn(" + repr(self.from_node) + "->" + repr(self.to_node) + ")"
+
+    def get_all_mutagens(self):
+        return [self.enabled]
 
     def mutate_add_node(self, mutation_record, genome):
         mutation = self.id

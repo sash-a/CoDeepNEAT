@@ -121,7 +121,7 @@ class Generation:
 
         if generation_number % Config.print_best_graph_every_n_generations == 0:
             if Config.print_best_graphs:
-                best_bp.plot_tree_with_graphvis(title="gen:" + str(generation_number) + " acc:" + str(best_acc))
+                best_bp.plot_tree_with_graphvis(title="gen:" + str(generation_number) + " acc:" + str(best_acc), file = "best_of_gen_"+repr(generation_number))
 
         RuntimeAnalysis.log_new_generation(accuracies, generation_number,
                                            second_objective_values=(
@@ -149,17 +149,18 @@ class Generation:
                 module_graph.plot_tree_with_graphvis("module graph which failed to parse to nn")
             raise Exception("Error: failed to parse module graph into nn")
 
-        try:
-            net.specify_dimensionality(inputs)
-        except Exception as e:
-            print("Error:", e)
-            if Config.print_failed_graphs:
-                module_graph.plot_tree_with_graphvis(title="module graph with error passing input through net",
-                                                     file="module_graph_with_agg")
-                sans_aggregators.plot_tree_with_graphvis(title="previous module graph but without agg nodes",
-                                                         file="module_graph_without_agg")
-                print('failed graph:', blueprint_individual)
-            raise Exception("Error: nn failed to have input passed through")
+        net.specify_dimensionality(inputs)
+        # try:
+        #     net.specify_dimensionality(inputs)
+        # except Exception as e:
+        #     print("Error:", e)
+        #     if Config.print_failed_graphs:
+        #         module_graph.plot_tree_with_graphvis(title="module graph with error passing input through net",
+        #                                              file="module_graph_with_agg")
+        #         sans_aggregators.plot_tree_with_graphvis(title="previous module graph but without agg nodes",
+        #                                                  file="module_graph_without_agg")
+        #         print('failed graph:', blueprint_individual)
+        #     raise Exception("Error: nn failed to have input passed through")
 
         if Config.dummy_run and generation_number < 500:
             acc = hash(net)
