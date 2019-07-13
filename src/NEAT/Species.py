@@ -46,9 +46,8 @@ class Species:
         self.age+=1
 
     def _reproduce(self, mutation_record, number_of_elite):
-        print("reproducing species(",self.get_species_type(),") of size",len(self.members),"with target member size=", self.next_species_size,end=", ")
-        print("number of elite:", number_of_elite, "num children to be created:",
-              (self.next_species_size - number_of_elite))
+        #print("reproducing species(",self.get_species_type(),") of size",len(self.members),"with target member size=", self.next_species_size,end=", ")
+        #print("number of elite:", number_of_elite, "num children to be created:",(self.next_species_size - number_of_elite))
         elite = self.members[:number_of_elite]
         children = []
         tries = 10 * (self.next_species_size - len(elite))

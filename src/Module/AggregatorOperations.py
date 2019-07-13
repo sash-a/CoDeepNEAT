@@ -12,7 +12,7 @@ def merge_linear_and_conv(linear, conv, lossy= True):
         conv_channels = list(conv.size())[1]
         linear_features = list(linear.size())[1]
         if conv_channels > linear_features:
-            print("conv has more channels(",conv_channels,")","than linear has features(",linear_features,") - must pad linear")
+            #print("conv has more channels(",conv_channels,")","than linear has features(",linear_features,") - must pad linear")
             left_pad = round((conv_channels-linear_features)/2)
             right_pad = (conv_channels-linear_features)-left_pad
             linear = F.pad(input=linear, pad = (left_pad,right_pad))
@@ -49,7 +49,6 @@ def merge_linear_outputs( previous_num_features, previous_inputs, new_num_featur
         previous_inputs.append(new_input)
         return previous_inputs
 
-    
 def pad_linear_outputs(previous_inputs, new_input):
     size_diff = list(previous_inputs[0].size())[1] - list(new_input.size())[1]
     left_pad = round(abs(size_diff)/2)
