@@ -156,7 +156,8 @@ class Node:
             node.traversal_id = ""
 
     def get_all_nodes_via_bottom_up(self, nodes: set):
-        if (self in nodes):
+        """Should be called from the input node"""
+        if self in nodes:
             return
 
         nodes.add(self)
@@ -166,8 +167,8 @@ class Node:
         return nodes
 
     def get_all_nodes_via_top_down(self, nodes: set):
-        """should be called from the output node"""
-        if (self in nodes):
+        """Should be called from the output node"""
+        if self in nodes:
             return
 
         nodes.add(self)
@@ -178,8 +179,8 @@ class Node:
 
     def severe_node(self):
         """
-            removes this node entirely from the graph.
-            removes self as a child of all parents and removes self as a parent of all children
+            Removes this node entirely from the graph.
+            Removes self as a child of all parents and removes self as a parent of all children
         """
         # print("severing node",self)
         for parent in self.parents:

@@ -2,11 +2,9 @@ from src.NEAT.Gene import ConnectionGene, NodeGene, NodeType
 from typing import Iterable
 import copy
 import random
-from src.Config import NeatProperties as Props
 
 
 class Genome:
-
     def __init__(self, connections: Iterable[ConnectionGene], nodes: Iterable[NodeGene]):
         self.rank = 0  # accuracy is single OBJ else rank
         self.fitness_values: list = []
@@ -26,6 +24,9 @@ class Genome:
     def __lt__(self, other):
         return self.rank < other.rank
 
+    def __repr__(self):
+        return repr(list(self._connections.values()))
+
     def get_unique_genes(self, other):
         return set(self._connections.keys()) - set(other._connections.keys())
 
@@ -33,16 +34,13 @@ class Genome:
         return set(self._connections.keys()) ^ set(other._connections.keys())
 
     def add_node(self, node):
-        """Add nodes"""
+        """Add node. Nodes must be added before their connections"""
         if node.id in self._nodes:
             raise Exception("Added node " + repr(node) + " already in genome " + repr(self))
         self._nodes[node.id] = node
 
     def add_connection(self, conn, ignore_height_exception=False):
-        """
-            Add connections
-            Nodes must be added before their connections
-        """
+        """Add connections. Nodes must be added before their connections"""
         if conn.id in self._connections:
             raise Exception("Added connection " + repr(conn) + " already in genome " + repr(self))
         if not (conn.from_node in self._nodes and conn.to_node in self._nodes):
@@ -80,7 +78,6 @@ class Genome:
                                                       random.choice(list(self._nodes.values())),
                                                       random.choice(list(self._nodes.values())))
                 tries -= 1
-
 
         # for connection in self._connections.values():
         #     topology_changed = topology_changed or connection.mutate()
@@ -156,12 +153,7 @@ class Genome:
         raise Exception('Genome:', self, 'could not find an output node')
 
     def validate(self):
-        found_output = self._validate_traversal(self.get_input_node().id, self._get_traversal_dictionary(True))
-        if not found_output:
-            print("Error: could not find output node via bottom up traversal due to disabled connections")
-            return False
-
-        return True
+        return self._validate_traversal(self.get_input_node().id, self._get_traversal_dictionary(True))
 
     def _get_traversal_dictionary(self, exclude_disabled_connection=False):
         """:returns a mapping of from node id to a list of to node ids"""
@@ -227,29 +219,32 @@ class Genome:
 
             parent.add_child(child)
 
-        sampled_trailing_node = root_node.get_output_node()
-        while not sampled_trailing_node == output_node:
-            # print("sampled a false output node:", sampled_trailing_node, "real output node:", output_node)
-            sampled_trailing_node.severe_node()
-            sampled_trailing_node = root_node.get_output_node()
-            if sampled_trailing_node == root_node:
-                print(self)
-                raise Exception("root node is output node - num children:", len(root_node.children))
+        # sampled_trailing_node = root_node.get_output_node()
+        # while not sampled_trailing_node == output_node:
+        #     # print("sampled a false output node:", sampled_trailing_node, "real output node:", output_node)
+        #     sampled_trailing_node.severe_node()
+        #     sampled_trailing_node = root_node.get_output_node()
+        #     if sampled_trailing_node == root_node:
+        #         print(self)
+        #         raise Exception("root node is output node - num children:", len(root_node.children))
 
         output_reaching_nodes = root_node.get_all_nodes_via_bottom_up(set())
         input_reaching_nodes = output_node.get_all_nodes_via_top_down(set())
 
-        fully_connected_nodes = output_reaching_nodes.intersection(input_reaching_nodes)
+        fully_connected_nodes = output_reaching_nodes & input_reaching_nodes
 
-        if not output_node in fully_connected_nodes:
+        if output_node not in fully_connected_nodes:
             raise Exception("output node not in fully connected nodes")
 
         for neat_node in self._nodes.values():
             graph_node = phenotyes[neat_node.id]
+
             if graph_node in fully_connected_nodes:
                 continue
+
             if neat_node.node_type == NodeType.OUTPUT:
-                raise Exception("severing the neat output node, is_graph_output_node:", graph_node.is_output_node())
+                raise Exception("Output node was not added to fully connected nodes")
+
             graph_node.severe_node()
 
         root_node.get_traversal_ids("_")

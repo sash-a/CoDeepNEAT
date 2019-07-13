@@ -36,3 +36,9 @@ class BlueprintGenome(Genome):
     def reset_number_of_module_species(self, num_module_species):
         for node in self._nodes.values():
             node.set_species_upper_bound(num_module_species)
+
+    def __repr__(self):
+        return '------------------Blueprint structure------------------\n' + \
+               super().__repr__() + \
+               '\n------------------Modules used------------------\n' + \
+               repr([repr(module) for module in self.modules_used])

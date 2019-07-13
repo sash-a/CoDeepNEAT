@@ -2,6 +2,7 @@ import random
 import src.Config.NeatProperties as Props
 import math
 
+
 class Species:
     def __init__(self, representative):
         # Possible extra attribs:
@@ -43,11 +44,11 @@ class Species:
                 len(self.members)) + ")is wrong should be:(" + repr(self.next_species_size) + ")")
 
         self._select_representative()
-        self.age+=1
+        self.age += 1
 
     def _reproduce(self, mutation_record, number_of_elite):
-        #print("reproducing species(",self.get_species_type(),") of size",len(self.members),"with target member size=", self.next_species_size,end=", ")
-        #print("number of elite:", number_of_elite, "num children to be created:",(self.next_species_size - number_of_elite))
+        # print("reproducing species(",self.get_species_type(),") of size",len(self.members),"with target member size=", self.next_species_size,end=", ")
+        # print("number of elite:", number_of_elite, "num children to be created:",(self.next_species_size - number_of_elite))
         elite = self.members[:number_of_elite]
         children = []
         tries = 10 * (self.next_species_size - len(elite))
@@ -63,16 +64,14 @@ class Species:
             if child is None:
                 raise Exception("Error: cross over produced null child")
 
-
             if child.validate():
-                # print("found valid child:",child)
                 child = child.mutate(mutation_record)
                 children.append(child)
-                # print("adding new child",child)
 
             tries -= 1
             if tries == 0:
                 raise Exception("Error: Species " + repr(self) + " failed to create enough healthy offspring")
+
         children.extend(elite)
         self.members = children
 
@@ -87,10 +86,10 @@ class Species:
         if self.age < 3:
             return
 
-        #print("culing species with", len(self.members), end="; ")
+        # print("culing species with", len(self.members), end="; ")
         surivors = math.ceil(Props.PERCENT_TO_REPRODUCE * len(self.members))
         self.members = self.members[:surivors]
-        #print("after culling:", len(self.members))
+        # print("after culling:", len(self.members))
 
     def _select_representative(self):
         self.representative = random.choice(self.members)
@@ -104,7 +103,6 @@ class Species:
     def sample_individual(self):
         index = random.randint(0, len(self.members) - 1)
         return self.members[index], index
-
 
     def get_species_type(self):
         if len(self.members) > 0:

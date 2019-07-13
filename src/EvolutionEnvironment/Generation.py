@@ -58,18 +58,13 @@ class Generation:
         for module_individual in self.module_population.individuals:
             module_individual.clear()  # this also sets fitness to zero
 
-
     def evaluate(self, generation_number):
         print("num species:", len(self.module_population.species))
         inputs, targets = Evaluator.sample_data('mnist', '../../data')
 
-        best_acc = -9999999999999999999
-        best_bp = None
-        accuracies = []
-        second_objective_values = []
-        best_second = -9999999999999999999
-        third_objective_values = []
-        best_third = -9999999999999999999
+        best_acc, best_second, best_third = float('-inf'), float('-inf'), float('-inf')
+        best_bp, best_bp_genome = None, None
+        accuracies, second_objective_values, third_objective_values = [], [], []
 
         # Randomize the list so that random individuals are sampled more often
         random.shuffle(self.blueprint_population.individuals)
@@ -79,9 +74,8 @@ class Generation:
             if Props.INDIVIDUALS_TO_EVAL < i:
                 break
 
-            # All computationally expensive tests go here
+            # All computationally expensive tests
             if Config.test_in_run:
-                # print('Blueprint is valid:', blueprint_individual.validate())
                 pass
 
             if Config.protect_parsing_from_errors:
@@ -90,48 +84,52 @@ class Generation:
                                                                                            generation_number)
                 except Exception as e:
                     blueprint_individual.defective = True
+                    print('Blueprint ran with errors, marking as defective\n', blueprint_individual)
                     print(e)
-                    print("blueprint indv ran with errors")
                     continue
             else:
                 module_graph, blueprint_individual, results = self.evaluate_blueprints(blueprint_individual, inputs,
                                                                                        generation_number)
 
-            second = third = None
             if len(results) == 1:
                 acc = results[0]
             elif len(results) == 2:
                 acc, second = results
+
+                best_second = max(best_second, second)
+                second_objective_values.append(second)
             elif len(results) == 3:
                 acc, second, third = results
+
+                best_second = max(best_second, second)
+                second_objective_values.append(second)
+
+                best_third = max(best_third, third)
+                third_objective_values.append(third)
             else:
                 raise Exception("Error: too many result values to unpack")
 
             if acc >= best_acc:
                 best_acc = acc
                 best_bp = module_graph
-            accuracies.append(acc)
+                best_bp_genome = blueprint_individual
 
-            if not (second is None):
-                best_second = max(best_second, second)
-                second_objective_values.append(second)
-            if not (third is None):
-                best_third = max(best_third, third)
-                third_objective_values.append(third)
+            accuracies.append(acc)
 
         if generation_number % Config.print_best_graph_every_n_generations == 0:
             if Config.print_best_graphs:
-                best_bp.plot_tree_with_graphvis(title="gen:" + str(generation_number) + " acc:" + str(best_acc), file = "best_of_gen_"+repr(generation_number))
+                print('Best blueprint:\n', best_bp_genome)
+                best_bp.plot_tree_with_graphvis(title="gen:" + str(generation_number) + " acc:" + str(best_acc),
+                                                file="best_of_gen_" + repr(generation_number))
 
         RuntimeAnalysis.log_new_generation(accuracies, generation_number,
                                            second_objective_values=(
                                                second_objective_values if len(second_objective_values) > 0 else None),
                                            third_objective_values=(
                                                third_objective_values if len(third_objective_values) > 0 else None))
-        print('best acc', best_acc)
+        print('Best accuracy:', best_acc)
 
     def evaluate_blueprints(self, blueprint_individual, inputs, generation_number):
-
         blueprint = blueprint_individual.to_blueprint()
         # module_graph = blueprint.parseto_module_graph(self)
         module_graph, sans_aggregators = blueprint.parseto_module_graph(self, return_graph_without_aggregators=True)
@@ -139,7 +137,6 @@ class Generation:
         if module_graph is None:
             raise Exception("null module graph produced from blueprint")
 
-        # net = module_graph.to_nn(in_features=1, device=device)
         try:
             # print("using infeatures = ",module_graph.get_first_feature_count(inputs))
             net = module_graph.to_nn(in_features=module_graph.get_first_feature_count(inputs))

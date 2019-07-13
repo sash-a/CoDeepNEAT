@@ -27,7 +27,7 @@ class Gene:
     def mutate(self):
         mutated = False
         for mutagen in self.get_all_mutagens():
-            mutated =mutagen.mutate() or mutated
+            mutated = mutagen.mutate() or mutated
 
         return mutated
 
@@ -62,7 +62,7 @@ class ConnectionGene(Gene):
         self.enabled = Mutagen(True, False, discreet_value=True)
 
     def __repr__(self):
-        return "Conn(" + repr(self.from_node) + "->" + repr(self.to_node) + ")"
+        return 'Conn: ' + repr(self.from_node) + "->" + repr(self.to_node) + ' (' + repr(self.enabled()) + ')'
 
     def get_all_mutagens(self):
         return [self.enabled]
@@ -76,7 +76,7 @@ class ConnectionGene(Gene):
             mutated_to_conn_id = mutation_record.mutations[(mutated_node_id, self.to_node)]
             # print("mutated node already existed - id's: node:",mutated_node_id,"connections:",mutated_from_conn_id,mutated_to_conn_id)
             if mutated_node_id in genome._nodes:  # this connection has already created a new node
-                return  #TODO retry
+                return  # TODO retry
 
         else:
             mutated_node_id = mutation_record.add_mutation(mutation)
@@ -86,7 +86,7 @@ class ConnectionGene(Gene):
 
         NodeType = type(list(genome._nodes.values())[0])
         mutated_node = NodeType(mutated_node_id)
-        mutated_node.height = (genome._nodes[self.from_node].height + genome._nodes[self.to_node].height)/2
+        mutated_node.height = (genome._nodes[self.from_node].height + genome._nodes[self.to_node].height) / 2
         genome.add_node(mutated_node)
 
         mutated_from_conn = ConnectionGene(mutated_from_conn_id, self.from_node, mutated_node_id)
