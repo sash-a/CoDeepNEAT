@@ -9,19 +9,25 @@ def merge_linear_and_conv(linear, conv, lossy= True):
     if(lossy):
         #reduce conv features until it can be reshaped to match dimensionality of linear - then sum
         conv_features = Utils.get_flat_number(conv)
+        conv_channels = list(conv.size())[1]
         linear_features = list(linear.size())[1]
+        if conv_channels > linear_features:
+            print("conv has more channels(",conv_channels,")","than linear has features(",linear_features,") - must pad linear")
+            left_pad = round((conv_channels-linear_features)/2)
+            right_pad = (conv_channels-linear_features)-left_pad
+            linear = F.pad(input=linear, pad = (left_pad,right_pad))
+            linear_features = list(linear.size())[1]
 
+        #print("merging conv",conv.size(),"and linear",linear.size())
         if(conv_features > linear_features):
             reduction_factor = math.ceil(math.pow(conv_features/linear_features, 0.5))#square root because max pool reduces on two dims x*y
-            if(reduction_factor > 3):
-                #print("lossy merge of conv+linear has reduction factor of:",reduction_factor)
-                pass
             batch_size = list(conv.size())[0]
             conv = F.max_pool2d(conv, kernel_size = (reduction_factor, reduction_factor)).view(batch_size,-1)
             conv_features = list(conv.size())[1]
 
             if(conv_features > linear_features):
-                raise Exception("error: reduced conv in lossy merge with linear. but conv still has more features")
+                raise Exception("error: reduced conv (factor=",reduction_factor,") in lossy merge with linear. but conv still has more features.\n"
+                                                                                "conv:",conv.size(),conv_features,"linear:",linear.size(),linear_features)
 
         feature_diff = linear_features - conv_features
         conv = F.pad(input=conv, pad=(feature_diff//2, feature_diff - feature_diff//2))
@@ -30,15 +36,15 @@ def merge_linear_and_conv(linear, conv, lossy= True):
 
     else:
         #use an additional linear layer to map the conv features to a linear the same shape as the given linear
-        pass
+        raise NotImplementedError("not yet implemented lossless merge of conv and linear")
 
 def merge_linear_outputs( previous_num_features, previous_inputs, new_num_features, new_input, cat = False):
-    print("merging linear layers with different feature counts")
+    #print("merging linear layers with different feature counts")
     if(cat):
         previous = torch.sum(torch.stack(previous_inputs), dim=0)
         return [torch.cat([previous, new_input],dim=0)]
     else:
-        print("padding linear outputs to merge")
+        #print("padding linear outputs to merge")
         new_input, previous_inputs= pad_linear_outputs(previous_inputs, new_input)
         previous_inputs.append(new_input)
         return previous_inputs
