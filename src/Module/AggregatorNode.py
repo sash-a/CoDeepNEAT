@@ -43,7 +43,7 @@ class AggregatorNode(Module):
         if include_shape:
             return 'bo'
         else:
-            return "green"
+            return "violet"
 
     def get_layer_type_name(self):
         return "Aggregator"
@@ -141,7 +141,7 @@ class AggregatorNode(Module):
                     """homogeniser can sometimes collapse the previous inputs into one in certain circumstances"""
                     change = length_of_outputs - len(outputs)
                     i=0
-                    print("outputs list(",len(outputs),") returned shorter than expected (",length_of_outputs,") - readjusting. Collapsed shape:",outputs[0].size(), "full:",[x.size() for x in outputs])
+                    #print("outputs list(",len(outputs),") returned shorter than expected (",length_of_outputs,") - readjusting. Collapsed shape:",outputs[0].size(), "full:",[x.size() for x in outputs])
                     length_of_outputs = len(outputs)
 
                 # TODO remove

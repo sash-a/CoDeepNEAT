@@ -21,7 +21,7 @@ def plot_objectives_at_gen(generation):
 
 def plot_acc_vs_second(acc, second):
     global plot
-    print("plotting",acc,"against",second)
+    #print("plotting",acc,"against",second)
     # if plot is None:
     #     #plt.ion()
     #     plt.pause(0.0001)
@@ -36,10 +36,13 @@ def plot_acc_vs_second(acc, second):
 
 
 def plot_histogram(acc):
-    pass
+    plt.hist(acc, bins= 20)
+    plt.show()
 
 def plot_generations():
+
     for generation in RuntimeAnalysis.generations:
+        #print("tgh")
         plot_objectives_at_gen(generation.generation_number)
         #time.sleep(1.5)
 

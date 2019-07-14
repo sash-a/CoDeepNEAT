@@ -286,11 +286,11 @@ class ModuleNode(Node):
                 return "co"
         else:
             if self.deep_layer is None:
-                return "orange"
-            if self.is_conv2d():
                 return "red"
+            if self.is_conv2d():
+                return "yellow"
             elif self.is_linear():
-                return "blue"
+                return "cyan"
 
     def get_layer_type_name(self):
         layer_type = self.module_NEAT_node.layer_type

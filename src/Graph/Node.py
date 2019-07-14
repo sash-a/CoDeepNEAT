@@ -76,8 +76,8 @@ class Node:
 
         return False
 
-    def plot_tree_with_graphvis(self, title="", graph=None, nodes_plotted=None, file="temp"):
-        file = "../Analysis/Graphs/" + file
+    def plot_tree_with_graphvis(self, title="", graph=None, nodes_plotted=None, file="temp", folder = "runs"):
+        file = "../Analysis/Graphs/"+folder+"/" + file
 
         if graph is None:
             graph = graphviz.Digraph(comment=title)
@@ -192,38 +192,3 @@ class Node:
             # print("severing",self, "from parent",child)
             child.parents.remove(self)
         self.children = []
-
-
-def gen_node_graph(node_type, graph_type="diamond", linear_count=1):
-    """the basic starting points of both blueprints and modules"""
-    # print("initialising graph",node_type,"of shape",graph_type)
-    input = node_type()
-
-    if graph_type == "linear":
-        head = input
-        for i in range(linear_count - 1):
-            head.add_child(node_type())
-            head = head.children[0]
-
-    if graph_type == "diamond":
-        head = input
-        for i in range(linear_count):
-            head.add_child(node_type())
-            head.add_child(node_type())
-            head.children[0].add_child(node_type())
-            head.children[1].add_child(head.children[0].children[0])
-            head = head.children[0].children[0]
-
-    if graph_type == "triangle":
-        """feeds input node to a child and straight to output node"""
-        head = input
-        for i in range(linear_count):
-            head.add_child(node_type())
-            head.children[0].add_child(node_type())
-            head.add_child(head.children[0].children[0])
-            head = head.children[0].children[0]
-
-    if graph_type == "single":
-        pass
-
-    return input
