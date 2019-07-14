@@ -1,14 +1,11 @@
 import src.Config.NeatProperties as Props
 from src.NEAT.Population import Population, single_objective_rank, cdn_rank
-
 from src.NeuralNetwork import Evaluator
 from src.CoDeepNEAT import PopulationInitialiser as PopInit
 from src.Analysis import RuntimeAnalysis
 from src.Config import Config
 
 import random
-
-module_population = None
 
 
 class Generation:
@@ -17,38 +14,33 @@ class Generation:
 
     def __init__(self):
         self.speciesNumbers = []
-        self.module_population, self.blueprint_population = self.initialise_populations()
+        self.module_population, self.blueprint_population = None, None
+        self.initialise_populations()
 
     def initialise_populations(self):
-        print('initialising population')
-        global module_population
+        # Picking the ranking function
+        rank_fn = single_objective_rank if Config.second_objective == '' else cdn_rank
 
-        module_population = Population(PopInit.initialise_modules(),
-                                       cdn_rank,
-                                       PopInit.initialize_mutations(),
-                                       Props.MODULE_POP_SIZE,
-                                       2,
-                                       2,
-                                       Props.MODULE_TARGET_NUM_SPECIES)
-        print('...')
-        blueprint_population = Population(PopInit.initialise_blueprints(),
-                                          cdn_rank,
-                                          PopInit.initialize_mutations(),
-                                          Props.BP_POP_SIZE,
-                                          2,
-                                          2,
-                                          Props.BP_TARGET_NUM_SPECIES)
-
-        print('population initialized\n')
-
-        return module_population, blueprint_population
+        self.module_population = Population(PopInit.initialise_modules(),
+                                            rank_fn,
+                                            PopInit.initialize_mutations(),
+                                            Props.MODULE_POP_SIZE,
+                                            2,
+                                            2,
+                                            Props.MODULE_TARGET_NUM_SPECIES)
+        self.blueprint_population = Population(PopInit.initialise_blueprints(),
+                                               rank_fn,
+                                               PopInit.initialize_mutations(),
+                                               Props.BP_POP_SIZE,
+                                               2,
+                                               2,
+                                               Props.BP_TARGET_NUM_SPECIES)
 
     def step(self):
         """Runs CDN for one generation - must be called after fitness evaluation"""
-
         self.module_population.step()
         for blueprint_individual in self.blueprint_population.individuals:
-            blueprint_individual.reset_number_of_module_species(module_population.get_num_species())
+            blueprint_individual.reset_number_of_module_species(self.module_population.get_num_species())
         self.blueprint_population.step()
 
         for blueprint_individual in self.blueprint_population.individuals:
@@ -58,7 +50,7 @@ class Generation:
             module_individual.end_step()  # this also sets fitness to zero
 
     def evaluate(self, generation_number):
-        print("num species:", len(self.module_population.species))
+        print("Num species:", len(self.module_population.species))
         inputs, targets = Evaluator.sample_data('mnist', '../../data')
 
         best_acc, best_second, best_third = float('-inf'), float('-inf'), float('-inf')
@@ -77,35 +69,34 @@ class Generation:
             if Config.test_in_run:
                 pass
 
+            # Evaluating individual
             if Config.protect_parsing_from_errors:
                 try:
-                    module_graph, blueprint_individual, results = self.evaluate_blueprints(blueprint_individual, inputs,
-                                                                                           generation_number)
+                    module_graph, blueprint_individual, results = self.evaluate_blueprint(blueprint_individual, inputs,
+                                                                                          generation_number)
                 except Exception as e:
                     blueprint_individual.defective = True
                     print('Blueprint ran with errors, marking as defective\n', blueprint_individual)
                     print(e)
                     continue
             else:
-                module_graph, blueprint_individual, results = self.evaluate_blueprints(blueprint_individual, inputs,
-                                                                                       generation_number)
-
-            if len(results) == 1:
-                acc = results[0]
-            elif len(results) == 2:
-                acc, second = results
-
-                best_second = max(best_second, second)
-                second_objective_values.append(second)
-            elif len(results) == 3:
-                acc, second, third = results
+                module_graph, blueprint_individual, results = self.evaluate_blueprint(blueprint_individual, inputs,
+                                                                                      generation_number)
+            # Gathering results
+            acc = results[0]
+            if len(results) >= 2:
+                second = results[1]
 
                 best_second = max(best_second, second)
                 second_objective_values.append(second)
+
+            if len(results) >= 3:
+                third = results[3]
 
                 best_third = max(best_third, third)
                 third_objective_values.append(third)
-            else:
+
+            if len(results) > 3:
                 raise Exception("Error: too many result values to unpack")
 
             if acc >= best_acc:
@@ -128,22 +119,21 @@ class Generation:
                                                third_objective_values if len(third_objective_values) > 0 else None))
         print('Best accuracy:', best_acc)
 
-    def evaluate_blueprints(self, blueprint_individual, inputs, generation_number):
+    def evaluate_blueprint(self, blueprint_individual, inputs, generation_number):
         blueprint = blueprint_individual.to_blueprint()
         # module_graph = blueprint.parseto_module_graph(self)
         module_graph, sans_aggregators = blueprint.parseto_module_graph(self, return_graph_without_aggregators=True)
 
         if module_graph is None:
-            raise Exception("null module graph produced from blueprint")
+            raise Exception("None module graph produced from blueprint")
 
         try:
             # print("using infeatures = ",module_graph.get_first_feature_count(inputs))
             net = module_graph.to_nn(in_features=module_graph.get_first_feature_count(inputs))
         except Exception as e:
-            print("Error:", e)
             if Config.print_failed_graphs:
                 module_graph.plot_tree_with_graphvis("module graph which failed to parse to nn")
-            raise Exception("Error: failed to parse module graph into nn")
+            raise Exception("Error: failed to parse module graph into nn", e)
 
         net.specify_dimensionality(inputs)
         # try:
@@ -158,7 +148,7 @@ class Generation:
         #         print('failed graph:', blueprint_individual)
         #     raise Exception("Error: nn failed to have input passed through")
 
-        if Config.dummy_run and generation_number < 500:
+        if Config.dummy_run:
             acc = hash(net)
         else:
             acc = Evaluator.evaluate(net, Config.number_of_epochs_per_evaluation, dataset='mnist', path='../../data',
