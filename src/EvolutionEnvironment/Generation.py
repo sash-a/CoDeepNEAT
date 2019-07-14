@@ -1,14 +1,14 @@
 import src.Config.NeatProperties as Props
-# from src.NEAT.MultiobjectivePopulation import MultiobjectivePopulation
-from src.NEAT.Population import Population
+from src.NEAT.Population import Population, single_objective_rank, cdn_rank
 
 from src.NeuralNetwork import Evaluator
 from src.CoDeepNEAT import PopulationInitialiser as PopInit
 from src.Analysis import RuntimeAnalysis
 from src.Config import Config
 
-module_population = None
 import random
+
+module_population = None
 
 
 class Generation:
@@ -23,25 +23,24 @@ class Generation:
         print('initialising population')
         global module_population
 
-        # PopulationType = Population if Config.second_objective == '' else MultiobjectivePopulation
-        PopulationType = Population
-        print('type:', PopulationType)
+        module_population = Population(PopInit.initialise_modules(),
+                                       cdn_rank,
+                                       PopInit.initialize_mutations(),
+                                       Props.MODULE_POP_SIZE,
+                                       2,
+                                       2,
+                                       Props.MODULE_TARGET_NUM_SPECIES)
+        print('...')
+        blueprint_population = Population(PopInit.initialise_blueprints(),
+                                          cdn_rank,
+                                          PopInit.initialize_mutations(),
+                                          Props.BP_POP_SIZE,
+                                          2,
+                                          2,
+                                          Props.BP_TARGET_NUM_SPECIES)
 
-        module_population = PopulationType(PopInit.initialise_modules(),
-                                           PopInit.initialize_mutations(),
-                                           Props.MODULE_POP_SIZE,
-                                           2,
-                                           2,
-                                           Props.MODULE_TARGET_NUM_SPECIES)
+        print('population initialized\n')
 
-        blueprint_population = PopulationType(PopInit.initialise_blueprints(),
-                                              PopInit.initialize_mutations(),
-                                              Props.BP_POP_SIZE,
-                                              2,
-                                              2,
-                                              Props.BP_TARGET_NUM_SPECIES)
-
-        print('population initialized')
         return module_population, blueprint_population
 
     def step(self):
@@ -53,10 +52,10 @@ class Generation:
         self.blueprint_population.step()
 
         for blueprint_individual in self.blueprint_population.individuals:
-            blueprint_individual.clear()
+            blueprint_individual.end_step()
 
         for module_individual in self.module_population.individuals:
-            module_individual.clear()  # this also sets fitness to zero
+            module_individual.end_step()  # this also sets fitness to zero
 
     def evaluate(self, generation_number):
         print("num species:", len(self.module_population.species))
