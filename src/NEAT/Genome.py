@@ -87,6 +87,7 @@ class Genome:
             topology_changed = True
             mutated = False
             tries = 100
+            # Keep trying the mutation until a valid one is found
             while mutated is False and tries > 0:
                 mutated = self._mutate_add_connection(mutation_record,
                                                       random.choice(list(self._nodes.values())),
@@ -94,10 +95,19 @@ class Genome:
                 tries -= 1
 
         for connection in self._connections.values():
-            topology_changed = topology_changed or connection.mutate()
+            orig_conn = copy.deepcopy(connection)
+            mutated = connection.mutate()
+            topology_changed = topology_changed or mutated
+            # If mutation made the genome invalid then undo it
+            if mutated and not self.validate():
+                self._connections[orig_conn.id] = orig_conn
 
         for node in self._nodes.values():
-            node.mutate()
+            orig_node = copy.deepcopy(node)
+            mutated = node.mutate()
+            # If mutation made the genome invalid then undo it
+            if mutated and not self.validate():
+                self._nodes[orig_node.id] = orig_node
 
         if topology_changed:
             self.calculate_heights()
