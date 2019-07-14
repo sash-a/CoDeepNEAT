@@ -10,7 +10,7 @@ from src.Config import Config
 
 import time
 
-printBatchEvery = 150  # -1 to switch off batch printing
+printBatchEvery = -1  # -1 to switch off batch printing
 print_epoch_every = 1
 
 
@@ -57,7 +57,7 @@ def train(model, train_loader, epoch, test_loader, print_accuracy=False):
             print("\tepoch:", epoch, "batch:", batch_idx, "loss:", m_loss.item(), "running time:", time.time() - s)
 
     end_time = time.time()
-    print(model)
+    #print(model)
 
     if epoch % print_epoch_every == 0:
         if print_accuracy:
@@ -134,8 +134,10 @@ def evaluate(model, epochs, dataset='mnist', path='../../data', batch_size=64):
         train(model, train_loader, epoch, test_loader)
     e = time.time()
 
-    print('Evaluation took', e - s, 'seconds')
-    return test(model, test_loader)
+
+    test_acc = test(model, test_loader)
+    print('Evaluation took', e - s, 'seconds, Test acc:',test_acc)
+    return test_acc
 
 
 def sample_data(dataset='mnist', path='../../data', batch_size=64):
