@@ -43,7 +43,7 @@ class AggregatorNode(Module):
         if include_shape:
             return 'bo'
         else:
-            return "green"
+            return "violet"
 
     def get_layer_type_name(self):
         return "Aggregator"

@@ -3,7 +3,7 @@ import torch
 device = torch.device('cuda:0')
 # device = torch.device('cpu')
 
-second_objective = "network_size"  # network_size
+second_objective = ""  # network_size
 third_objective = ""
 
 test_in_run = True

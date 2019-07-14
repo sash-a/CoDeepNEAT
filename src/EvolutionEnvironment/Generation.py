@@ -22,9 +22,13 @@ class Generation:
     def initialise_populations(self):
         print('initialising population')
         global module_population
+        if Config.second_objective == "":
+            ranking_function = single_objective_rank
+        else:
+            ranking_function=cdn_rank
 
         module_population = Population(PopInit.initialise_modules(),
-                                       cdn_rank,
+                                       ranking_function,
                                        PopInit.initialize_mutations(),
                                        Props.MODULE_POP_SIZE,
                                        2,
@@ -32,7 +36,7 @@ class Generation:
                                        Props.MODULE_TARGET_NUM_SPECIES)
         print('...')
         blueprint_population = Population(PopInit.initialise_blueprints(),
-                                          cdn_rank,
+                                          ranking_function,
                                           PopInit.initialize_mutations(),
                                           Props.BP_POP_SIZE,
                                           2,
@@ -142,7 +146,7 @@ class Generation:
         except Exception as e:
             print("Error:", e)
             if Config.print_failed_graphs:
-                module_graph.plot_tree_with_graphvis("module graph which failed to parse to nn")
+                module_graph.plot_tree_with_graphvis("module graph which failed to parse to nn", folder="errors")
             raise Exception("Error: failed to parse module graph into nn")
 
         net.specify_dimensionality(inputs)
@@ -152,14 +156,15 @@ class Generation:
         #     print("Error:", e)
         #     if Config.print_failed_graphs:
         #         module_graph.plot_tree_with_graphvis(title="module graph with error passing input through net",
-        #                                              file="module_graph_with_agg")
+        #                                              file="module_graph_with_agg", folder="errors")
         #         sans_aggregators.plot_tree_with_graphvis(title="previous module graph but without agg nodes",
-        #                                                  file="module_graph_without_agg")
+        #                                                  file="module_graph_without_agg", folder="errors")
         #         print('failed graph:', blueprint_individual)
         #     raise Exception("Error: nn failed to have input passed through")
 
-        if Config.dummy_run and generation_number < 500:
+        if Config.dummy_run and generation_number < 100:
             acc = hash(net)
+            acc = random.random()
         else:
             acc = Evaluator.evaluate(net, Config.number_of_epochs_per_evaluation, dataset='mnist', path='../../data',
                                      batch_size=256)
