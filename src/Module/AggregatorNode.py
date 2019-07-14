@@ -1,7 +1,6 @@
 from src.Module.ModuleNode import ModuleNode as Module
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 from src.Module import AggregatorOperations
 
 

@@ -104,6 +104,9 @@ class Species:
         index = random.randint(0, len(self.members) - 1)
         return self.members[index], index
 
+    def get_individual_by_index(self,index):
+        return self.members[index]
+
     def get_species_type(self):
         if len(self.members) > 0:
             return type(self.members[0])

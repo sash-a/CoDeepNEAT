@@ -23,23 +23,31 @@ class BlueprintNode(Node):
             print("null neat node passed to blueprint")
         self.generate_blueprint_node_from_gene(blueprint_NEAT_node)
 
+
     def generate_blueprint_node_from_gene(self, gene):
         """applies the properties of the blueprint gene for this node"""
         # print("generating blueprint node from gene:",gene)
         self.species_number = gene.species_number()
 
-    def parseto_module_graph(self, generation, module_construct=None, species_indexes=None, in_features=1,return_graph_without_aggregators = False):
+    def parseto_module_graph(self, generation, module_construct=None, species_indexes=None, in_features=1,return_graph_without_aggregators = False, module_index_map = None):
         """
         :param module_construct: the output module node to have this newly sampled module attached to. None if this is root blueprint node
         :return: a handle on the root node of the newly created module graph
         """
+        if module_index_map is None:
+            module_index_map={}
 
         if self.module_root is None and self.module_leaf is None:
             # first time this blueprint node has been reached in the traversal
             # to be added as child to existing module construct
             try:
-                input_module_individual, index = \
-                    generation.module_population.species[self.species_number].sample_individual()
+                if self.species_number in module_index_map:
+                    input_module_individual = generation.module_population.species[self.species_number].get_individual_by_index(module_index_map[self.species_number])
+                else:
+                    input_module_individual, index = \
+                        generation.module_population.species[self.species_number].sample_individual()
+                    module_index_map[self.species_number] = index
+
             except:
                 raise Exception("failed to sample indv from species "+ repr(self.species_number) + " num species available: " + repr( len(generation.module_population.species) ))
 
@@ -67,7 +75,7 @@ class BlueprintNode(Node):
         if first_traversal:
             # passes species index down to collect all species indexes used to construct this blueprint in one list
             for childBlueprintNode in self.children:
-                childBlueprintNode.parseto_module_graph(generation, output_module_node, species_indexes)
+                childBlueprintNode.parseto_module_graph(generation, output_module_node, species_indexes, module_index_map=module_index_map)
 
         if self.is_input_node():
             # print("blueprint parsed. getting module node traversal ID's")
