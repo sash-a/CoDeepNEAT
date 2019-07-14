@@ -107,7 +107,7 @@ class Generation:
             accuracies.append(acc)
 
         if generation_number % Config.print_best_graph_every_n_generations == 0:
-            if Config.print_best_graphs:
+            if Config.save_best_graphs:
                 print('Best blueprint:\n', best_bp_genome)
                 best_bp.plot_tree_with_graphvis(title="gen:" + str(generation_number) + " acc:" + str(best_acc),
                                                 file="best_of_gen_" + repr(generation_number))
@@ -131,7 +131,7 @@ class Generation:
             # print("using infeatures = ",module_graph.get_first_feature_count(inputs))
             net = module_graph.to_nn(in_features=module_graph.get_first_feature_count(inputs))
         except Exception as e:
-            if Config.print_failed_graphs:
+            if Config.save_failed_graphs:
                 module_graph.plot_tree_with_graphvis("module graph which failed to parse to nn")
             raise Exception("Error: failed to parse module graph into nn", e)
 

@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import math
 import graphviz
-
+from src.Config import Config
 
 class Node:
     """
@@ -101,7 +101,7 @@ class Node:
             graph.edge(self.traversal_id, child.traversal_id)
 
         if self.is_input_node():
-            graph.render(file, view=True)
+            graph.render(file, view=Config.print_best_graphs)
 
     def get_layer_type_name(self):
         raise Exception("override layer type name is super classes")
