@@ -132,7 +132,7 @@ class Genome:
 
         for best_conn in best._connections.values():
             if self._nodes[best_conn.to_node].height <= self._nodes[best_conn.from_node].height:
-                raise Exception("found connection in parent which goes from height",
+                raise Exception("found connection in best parent which goes from height",
                                 self._nodes[best_conn.from_node].height, "to", self._nodes[best_conn.to_node].height)
             if best_conn.id in worst._connections:
                 new_connection = copy.deepcopy(random.choice([best_conn, worst._connections[best_conn.id]]))
@@ -151,9 +151,6 @@ class Genome:
                 return node
 
         raise Exception('Genome:', self, 'could not find an output node')
-
-    def validate(self):
-        return self._validate_traversal(self.get_input_node().id, self._get_traversal_dictionary(True))
 
     def _get_traversal_dictionary(self, exclude_disabled_connection=False):
         """:returns a mapping of from node id to a list of to node ids"""
@@ -174,7 +171,7 @@ class Genome:
 
         self._calculate_heights(self.get_input_node().id, 0, self._get_traversal_dictionary())
 
-    def _calculate_heights(self, current_node_id, height, traversal_dictionary):
+    def _calculate_heights(self, current_node_id, height, traversal_dictionary ):
         self._nodes[current_node_id].height = max(height, self._nodes[current_node_id].height)
 
         if self._nodes[current_node_id].is_output_node():
@@ -184,14 +181,21 @@ class Genome:
             """if any path doesn't reach the output - there has been an error"""
             self._calculate_heights(child, height + 1, traversal_dictionary)
 
-    def _validate_traversal(self, current_node_id, traversal_dictionary):
+    def validate(self):
+        return self._validate_traversal(self.get_input_node().id, self._get_traversal_dictionary(True), set())
+
+    def _validate_traversal(self, current_node_id, traversal_dictionary, nodes_visited):
         if self._nodes[current_node_id].is_output_node():
             return True
+        if self in nodes_visited:
+            return False
+
+        nodes_visited.add(self)
 
         found_output = False
         if current_node_id in traversal_dictionary:
             for child in traversal_dictionary[current_node_id]:
-                found_output = found_output or self._validate_traversal(child, traversal_dictionary)
+                found_output = found_output or self._validate_traversal(child, traversal_dictionary, nodes_visited)
 
         return found_output
 

@@ -47,6 +47,13 @@ def merge_linear_outputs( previous_num_features, previous_inputs, new_num_featur
         #print("padding linear outputs to merge")
         new_input, previous_inputs= pad_linear_outputs(previous_inputs, new_input)
         previous_inputs.append(new_input)
+
+        # TODO remove
+        features = previous_inputs[0].size()
+        for inp in previous_inputs:
+            new_num_features = inp.size()
+            if new_num_features != features:
+                raise Exception("merge linear failed to homogenise list:" + repr([x.size() for x in previous_inputs]))
         return previous_inputs
 
 def pad_linear_outputs(previous_inputs, new_input):
@@ -99,9 +106,17 @@ def merge_conv_outputs(previous_num_features, previous_inputs, new_num_features,
     previous_channels, new_channels = previous_inputs[-1].size()[1], new_input.size()[1]
     if not (previous_channels == new_channels):
         print("differing channel counts", previous_channels, new_channels)
-        return [merge_differing_channel_convs(new_input, torch.sum(torch.stack(previous_inputs,dim=0), dim=0))]
+        previous_inputs = [merge_differing_channel_convs(new_input, torch.sum(torch.stack(previous_inputs,dim=0), dim=0))]
+    else:
+        previous_inputs.append(new_input)
 
-    previous_inputs.append(new_input)
+        # TODO remove
+        features = previous_inputs[0].size()
+        for inp in previous_inputs:
+            new_num_features = inp.size()
+            if new_num_features != features:
+                raise Exception("merge conv failed to homogenise list:" + repr([x.size() for x in previous_inputs]))
+
     return previous_inputs
 
 def merge_differing_channel_convs(conv_a, conv_b):
