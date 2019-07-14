@@ -93,8 +93,8 @@ class Genome:
                                                       random.choice(list(self._nodes.values())))
                 tries -= 1
 
-        # for connection in self._connections.values():
-        #     topology_changed = topology_changed or connection.mutate()
+        for connection in self._connections.values():
+            topology_changed = topology_changed or connection.mutate()
 
         for node in self._nodes.values():
             node.mutate()
