@@ -39,12 +39,14 @@ def plot_histogram(acc):
     pass
 
 def plot_generations():
+
     for generation in RuntimeAnalysis.generations:
+        print("tgh")
         plot_objectives_at_gen(generation.generation_number)
         #time.sleep(1.5)
 
 
 
 if __name__ == "__main__":
-    RuntimeAnalysis.load_date_from_log_file("test",summary=False)
+    RuntimeAnalysis.load_date_from_log_file("test_71",summary=False)
     plot_generations()

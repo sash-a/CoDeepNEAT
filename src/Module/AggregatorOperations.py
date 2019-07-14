@@ -105,7 +105,7 @@ def merge_conv_outputs( previous_inputs, new_input):
 
     previous_channels, new_channels = previous_inputs[-1].size()[1], new_input.size()[1]
     if not (previous_channels == new_channels):
-        print("differing channel counts", previous_channels, new_channels)
+        #print("differing channel counts", previous_channels, new_channels)
         previous_inputs = [merge_differing_channel_convs(new_input, torch.sum(torch.stack(previous_inputs,dim=0), dim=0))]
     else:
         previous_inputs.append(new_input)
