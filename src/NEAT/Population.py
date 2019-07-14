@@ -1,170 +1,151 @@
-from src.NEAT.Genome import Genome
 from src.NEAT.Species import Species
-from src.NEAT.Crossover import crossover
-from src.CoDeepNEAT.BlueprintGenome import BlueprintGenome
-from src.CoDeepNEAT.ModuleGenome import ModuleGenome
 import src.Config.NeatProperties as Props
+import math
 
-import random
-from typing import List, Union
 
-"""
-Population persists across whole run time
-"""
+class MutationRecords:
+    def __init__(self, initial_mutations, current_max_node_id, current_max_conn_id):
+        self.mutations = initial_mutations
+        self._next_node_id = current_max_node_id
+        self._next_conn_id = current_max_conn_id
+
+    def exists(self, mutation):
+        return mutation in self.mutations
+
+    def add_mutation(self, mutation):
+        if type(mutation) == tuple:
+            self.mutations[mutation] = self.get_next_connection_id()
+            return self._next_conn_id
+        elif type(mutation) == int:
+            self.mutations[mutation] = self.get_next_node_id()
+            return self._next_node_id
+        else:
+            raise TypeError('Incorrect type passed to mutation: ' + mutation)
+
+    def get_next_node_id(self):
+        self._next_node_id += 1
+        return self._next_node_id
+
+    def get_next_connection_id(self):
+        self._next_conn_id += 1
+        return self._next_conn_id
 
 
 class Population:
+    def __init__(self, individuals, initial_mutations, population_size, max_node_id, max_innovation,
+                 target_num_species):
 
-    def __init__(self, population: List[Union[BlueprintGenome, ModuleGenome, Genome]], mutations: dict,
-                 ideal_pop_size: int, node_mutation_chance: float, connection_mutation_chance: float,
-                 target_num_species: int):
-        """
-        :param population: list of all individuals
-        """
 
-        self.mutations = mutations
-        self.curr_innov = max(indv.connections[-1].innovation for indv in population)
-        self.max_node_id = max(indv.nodes[-1].id for indv in population)
+        self.population_size = population_size
 
-        # Either connection mutation: tuple(nodeid,nodeid) : innovation number
-        # Or node mutation: innovation number : nodeid
-        self.mutation = dict()
-
-        self.individuals: List[Union[BlueprintGenome, ModuleGenome, Genome]] = population
-
-        # Speciation
         self.target_num_species = target_num_species
-        self.num_species_mod_dir = 0
+
+        self.speciation_threshold = 1
+        self.current_threshold_dir = 1
         self.num_species_mod = Props.SPECIES_DISTANCE_THRESH_MOD
-        self.speciation_thresh = Props.SPECIES_DISTANCE_THRESH
-        self.species: List[Species] = []
-        self.speciate(True)
 
-        self.ideal_pop_size = ideal_pop_size
-        self.node_mutation_chance = node_mutation_chance
-        self.connection_mutation_chance = connection_mutation_chance
+        self.mutation_record = MutationRecords(initial_mutations, max_node_id, max_innovation)
 
-    def speciate(self, first_gen=False):
-        """
-        Place all individuals in their first compatible species if one exists
-        Otherwise create new species with current individual as its representative
+        self.species = [Species(individuals[0])]
+        self.species[0].members = individuals
 
-        :return: list of species
-        """
-        # Remove all current members from the species
-        for spc in self.species:
-            spc.members.clear()
+    individuals = property(lambda self: self._get_all_individuals())
 
-        # Placing individuals in their correct species
-        for individual in self.individuals:
-            found_species = False
-            for spc in self.species:
-                if spc.is_compatible(individual, thresh=self.speciation_thresh):
-                    spc.add_member(individual, thresh=self.speciation_thresh, safe=True)
-                    found_species = True
-                    break
+    def __iter__(self):
+        return iter(self._get_all_individuals())
 
-            if not found_species:
+    def _get_all_individuals(self):
+        individuals = []
+        for species in self.species:
+            individuals.extend(species.members)
+        return individuals
+
+    def get_num_species(self):
+        return len(self.species)
+
+    def save_checkpoint(self):
+        pass
+
+    def load_checkpoint(self):
+        pass
+
+    def speciate(self, individuals):
+        for species in self.species:
+            species.empty_species()
+
+        """note origonal neat placed individuals in the first species they fit"""
+
+        for individual in individuals:
+            best_fit_species = None
+            best_distance = individual.distance_to(self.species[0].representative) + 1
+
+            """find best species"""
+            for species in self.species:
+                distance = individual.distance_to(species.representative)
+                if distance < best_distance:
+                    best_distance = distance
+                    best_fit_species = species
+
+            """fit individual somewhere"""
+            if best_distance <= self.speciation_threshold:
+                best_fit_species.add(individual)
+            else:
                 self.species.append(Species(individual))
+                #print("created new species:", self.species[-1])
 
-        # Remove all empty species
         self.species = [spc for spc in self.species if spc.members]
+        self.adjust_speciation_threshold()
 
-        if not first_gen:
-            self.dynamic_speciation()
-
-        return self.species
-
-    def dynamic_speciation(self):
-        # Dynamic speciation threshold
+    def adjust_speciation_threshold(self):
         if len(self.species) < self.target_num_species:
-            new_dir = -1
+            new_dir = -1  # decrease thresh
         elif len(self.species) > self.target_num_species:
-            new_dir = 1
+            new_dir = 1  # increase thresh
         else:
             new_dir = 0
 
-        # Exponential growth
-        if new_dir != self.num_species_mod_dir:
+        if new_dir != self.current_threshold_dir:
             self.num_species_mod = Props.SPECIES_DISTANCE_THRESH_MOD
         else:
             self.num_species_mod *= 2
 
-        self.num_species_mod_dir = new_dir
+        self.current_threshold_dir = new_dir
+        self.speciation_threshold = max(0.001, self.speciation_threshold + (new_dir * self.num_species_mod))
 
-        self.speciation_thresh = max(0.01, self.speciation_thresh + (self.num_species_mod_dir * self.num_species_mod))
+    def update_species_sizes(self):
+        """should be called before species.step()"""
+        population_average_rank = self.get_average_rank()
 
-    def adjust_fitness(self, indv: Genome):
-        shared_fitness = 0
-        for other_indv in self.individuals:
-            if other_indv.distance_to(indv) <= self.speciation_thresh:
-                shared_fitness += 1
+        total_species_fitness = 0
+        for species in self.species:
+            species_average_rank = species.get_average_rank()
+            species.fitness = species_average_rank / population_average_rank
+            total_species_fitness += species.fitness
 
-        indv.adjusted_fitness = indv.fitness[0] / shared_fitness  # single obj therefore always fitness[0]
+        for species in self.species:
+            species_size = round(self.population_size * (species.fitness / total_species_fitness))
+            species.set_next_species_size(species_size)
 
-    def save_elite(self, species):
-        # only allow top x% to reproduce
-        # return species sorted by fitness
-        species.members.sort(key=lambda indv: indv.fitness[0], reverse=True)
-        # min of two because need two parents to crossover
-        num_remaining_mem = max(2, int(len(species.members) * Props.PERCENT_TO_SAVE))
-        remaining_members = species.members[:num_remaining_mem]
+    def rank_population(self):
+        individuals = self._get_all_individuals()
+        individuals.sort(key=lambda x: (0 if not x.fitness_values else x.fitness_values[0]), reverse=True)
+        for i, individual in enumerate(individuals):
+            individual.rank = i
 
-        return remaining_members
+    def get_average_rank(self):
+        individuals = self._get_all_individuals()
+        return sum([indv.rank for indv in individuals]) / len(individuals)
 
     def step(self):
-        new_pop = []
+        self.rank_population()
+        self.update_species_sizes()
 
-        # calculate adjusted fitness
-        tot_adj_fitness = 0
-        for indv in self.individuals:
-            self.adjust_fitness(indv)
-            tot_adj_fitness += indv.adjusted_fitness
+        #print("stepping population with", len(self.species), "species")
 
-        # Reproduce within species
-        for spc in self.species:
-            # find num_children given adjusted fitness sum for species
-            species_adj_fitness = sum([x.adjusted_fitness for x in spc.members])
-            # TODO this is not creating the correct number of children
-            num_children = max(Props.MIN_CHILDREN_PER_SPECIES, int((species_adj_fitness / tot_adj_fitness) * (
-                    self.ideal_pop_size - Props.PERCENT_TO_SAVE * self.ideal_pop_size)))
+        for species in self.species:
+            species.step(self.mutation_record)
 
-            # Ignoring defective members
-            spc.members = [mem for mem in spc.members if not mem.defective]
-
-            remaining_members = self.save_elite(spc)
-            # Add elite back into new population
-            new_pop.extend(remaining_members)
-
-            # Create children
-            if remaining_members:
-                for _ in range(num_children):
-                    child = None
-                    while child is None:
-                        parent1 = random.choice(remaining_members)
-                        parent2 = random.choice(remaining_members)
-
-                        child = crossover(parent1, parent2)
-
-                    # before = [conn for conn in child.connections if not conn.enabled()]
-
-                    self.curr_innov, self.max_node_id = child.mutate(self.mutations,
-                                                                     self.curr_innov,
-                                                                     self.max_node_id,
-                                                                     self.node_mutation_chance,
-                                                                     self.connection_mutation_chance)
-
-                    # after = [conn for conn in child.connections if not conn.enabled()]
-                    # if before != after:
-                    #     print(before, after, sep='\n')
-
-                    new_pop.append(child)
-
-        self.individuals = new_pop
-        self.speciate()
-
-    def __len__(self):
-        return len(self.individuals)
-
-    def get_num_species(self):
-        return len(self.species)
+        self.adjust_speciation_threshold()
+        individuals = self._get_all_individuals()
+        # print("speciating population with",individuals)
+        self.speciate(individuals)

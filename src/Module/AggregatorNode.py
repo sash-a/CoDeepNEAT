@@ -1,7 +1,6 @@
 from src.Module.ModuleNode import ModuleNode as Module
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 from src.Module import AggregatorOperations
 
 
@@ -114,33 +113,39 @@ class AggregatorNode(Module):
         :param outputs_deep_layers: a map of output tensor to deep layer it came from
         :return: a homogenous list of tensors
         """
-        if(outputs is None):
+        if outputs is None:
             raise Exception("Error: trying to homogenise null outputs list")
+
+        if len(outputs) > len(outputs_deep_layers):
+            raise Exception("outputs list(",len(outputs),") and outputs map (out->layer)(",len(outputs_deep_layers),") do not match size")
 
         homogenous_features = None
         length_of_outputs = len(outputs)
-        for i in range(length_of_outputs):
+        i = 0
+        while i < length_of_outputs:
             #all list items from 0:i-1 are homogenous
-            deep_layer = outputs_deep_layers[outputs[i]]
-            if (i == 0):
+            out = outputs[i]
+            deep_layer = outputs_deep_layers[out]
+            if i == 0:
                 homogenous_features = self.get_feature_tuple(deep_layer, outputs[i])
                 #print("setting hom features to:",homogenous_features, "num outs:",len(outputs))
             else:
                 new_features = self.get_feature_tuple(deep_layer, outputs[i])
                 if (not new_features == homogenous_features):
                     # either the list up till this point or the new  input needs modification
-                    if(len(outputs)>i+1):
+                    if i < length_of_outputs - 1:
                         outputs = homogeniser(homogenous_features,outputs[:i], new_features,outputs[i]) + outputs[i+1:]
-                    else:
+                    else:#i== len - 1
                         outputs = homogeniser(homogenous_features,outputs[:i], new_features,outputs[i])
-                    if(outputs is None):
+
+                    if outputs is None:
                         raise Exception("null outputs returned from homogeniser")
-                    if(len(outputs) < length_of_outputs):
+                    if len(outputs) < length_of_outputs:
                         """homogeniser can sometimes collapse the previous inputs into one in certain circumstances"""
                         change = length_of_outputs - len(outputs)
                         i-=change
+                        print("outputs list(",len(outputs),") returned shorter than expected (",length_of_outputs,") - readjusting. Collapsed shape:",outputs[0].size())
                         length_of_outputs = len(outputs)
-                        print("outputs list returned shorter than expected - readjusting")
                         #raise Exception("length of outputs list has shrunk while homogenising at i=",i," origonal length:",length_of_outputs,"new length:",len(outputs))
 
                     new_features = self.get_feature_tuple(deep_layer, outputs[0])
@@ -150,13 +155,15 @@ class AggregatorNode(Module):
 
                     homogenous_features = hom
                     #print("hom shape:",outputs[0].size(),"new shape:",outputs[i].size(), "i:",i)
+            i+=1
 
         #TODO remove
         features = outputs[0].size()
+        hom_features = [x.size() for x in outputs]
         for i in range(1,len(outputs)):
             new_features = outputs[i].size()
             if not (new_features == features):
-                raise Exception("Error: failed to homogenise outputs list with",homogeniser,", found",new_features,"at",i,"hom:",features)
+                raise Exception("Error: failed to homogenise outputs list with",homogeniser,", found",new_features,"at",i,"hom:",hom_features)
 
 
         if(outputs is None):

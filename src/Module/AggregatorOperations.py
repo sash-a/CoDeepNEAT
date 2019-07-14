@@ -9,20 +9,25 @@ def merge_linear_and_conv(linear, conv, lossy= True):
     if(lossy):
         #reduce conv features until it can be reshaped to match dimensionality of linear - then sum
         conv_features = Utils.get_flat_number(conv)
+        conv_channels = list(conv.size())[1]
         linear_features = list(linear.size())[1]
+        if conv_channels > linear_features:
+            #print("conv has more channels(",conv_channels,")","than linear has features(",linear_features,") - must pad linear")
+            left_pad = round((conv_channels-linear_features)/2)
+            right_pad = (conv_channels-linear_features)-left_pad
+            linear = F.pad(input=linear, pad = (left_pad,right_pad))
+            linear_features = list(linear.size())[1]
 
+        #print("merging conv",conv.size(),"and linear",linear.size())
         if(conv_features > linear_features):
             reduction_factor = math.ceil(math.pow(conv_features/linear_features, 0.5))#square root because max pool reduces on two dims x*y
-            if(reduction_factor > 3):
-                #print("lossy merge of conv+linear has reduction factor of:",reduction_factor)
-                pass
             batch_size = list(conv.size())[0]
             conv = F.max_pool2d(conv, kernel_size = (reduction_factor, reduction_factor)).view(batch_size,-1)
             conv_features = list(conv.size())[1]
 
             if(conv_features > linear_features):
-                print("error: reduced conv in lossy merge with linear. but conv still has more features")
-                return
+                raise Exception("error: reduced conv (factor=",reduction_factor,") in lossy merge with linear. but conv still has more features.\n"
+                                                                                "conv:",conv.size(),conv_features,"linear:",linear.size(),linear_features)
 
         feature_diff = linear_features - conv_features
         conv = F.pad(input=conv, pad=(feature_diff//2, feature_diff - feature_diff//2))
@@ -31,29 +36,41 @@ def merge_linear_and_conv(linear, conv, lossy= True):
 
     else:
         #use an additional linear layer to map the conv features to a linear the same shape as the given linear
-        pass
+        raise NotImplementedError("not yet implemented lossless merge of conv and linear")
 
 def merge_linear_outputs( previous_num_features, previous_inputs, new_num_features, new_input, cat = False):
-    print("merging linear layers with different feature counts")
+    #print("merging linear layers with different feature counts")
     if(cat):
         previous = torch.sum(torch.stack(previous_inputs), dim=0)
         return [torch.cat([previous, new_input],dim=0)]
     else:
-
+        #print("padding linear outputs to merge")
         new_input, previous_inputs= pad_linear_outputs(previous_inputs, new_input)
         previous_inputs.append(new_input)
+
+        # TODO remove
+        features = previous_inputs[0].size()
+        for inp in previous_inputs:
+            new_num_features = inp.size()
+            if new_num_features != features:
+                raise Exception("merge linear failed to homogenise list:" + repr([x.size() for x in previous_inputs]))
         return previous_inputs
 
-    
 def pad_linear_outputs(previous_inputs, new_input):
-    sizeDiff = list(previous_inputs[0].size())[1] - list(new_input.size())[1]
-    if(sizeDiff > 0):
+    size_diff = list(previous_inputs[0].size())[1] - list(new_input.size())[1]
+    left_pad = round(abs(size_diff)/2)
+    right_pad = abs(size_diff)-left_pad
+    if(size_diff > 0):
         #previous is larger
-        for i in range(len(previous_inputs)):
-            previous_inputs[i] = F.pad(input=previous_inputs[i], pad=sizeDiff)
+        new_input = F.pad(input=new_input, pad=(left_pad, right_pad))
     else:
         #new is larger
-        new_input = F.pad(input=new_input, pad= -sizeDiff)
+        for i in range(len(previous_inputs)):
+            previous_inputs[i] = F.pad(input=previous_inputs[i], pad=(left_pad,right_pad))
+
+    size_diff = list(previous_inputs[0].size())[1] - list(new_input.size())[1]
+    if size_diff != 0:
+        raise Exception("padding linear outputs failed. new size:",list(new_input.size())[1],"hom size:",list(previous_inputs[0].size())[1])
 
     return new_input, previous_inputs
 
@@ -80,7 +97,6 @@ def merge_conv_outputs(previous_num_features, previous_inputs, new_num_features,
         x1,y1, x2, y2 = new_input.size()[2], new_input.size()[3], previous_inputs[0].size()[2],  previous_inputs[0].size()[3]
         #print("\treturning prev:", x1, y1, "new:", x2, y2)
 
-
     else:
         # tensors are similar size - can be padded
         #print("using padding, prev:", x1,y1,"new:",x2,y2)
@@ -90,9 +106,17 @@ def merge_conv_outputs(previous_num_features, previous_inputs, new_num_features,
     previous_channels, new_channels = previous_inputs[-1].size()[1], new_input.size()[1]
     if not (previous_channels == new_channels):
         print("differing channel counts", previous_channels, new_channels)
-        return [merge_differing_channel_convs(new_input, torch.sum(torch.stack(previous_inputs,dim=0), dim=0))]
+        previous_inputs = [merge_differing_channel_convs(new_input, torch.sum(torch.stack(previous_inputs,dim=0), dim=0))]
+    else:
+        previous_inputs.append(new_input)
 
-    previous_inputs.append(new_input)
+        # TODO remove
+        features = previous_inputs[0].size()
+        for inp in previous_inputs:
+            new_num_features = inp.size()
+            if new_num_features != features:
+                raise Exception("merge conv failed to homogenise list:" + repr([x.size() for x in previous_inputs]))
+
     return previous_inputs
 
 def merge_differing_channel_convs(conv_a, conv_b):

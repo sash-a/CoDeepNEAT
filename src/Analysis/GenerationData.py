@@ -58,7 +58,7 @@ class GenerationData:
             if values is None or len(values) == 0:
                 break
             datum = ("|" if i>0 else " ") + name+":" + repr(values)
-            print(datum)
+            #print(datum)
             data += datum
 
         data += "}"

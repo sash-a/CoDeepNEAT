@@ -44,6 +44,7 @@ class ModuleNode(Node):
             self.generate_module_node_from_gene()
 
     def generate_module_node_from_gene(self):
+        # print("generating module node from gene:", self.module_NEAT_node)
         self.out_features = self.module_NEAT_node.out_features()
         self.activation = self.module_NEAT_node.activation()
 
@@ -216,15 +217,15 @@ class ModuleNode(Node):
         try:
             features = input_shape[1]
         except:
-            print("could not extract features from",input_shape)
+            raise Exception("could not extract features from",input_shape)
 
 
         if(self.is_conv2d()):
             #TODO non square conv dims
             conv_dim = int(math.pow(input_flat_size/features,0.5))
             if not (math.pow(conv_dim,2)*features == input_flat_size):
-                print("error calculating conv dim from input flat size:",input_flat_size, " tried conv size",conv_dim)
-                return
+                raise Exception("error calculating conv dim from input flat size:",input_flat_size, " tried conv size",conv_dim)
+
             output_shape = [input_shape[0], features, conv_dim,conv_dim]
             #print('adding convreshape node for', input_shape, "num features:",features, "out shape:",output_shape)
 
@@ -243,11 +244,9 @@ class ModuleNode(Node):
     def get_parameters(self, parametersDict, top=True):
 
         if self not in parametersDict:
-            if (self.deep_layer is None):
-                print("no deep layer - ", self)
+            if self.deep_layer is None:
+                raise Exception("no deep layer - ", self)
 
-            # if(top ):
-            #     print("top is input:",self.is_input_node())
             myParams = self.deep_layer.parameters()
             parametersDict[self] = myParams
 

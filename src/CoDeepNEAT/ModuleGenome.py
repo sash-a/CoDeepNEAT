@@ -1,17 +1,19 @@
 from src.NEAT.Genome import Genome
 from src.Module.ModuleNode import ModuleNode
-from src.NEAT.Connection import Connection
+from src.NEAT.Gene import ConnectionGene
 from src.CoDeepNEAT.ModuleNEATNode import ModulenNEATNode
+import src.Config.NeatProperties as Props
+
 import copy
 
 
 class ModuleGenome(Genome):
 
-    def __init__(self, connections, nodes, objectives=2):
+    def __init__(self, connections, nodes):
         super(ModuleGenome, self).__init__(connections, nodes)
         self.fitness_reports = 0
         self.module_node = None  # the module node created from this gene
-        self.fitness = [0 for _ in range(objectives)]
+        self.fitness = None
 
     def to_module(self):
         """
@@ -19,21 +21,26 @@ class ModuleGenome(Genome):
         :return: the module graph this individual represents
         """
         if self.module_node is not None:
-            print("module genome already has module - returning a copy")
+            #print("module genome already has module - returning a copy")
             return copy.deepcopy(self.module_node)
 
-        return copy.deepcopy(super().to_phenotype(ModuleNode))
+        module = super().to_phenotype(ModuleNode)
+        self.module_node = module
+        return copy.deepcopy(module)
 
-    def _mutate_add_node(self, conn: Connection, mutations: dict, innov: int, node_id: int,
-                         MutationType=ModulenNEATNode):
-        return super()._mutate_add_node(conn, mutations, innov, node_id, MutationType)  # innov, node_id
+    def mutate(self, mutation_record):
+        return super()._mutate(mutation_record, Props.MODULE_NODE_MUTATION_CHANCE, Props.MODULE_CONN_MUTATION_CHANCE)
 
     def report_fitness(self, *fitnesses):
+        if self.fitness is None:
+            self.fitness = [0 for _ in fitnesses]
+
         for i, fitness in enumerate(fitnesses):
             self.fitness[i] = (self.fitness[i] * self.fitness_reports + fitness) / (self.fitness_reports + 1)
         self.fitness_reports += 1
 
     def clear(self):
         self.fitness_reports = 0
-        self.fitness = [0 for _ in self.fitness]
+        if self.fitness is not None:
+            self.fitness = [0 for _ in self.fitness]
         self.module_node = None
