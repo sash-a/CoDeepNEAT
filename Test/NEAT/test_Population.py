@@ -1,7 +1,7 @@
 from src.NEAT.Connection import Connection
 from src.NEAT.Species import Species
 from src.NEAT.Population import Population
-from src.CoDeepNEAT.BlueprintGenome import BlueprintGenome
+from CoDeepNEAT.CDNGenomes import BlueprintGenome
 from Test.TestingGenomes import moo_pop_members, initial_mutations, nodes, connections
 
 

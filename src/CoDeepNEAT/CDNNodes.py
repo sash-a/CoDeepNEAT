@@ -1,3 +1,5 @@
+from NEAT.Gene import NodeGene, NodeType
+from NEAT.Mutagen import Mutagen, ValueType
 from src.NEAT.Gene import NodeGene, NodeType
 from src.NEAT.Mutagen import Mutagen
 from src.NEAT.Mutagen import ValueType
@@ -62,3 +64,28 @@ class ModulenNEATNode(NodeGene):
 
     def get_all_mutagens(self):
         return [self.activation, self.out_features, self.layer_type]
+
+
+class BlueprintNEATNode(NodeGene):
+
+    def __init__(self, id, node_type=NodeType.HIDDEN):
+        super(BlueprintNEATNode, self).__init__(id, node_type)
+
+        self.species_number = Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=0, start_range=0,
+                                      end_range=1, print_when_mutating=False)
+
+    def get_all_mutagens(self):
+        return [self.species_number]
+
+    def set_species_upper_bound(self, num_species):
+        self.species_number._end_range = num_species
+        self.species_number.set_value(min(self.species_number(), num_species - 1))
+
+
+class DANode(NodeGene):
+    def __init__(self, id, node_type=NodeType.HIDDEN):
+        super().__init__(id, node_type)
+        self.da = Mutagen()  # TODO
+
+    def get_all_mutagens(self):
+        return [self.da]

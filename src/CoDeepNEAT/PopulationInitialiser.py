@@ -1,7 +1,6 @@
-from src.CoDeepNEAT.ModuleNEATNode import ModulenNEATNode
-from src.CoDeepNEAT.BlueprintNEATNode import BlueprintNEATNode
-from src.CoDeepNEAT.ModuleGenome import ModuleGenome
-from src.CoDeepNEAT.BlueprintGenome import BlueprintGenome
+from src.CoDeepNEAT.CDNNodes import ModulenNEATNode
+from CoDeepNEAT.CDNNodes import BlueprintNEATNode
+from CoDeepNEAT.CDNGenomes import BlueprintGenome, ModuleGenome
 from src.NEAT.Gene import ConnectionGene, NodeType
 
 
