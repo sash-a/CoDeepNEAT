@@ -1,6 +1,5 @@
 from src.NEAT.Species import Species
 import src.Config.NeatProperties as Props
-import math
 
 
 class MutationRecords:
@@ -14,8 +13,14 @@ class MutationRecords:
 
     def add_mutation(self, mutation):
         if type(mutation) == tuple:
+            # Making sure tuple of ints
+            for x in mutation:
+                if not isinstance(x, int):
+                    raise TypeError('Incorrect type passed to mutation: ' + mutation)
+
             self.mutations[mutation] = self.get_next_connection_id()
             return self._next_conn_id
+
         elif type(mutation) == int:
             self.mutations[mutation] = self.get_next_node_id()
             return self._next_node_id
@@ -32,12 +37,10 @@ class MutationRecords:
 
 
 class Population:
-    def __init__(self, individuals, initial_mutations, population_size, max_node_id, max_innovation,
+    def __init__(self, individuals, rank_population_fn, initial_mutations, population_size, max_node_id, max_innovation,
                  target_num_species):
 
-
         self.population_size = population_size
-
         self.target_num_species = target_num_species
 
         self.speciation_threshold = 1
@@ -45,6 +48,8 @@ class Population:
         self.num_species_mod = Props.SPECIES_DISTANCE_THRESH_MOD
 
         self.mutation_record = MutationRecords(initial_mutations, max_node_id, max_innovation)
+
+        self.rank_population_fn = rank_population_fn
 
         self.species = [Species(individuals[0])]
         self.species[0].members = individuals
@@ -73,7 +78,7 @@ class Population:
         for species in self.species:
             species.empty_species()
 
-        """note origonal neat placed individuals in the first species they fit"""
+        """note original neat placed individuals in the first species they fit this places in the closest species"""
 
         for individual in individuals:
             best_fit_species = None
@@ -86,12 +91,10 @@ class Population:
                     best_distance = distance
                     best_fit_species = species
 
-            """fit individual somewhere"""
             if best_distance <= self.speciation_threshold:
                 best_fit_species.add(individual)
             else:
                 self.species.append(Species(individual))
-                #print("created new species:", self.species[-1])
 
         self.species = [spc for spc in self.species if spc.members]
         self.adjust_speciation_threshold()
@@ -126,26 +129,50 @@ class Population:
             species_size = round(self.population_size * (species.fitness / total_species_fitness))
             species.set_next_species_size(species_size)
 
-    def rank_population(self):
-        individuals = self._get_all_individuals()
-        individuals.sort(key=lambda x: (0 if not x.fitness_values else x.fitness_values[0]), reverse=True)
-        for i, individual in enumerate(individuals):
-            individual.rank = i
-
     def get_average_rank(self):
         individuals = self._get_all_individuals()
         return sum([indv.rank for indv in individuals]) / len(individuals)
 
     def step(self):
-        self.rank_population()
+        self.rank_population_fn(self._get_all_individuals())
         self.update_species_sizes()
-
-        #print("stepping population with", len(self.species), "species")
 
         for species in self.species:
             species.step(self.mutation_record)
 
         self.adjust_speciation_threshold()
         individuals = self._get_all_individuals()
-        # print("speciating population with",individuals)
         self.speciate(individuals)
+
+
+def single_objective_rank(individuals):
+    individuals.sort(key=lambda indv: (0 if not indv.fitness_values else indv.fitness_values[0]), reverse=True)
+    for i, individual in enumerate(individuals):
+        individual.rank = i
+
+
+def cdn_pareto_front(individuals):
+    individuals.sort(key=lambda indv: indv.fitness_values[0], reverse=True)
+
+    pf = [individuals[0]]  # pareto front populated with best individual in primary objective
+
+    for indv in individuals[1:]:
+        if indv.fitness_values[1] > pf[-1].fitness_values[1]:
+            pf.append(indv)
+
+    return pf
+
+
+def cdn_rank(individuals):
+    for indv in individuals:
+        if not indv.fitness_values:
+            indv.fitness_values = [0, 0]  # TODO make sure second obj must be maximized
+
+    ranked_individuals = []
+    while individuals:
+        pf = cdn_pareto_front(individuals)
+        individuals = individuals[len(pf):]  # TODO does this drop an individual?
+        ranked_individuals.extend(pf)
+
+    for i, indv in enumerate(ranked_individuals):
+        indv.rank = i

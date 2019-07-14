@@ -5,8 +5,9 @@ import random
 
 
 class Genome:
-    def __init__(self, connections: Iterable[ConnectionGene], nodes: Iterable[NodeGene]):
-        self.rank = 0  # accuracy is single OBJ else rank
+    def __init__(self, connections: Iterable[ConnectionGene], nodes: Iterable[NodeGene], num_objectives=1):
+        self.rank = 0  # The order of this genome when ranked by fitness values
+        self.uses = 0  # The numbers of times this genome is used
         self.fitness_values: list = []
 
         self._nodes = {}
@@ -53,6 +54,19 @@ class Genome:
 
         self._connected_nodes.add((conn.from_node, conn.to_node))
         self._connections[conn.id] = conn
+
+    def report_fitness(self, *fitnesses):
+        if self.fitness_values is None or not self.fitness_values:
+            self.fitness_values = [0 for _ in fitnesses]
+
+        for i, fitness in enumerate(fitnesses):
+            self.fitness_values[i] = (self.fitness_values[i] * self.uses + fitness) / (self.uses + 1)
+        self.uses += 1
+
+    def end_step(self):
+        self.uses = 0
+        if self.fitness_values is not None:
+            self.fitness_values = [0 for _ in self.fitness_values]
 
     def distance_to(self, other):
         if other == self:
@@ -171,7 +185,7 @@ class Genome:
 
         self._calculate_heights(self.get_input_node().id, 0, self._get_traversal_dictionary())
 
-    def _calculate_heights(self, current_node_id, height, traversal_dictionary ):
+    def _calculate_heights(self, current_node_id, height, traversal_dictionary):
         self._nodes[current_node_id].height = max(height, self._nodes[current_node_id].height)
 
         if self._nodes[current_node_id].is_output_node():
