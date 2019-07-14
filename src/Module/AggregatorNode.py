@@ -124,46 +124,41 @@ class AggregatorNode(Module):
         i = 0
         while i < length_of_outputs:
             #all list items from 0:i-1 are homogenous
-            out = outputs[i]
-            deep_layer = outputs_deep_layers[out]
-            if i == 0:
-                homogenous_features = self.get_feature_tuple(deep_layer, outputs[i])
-                #print("setting hom features to:",homogenous_features, "num outs:",len(outputs))
-            else:
-                new_features = self.get_feature_tuple(deep_layer, outputs[i])
-                if (not new_features == homogenous_features):
-                    # either the list up till this point or the new  input needs modification
-                    if i < length_of_outputs - 1:
-                        outputs = homogeniser(homogenous_features,outputs[:i], new_features,outputs[i]) + outputs[i+1:]
-                    else:#i== len - 1
-                        outputs = homogeniser(homogenous_features,outputs[:i], new_features,outputs[i])
 
-                    if outputs is None:
-                        raise Exception("null outputs returned from homogeniser")
-                    if len(outputs) < length_of_outputs:
-                        """homogeniser can sometimes collapse the previous inputs into one in certain circumstances"""
-                        change = length_of_outputs - len(outputs)
-                        i-=change
-                        print("outputs list(",len(outputs),") returned shorter than expected (",length_of_outputs,") - readjusting. Collapsed shape:",outputs[0].size())
-                        length_of_outputs = len(outputs)
-                        #raise Exception("length of outputs list has shrunk while homogenising at i=",i," origonal length:",length_of_outputs,"new length:",len(outputs))
+            homogenous_features = outputs[0].size()
+            new_features = outputs[i].size()
 
-                    new_features = self.get_feature_tuple(deep_layer, outputs[0])
-                    hom = self.get_feature_tuple(deep_layer, outputs[0])
-                    if not (hom == new_features):
-                        print("Error: homogeniser",homogeniser,"failed to homogenise list")
+            if new_features != homogenous_features:
+                # either the list up till this point or the new  input needs modification
+                if i < length_of_outputs - 1:
+                    outputs = homogeniser(outputs[:i], outputs[i]) + outputs[i+1:]
+                else:#i== len - 1
+                    outputs = homogeniser(outputs[:i], outputs[i])
 
-                    homogenous_features = hom
-                    #print("hom shape:",outputs[0].size(),"new shape:",outputs[i].size(), "i:",i)
+                if outputs is None:
+                    raise Exception("null outputs returned from homogeniser")
+                if len(outputs) < length_of_outputs:
+                    """homogeniser can sometimes collapse the previous inputs into one in certain circumstances"""
+                    change = length_of_outputs - len(outputs)
+                    i=0
+                    print("outputs list(",len(outputs),") returned shorter than expected (",length_of_outputs,") - readjusting. Collapsed shape:",outputs[0].size(), "full:",[x.size() for x in outputs])
+                    length_of_outputs = len(outputs)
+
+                # TODO remove
+                feat = outputs[0].size()
+                for c in range(0, i):
+                    new = outputs[c].size()
+                    if not (new == feat):
+                        raise Exception("Error: failed to homogenise outputs list with", homogeniser, ", found",new, "at", i, "hom:", [x.size() for x in outputs])
+
             i+=1
 
         #TODO remove
         features = outputs[0].size()
-        hom_features = [x.size() for x in outputs]
-        for i in range(1,len(outputs)):
-            new_features = outputs[i].size()
+        for c in range(1,len(outputs)):
+            new_features = outputs[c].size()
             if not (new_features == features):
-                raise Exception("Error: failed to homogenise outputs list with",homogeniser,", found",new_features,"at",i,"hom:",hom_features)
+                raise Exception("Error: failed to homogenise outputs list with",homogeniser,", found",new_features,"at",c,"hom:",[x.size() for x in outputs])
 
 
         if(outputs is None):

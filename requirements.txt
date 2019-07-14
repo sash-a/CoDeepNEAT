@@ -25,3 +25,5 @@ pytest
 
 graphviz
 python-graphviz
+
+imgaug

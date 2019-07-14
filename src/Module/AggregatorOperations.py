@@ -38,7 +38,7 @@ def merge_linear_and_conv(linear, conv, lossy= True):
         #use an additional linear layer to map the conv features to a linear the same shape as the given linear
         raise NotImplementedError("not yet implemented lossless merge of conv and linear")
 
-def merge_linear_outputs( previous_num_features, previous_inputs, new_num_features, new_input, cat = False):
+def merge_linear_outputs(previous_inputs,  new_input, cat = False):
     #print("merging linear layers with different feature counts")
     if(cat):
         previous = torch.sum(torch.stack(previous_inputs), dim=0)
@@ -74,11 +74,11 @@ def pad_linear_outputs(previous_inputs, new_input):
 
     return new_input, previous_inputs
 
-def merge_conv_outputs(previous_num_features, previous_inputs, new_num_features, new_input):
+def merge_conv_outputs( previous_inputs, new_input):
     #print("merging conv tensors",len(previous_inputs), previous_inputs[0].size(),new_input.size())
     # conv layers here do not have
-    channels1, x1, y1 = previous_num_features
-    channels2, x2, y2 = new_num_features
+    channels1, x1, y1 = list(previous_inputs[0].size())[1], list(previous_inputs[0].size())[2], list(previous_inputs[0].size())[3]
+    channels2, x2, y2 = list(new_input.size())[1], list(new_input.size())[2], list(new_input.size())[3]
 
 
     size_ratio = (x1 + y1) / (x2 + y2)
@@ -121,7 +121,6 @@ def merge_conv_outputs(previous_num_features, previous_inputs, new_num_features,
 
 def merge_differing_channel_convs(conv_a, conv_b):
     return torch.cat([conv_a,conv_b], dim=1)
-
 
 def max_pool_conv_input(x1, x2, y1, y2, new_input, previous_inputs):
     """takes a new input, and a list of homogenous previousInputs"""
