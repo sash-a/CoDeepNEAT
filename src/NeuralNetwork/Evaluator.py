@@ -19,7 +19,6 @@ def train(model, train_loader, epoch, test_loader, print_accuracy=False):
     Run a single train epoch
 
     :param model: the network of type torch.nn.Module
-    :param device: Device to train on (cuda or cpu)
     :param train_loader: the training dataset
     :param epoch: the current epoch
     :param test_loader: The test data set loader
@@ -34,8 +33,7 @@ def train(model, train_loader, epoch, test_loader, print_accuracy=False):
     s = time.time()
 
     for batch_idx, (inputs, targets) in enumerate(train_loader):
-
-        augmented_inputs, augmented_labels = BatchAugmentor.augment_batch(inputs.numpy(), targets.numpy())
+        augmented_inputs, augmented_labels = None, None  # BatchAugmentor.augment_batch(inputs.numpy(), targets.numpy())
 
         inputs, targets = inputs.to(device), targets.to(device)
         model.optimizer.zero_grad()
@@ -53,15 +51,18 @@ def train(model, train_loader, epoch, test_loader, print_accuracy=False):
             m_loss.backward()
             model.optimizer.step()
 
+            loss += m_loss.item()
+
         if batch_idx % printBatchEvery == 0 and not printBatchEvery == -1:
             print("\tepoch:", epoch, "batch:", batch_idx, "loss:", m_loss.item(), "running time:", time.time() - s)
 
     end_time = time.time()
+    print(model)
 
     if epoch % print_epoch_every == 0:
         if print_accuracy:
             print("epoch", epoch, "average loss:", loss / batch_idx, "accuracy:",
-                  test(model, device, test_loader, print_acc=False), "% time for epoch:", (end_time - s))
+                  test(model, device, test_loader), "% time for epoch:", (end_time - s))
         else:
             print("epoch", epoch, "average loss:", loss / batch_idx, "time for epoch:", (end_time - s))
 
@@ -124,7 +125,7 @@ def evaluate(model, epochs, dataset='mnist', path='../../data', batch_size=64):
     """
     # Make this params
     # num_workers=1 is giving issues, but 0 runs slower
-    data_loader_args = {'num_workers': 0, 'pin_memory': True} if  Config.device == 'cuda' else {}
+    data_loader_args = {'num_workers': 0, 'pin_memory': True} if Config.device == 'cuda' else {}
 
     train_loader, test_loader = load_data(dataset, path, batch_size)
 
@@ -171,7 +172,7 @@ def load_data(dataset, path, batch_size=64):
 
     elif dataset.lower() == 'imgnet':
         train_loader = DataLoader(
-            datasets.ImageNet(path,train=True)  # TODO
+            datasets.ImageNet(path, train=True)  # TODO
         )
 
         test_loader = DataLoader(

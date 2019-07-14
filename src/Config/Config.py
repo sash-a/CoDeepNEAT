@@ -3,12 +3,12 @@ import torch
 device = torch.device('cuda:0')
 # device = torch.device('cpu')
 
-second_objective = ""  # network_size
+second_objective = "network_size"  # network_size
 third_objective = ""
 
 test_in_run = True
-dummy_run = True
-protect_parsing_from_errors = False
+dummy_run = False
+protect_parsing_from_errors = True
 
 number_of_epochs_per_evaluation = 3
 

@@ -158,7 +158,7 @@ class Generation:
         third_objective_value = None
 
         if Config.second_objective == "network_size":
-            second_objective_value = net.module_graph.get_net_size()
+            second_objective_value = 1 / net.module_graph.get_net_size()
         elif Config.second_objective == "":
             pass
         else:

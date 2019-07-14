@@ -22,8 +22,8 @@ def augment_batch(images, labels):
     augmented_batch, aug_labels = augSc.augment_images()
 
     # Displays original image + augmented image (for testing)
-    display_image(reformatted_images[0])
-    display_image(augmented_batch[0])
+    # display_image(reformatted_images[0])
+    # display_image(augmented_batch[0])
 
     # Reformat augmented batch into the shape that the  rest of the code wants
     augmented_batch = augmented_batch.reshape(64, 1, 28, 28)
