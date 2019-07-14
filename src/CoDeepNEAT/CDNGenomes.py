@@ -1,9 +1,9 @@
 import copy
 
-from Blueprint.Blueprint import BlueprintNode
-from Config import NeatProperties as Props
-from Module.ModuleNode import ModuleNode
-from NEAT.Genome import Genome
+from src.Blueprint.Blueprint import BlueprintNode
+from src.Config import NeatProperties as Props
+from src.Module.ModuleNode import ModuleNode
+from src.NEAT.Genome import Genome
 
 
 class BlueprintGenome(Genome):

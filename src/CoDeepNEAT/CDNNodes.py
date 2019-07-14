@@ -1,5 +1,5 @@
-from NEAT.Gene import NodeGene, NodeType
-from NEAT.Mutagen import Mutagen, ValueType
+from src.NEAT.Gene import NodeGene, NodeType
+from src.NEAT.Mutagen import Mutagen, ValueType
 from src.NEAT.Gene import NodeGene, NodeType
 from src.NEAT.Mutagen import Mutagen
 from src.NEAT.Mutagen import ValueType
