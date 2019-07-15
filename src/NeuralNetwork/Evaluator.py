@@ -41,8 +41,8 @@ def train(model, train_loader, epoch, test_loader, print_accuracy=False):
 
         output = model(inputs)
         m_loss = model.loss_fn(output, targets.float())
-        # del inputs
-        # del targets
+        del inputs
+        del targets
         augmented_inputs, augmented_labels = augmented_inputs.to(device), augmented_labels.to(device)
         m_loss.backward()
         model.optimizer.step()
@@ -85,16 +85,13 @@ def test(model, test_loader, print_acc=True):
     model.eval()
     device = Config.device
 
-    test_loss = 0
     correct = 0
-    loss_fn = nn.MSELoss()
     with torch.no_grad():
         for inputs, targets in test_loader:
             inputs, targets = inputs.to(device), targets.to(device)
             output = model(inputs)
             if len(list(targets.size())) == 1:
                 # each batch item has only one value. this value is the class prediction
-                test_loss += loss_fn(output, targets.float())
                 for i in range(list(targets.size())[0]):
                     prediction = round(list(output)[i].item())
                     if prediction == list(targets)[i]:
@@ -102,16 +99,13 @@ def test(model, test_loader, print_acc=True):
 
             else:
                 # each batch item has num_classes values, the highest of which predicts the class
-                test_loss += F.nll_loss(output, targets, reduction='sum').item()  # sum up batch loss
                 pred = output.argmax(dim=1, keepdim=True)  # get the index of the max log-probability
                 correct += pred.eq(targets.view_as(pred)).sum().item()
 
-    test_loss /= len(test_loader.dataset)
     acc = 100. * correct / len(test_loader.dataset)
 
     if print_acc:
-        print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
-            test_loss, correct, len(test_loader.dataset), acc))
+        print('\nTest set: Accuracy: {}/{} ({:.0f}%)\n'.format(correct, len(test_loader.dataset), acc))
 
     return acc
 

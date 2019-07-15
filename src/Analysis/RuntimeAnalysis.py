@@ -14,6 +14,9 @@ def log_new_generation(accuracies, generation_number, second_objective_values = 
 
     generations.append(GenerationData(accuracies, generation_number,second_objective_values,third_objective_values))
 
+    if not os.path.exists(get_log_folder()):
+        os.makedirs(get_log_folder())
+
     with open(get_log_folder() + log_file, "a+") as f:
         if write_summaries:
             f.write(generations[-1].get_summary() + "\n")

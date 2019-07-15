@@ -99,9 +99,9 @@ class Generation:
             if len(results) > 3:
                 raise Exception("Error: too many result values to unpack")
 
-            print("checking new net against previous")
+            #print("checking new net against previous")
             if acc >= best_acc:
-                print("found new best bp")
+                #print("found new best bp")
                 best_acc = acc
                 best_bp = module_graph
                 best_bp_genome = blueprint_individual
@@ -110,7 +110,7 @@ class Generation:
 
         if generation_number % Config.print_best_graph_every_n_generations == 0:
             if Config.save_best_graphs:
-                print('Best blueprint:\n', best_bp_genome)
+                #print('Best blueprint:\n', best_bp_genome)
                 best_bp.plot_tree_with_graphvis(title="gen:" + str(generation_number) + " acc:" + str(best_acc),
                                                 file="best_of_gen_" + repr(generation_number))
 
