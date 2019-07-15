@@ -103,11 +103,7 @@ class Genome:
                 self._connections[orig_conn.id] = orig_conn
 
         for node in self._nodes.values():
-            orig_node = copy.deepcopy(node)
-            mutated = node.mutate()
-            # If mutation made the genome invalid then undo it
-            if mutated and not self.validate():
-                self._nodes[orig_node.id] = orig_node
+            node.mutate()
 
         if topology_changed:
             self.calculate_heights()
