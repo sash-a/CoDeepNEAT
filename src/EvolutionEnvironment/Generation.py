@@ -99,7 +99,9 @@ class Generation:
             if len(results) > 3:
                 raise Exception("Error: too many result values to unpack")
 
+            print("checking new net against previous")
             if acc >= best_acc:
+                print("found new best bp")
                 best_acc = acc
                 best_bp = module_graph
                 best_bp_genome = blueprint_individual

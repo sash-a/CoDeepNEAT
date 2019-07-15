@@ -7,6 +7,11 @@ import numpy as np
 # augments batches of images
 def augment_batch(images, labels):
 
+    batch_size = np.shape(images)[0]
+    channels = np.shape(images)[1]
+    x_Dim = np.shape(images)[2]
+    y_dim = np.shape(images)[3]
+
     # Create a new array that contains the batch of images that have been reformatted to accommodate the aug lib
     reformatted_images_list = []
     for i in images:
@@ -26,7 +31,7 @@ def augment_batch(images, labels):
     # display_image(augmented_batch[0])
 
     # Reformat augmented batch into the shape that the  rest of the code wants
-    augmented_batch = augmented_batch.reshape(64, 1, 28, 28)
+    augmented_batch = augmented_batch.reshape(batch_size, channels, x_Dim, y_dim)
 
     # Convert images stored in numpy arrays to tensors
     t_augmented_images = torch.from_numpy(augmented_batch)

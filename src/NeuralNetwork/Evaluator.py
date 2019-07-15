@@ -33,19 +33,24 @@ def train(model, train_loader, epoch, test_loader, print_accuracy=False):
     s = time.time()
 
     for batch_idx, (inputs, targets) in enumerate(train_loader):
-        augmented_inputs, augmented_labels = None, None  # BatchAugmentor.augment_batch(inputs.numpy(), targets.numpy())
-
+        augmented_inputs, augmented_labels = BatchAugmentor.augment_batch(inputs.numpy(), targets.numpy())
         inputs, targets = inputs.to(device), targets.to(device)
+
+
         model.optimizer.zero_grad()
 
         output = model(inputs)
         m_loss = model.loss_fn(output, targets.float())
+        # del inputs
+        # del targets
+        augmented_inputs, augmented_labels = augmented_inputs.to(device), augmented_labels.to(device)
         m_loss.backward()
         model.optimizer.step()
 
         loss += m_loss.item()
 
         if augmented_inputs is not None:
+            #print("training on augmented images shape:",augmented_inputs.size())
             output = model(augmented_inputs)
             m_loss = model.loss_fn(output, augmented_labels.float())
             m_loss.backward()
