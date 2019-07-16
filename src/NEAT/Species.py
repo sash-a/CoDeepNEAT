@@ -54,11 +54,16 @@ class Species:
         # print("number of elite:", number_of_elite, "num children to be created:",(self.next_species_size - number_of_elite))
         elite = self.members[:number_of_elite]
         children = []
-        tries = 10 * (self.next_species_size - len(elite))
+        tries = 100 * (self.next_species_size - len(elite))
 
         while len(children) + len(elite) < self.next_species_size:
             parent1 = random.choice(self.members)
             parent2 = random.choice(self.members)
+
+            if parent1 == parent2:
+                if not parent1.validate():
+                    print("invalid parent trav dict:",parent1._get_traversal_dictionary(exclude_disabled_connection=True))
+                    raise Exception("invalid parent in species members list",parent1)
 
             best = parent1 if parent1 < parent2 else parent2
             worst = parent1 if parent1 > parent2 else parent2
@@ -73,7 +78,7 @@ class Species:
 
             tries -= 1
             if tries == 0:
-                raise Exception("Error: Species " + repr(self) + " failed to create enough healthy offspring")
+                raise Exception("Error: Species " + repr(self) + " failed to create enough healthy offspring. "+repr(len(children))+ "/" + repr(self.next_species_size -len(elite) )  + " num members="+ repr(len(self.members)))
 
         children.extend(elite)
         self.members = children

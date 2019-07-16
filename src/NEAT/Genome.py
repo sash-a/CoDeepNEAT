@@ -208,10 +208,10 @@ class Genome:
     def _validate_traversal(self, current_node_id, traversal_dictionary, nodes_visited):
         if self._nodes[current_node_id].is_output_node():
             return True
-        if self in nodes_visited:
+        if current_node_id in nodes_visited:
             return False
 
-        nodes_visited.add(self)
+        nodes_visited.add(current_node_id)
 
         found_output = False
         if current_node_id in traversal_dictionary:

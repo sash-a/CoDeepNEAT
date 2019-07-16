@@ -8,7 +8,7 @@ third_objective = ""
 data_path = '../../data'
 
 test_in_run = True
-dummy_run = False
+dummy_run = True
 protect_parsing_from_errors = False
 
 number_of_epochs_per_evaluation = 3
