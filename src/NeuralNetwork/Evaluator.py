@@ -21,7 +21,7 @@ def train(model, train_loader, epoch, test_loader, print_accuracy=False):
     :param model: the network of type torch.nn.Module
     :param train_loader: the training dataset
     :param epoch: the current epoch
-    :param test_loader: The test data set loader
+    :param test_loader: The test dataset loader
     :param print_accuracy: True if should test when printing batch info
     """
     model.train()
@@ -36,7 +36,6 @@ def train(model, train_loader, epoch, test_loader, print_accuracy=False):
         augmented_inputs, augmented_labels = BatchAugmentor.augment_batch(inputs.numpy(), targets.numpy())
         inputs, targets = inputs.to(device), targets.to(device)
 
-
         model.optimizer.zero_grad()
 
         output = model(inputs)
@@ -50,7 +49,7 @@ def train(model, train_loader, epoch, test_loader, print_accuracy=False):
         loss += m_loss.item()
 
         if augmented_inputs is not None:
-            #print("training on augmented images shape:",augmented_inputs.size())
+            # print("training on augmented images shape:",augmented_inputs.size())
             output = model(augmented_inputs)
             m_loss = model.loss_fn(output, augmented_labels.float())
             m_loss.backward()
@@ -62,7 +61,7 @@ def train(model, train_loader, epoch, test_loader, print_accuracy=False):
             print("\tepoch:", epoch, "batch:", batch_idx, "loss:", m_loss.item(), "running time:", time.time() - s)
 
     end_time = time.time()
-    #print(model)
+    # print(model)
 
     if epoch % print_epoch_every == 0:
         if print_accuracy:
@@ -110,37 +109,34 @@ def test(model, test_loader, print_acc=True):
     return acc
 
 
-def evaluate(model, epochs, dataset='mnist', path='../../data', batch_size=64):
+def evaluate(model, epochs, dataset='mnist', batch_size=64):
     """
     Runs all epochs and tests the model after all epochs have run
 
     :param model: instance of nn.Module
     :param epochs: number of training epochs
     :param dataset: Either mnist or imgnet
-    :param path: where to store the dataset
-    :param device: Either cuda or cpu
-    :param batch_size: The data set batch size
+    :param batch_size: The dataset batch size
     :return: The trained model
     """
     # Make this params
     # num_workers=1 is giving issues, but 0 runs slower
     data_loader_args = {'num_workers': 0, 'pin_memory': True} if Config.device == 'cuda' else {}
 
-    train_loader, test_loader = load_data(dataset, path, batch_size)
+    train_loader, test_loader = load_data(dataset, Config.data_path, batch_size)
 
     s = time.time()
     for epoch in range(1, epochs + 1):
         train(model, train_loader, epoch, test_loader)
     e = time.time()
 
-
     test_acc = test(model, test_loader)
-    print('Evaluation took', e - s, 'seconds, Test acc:',test_acc)
+    print('Evaluation took', e - s, 'seconds, Test acc:', test_acc)
     return test_acc
 
 
-def sample_data(dataset='mnist', path='../../data', batch_size=64):
-    train_loader, test_loader = load_data(dataset, path, batch_size)
+def sample_data(dataset='mnist', batch_size=64):
+    train_loader, test_loader = load_data(dataset, Config.data_path, batch_size)
     device = Config.device
     for batch_idx, (inputs, targets) in enumerate(train_loader):
         return inputs.to(device), targets.to(device)

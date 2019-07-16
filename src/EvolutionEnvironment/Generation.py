@@ -51,7 +51,7 @@ class Generation:
 
     def evaluate(self, generation_number):
         print("Num species:", len(self.module_population.species))
-        inputs, targets = Evaluator.sample_data('mnist', '../../data')
+        inputs, targets = Evaluator.sample_data('mnist')
 
         best_acc, best_second, best_third = float('-inf'), float('-inf'), float('-inf')
         best_bp, best_bp_genome = None, None
@@ -99,9 +99,9 @@ class Generation:
             if len(results) > 3:
                 raise Exception("Error: too many result values to unpack")
 
-            #print("checking new net against previous")
+            # print("checking new net against previous")
             if acc >= best_acc:
-                #print("found new best bp")
+                # print("found new best bp")
                 best_acc = acc
                 best_bp = module_graph
                 best_bp_genome = blueprint_individual
@@ -110,7 +110,7 @@ class Generation:
 
         if generation_number % Config.print_best_graph_every_n_generations == 0:
             if Config.save_best_graphs:
-                #print('Best blueprint:\n', best_bp_genome)
+                # print('Best blueprint:\n', best_bp_genome)
                 best_bp.plot_tree_with_graphvis(title="gen:" + str(generation_number) + " acc:" + str(best_acc),
                                                 file="best_of_gen_" + repr(generation_number))
 
@@ -153,8 +153,7 @@ class Generation:
         if Config.dummy_run:
             acc = hash(net)
         else:
-            acc = Evaluator.evaluate(net, Config.number_of_epochs_per_evaluation, dataset='mnist', path='../../data',
-                                     batch_size=256)
+            acc = Evaluator.evaluate(net, Config.number_of_epochs_per_evaluation, dataset='mnist', batch_size=256)
 
         second_objective_value = None
         third_objective_value = None

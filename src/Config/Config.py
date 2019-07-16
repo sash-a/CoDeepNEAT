@@ -1,10 +1,11 @@
-import torch
-
-device = torch.device('cuda:0')
+device = 'cuda:0'
 # device = torch.device('cpu')
+num_generations = 500
 
 second_objective = "network_size"  # network_size
 third_objective = ""
+
+data_path = '../../data'
 
 test_in_run = True
 dummy_run = False
