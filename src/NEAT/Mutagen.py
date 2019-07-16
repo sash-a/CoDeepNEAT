@@ -63,6 +63,8 @@ class Mutagen():
         """:returns whether or not this gene mutated"""
         old_value = self()
 
+        self.mutate_sub_mutagens()
+
         if(random.random()<self.mutation_chance):
             if (self.value_type == ValueType.DISCRETE):
                 new_current_value_id = random.randint(0,len(self.possible_values)-1)
@@ -93,7 +95,7 @@ class Mutagen():
 
             if self.print_when_mutating and not old_value == self():
                 print("mutated gene from",old_value,"to",self(), "range: [",self.start_range,",",self.end_range,")")
-            self.mutate_sub_mutagens()
+
 
             return not old_value == self()
 
@@ -106,7 +108,7 @@ class Mutagen():
                 #print("trying to mutate sub mut, my val=",self.get_value(), "subs key value=",val)
                 if val == self.get_value():
                     for sub_mut in subs.values():
-                        #print("mutating submutagen")
+                        #print("mutating submutagen",sub_mut())
                         sub_mut.mutate()
 
     def get_value(self):
@@ -128,6 +130,11 @@ class Mutagen():
             return mutagen
         else:
             return mutagen.get_value()
+
+    def get_sub_values(self):
+        if not (self.sub_values is None):
+            if self.get_value() in self.sub_values:
+                return self.sub_values[self.get_value()]
 
     def set_value(self, value):
         """sets current_value=value, or curent_value_id = index(value)

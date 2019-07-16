@@ -77,7 +77,7 @@ class Genome:
     def mutate(self, mutation_record):
         raise NotImplemented('Mutation should be called not in base class')
 
-    def _mutate(self, mutation_record, add_node_chance, add_connection_chance):
+    def _mutate(self, mutation_record, add_node_chance, add_connection_chance, allow_connections_to_mutate = True):
         topology_changed = False
         if random.random() < add_node_chance:
             topology_changed = True
@@ -94,13 +94,14 @@ class Genome:
                                                       random.choice(list(self._nodes.values())))
                 tries -= 1
 
-        for connection in self._connections.values():
-            orig_conn = copy.deepcopy(connection)
-            mutated = connection.mutate()
-            topology_changed = topology_changed or mutated
-            # If mutation made the genome invalid then undo it
-            if mutated and not self.validate():
-                self._connections[orig_conn.id] = orig_conn
+        if allow_connections_to_mutate:
+            for connection in self._connections.values():
+                orig_conn = copy.deepcopy(connection)
+                mutated = connection.mutate()
+                topology_changed = topology_changed or mutated
+                # If mutation made the genome invalid then undo it
+                if mutated and not self.validate():
+                    self._connections[orig_conn.id] = orig_conn
 
         for node in self._nodes.values():
             node.mutate()
