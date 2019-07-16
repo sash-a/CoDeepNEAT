@@ -10,7 +10,7 @@ from src.Config import Config
 
 import time
 
-printBatchEvery = 150  # -1 to switch off batch printing
+printBatchEvery = -1  # -1 to switch off batch printing
 print_epoch_every = 1
 
 
@@ -33,19 +33,24 @@ def train(model, train_loader, epoch, test_loader, print_accuracy=False):
     s = time.time()
 
     for batch_idx, (inputs, targets) in enumerate(train_loader):
-        augmented_inputs, augmented_labels = None, None  # BatchAugmentor.augment_batch(inputs.numpy(), targets.numpy())
-
+        augmented_inputs, augmented_labels = BatchAugmentor.augment_batch(inputs.numpy(), targets.numpy())
         inputs, targets = inputs.to(device), targets.to(device)
+
+
         model.optimizer.zero_grad()
 
         output = model(inputs)
         m_loss = model.loss_fn(output, targets.float())
+        del inputs
+        del targets
+        augmented_inputs, augmented_labels = augmented_inputs.to(device), augmented_labels.to(device)
         m_loss.backward()
         model.optimizer.step()
 
         loss += m_loss.item()
 
         if augmented_inputs is not None:
+            #print("training on augmented images shape:",augmented_inputs.size())
             output = model(augmented_inputs)
             m_loss = model.loss_fn(output, augmented_labels.float())
             m_loss.backward()
@@ -57,7 +62,7 @@ def train(model, train_loader, epoch, test_loader, print_accuracy=False):
             print("\tepoch:", epoch, "batch:", batch_idx, "loss:", m_loss.item(), "running time:", time.time() - s)
 
     end_time = time.time()
-    print(model)
+    #print(model)
 
     if epoch % print_epoch_every == 0:
         if print_accuracy:
@@ -80,16 +85,13 @@ def test(model, test_loader, print_acc=True):
     model.eval()
     device = Config.device
 
-    test_loss = 0
     correct = 0
-    loss_fn = nn.MSELoss()
     with torch.no_grad():
         for inputs, targets in test_loader:
             inputs, targets = inputs.to(device), targets.to(device)
             output = model(inputs)
             if len(list(targets.size())) == 1:
                 # each batch item has only one value. this value is the class prediction
-                test_loss += loss_fn(output, targets.float())
                 for i in range(list(targets.size())[0]):
                     prediction = round(list(output)[i].item())
                     if prediction == list(targets)[i]:
@@ -97,16 +99,13 @@ def test(model, test_loader, print_acc=True):
 
             else:
                 # each batch item has num_classes values, the highest of which predicts the class
-                test_loss += F.nll_loss(output, targets, reduction='sum').item()  # sum up batch loss
                 pred = output.argmax(dim=1, keepdim=True)  # get the index of the max log-probability
                 correct += pred.eq(targets.view_as(pred)).sum().item()
 
-    test_loss /= len(test_loader.dataset)
     acc = 100. * correct / len(test_loader.dataset)
 
     if print_acc:
-        print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
-            test_loss, correct, len(test_loader.dataset), acc))
+        print('\nTest set: Accuracy: {}/{} ({:.0f}%)\n'.format(correct, len(test_loader.dataset), acc))
 
     return acc
 
@@ -134,8 +133,10 @@ def evaluate(model, epochs, dataset='mnist', path='../../data', batch_size=64):
         train(model, train_loader, epoch, test_loader)
     e = time.time()
 
-    print('Evaluation took', e - s, 'seconds')
-    return test(model, test_loader)
+
+    test_acc = test(model, test_loader)
+    print('Evaluation took', e - s, 'seconds, Test acc:',test_acc)
+    return test_acc
 
 
 def sample_data(dataset='mnist', path='../../data', batch_size=64):

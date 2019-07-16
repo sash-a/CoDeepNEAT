@@ -1,6 +1,6 @@
 from src.NEAT.Species import Species
 import src.Config.NeatProperties as Props
-
+import math
 
 class MutationRecords:
     def __init__(self, initial_mutations, current_max_node_id, current_max_conn_id):
@@ -45,7 +45,6 @@ class Population:
 
         self.speciation_threshold = 1
         self.current_threshold_dir = 1
-        self.num_species_mod = Props.SPECIES_DISTANCE_THRESH_MOD
 
         self.mutation_record = MutationRecords(initial_mutations, max_node_id, max_innovation)
 
@@ -97,7 +96,6 @@ class Population:
                 self.species.append(Species(individual))
 
         self.species = [spc for spc in self.species if spc.members]
-        self.adjust_speciation_threshold()
 
     def adjust_speciation_threshold(self):
         if len(self.species) < self.target_num_species:
@@ -105,15 +103,24 @@ class Population:
         elif len(self.species) > self.target_num_species:
             new_dir = 1  # increase thresh
         else:
-            new_dir = 0
+            self.current_threshold_dir = 0
+            return
+
+        """threshold must be adjusted"""
 
         if new_dir != self.current_threshold_dir:
-            self.num_species_mod = Props.SPECIES_DISTANCE_THRESH_MOD
+            """still not right - must have jumped over the ideal value
+                adjust by base modification
+            """
+            self.speciation_threshold = min(max(Props.SPECIES_DISTANCE_THRESH_MOD_MIN, self.speciation_threshold + (new_dir * Props.SPECIES_DISTANCE_THRESH_MOD_BASE)),
+                                            Props.SPECIES_DISTANCE_THRESH_MOD_MAX)
         else:
-            self.num_species_mod *= 2
+            """still approaching the ideal value - exponentially speed up"""
+            self.speciation_threshold *= math.pow(2,new_dir)
 
+        #print("\tsetting new spec thresh to:",self.speciation_threshold,type(self._get_all_individuals()[0]), "num species:",len(self.species),"target:", self.target_num_species , "thresh:",self.speciation_threshold, "new dir:",new_dir, "old dir:",self.current_threshold_dir)
         self.current_threshold_dir = new_dir
-        self.speciation_threshold = max(0.001, self.speciation_threshold + (new_dir * self.num_species_mod))
+
 
     def update_species_sizes(self):
         """should be called before species.step()"""
@@ -134,6 +141,7 @@ class Population:
         return sum([indv.rank for indv in individuals]) / len(individuals)
 
     def step(self):
+        #print("stepping population of",type(self._get_all_individuals()[0]))
         self.rank_population_fn(self._get_all_individuals())
         self.update_species_sizes()
 

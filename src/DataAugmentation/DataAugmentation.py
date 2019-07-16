@@ -1,8 +1,7 @@
 # The imgaug library is integral to this class (must cite)
 import imgaug.augmenters as iaa
 from src.DataAugmentation.CustomOperations import CustomOperation
-import copy
-
+import numpy as np
 
 # The AugmenationScheme class allows for the creation of a pipeline consiting of different augmentations.
 # Once all the desired augmentations are chosen for the pipeline.
@@ -232,6 +231,7 @@ class AugmentationScheme:
 
             seq = iaa.Sequential(self.augs)
             images_aug = seq.augment_images(self.images)
+            #print("augmenting",np.shape(self.images), "to",np.shape(images_aug))
             self.labels = self.labels  # labels should be identical
 
             return images_aug, self.labels

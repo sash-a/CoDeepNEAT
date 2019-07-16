@@ -1,7 +1,8 @@
 import matplotlib.pyplot as plt
 import math
 import graphviz
-
+from src.Config import Config
+import os
 
 class Node:
     """
@@ -77,7 +78,8 @@ class Node:
         return False
 
     def plot_tree_with_graphvis(self, title="", graph=None, nodes_plotted=None, file="temp", folder = "runs"):
-        file = "../Analysis/Graphs/"+folder+"/" + file
+        folder = "../Analysis/Graphs/"+folder
+        file = folder+"/" + file
 
         if graph is None:
             graph = graphviz.Digraph(comment=title)
@@ -101,7 +103,9 @@ class Node:
             graph.edge(self.traversal_id, child.traversal_id)
 
         if self.is_input_node():
-            graph.render(file, view=True)
+            if not os.path.exists(folder):
+                os.makedirs(folder)
+            graph.render(file, view=Config.print_best_graphs)
 
     def get_layer_type_name(self):
         raise Exception("override layer type name is super classes")
