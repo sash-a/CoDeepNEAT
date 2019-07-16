@@ -1,10 +1,12 @@
 import sys
 import os
 
+# For importing project files
 dir_path = os.path.dirname(os.path.realpath(__file__))
-dir_path = os.path.split(os.path.split(dir_path)[0])[0]
-sys.path.append(dir_path)  # adding ../../CoDeepNEAT to the python path for imports
-sys.path.append('/home/sabramowitz/lustre/CoDeepNEAT/src')
+dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
+dir_path_2 = os.path.split(dir_path)[0]
+sys.path.append(dir_path_1)
+sys.path.append(dir_path_2)
 
 from src.EvolutionEnvironment.Generation import Generation
 from src.Analysis import RuntimeAnalysis
