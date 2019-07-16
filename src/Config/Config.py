@@ -1,5 +1,9 @@
-device = 'cuda:0'
-# device = torch.device('cpu')
+import torch
+
+device = torch.device('cuda:0')
+num_workers = 0
+dataset = 'mnist'
+
 num_generations = 500
 
 second_objective = "network_size"  # network_size
