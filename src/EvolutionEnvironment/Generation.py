@@ -14,7 +14,7 @@ class Generation:
 
     def __init__(self):
         self.speciesNumbers = []
-        self.module_population, self.blueprint_population = None, None
+        self.module_population, self.blueprint_population, self.da_population = None, None, None
         self.initialise_populations()
 
     def initialise_populations(self):
@@ -28,6 +28,7 @@ class Generation:
                                             2,
                                             2,
                                             Props.MODULE_TARGET_NUM_SPECIES)
+
         self.blueprint_population = Population(PopInit.initialise_blueprints(),
                                                rank_fn,
                                                PopInit.initialize_mutations(),
@@ -36,12 +37,21 @@ class Generation:
                                                2,
                                                Props.BP_TARGET_NUM_SPECIES)
 
+        self.da_population = Population(PopInit.initialise_da(),
+                                        rank_fn,
+                                        PopInit.da_initial_mutations(),
+                                        Props.DA_POP_SIZE,
+                                        1,
+                                        1,
+                                        Props.DA_TARGET_NUM_SPECIES)
+
     def step(self):
         """Runs CDN for one generation - must be called after fitness evaluation"""
         self.module_population.step()
         for blueprint_individual in self.blueprint_population.individuals:
             blueprint_individual.reset_number_of_module_species(self.module_population.get_num_species())
         self.blueprint_population.step()
+        self.da_population.step()
 
         for blueprint_individual in self.blueprint_population.individuals:
             blueprint_individual.end_step()
@@ -99,9 +109,9 @@ class Generation:
             if len(results) > 3:
                 raise Exception("Error: too many result values to unpack")
 
-            print("checking new net against previous")
+            #print("checking new net against previous")
             if acc >= best_acc:
-                print("found new best bp")
+                #print("found new best bp")
                 best_acc = acc
                 best_bp = module_graph
                 best_bp_genome = blueprint_individual
@@ -150,11 +160,17 @@ class Generation:
         #         print('failed graph:', blueprint_individual)
         #     raise Exception("Error: nn failed to have input passed through")
 
-        if Config.dummy_run:
+        if Config.dummy_run and generation_number < 50:
             acc = hash(net)
+            da_indv = blueprint_individual.pick_da_scheme(self.da_population)
+            da_scheme = da_indv.to_phenotype()
         else:
+            # TODO if DA on
+            da_indv = blueprint_individual.pick_da_scheme(self.da_population)
+            da_scheme = da_indv.to_phenotype()
+            print("got da scheme from blueprint",da_scheme, "indv:",da_scheme)
             acc = Evaluator.evaluate(net, Config.number_of_epochs_per_evaluation, dataset='mnist', path='../../data',
-                                     batch_size=256)
+                                     batch_size=256, augmentor=da_scheme)
 
         second_objective_value = None
         third_objective_value = None
@@ -176,5 +192,7 @@ class Generation:
         blueprint_individual.report_fitness(*results)
         for module_individual in blueprint_individual.modules_used:
             module_individual.report_fitness(*results)
+
+        blueprint_individual.da_scheme.report_fitness(*results)
 
         return module_graph, blueprint_individual, results

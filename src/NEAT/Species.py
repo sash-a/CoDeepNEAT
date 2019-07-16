@@ -19,6 +19,9 @@ class Species:
     def __len__(self):
         return len(self.members)
 
+    def __repr__(self):
+        return "Species age:" + repr(self.age) + " type: " + repr(type(self.members[0]))
+
     def add(self, individual):
         self.members.append(individual)
         """removed becasue speciation redifines species borders  -so allowing more individuals in is acceptable"""
@@ -104,7 +107,7 @@ class Species:
         index = random.randint(0, len(self.members) - 1)
         return self.members[index], index
 
-    def get_individual_by_index(self,index):
+    def get_individual_by_index(self, index):
         return self.members[index]
 
     def get_species_type(self):

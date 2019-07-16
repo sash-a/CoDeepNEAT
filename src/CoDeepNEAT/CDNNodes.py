@@ -7,12 +7,13 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch
 
+from src.DataAugmentation.DataAugmentation import AugmentationScheme
+
 use_convs = True
 use_linears = True
 
 
 class ModulenNEATNode(NodeGene):
-
     def __init__(self, id, node_type=NodeType.HIDDEN,
                  out_features=25, activation=F.relu, layer_type=nn.Conv2d,
                  conv_window_size=7, conv_stride=1, regularisation=None, reduction=nn.MaxPool2d, max_pool_size=2):
@@ -85,7 +86,12 @@ class BlueprintNEATNode(NodeGene):
 class DANode(NodeGene):
     def __init__(self, id, node_type=NodeType.HIDDEN):
         super().__init__(id, node_type)
-        self.da = Mutagen()  # TODO
+        # self.da = Mutagen(*list(AugmentationScheme.Augmentations.keys()), discreet_value='No_Operation')
+        self.da = Mutagen("Flip_lr", "Rotate", sub_mutagens={
+            "Rotate":{"lo":Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=-45, start_range=-180,end_range=0),
+                      "hi":Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=+45, start_range=0,end_range=180)}},
+                          discreet_value="Flip_lr")
+
 
     def get_all_mutagens(self):
         return [self.da]

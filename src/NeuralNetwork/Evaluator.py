@@ -14,7 +14,7 @@ printBatchEvery = -1  # -1 to switch off batch printing
 print_epoch_every = 1
 
 
-def train(model, train_loader, epoch, test_loader, print_accuracy=False):
+def train(model, train_loader, epoch, test_loader, augmentor=None, print_accuracy=False):
     """
     Run a single train epoch
 
@@ -33,9 +33,9 @@ def train(model, train_loader, epoch, test_loader, print_accuracy=False):
     s = time.time()
 
     for batch_idx, (inputs, targets) in enumerate(train_loader):
-        augmented_inputs, augmented_labels = BatchAugmentor.augment_batch(inputs.numpy(), targets.numpy())
+        if augmentor is not None:
+            aug_inputs, aug_labels = BatchAugmentor.augment_batch(inputs.numpy(), targets.numpy(), augmentor)
         inputs, targets = inputs.to(device), targets.to(device)
-
 
         model.optimizer.zero_grad()
 
@@ -43,16 +43,16 @@ def train(model, train_loader, epoch, test_loader, print_accuracy=False):
         m_loss = model.loss_fn(output, targets.float())
         # del inputs
         # del targets
-        augmented_inputs, augmented_labels = augmented_inputs.to(device), augmented_labels.to(device)
         m_loss.backward()
         model.optimizer.step()
 
         loss += m_loss.item()
 
-        if augmented_inputs is not None:
-            #print("training on augmented images shape:",augmented_inputs.size())
-            output = model(augmented_inputs)
-            m_loss = model.loss_fn(output, augmented_labels.float())
+        if augmentor is not None:
+            aug_inputs, aug_labels = aug_inputs.to(device), aug_labels.to(device)
+            # print("training on augmented images shape:",augmented_inputs.size())
+            output = model(aug_inputs)
+            m_loss = model.loss_fn(output, aug_labels.float())
             m_loss.backward()
             model.optimizer.step()
 
@@ -62,7 +62,7 @@ def train(model, train_loader, epoch, test_loader, print_accuracy=False):
             print("\tepoch:", epoch, "batch:", batch_idx, "loss:", m_loss.item(), "running time:", time.time() - s)
 
     end_time = time.time()
-    #print(model)
+    # print(model)
 
     if epoch % print_epoch_every == 0:
         if print_accuracy:
@@ -116,7 +116,7 @@ def test(model, test_loader, print_acc=True):
     return acc
 
 
-def evaluate(model, epochs, dataset='mnist', path='../../data', batch_size=64):
+def evaluate(model, epochs, dataset='mnist', path='../../data', batch_size=64, augmentor=None):
     """
     Runs all epochs and tests the model after all epochs have run
 
@@ -136,12 +136,11 @@ def evaluate(model, epochs, dataset='mnist', path='../../data', batch_size=64):
 
     s = time.time()
     for epoch in range(1, epochs + 1):
-        train(model, train_loader, epoch, test_loader)
+        train(model, train_loader, epoch, test_loader, augmentor)
     e = time.time()
 
-
     test_acc = test(model, test_loader)
-    print('Evaluation took', e - s, 'seconds, Test acc:',test_acc)
+    print('Evaluation took', e - s, 'seconds, Test acc:', test_acc)
     return test_acc
 
 

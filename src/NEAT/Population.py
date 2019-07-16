@@ -59,6 +59,9 @@ class Population:
     def __iter__(self):
         return iter(self._get_all_individuals())
 
+    def __repr__(self):
+        return "population of type:" + repr(type(self.species[0].members[0]))
+
     def _get_all_individuals(self):
         individuals = []
         for species in self.species:
@@ -118,6 +121,8 @@ class Population:
     def update_species_sizes(self):
         """should be called before species.step()"""
         population_average_rank = self.get_average_rank()
+        if population_average_rank == 0:
+            raise Exception("population",self,"has an average rank of 0")
 
         total_species_fitness = 0
         for species in self.species:
@@ -131,10 +136,13 @@ class Population:
 
     def get_average_rank(self):
         individuals = self._get_all_individuals()
+        if len(individuals) ==0:
+            raise Exception("no individuals in population",self,"cannot get average rank")
         return sum([indv.rank for indv in individuals]) / len(individuals)
 
     def step(self):
         self.rank_population_fn(self._get_all_individuals())
+        #print(self,"ranked individuals")
         self.update_species_sizes()
 
         for species in self.species:
@@ -148,7 +156,7 @@ class Population:
 def single_objective_rank(individuals):
     individuals.sort(key=lambda indv: (0 if not indv.fitness_values else indv.fitness_values[0]), reverse=True)
     for i, individual in enumerate(individuals):
-        individual.rank = i
+        individual.rank = i+1
 
 
 def cdn_pareto_front(individuals):
@@ -164,6 +172,7 @@ def cdn_pareto_front(individuals):
 
 
 def cdn_rank(individuals):
+    #print("called rank for",type(individuals[0]))
     for indv in individuals:
         if not indv.fitness_values:
             indv.fitness_values = [0, 0]  # TODO make sure second obj must be maximized
@@ -175,4 +184,5 @@ def cdn_rank(individuals):
         ranked_individuals.extend(pf)
 
     for i, indv in enumerate(ranked_individuals):
-        indv.rank = i
+        #print("ranking", ranked_individuals[0], "to",i)
+        indv.rank = i+1
