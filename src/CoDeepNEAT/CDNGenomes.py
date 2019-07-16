@@ -5,7 +5,7 @@ from src.Config import NeatProperties as Props
 from src.Module.ModuleNode import ModuleNode
 from src.NEAT.Genome import Genome
 
-from src.DataAugmentation.DataAugmentation import AugmentationScheme
+from src.DataAugmentation.AugmentationScheme import AugmentationScheme
 
 
 class BlueprintGenome(Genome):
