@@ -61,7 +61,7 @@ class Generation:
 
     def evaluate(self, generation_number):
         print("Num species:", len(self.module_population.species))
-        inputs, targets = Evaluator.sample_data('mnist')
+        inputs, targets = Evaluator.sample_data()
 
         best_acc, best_second, best_third = float('-inf'), float('-inf'), float('-inf')
         best_bp, best_bp_genome = None, None
