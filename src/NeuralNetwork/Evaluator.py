@@ -1,12 +1,11 @@
 # modified from https://github.com/pytorch/examples/blob/master/mnist/main.py
 
 import torch
-from torch import nn
-import torch.nn.functional as F
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 from src.DataAugmentation import BatchAugmentor
 from src.Config import Config
+import torchvision
 
 import time
 
@@ -150,25 +149,23 @@ def load_data(dataset, path, batch_size=64):
     # data_loader_args = {'num_workers': 0, 'pin_memory': True} if device == 'cuda' else {}
     data_loader_args = {}
 
+    transform = transforms.Compose(
+        [transforms.ToTensor(),
+         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+
     if dataset.lower() == 'mnist':
         train_loader = DataLoader(
             datasets.MNIST(path,
                            train=True,
                            download=True,
-                           transform=transforms.Compose([
-                               transforms.ToTensor(),
-                               transforms.Normalize((0.1307,), (0.3081,))
-                           ])),
+                           transform=transform),
             batch_size=batch_size, shuffle=True, **data_loader_args)
 
         test_loader = DataLoader(
             datasets.MNIST(path,
                            train=False,
                            download=True,
-                           transform=transforms.Compose([
-                               transforms.ToTensor(),
-                               transforms.Normalize((0.1307,), (0.3081,))
-                           ])),
+                           transform=transform),
             batch_size=batch_size, shuffle=True, **data_loader_args)
 
     elif dataset.lower() == 'imgnet':
@@ -179,7 +176,18 @@ def load_data(dataset, path, batch_size=64):
         test_loader = DataLoader(
             datasets.ImageNet(path, train=False)  # TODO
         )
+
+    elif dataset.lower() == 'cifar10':
+        train_loader = torch.utils.data.DataLoader(torchvision.datasets.CIFAR10(root=path, train=True,
+                                                                               download=True, transform=transform),
+                                                  batch_size=batch_size,
+                                                  shuffle=True, num_workers=0)
+
+        test_loader = torch.utils.data.DataLoader(torchvision.datasets.CIFAR10(root=path, train=False,
+                                                                              download=True, transform=transform),
+                                                 batch_size=batch_size,
+                                                 shuffle=False, num_workers=0)
     else:
-        raise Exception('Invalid dataset name, options are imgnet or mnist')
+        raise Exception('Invalid dataset name:'+dataset+', options are imgnet or mnist')
 
     return train_loader, test_loader
