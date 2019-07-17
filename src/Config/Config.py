@@ -1,13 +1,17 @@
 import torch
+import operator
 
-device = torch.device('cuda:0')
+# device = torch.device('cuda:0')
+device = torch.device('cpu')
 num_workers = 0
 dataset = 'mnist'
 
 num_generations = 500
 
 second_objective = "network_size"  # network_size
+second_objective_comparator = operator.lt
 third_objective = ""
+third_objective_comparator = operator.lt
 
 data_path = '../../data'
 

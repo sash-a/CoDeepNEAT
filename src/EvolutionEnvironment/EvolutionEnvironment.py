@@ -15,6 +15,7 @@ import src.Config.Config as Config
 import torch
 import time
 import argparse
+import operator
 
 """
 Evolution Environment is static as there should only ever be one
@@ -53,10 +54,12 @@ def parse_args():
                         help='Number of workers to load each batch')
     parser.add_argument('-n', '--ngen', type=int, nargs='?', default=Config.num_generations,
                         help='Max number of generations to run CoDeepNEAT')
-    parser.add_argument('-s', '--second', type=str, nargs='?', default=Config.second_objective,
-                        choices=[Config.second_objective, ''], help='Second objective name')
-    parser.add_argument('-t', '--third', type=str, nargs='?', default=Config.third_objective,
-                        choices=[''], help='Third objective name')
+    parser.add_argument('-s', '--second', type=str,
+                        nargs='*', default=(Config.second_objective, Config.second_objective_comparator),
+                        help='Second objective name and lt or gt to indicate if a lower or higher value is better')
+    parser.add_argument('-t', '--third', type=str, nargs='*',
+                        default=(Config.third_objective, 'lt'),
+                        help='Third objective name and lt or gt to indicate if a lower or higher value is better')
     parser.add_argument('-f', '--fake', action='store_true', help='Runs a dummy version, for testing')
     parser.add_argument('--protect', action='store_false', help='Protects from possible graph parsing errors')
     parser.add_argument('-g', '--graph-save', action='store_true', help='Saves the best graphs in a generation')
@@ -66,16 +69,38 @@ def parse_args():
     if not args.ignore:
         print(args)
 
+    if args.second is not None and len(args.second) not in (0, 2):
+        parser.error('Either give no values for second, or two, not {}.'.format(len(args.second)))
+
+    if args.third is not None and len(args.third) not in (0, 2):
+        parser.error('Either give no values for third, or two, not {}.'.format(len(args.third)))
+
     Config.data_path = args.data_path
     Config.dataset = args.dataset
     Config.device = torch.device(args.device)
     Config.num_workers = args.n_workers
     Config.num_generations = args.ngen
-    Config.second_objective = args.second
-    Config.third_objective = args.third
+    Config.second_objective, second_obj_comp = args.second
+    Config.third_objective, third_obj_comp = args.third
     Config.dummy_run = args.fake
     Config.protect_parsing_from_errors = args.protect
     Config.save_best_graphs = args.graph_save
+
+    if second_obj_comp == 'lt':
+        Config.second_objective_comparator = operator.lt
+    elif second_obj_comp == 'gt':
+        Config.second_objective_comparator = operator.gt
+    else:
+        parser.error('Must have only lt or gt as the second arg of --second')
+
+    if third_obj_comp == 'lt':
+        Config.third_objective_comparator = operator.lt
+    elif second_obj_comp == 'gt':
+        Config.third_objective_comparator = operator.gt
+    else:
+        parser.error('Must have only lt or gt as the second arg of --third')
+
+    print(Config.second_objective_comparator)
 
 
 if __name__ == '__main__':

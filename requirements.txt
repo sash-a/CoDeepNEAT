@@ -1,6 +1,6 @@
 # This file may be used to create an environment using:
 # conda create -p venv --file requirements.txt
-#activate venv in terminal: conda activate C:\Users\Shane\PycharmProjects\CDN\venv
+# activate venv in terminal: conda activate ./venv
 # platform: linux-64
 
 # Pytorch for CPU or GPU

@@ -168,7 +168,7 @@ class Generation:
             # TODO if DA on
             da_indv = blueprint_individual.pick_da_scheme(self.da_population)
             da_scheme = da_indv.to_phenotype()
-            print("got da scheme from blueprint",da_scheme, "indv:",da_scheme)
+            print("got da scheme from blueprint", da_scheme, "indv:", da_scheme)
             acc = Evaluator.evaluate(net, Config.number_of_epochs_per_evaluation, dataset='mnist', path='../../data',
                                      batch_size=256, augmentor=da_scheme)
 
@@ -176,7 +176,7 @@ class Generation:
         third_objective_value = None
 
         if Config.second_objective == "network_size":
-            second_objective_value = 1 / net.module_graph.get_net_size()
+            second_objective_value = net.module_graph.get_net_size()
         elif Config.second_objective == "":
             pass
         else:
