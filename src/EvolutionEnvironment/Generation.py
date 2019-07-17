@@ -21,7 +21,7 @@ class Generation:
         self.module_population, self.blueprint_population, self.da_population = None, None, None
         self.initialise_populations()
 
-        self._bp_index = 0
+        self._bp_index = mp.Value('i', 0)
 
     def initialise_populations(self):
         # Picking the ranking function
@@ -76,12 +76,20 @@ class Generation:
         # random.shuffle(self.blueprint_population.individuals)  # TODO this does nothing atm
 
         processes = []
-        lock = mp.RLock()
+        results_queue = mp.Queue(Props.INDIVIDUALS_TO_EVAL)
+        lock = mp.Lock()
         for i in range(Config.num_gpus):
-            processes.append(mp.Process(target=self._eval, args=(generation_number, lock,)))
+            processes.append(mp.Process(target=self._evaluate, args=(generation_number, lock, results_queue)))
 
         [proc.start() for proc in processes]
         [proc.join() for proc in processes]
+
+        print('looping results q')
+        while not results_queue.empty():
+            print('in loop')
+            print(results_queue.get())
+
+        self._bp_index.value = 0
 
         # if generation_number % Config.print_best_graph_every_n_generations == 0:
         #     if Config.save_best_graphs:
@@ -95,8 +103,8 @@ class Generation:
         #                                    third_objective_values=(
         #                                        third_objective_values if len(third_objective_values) > 0 else None))
 
-    def _eval(self, generation_number, lock):
-        print('in _eval')
+    # def _evaluate(self, generation_number, lock):
+    def _evaluate(self, generation_number, lock, results_queue):
         sys.stdout.flush()
 
         inputs, targets = Evaluator.sample_data()
@@ -105,18 +113,15 @@ class Generation:
         best_bp, best_bp_genome = None, None
         accuracies, second_objective_values, third_objective_values = [], [], []
 
-        # Randomize the list so that random individuals are sampled more often
-        # random.shuffle(self.blueprint_population.individuals)  # TODO this does nothing atm
-
         blueprints = self.blueprint_population.individuals
         bp_pop_size = len(blueprints)
-
-        while self._bp_index < Props.INDIVIDUALS_TO_EVAL:
+        # Randomize the list so that random individuals are sampled more often
+        # random.shuffle(self.blueprint_population.individuals)  # TODO this does nothing atm
+        while self._bp_index.value < Props.INDIVIDUALS_TO_EVAL:
             with lock:
-                print('opening lock', self._bp_index)
-                blueprint_individual = blueprints[self._bp_index % bp_pop_size]
-                self._bp_index += 1
-                print('closing lock', self._bp_index)
+                blueprint_individual = blueprints[self._bp_index.value % bp_pop_size]
+                self._bp_index.value += 1
+                print(mp.current_process().name, 'evaluating bp ', self._bp_index.value)
 
             # All computationally expensive tests
             if Config.test_in_run:
@@ -131,11 +136,11 @@ class Generation:
                     blueprint_individual.defective = True
                     print('Blueprint ran with errors, marking as defective\n', blueprint_individual)
                     print(e)
-                    continue
+                    return None
             else:
                 module_graph, blueprint_individual, results = self.evaluate_blueprint(blueprint_individual, inputs,
                                                                                       generation_number)
-                # Gathering results
+            # Gathering results
             acc = results[0]
             if len(results) >= 2:
                 second = results[1]
@@ -162,7 +167,9 @@ class Generation:
             accuracies.append(acc)
 
         print('Best accuracy:', best_acc)
-        return best_acc, best_bp, best_bp_genome, accuracies
+        # results_queue.put((best_acc, best_bp, best_bp_genome, accuracies, best_second, best_third))
+        results_queue.put(best_acc)
+        print('best acc added')
 
     def evaluate_blueprint(self, blueprint_individual, inputs, generation_number):
         blueprint = blueprint_individual.to_blueprint()

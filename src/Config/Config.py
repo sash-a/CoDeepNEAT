@@ -2,8 +2,8 @@ import torch
 import operator
 
 # device = torch.device('cuda:0')
-num_gpus = 4
 device = torch.device('cpu')
+num_gpus = 4
 num_workers = 0
 dataset = 'mnist'
 
