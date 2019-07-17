@@ -21,8 +21,6 @@ class Generation:
         self.module_population, self.blueprint_population, self.da_population = None, None, None
         self.initialise_populations()
 
-        self._bp_index = mp.Value('i', 0)
-
     def initialise_populations(self):
         # Picking the ranking function
         rank_fn = single_objective_rank if Config.second_objective == '' else cdn_rank
@@ -66,93 +64,17 @@ class Generation:
             module_individual.end_step()  # this also sets fitness to zero
 
     def evaluate(self, generation_number):
-        inputs, targets = Evaluator.sample_data()
-
         best_acc, best_second, best_third = float('-inf'), float('-inf'), float('-inf')
         best_bp, best_bp_genome = None, None
         accuracies, second_objective_values, third_objective_values = [], [], []
 
-        # Randomize the list so that random individuals are sampled more often
-        # random.shuffle(self.blueprint_population.individuals)  # TODO this does nothing atm
+        pool = mp.Pool(Config.num_gpus)
+        blueprints = self.blueprint_population.individuals * math.ceil(100 / len(self.blueprint_population.individuals))
+        random.shuffle(blueprints)
 
-        procs = []
-        results_queue = mp.JoinableQueue(Props.INDIVIDUALS_TO_EVAL)
-        lock = mp.Lock()
-        for i in range(Config.num_gpus):
-            procs.append(mp.Process(target=self._evaluate, args=(generation_number, lock, results_queue)))
-            procs[-1].start()
+        all_outputs = pool.map(self._evaluate, (bp for bp in blueprints[:Props.INDIVIDUALS_TO_EVAL]))
 
-        print('I wanna join!')
-        for proc in procs:
-            proc.join()
-            print('joined')
-
-        print('looping results q')
-        while not results_queue.empty():
-            print('in loop')
-            print(results_queue.get())
-            results_queue.task_done()
-
-        self._bp_index.value = 0
-
-        # best_acc_other, best_bp_other, accuracies_other, best_second_other, best_third_other = results_queue.get()
-        # if best_acc_other > best_acc:
-        #     best_acc = best_acc_other
-        #     best_bp = best_bp_other
-        # accuracies.extend(accuracies_other)
-        # best_second = best_second if Config.second_objective_comparator(best_second,
-        #                                                                 best_second_other) else best_second_other
-        # best_third = best_third if Config.second_objective_comparator(best_third,
-        #                                                               best_third_other) else best_third_other
-
-        # if generation_number % Config.print_best_graph_every_n_generations == 0:
-        #     if Config.save_best_graphs:
-        #         # print('Best blueprint:\n', best_bp_genome)
-        #         best_bp.plot_tree_with_graphvis(title="gen:" + str(generation_number) + " acc:" + str(best_acc),
-        #                                         file="best_of_gen_" + repr(generation_number))
-        #
-        # RuntimeAnalysis.log_new_generation(accuracies, generation_number,
-        #                                    second_objective_values=(
-        #                                        second_objective_values if len(second_objective_values) > 0 else None),
-        #                                    third_objective_values=(
-        #                                        third_objective_values if len(third_objective_values) > 0 else None))
-
-    # def _evaluate(self, generation_number, lock):
-    def _evaluate(self, generation_number, lock, results_queue):
-        inputs, targets = Evaluator.sample_data()
-
-        best_acc, best_second, best_third = float('-inf'), float('-inf'), float('-inf')
-        best_bp = None
-        accuracies, second_objective_values, third_objective_values = [], [], []
-
-        blueprints = self.blueprint_population.individuals
-        bp_pop_size = len(blueprints)
-        # Randomize the list so that random individuals are sampled more often
-        # random.shuffle(self.blueprint_population.individuals)  # TODO this does nothing atm
-        while self._bp_index.value < Props.INDIVIDUALS_TO_EVAL:
-            with lock:
-                blueprint_individual = blueprints[self._bp_index.value % bp_pop_size]
-                self._bp_index.value += 1
-                print(mp.current_process().name, 'evaluating bp ', self._bp_index.value)
-
-            # All computationally expensive tests
-            if Config.test_in_run:
-                pass
-
-            # Evaluating individual
-            if Config.protect_parsing_from_errors:
-                try:
-                    module_graph, blueprint_individual, results = self.evaluate_blueprint(blueprint_individual, inputs,
-                                                                                          generation_number)
-                except Exception as e:
-                    blueprint_individual.defective = True
-                    print('Blueprint ran with errors, marking as defective\n', blueprint_individual)
-                    print(e)
-                    return None
-            else:
-                module_graph, blueprint_individual, results = self.evaluate_blueprint(blueprint_individual, inputs,
-                                                                                      generation_number)
-            # Gathering results
+        for module_graph, blueprint_individual, results in all_outputs:
             acc = results[0]
             if len(results) >= 2:
                 second = results[1]
@@ -169,23 +91,46 @@ class Generation:
             if len(results) > 3:
                 raise Exception("Error: too many result values to unpack")
 
-            # print("checking new net against previous")
             if acc >= best_acc:
-                # print("found new best bp")
                 best_acc = acc
                 best_bp = module_graph
 
             accuracies.append(acc)
 
-        print('Best accuracy:', best_acc)
+            print('Best accuracy:', best_acc)
 
-        results_queue.put((best_acc, best_bp, accuracies, best_second, best_third))
-        results_queue.task_done()
-        # results_queue.close()
-        # results_queue.join_thread()
-        print('best acc added')
+        if generation_number % Config.print_best_graph_every_n_generations == 0:
+            if Config.save_best_graphs:
+                # print('Best blueprint:\n', best_bp_genome)
+                best_bp.plot_tree_with_graphvis(title="gen:" + str(generation_number) + " acc:" + str(best_acc),
+                                                file="best_of_gen_" + repr(generation_number))
 
-    def evaluate_blueprint(self, blueprint_individual, inputs, generation_number):
+        RuntimeAnalysis.log_new_generation(accuracies, generation_number,
+                                           second_objective_values=(
+                                               second_objective_values if len(second_objective_values) > 0 else None),
+                                           third_objective_values=(
+                                               third_objective_values if len(third_objective_values) > 0 else None))
+
+    def _evaluate(self, blueprint_individual):
+        # All computationally expensive tests
+        if Config.test_in_run:
+            pass
+
+        # Evaluating individual
+        if Config.protect_parsing_from_errors:
+            try:
+                return self.evaluate_blueprint(blueprint_individual)
+            except Exception as e:
+                blueprint_individual.defective = True
+                print('Blueprint ran with errors, marking as defective\n', blueprint_individual)
+                print(e)
+                return None
+        else:
+            return self.evaluate_blueprint(blueprint_individual)
+
+    def evaluate_blueprint(self, blueprint_individual):
+        inputs, _ = Evaluator.sample_data()
+
         blueprint = blueprint_individual.to_blueprint()
         # module_graph = blueprint.parseto_module_graph(self)
         module_graph, sans_aggregators = blueprint.parseto_module_graph(self, return_graph_without_aggregators=True)
@@ -214,7 +159,7 @@ class Generation:
         #         print('failed graph:', blueprint_individual)
         #     raise Exception("Error: nn failed to have input passed through")
 
-        if Config.dummy_run and generation_number < 150:
+        if Config.dummy_run:
             acc = hash(net)
             da_indv = blueprint_individual.pick_da_scheme(self.da_population)
             da_scheme = da_indv.to_phenotype()
