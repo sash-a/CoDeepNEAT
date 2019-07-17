@@ -196,3 +196,32 @@ def cdn_rank(individuals):
     for i, indv in enumerate(ranked_individuals):
         # print("ranking", ranked_individuals[0], "to",i)
         indv.rank = i + 1
+
+def nsga_rank(individuals):
+    fronts = general_pareto_sorting(individuals)
+
+    rank = 1
+
+    for front in fronts:
+        """rank is firstly based on which front the indv is in"""
+        distances = {}
+        for objective in range(len(individuals[0].fitness_values)):
+            """estimate density by averaging the two nearest along each objective axis, then combining each distance"""
+            objective_sorted  = sorted(front, key = lambda x: x.fitness_values[objective], reverse=True)
+
+            for i, indv in objective_sorted:
+                distance = ((abs(objective_sorted[i] - objective_sorted[i+1]) if i<len(objective_sorted)-1 else 0) + (abs(objective_sorted[i] - objective_sorted[i-1]) if i>0 else 0))/ (2 if i>0 and i<len(sorted)-1 else 1)
+                distance = math.pow(distance,2)
+                if i == 0:
+                    distances[indv]=[]
+                distances[indv].append(distance)
+
+        distance_sorted = sorted(front, key = lambda x: sum(distances[x]))
+        for indv in distance_sorted:
+            indv.rank = rank
+            rank += 1
+
+def general_pareto_sorting(individuals):
+    """takes in a list of individuals and returns a list of fronts, each being a list of individuals"""
+
+
