@@ -54,7 +54,6 @@ class Mutagen():
     def mutate(self):
         """:returns whether or not this gene mutated"""
         old_value = self()
-
         self.mutate_sub_mutagens()
 
         if random.random()<self.mutation_chance:
@@ -147,7 +146,6 @@ class Mutagen():
             self.current_value = value
 
     def set_sub_value(self, sub_value_name, sub_value, value=None):
-
         if value is None:
             self.sub_values[self.get_value()][sub_value_name].set_value(sub_value)
         else:
