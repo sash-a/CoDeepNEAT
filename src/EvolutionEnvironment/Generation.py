@@ -5,17 +5,13 @@ from src.CoDeepNEAT import PopulationInitialiser as PopInit
 from src.Analysis import RuntimeAnalysis
 from src.Config import Config
 
+import torch
 import random
 import multiprocessing as mp
-import torch
 import math
-import sys
 
 
 class Generation:
-    numBlueprints = 1
-    numModules = 5
-
     def __init__(self):
         self.speciesNumbers = []
         self.module_population, self.blueprint_population, self.da_population = None, None, None
@@ -72,9 +68,14 @@ class Generation:
         blueprints = self.blueprint_population.individuals * math.ceil(100 / len(self.blueprint_population.individuals))
         random.shuffle(blueprints)
 
-        all_outputs = pool.map(self._evaluate, (bp for bp in blueprints[:Props.INDIVIDUALS_TO_EVAL]))
+        returns = pool.map(self.evaluate_blueprint, (bp for bp in blueprints[:Props.INDIVIDUALS_TO_EVAL]))
 
-        for module_graph, blueprint_individual, results in all_outputs:
+        for result in returns:
+            # Blueprint was defective
+            if result is None:
+                continue
+
+            module_graph, blueprint_individual, results = result
             acc = results[0]
             if len(results) >= 2:
                 second = results[1]
@@ -97,7 +98,7 @@ class Generation:
 
             accuracies.append(acc)
 
-            print('Best accuracy:', best_acc)
+        print('Best accuracy:', best_acc)
 
         if generation_number % Config.print_best_graph_every_n_generations == 0:
             if Config.save_best_graphs:
@@ -111,90 +112,70 @@ class Generation:
                                            third_objective_values=(
                                                third_objective_values if len(third_objective_values) > 0 else None))
 
-    def _evaluate(self, blueprint_individual):
-        # All computationally expensive tests
-        if Config.test_in_run:
-            pass
-
-        # Evaluating individual
-        if Config.protect_parsing_from_errors:
-            try:
-                return self.evaluate_blueprint(blueprint_individual)
-            except Exception as e:
-                blueprint_individual.defective = True
-                print('Blueprint ran with errors, marking as defective\n', blueprint_individual)
-                print(e)
-                return None
-        else:
-            return self.evaluate_blueprint(blueprint_individual)
-
     def evaluate_blueprint(self, blueprint_individual):
-        inputs, _ = Evaluator.sample_data()
-
-        blueprint = blueprint_individual.to_blueprint()
-        # module_graph = blueprint.parseto_module_graph(self)
-        module_graph, sans_aggregators = blueprint.parseto_module_graph(self, return_graph_without_aggregators=True)
-
-        if module_graph is None:
-            raise Exception("None module graph produced from blueprint")
-
         try:
-            # print("using infeatures = ",module_graph.get_first_feature_count(inputs))
-            net = module_graph.to_nn(in_features=module_graph.get_first_feature_count(inputs))
+            inputs, _ = Evaluator.sample_data()
+
+            blueprint = blueprint_individual.to_blueprint()
+            module_graph, sans_aggregators = blueprint.parseto_module_graph(self, return_graph_without_aggregators=True)
+
+            if module_graph is None:
+                raise Exception("None module graph produced from blueprint")
+            try:
+                # print("using infeatures = ",module_graph.get_first_feature_count(inputs))
+                net = module_graph.to_nn(in_features=module_graph.get_first_feature_count(inputs))
+            except Exception as e:
+                if Config.save_failed_graphs:
+                    module_graph.plot_tree_with_graphvis("module graph which failed to parse to nn")
+                raise Exception("Error: failed to parse module graph into nn", e)
+
+            net.specify_dimensionality(inputs)
+
+            if Config.dummy_run:
+                acc = hash(net)
+                da_indv = blueprint_individual.pick_da_scheme(self.da_population)
+                da_scheme = da_indv.to_phenotype()
+            else:
+                # TODO if DA on
+                da_indv = blueprint_individual.pick_da_scheme(self.da_population)
+                da_scheme = da_indv.to_phenotype()
+                # print("got da scheme from blueprint", da_scheme, "indv:", da_scheme)
+                gpu_num = str(int(mp.current_process().name[-1]) % Config.num_gpus)
+                device = torch.device('cpu') if Config.device.type == 'cpu' else torch.device('cuda' + gpu_num)
+                acc = Evaluator.evaluate(net, Config.number_of_epochs_per_evaluation, 256, da_scheme, device)
+
+            second_objective_value = None
+            third_objective_value = None
+
+            if Config.second_objective == "network_size":
+                second_objective_value = net.module_graph.get_net_size()
+            elif Config.second_objective == "":
+                pass
+            else:
+                print("Error: did not recognise second objective", Config.second_objective)
+
+            if second_objective_value is None:
+                results = [acc]
+            elif third_objective_value is None:
+                results = acc, second_objective_value
+            else:
+                results = acc, second_objective_value, third_objective_value
+
+            blueprint_individual.report_fitness(*results)
+            for module_individual in blueprint_individual.modules_used:
+                module_individual.report_fitness(*results)
+
+            blueprint_individual.da_scheme.report_fitness(*results)
+
+            return module_graph, blueprint_individual, results
         except Exception as e:
-            if Config.save_failed_graphs:
-                module_graph.plot_tree_with_graphvis("module graph which failed to parse to nn")
-            raise Exception("Error: failed to parse module graph into nn", e)
+            if not Config.protect_parsing_from_errors:
+                raise Exception(e)
 
-        net.specify_dimensionality(inputs)
-        # try:
-        #     net.specify_dimensionality(inputs)
-        # except Exception as e:
-        #     print("Error:", e)
-        #     if Config.print_failed_graphs:
-        #         module_graph.plot_tree_with_graphvis(title="module graph with error passing input through net",
-        #                                              file="module_graph_with_agg")
-        #         sans_aggregators.plot_tree_with_graphvis(title="previous module graph but without agg nodes",
-        #                                                  file="module_graph_without_agg")
-        #         print('failed graph:', blueprint_individual)
-        #     raise Exception("Error: nn failed to have input passed through")
-
-        if Config.dummy_run:
-            acc = hash(net)
-            da_indv = blueprint_individual.pick_da_scheme(self.da_population)
-            da_scheme = da_indv.to_phenotype()
-        else:
-            # TODO if DA on
-            da_indv = blueprint_individual.pick_da_scheme(self.da_population)
-            da_scheme = da_indv.to_phenotype()
-            print("got da scheme from blueprint", da_scheme, "indv:", da_scheme)
-            acc = Evaluator.evaluate(net, Config.number_of_epochs_per_evaluation, dataset='mnist', path='../../data',
-                                     batch_size=256, augmentor=da_scheme)
-
-        second_objective_value = None
-        third_objective_value = None
-
-        if Config.second_objective == "network_size":
-            second_objective_value = net.module_graph.get_net_size()
-        elif Config.second_objective == "":
-            pass
-        else:
-            print("Error: did not recognise second objective", Config.second_objective)
-
-        if second_objective_value is None:
-            results = [acc]
-        elif third_objective_value is None:
-            results = acc, second_objective_value
-        else:
-            results = acc, second_objective_value, third_objective_value
-
-        blueprint_individual.report_fitness(*results)
-        for module_individual in blueprint_individual.modules_used:
-            module_individual.report_fitness(*results)
-
-        blueprint_individual.da_scheme.report_fitness(*results)
-
-        return module_graph, blueprint_individual, results
+            blueprint_individual.defective = True
+            print('Blueprint ran with errors, marking as defective\n', blueprint_individual)
+            print(e)
+            return None
 
 
 if __name__ == '__main__':
