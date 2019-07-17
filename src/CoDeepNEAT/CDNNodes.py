@@ -7,7 +7,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch
 
-from src.DataAugmentation.DataAugmentation import AugmentationScheme
+from src.DataAugmentation.AugmentationScheme import AugmentationScheme
 
 use_convs = True
 use_linears = True

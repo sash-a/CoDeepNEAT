@@ -1,6 +1,6 @@
 import torch
 import matplotlib.pyplot as plt
-from src.DataAugmentation.DataAugmentation import AugmentationScheme as AS
+from src.DataAugmentation.AugmentationScheme import AugmentationScheme as AS
 import numpy as np
 import random
 

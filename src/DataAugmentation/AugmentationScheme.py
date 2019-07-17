@@ -10,7 +10,8 @@ import numpy as np
 
 
 class AugmentationScheme:
-    # Dictionary containing all possible augmentations functions
+
+    # Dictionary containing all possible augmentation functions
     Augmentations = {
         # WithColorspace: Apply child augmenters within a specific color space:
 
@@ -18,6 +19,11 @@ class AugmentationScheme:
         # value by an amount in between lo and hi:
         "HSV": lambda channel, lo, hi: iaa.WithColorspace
         (to_colorspace="HSV", from_colorspace="RGB", children=iaa.WithChannels(channel, iaa.Add((lo, hi)))),
+
+        # The augmenter first transforms images to HSV color space, then adds random values (lo to hi)
+        # to the H and S channels and afterwards converts back to RGB.
+        # (independently per channel and the same value for all pixels within that channel)
+        "Add_To_Hue_And_Saturation": lambda lo, hi: iaa.AddToHueAndSaturation((lo, hi), per_channel=True),
 
         # WithChannels: Apply child augmenters to specific channels:
 
@@ -34,12 +40,12 @@ class AugmentationScheme:
         # If s_i is false, The value will be sampled once per image and used for all sides
         # (i.e. all sides gain/lose the same number of rows/columns)
         # NOTE: automatically resizes images back to their original size after it has augmented them.
-        "Pad_per": lambda lo, hi, s_i: iaa.Pad(percent=(lo, hi), keep_size=True, sample_independently=s_i),
+        "Pad_Percent": lambda lo, hi, s_i: iaa.Pad(percent=(lo, hi), keep_size=True, sample_independently=s_i),
 
         # Pads images by a number of pixels between lo and hi
         # If s_i is false, The value will be sampled once per image and used for all sides
         # (i.e. all sides gain/lose the same number of rows/columns)
-        "Pad_px": lambda lo, hi, s_i: iaa.Pad(px=(lo, hi), keep_size=True, sample_independently=s_i),
+        "Pad_Pixels": lambda lo, hi, s_i: iaa.Pad(px=(lo, hi), keep_size=True, sample_independently=s_i),
 
         # Crops/cuts away pixels at the sides of the image.
         # Crops images by value in between lo and hi (only accepts positive values in range[0, 1]):
@@ -110,7 +116,8 @@ class AugmentationScheme:
 
         # Add gaussian noise (aka white noise) to an image, sampled once per pixel from a normal
         # distribution N(0, s), where s is sampled per image and varies between lo and hi*255 for percent of all
-        # images and sampled three times (channel-wise) for the rest from the same normal distribution:
+        # images (sampled once for all channels) and sampled three (RGB) times (channel-wise)
+        # for the rest from the same normal distribution:
         "Additive_Gaussian_Noise": lambda lo, hi, percent:
         iaa.AdditiveGaussianNoise(scale=(lo, hi * 255), per_channel=percent),
 
@@ -133,7 +140,7 @@ class AugmentationScheme:
         # but do that on a lower-resolution version of the image that has s_lo to s_hi percent of the original size,
         # Also do this in percent of all images channel-wise, so that only the information of some
         # channels is set to 0 while others remain untouched:
-        "Course_Dropout": lambda d_lo, d_hi, s_lo, s_hi, percent:
+        "Coarse_Dropout": lambda d_lo, d_hi, s_lo, s_hi, percent:
         iaa.CoarseDropout((d_lo, d_hi), size_percent=(s_hi, s_hi), per_channel=percent),
 
         # Augmenter that inverts all values in images, i.e. sets a pixel from value v to 255-v.
@@ -150,7 +157,8 @@ class AugmentationScheme:
         "Scale": lambda x_lo, x_hi, y_lo, y_hi: iaa.Affine(scale={"x": (x_lo, x_hi), "y": (y_lo, y_hi)}),
 
         # Translate images by lo to hi percent on x-axis and y-axis independently:
-        "Translate_Percent": lambda lo, hi: iaa.Affine(translate_percent={"x": (-0.2, 0.2), "y": (-0.2, 0.2)}),
+        "Translate_Percent": lambda x_lo, x_hi, y_lo, y_hi:
+        iaa.Affine(translate_percent={"x": (x_lo, x_hi), "y": (y_lo, y_hi)}),
 
         # Translate images by lo to hi pixels on x-axis and y-axis independently:
         "Translate_Pixels": lambda x_lo, x_hi, y_lo, y_hi:
@@ -175,6 +183,8 @@ class AugmentationScheme:
         "Elastic_Transformation": lambda alpha_lo, alpha_hi, sigma_lo, sigma_hi:
         iaa.ElasticTransformation(alpha=(alpha_lo, alpha_hi), sigma=(sigma_lo, sigma_hi)),
 
+        # Weather augmenters are computationally expensive and will not work effectively on certain data sets
+
         # Augmenter to draw clouds in images.
         "Clouds": iaa.Clouds(),
 
@@ -184,29 +194,116 @@ class AugmentationScheme:
         # Augmenter to add falling snowflakes to images.
         "Snowflakes": iaa.Snowflakes(),
 
+        # Replaces percent of all pixels in an image by either x or y
+        "Replace_Element_Wise": lambda percent, x, y: iaa.ReplaceElementwise(percent, [x, y]),
+
+        # Adds laplace noise (somewhere between gaussian and salt and peeper noise) to an image, sampled once per pixel
+        # from a laplace distribution Laplace(0, s), where s is sampled per image and varies between lo and hi*255 for
+        # percent of all images (sampled once for all channels) and sampled three (RGB) times (channel-wise)
+        # for the rest from the same laplace distribution:
+        "Additive_Laplace_Noise": lambda lo, hi, percent:
+        iaa.AdditiveLaplaceNoise(scale=(lo, hi * 255), per_channel=percent),
+
+        # Adds poisson noise (similar to gaussian but different distribution) to an image, sampled once per pixel from
+        # a poisson distribution Poisson(s), where s is sampled per image and varies between lo and hi for percent of
+        # all images (sampled once for all channels) and sampled three (RGB) times (channel-wise)
+        # for the rest from the same poisson distribution:
+        "Additive_Poisson_Noise": lambda lo, hi, percent:
+        iaa.AdditivePoissonNoise(lam=(lo, hi), per_channel=percent),
+
+        # Adds salt and pepper noise to an image, i.e. some white-ish and black-ish pixels.
+        # Replaces percent of all pixels with salt and pepper noise
+        "Salt_And_Pepper": lambda percent: iaa.SaltAndPepper(percent),
+
+        # Adds coarse salt and pepper noise to image, i.e. rectangles that contain noisy white-ish and black-ish pixels
+        # Replaces percent of all pixels with salt/pepper in an image that has lo to hi percent of the input image size,
+        # then upscales the results to the input image size, leading to large rectangular areas being replaced.
+        "Coarse_Salt_And_Pepper": lambda percent, lo, hi: iaa.CoarseSaltAndPepper(percent, size_percent=(lo, hi)),
+
+        # Adds salt noise to an image, i.e white-ish pixels
+        # Replaces percent of all pixels with salt noise
+        "Salt": lambda percent: iaa.Salt(percent),
+
+        # Adds coarse salt noise to image, i.e. rectangles that contain noisy white-ish pixels
+        # Replaces percent of all pixels with salt in an image that has lo to hi percent of the input image size,
+        # then upscales the results to the input image size, leading to large rectangular areas being replaced.
+        "Coarse_Salt": lambda percent, lo, hi: iaa.CoarseSalt(percent, size_percent=(lo, hi)),
+
+        # Adds Pepper noise to an image, i.e Black-ish pixels
+        # Replaces percent of all pixels with Pepper noise
+        "Pepper": lambda percent: iaa.Pepper(percent),
+
+        # Adds coarse pepper noise to image, i.e. rectangles that contain noisy black-ish pixels
+        # Replaces percent of all pixels with salt in an image that has lo to hi percent of the input image size,
+        # then upscales the results to the input image size, leading to large rectangular areas being replaced.
+        "Coarse_Pepper": lambda percent, lo, hi: iaa.CoarsePepper(percent, size_percent=(lo, hi)),
+
+        # In an alpha blending, two images are naively mixed. E.g. Let A be the foreground image, B be the background
+        # image and a is the alpha value. Each pixel intensity is then computed as a * A_ij + (1-a) * B_ij.
+        # Images passed in must be a numpy array of type (height, width, channel)
+        "Blend_Alpha": lambda image_fg, image_bg, alpha: iaa.blend_alpha(image_fg, image_bg, alpha),
+
+        # Blur/Denoise an image using a bilateral filter.
+        # Bilateral filters blur homogeneous and textured areas, while trying to preserve edges.
+        # Blurs all images using a bilateral filter with max distance d_lo to d_hi with ranges for sigma_colour
+        # and sigma space being define by sc_lo/sc_hi and ss_lo/ss_hi
+        "Bilateral_Blur": lambda d_lo, d_hi, sc_lo, sc_hi, ss_lo, ss_hi:
+        iaa.BilateralBlur(d=(d_lo, d_hi), sigma_color=(sc_lo, sc_hi), sigma_space=(ss_lo, ss_hi)),
+
+        # Augmenter that sharpens images and overlays the result with the original image.
+        # Create a motion blur augmenter with kernel size of (kernel x kernel) and a blur angle of either x or y degrees
+        # (randomly picked per image).
+        "Motion_Blur": lambda kernel, x, y: iaa.MotionBlur(k=kernel, angle=[x, y]),
+
+        # Augmenter to apply standard histogram equalization to images (similar to CLAHE)
+        "Histogram_Equalization": iaa.HistogramEqualization(),
+
+        # Augmenter to perform standard histogram equalization on images, applied to all channels of each input image
+        "All_Channels_Histogram_Equalization": iaa.AllChannelsHistogramEqualization(),
+
+        # Contrast Limited Adaptive Histogram Equalization (CLAHE). This augmenter applies CLAHE to images, a form of
+        # histogram equalization that normalizes within local image patches.
+        # Creates a CLAHE augmenter with clip limit uniformly sampled from [cl_lo..cl_hi], i.e. 1 is rather low contrast
+        # and 50 is rather high contrast. Kernel sizes of SxS, where S is uniformly sampled from [t_lo..t_hi].
+        # Sampling happens once per image. (Note: more parameters are available for further specification)
+        "CLAHE": lambda cl_lo, cl_hi, t_lo, t_hi: iaa.CLAHE(clip_limit=(cl_lo, cl_hi), tile_grid_size_px=(t_lo, t_hi)),
+
+        # Contrast Limited Adaptive Histogram Equalization (refer above), applied to all channels of the input images.
+        # CLAHE performs histogram equalization within image patches, i.e. over local neighbourhoods
+        "All_Channels_CLAHE": lambda cl_lo, cl_hi, t_lo, t_hi:
+        iaa.AllChannelsCLAHE(clip_limit=(cl_lo, cl_hi), tile_grid_size_px=(t_lo, t_hi)),
+
+        # Augmenter that changes the contrast of images using a unique formula (using gamma).
+        # Multiplier for gamma function is between lo and hi,, sampled randomly per image (higher values darken image)
+        # For percent of all images values are sampled independently per channel.
+        "Gamma_Contrast": lambda lo, hi, percent: iaa.GammaContrast((lo, hi), per_channel=percent),
+
+        # Augmenter that changes the contrast of images using a unique formula (linear).
+        # Multiplier for linear function is between lo and hi, sampled randomly per image
+        # For percent of all images values are sampled independently per channel.
+        "Linear_Contrast": lambda lo, hi, percent: iaa.LinearContrast((lo, hi), per_channel=percent),
+
+        # Augmenter that changes the contrast of images using a unique formula (using log).
+        # Multiplier for log function is between lo and hi, sampled randomly per image.
+        # For percent of all images values are sampled independently per channel.
+        # Values around 1.0 lead to a contrast-adjusted images. Values above 1.0 quickly lead to partially broken
+        # images due to exceeding the datatype’s value range.
+        "Log_Contrast": lambda lo, hi, percent: iaa.LogContrast((lo, hi), per_channel=percent),
+
+        # Augmenter that changes the contrast of images using a unique formula (sigmoid).
+        # Multiplier for sigmoid function is between lo and hi, sampled randomly per image. c_lo and c_hi decide the
+        # cutoff value that shifts the sigmoid function in horizontal direction (Higher values mean that the switch
+        # from dark to light pixels happens later, i.e. the pixels will remain darker).
+        # For percent of all images values are sampled independently per channel:
+        "Sigmoid_Contrast": lambda lo, hi, c_lo, c_hi, percent:
+        iaa.SigmoidContrast((lo, hi), (c_lo, c_hi), per_channel=percent),
+        
         # Augmenter that calls a custom (lambda) function for each batch of input image.
         # All custom operations are defined in the Custom_Operations file (customFunc1 is placeholder)
         'Custom1': iaa.Lambda(CustomOperation.customFunc1, CustomOperation.keypoint_func)
 
         # List of possible Augmentations that can still be added:
-        # ImpulseNoise
-        # SaltAndPepper
-        # CoarseSaltAndPepper
-        # Salt
-        # CoarseSalt
-        # Pepper
-        # CoarsePepper
-        # BilateralBlur
-        # MotionBlur
-        # GammaContrast
-        # SigmoidContrast
-        # LogContrast
-        # LinearContrast
-        # AllChannelsHistogramEqualization
-        # HistogramEqualization
-        # AllChannelsCLAHE
-        # CLAHE
-        # Convolve (questionable)
+        # Look for one that had good performance (can use custom operations class to include them)
 
     }
 
@@ -227,11 +324,11 @@ class AugmentationScheme:
         sub_values = augmentation_mutagen.get_sub_values()
         if sub_values is None:
             self.augs.append(AugmentationScheme.Augmentations[augmentation_name])
-            #print('got', augmentation_name)
+            # print('got', augmentation_name)
         else:
             args = [sub_values[x]() for x in sub_values]
             self.augs.append(AugmentationScheme.Augmentations[augmentation_name](*args))
-            #print('got', augmentation_name, "args", args, "*args", *args)
+            # print('got', augmentation_name, "args", args, "*args", *args)
 
 
 
