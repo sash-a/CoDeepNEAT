@@ -216,6 +216,9 @@ class AugmentationScheme:
         self.labels = labels
         self.augs = []
 
+    def __repr__(self):
+        return "Aug Scheme:" + repr([type(x) for x in self.augs])
+
     # This function is used to add a single augmentation to the pipeline
     # The augmentation added is a combination of the ones found in augmentations
     # augmentations is a list of numbers that should correspond to the augmentations you want to combine

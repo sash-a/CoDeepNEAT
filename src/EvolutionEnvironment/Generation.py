@@ -160,8 +160,8 @@ class Generation:
         #         print('failed graph:', blueprint_individual)
         #     raise Exception("Error: nn failed to have input passed through")
 
-        if Config.dummy_run and generation_number < 150:
-            acc = hash(net)
+        if Config.dummy_run and generation_number < 50:
+            acc = random.random()
             da_indv = blueprint_individual.pick_da_scheme(self.da_population)
             da_scheme = da_indv.to_phenotype()
         else:
