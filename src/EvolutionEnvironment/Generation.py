@@ -75,21 +75,35 @@ class Generation:
         # Randomize the list so that random individuals are sampled more often
         # random.shuffle(self.blueprint_population.individuals)  # TODO this does nothing atm
 
-        processes = []
-        results_queue = mp.Queue(Props.INDIVIDUALS_TO_EVAL)
+        procs = []
+        results_queue = mp.JoinableQueue(Props.INDIVIDUALS_TO_EVAL)
         lock = mp.Lock()
         for i in range(Config.num_gpus):
-            processes.append(mp.Process(target=self._evaluate, args=(generation_number, lock, results_queue)))
+            procs.append(mp.Process(target=self._evaluate, args=(generation_number, lock, results_queue)))
+            procs[-1].start()
 
-        [proc.start() for proc in processes]
-        [proc.join() for proc in processes]
+        print('I wanna join!')
+        for proc in procs:
+            proc.join()
+            print('joined')
 
         print('looping results q')
         while not results_queue.empty():
             print('in loop')
             print(results_queue.get())
+            results_queue.task_done()
 
         self._bp_index.value = 0
+
+        # best_acc_other, best_bp_other, accuracies_other, best_second_other, best_third_other = results_queue.get()
+        # if best_acc_other > best_acc:
+        #     best_acc = best_acc_other
+        #     best_bp = best_bp_other
+        # accuracies.extend(accuracies_other)
+        # best_second = best_second if Config.second_objective_comparator(best_second,
+        #                                                                 best_second_other) else best_second_other
+        # best_third = best_third if Config.second_objective_comparator(best_third,
+        #                                                               best_third_other) else best_third_other
 
         # if generation_number % Config.print_best_graph_every_n_generations == 0:
         #     if Config.save_best_graphs:
@@ -105,12 +119,10 @@ class Generation:
 
     # def _evaluate(self, generation_number, lock):
     def _evaluate(self, generation_number, lock, results_queue):
-        sys.stdout.flush()
-
         inputs, targets = Evaluator.sample_data()
 
         best_acc, best_second, best_third = float('-inf'), float('-inf'), float('-inf')
-        best_bp, best_bp_genome = None, None
+        best_bp = None
         accuracies, second_objective_values, third_objective_values = [], [], []
 
         blueprints = self.blueprint_population.individuals
@@ -145,13 +157,13 @@ class Generation:
             if len(results) >= 2:
                 second = results[1]
 
-                best_second = max(best_second, second)
+                best_second = best_second if Config.second_objective_comparator(best_second, second) else second
                 second_objective_values.append(second)
 
             if len(results) >= 3:
                 third = results[3]
 
-                best_third = max(best_third, third)
+                best_third = best_third if Config.second_objective_comparator(best_third, third) else third
                 third_objective_values.append(third)
 
             if len(results) > 3:
@@ -162,13 +174,15 @@ class Generation:
                 # print("found new best bp")
                 best_acc = acc
                 best_bp = module_graph
-                best_bp_genome = blueprint_individual
 
             accuracies.append(acc)
 
         print('Best accuracy:', best_acc)
-        # results_queue.put((best_acc, best_bp, best_bp_genome, accuracies, best_second, best_third))
-        results_queue.put(best_acc)
+
+        results_queue.put((best_acc, best_bp, accuracies, best_second, best_third))
+        results_queue.task_done()
+        # results_queue.close()
+        # results_queue.join_thread()
         print('best acc added')
 
     def evaluate_blueprint(self, blueprint_individual, inputs, generation_number):
