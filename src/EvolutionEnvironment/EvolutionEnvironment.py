@@ -75,32 +75,32 @@ def parse_args():
     if args.third is not None and len(args.third) not in (0, 2):
         parser.error('Either give no values for third, or two, not {}.'.format(len(args.third)))
 
-    Config.data_path = args.data_path
-    Config.dataset = args.dataset
-    Config.device = torch.device(args.device)
-    Config.num_workers = args.n_workers
-    Config.num_generations = args.ngen
-    Config.second_objective, second_obj_comp = args.second
-    Config.third_objective, third_obj_comp = args.third
-    Config.dummy_run = args.fake
-    Config.protect_parsing_from_errors = args.protect
-    Config.save_best_graphs = args.graph_save
+        Config.data_path = args.data_path
+        Config.dataset = args.dataset
+        Config.device = torch.device(args.device)
+        Config.num_workers = args.n_workers
+        Config.num_generations = args.ngen
+        Config.second_objective, second_obj_comp = args.second
+        Config.third_objective, third_obj_comp = args.third
+        Config.dummy_run = args.fake
+        Config.protect_parsing_from_errors = args.protect
+        Config.save_best_graphs = args.graph_save
 
-    if second_obj_comp == 'lt':
-        Config.second_objective_comparator = operator.lt
-    elif second_obj_comp == 'gt':
-        Config.second_objective_comparator = operator.gt
-    else:
-        parser.error('Must have only lt or gt as the second arg of --second')
+        if second_obj_comp == 'lt':
+            Config.second_objective_comparator = operator.lt
+        elif second_obj_comp == 'gt':
+            Config.second_objective_comparator = operator.gt
+        else:
+            parser.error('Must have only lt or gt as the second arg of --second')
 
-    if third_obj_comp == 'lt':
-        Config.third_objective_comparator = operator.lt
-    elif second_obj_comp == 'gt':
-        Config.third_objective_comparator = operator.gt
-    else:
-        parser.error('Must have only lt or gt as the second arg of --third')
+        if third_obj_comp == 'lt':
+            Config.third_objective_comparator = operator.lt
+        elif second_obj_comp == 'gt':
+            Config.third_objective_comparator = operator.gt
+        else:
+            parser.error('Must have only lt or gt as the second arg of --third')
 
-    print(Config.second_objective_comparator)
+        print(Config.second_objective_comparator)
 
 
 if __name__ == '__main__':
