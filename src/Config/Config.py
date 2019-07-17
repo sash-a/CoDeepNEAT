@@ -2,11 +2,12 @@ import torch
 import operator
 
 # device = torch.device('cuda:0')
+num_gpus = 4
 device = torch.device('cpu')
 num_workers = 0
 dataset = 'mnist'
 
-num_generations = 500
+num_generations = 2
 
 second_objective = "network_size"  # network_size
 second_objective_comparator = operator.lt
