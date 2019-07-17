@@ -7,7 +7,6 @@ class ValueType(Enum):  # TODO assign node type
     WHOLE_NUMBERS = 1
     CONTINUOUS = 2
 
-
 class Mutagen():
 
     def __init__(self, *discreet_options, current_value=-1, start_range=None, end_range=None,
@@ -70,7 +69,7 @@ class Mutagen():
                     """random reset"""
                     new_current_value= random.randint(self.start_range, self.end_range)
                 else:
-                    deviation_fraction = math.pow(random.random(),3) * (1 if random.random()<0.5 else -1)
+                    deviation_fraction = math.pow(random.random(),4) * (1 if random.random()<0.5 else -1)
                     new_current_value = self.current_value + int(deviation_fraction*(  self.end_range - self.start_range))
                     print("altering whole number from",old_value,"to",new_current_value,"using dev frac=",deviation_fraction,"range: [",self.start_range,",",self.end_range,")")
 
@@ -88,7 +87,7 @@ class Mutagen():
                     """random reset"""
                     new_current_value = random.random(self.start_range, self.end_range)
                 else:
-                    deviation_fraction = math.pow(random.random(), 3)  * (1 if random.random()<0.5 else -1)
+                    deviation_fraction = math.pow(random.random(), 4)  * (1 if random.random()<0.5 else -1)
                     new_current_value = self.current_value + deviation_fraction * (self.end_range - self.start_range)
                     print("altering continuous number from",old_value,"to",new_current_value, "using dev frac=",deviation_fraction,"range: [",self.start_range,",",self.end_range,")")
                 new_current_value = max(self.start_range, min (self.end_range,new_current_value))
