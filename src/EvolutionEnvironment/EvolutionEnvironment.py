@@ -62,7 +62,8 @@ def parse_args():
                         default=(Config.third_objective, 'lt'),
                         help='Third objective name and lt or gt to indicate if a lower or higher value is better')
     parser.add_argument('-f', '--fake', action='store_true', help='Runs a dummy version, for testing')
-    parser.add_argument('--protect', action='store_false', help='Protects from possible graph parsing errors')  # TODO?
+    parser.add_argument('--protect', action='store_false',
+                        help='Protects from possible graph parsing errors')  # TODO?git
     parser.add_argument('-g', '--graph-save', action='store_true', help='Saves the best graphs in a generation')
 
     args = parser.parse_args()
@@ -81,25 +82,29 @@ def parse_args():
         Config.device = torch.device(args.device)
         Config.num_workers = args.n_workers
         Config.num_generations = args.ngen
-        Config.second_objective, second_obj_comp = args.second
-        Config.third_objective, third_obj_comp = args.third
+        if len(args.second) == 2:
+            Config.second_objective, second_obj_comp = args.second
+        if len(args.third) == 2:
+            Config.third_objective, third_obj_comp = args.third
         Config.dummy_run = args.fake
         Config.protect_parsing_from_errors = args.protect
         Config.save_best_graphs = args.graph_save
 
-        if second_obj_comp == 'lt':
-            Config.second_objective_comparator = operator.lt
-        elif second_obj_comp == 'gt':
-            Config.second_objective_comparator = operator.gt
-        else:
-            parser.error('Must have only lt or gt as the second arg of --second')
+        if second_obj_comp is not None:
+            if second_obj_comp == 'lt':
+                Config.second_objective_comparator = operator.lt
+            elif second_obj_comp == 'gt':
+                Config.second_objective_comparator = operator.gt
+            elif len(args.second) == 2:
+                parser.error('Must have only lt or gt as the second arg of --second')
 
-        if third_obj_comp == 'lt':
-            Config.third_objective_comparator = operator.lt
-        elif second_obj_comp == 'gt':
-            Config.third_objective_comparator = operator.gt
-        else:
-            parser.error('Must have only lt or gt as the second arg of --third')
+        if third_obj_comp is not None:
+            if third_obj_comp == 'lt':
+                Config.third_objective_comparator = operator.lt
+            elif second_obj_comp == 'gt':
+                Config.third_objective_comparator = operator.gt
+            elif len(args.third) == 2:
+                parser.error('Must have only lt or gt as the second arg of --third')
 
         print(Config.second_objective_comparator)
 
