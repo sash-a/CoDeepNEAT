@@ -30,7 +30,7 @@ def augment_batch(images, labels, augmentor: AS):
     augmented_batch, aug_labels = augmentor.augment_images()
 
     # Displays original image + augmented image (for testing)
-    if random.random() < 0.001:
+    if random.random() < 0.003:
         display_image(reformatted_images[0])
         display_image(augmented_batch[0])
 

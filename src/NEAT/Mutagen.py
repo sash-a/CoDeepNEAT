@@ -7,7 +7,6 @@ class ValueType(Enum):  # TODO assign node type
     WHOLE_NUMBERS = 1
     CONTINUOUS = 2
 
-
 class Mutagen():
 
     def __init__(self, *discreet_options, current_value=-1, start_range=None, end_range=None,
@@ -15,7 +14,7 @@ class Mutagen():
         """defaults to discrete values. can hold whole numbers/ real numbers in a range"""
 
         self.value_type = value_type
-        self._end_range = end_range
+        self.end_range = end_range
         self.start_range = None
         self.print_when_mutating = print_when_mutating
 
@@ -51,50 +50,51 @@ class Mutagen():
     def __call__(self):
         return self.get_value()
 
-    @property
-    def end_range(self):
-        if(isinstance(self._end_range, int) or  isinstance(self._end_range, float)):
-            return self._end_range
-        else:
-            print("using function",self._end_range,"to aquire end of range, found:",self._end_range())
-            return self._end_range()
-
     def mutate(self):
         """:returns whether or not this gene mutated"""
         old_value = self()
-
         self.mutate_sub_mutagens()
 
-        if(random.random()<self.mutation_chance):
-            if (self.value_type == ValueType.DISCRETE):
+        if random.random()<self.mutation_chance:
+            if self.value_type == ValueType.DISCRETE:
                 new_current_value_id = random.randint(0,len(self.possible_values)-1)
-                if(new_current_value_id == self.current_value_id):
+                if new_current_value_id == self.current_value_id:
                     new_current_value_id = (self.current_value_id+1)%len(self.possible_values)
                 #print("mutating", self.get_value(), "from id", self.current_value_id,"to",new_current_value_id,"poss=",self.possible_values)
-                #print("mutating value from",self.get_value(),"to",self.possible_values[new_current_value_id])
+                #print("mutating value from",old_value,"to",self.possible_values[new_current_value_id])
                 self.current_value_id = new_current_value_id
 
-            if (self.value_type == ValueType.WHOLE_NUMBERS):
-                if(random.random()< 0.2):
+            if self.value_type == ValueType.WHOLE_NUMBERS:
+                if random.random()< 0.2:
                     """random reset"""
                     new_current_value= random.randint(self.start_range, self.end_range)
                 else:
-                    new_current_value = self.current_value + int((math.pow(random.random(),3)-0.5)*(  self.end_range - self.start_range))
+                    deviation_fraction = math.pow(random.random(),4) * (1 if random.random()<0.5 else -1)
+                    new_current_value = self.current_value + int(deviation_fraction*(  self.end_range - self.start_range))
+                    print("altering whole number from",old_value,"to",new_current_value,"using dev frac=",deviation_fraction,"range: [",self.start_range,",",self.end_range,")")
 
-                if (new_current_value == self.current_value):
-                    new_current_value = (self.current_value + (1 if random.random()<0.5 else -1) - self.start_range) % (self.end_range - self.start_range) + self.start_range
-                    self.current_value = new_current_value
+                if new_current_value == self.current_value:
+                    new_current_value = self.current_value + (1 if random.random()<0.5 else -1)
+                    print("readjusting value to",new_current_value)
 
-            if (self.value_type == ValueType.CONTINUOUS):
-                if (random.random() < 0.1):
+                new_current_value = max(self.start_range, min (self.end_range,new_current_value))
+                self.current_value = new_current_value
+
+                #print("mutating whole number from", old_value, "to",self.current_value, "range:",self.start_range,self.end_range)
+
+            if self.value_type == ValueType.CONTINUOUS:
+                if random.random() < 0.1:
                     """random reset"""
                     new_current_value = random.random(self.start_range, self.end_range)
                 else:
-                    new_current_value = self.current_value + (math.pow(random.random(), 3) - 0.5) * (self.end_range - self.start_range)
+                    deviation_fraction = math.pow(random.random(), 4)  * (1 if random.random()<0.5 else -1)
+                    new_current_value = self.current_value + deviation_fraction * (self.end_range - self.start_range)
+                    print("altering continuous number from",old_value,"to",new_current_value, "using dev frac=",deviation_fraction,"range: [",self.start_range,",",self.end_range,")")
+                new_current_value = max(self.start_range, min (self.end_range,new_current_value))
                 self.current_value = new_current_value
 
-            if self.print_when_mutating and not old_value == self():
-                print("mutated gene from",old_value,"to",self(), "range: [",self.start_range,",",self.end_range,")")
+            #if self.print_when_mutating and not old_value == self():
+            print("mutated gene from",old_value,"to",self(), "range: [",self.start_range,",",self.end_range,")")
 
 
             return not old_value == self()
@@ -145,7 +145,6 @@ class Mutagen():
             self.current_value = value
 
     def set_sub_value(self, sub_value_name, sub_value, value=None):
-
         if value is None:
             self.sub_values[self.get_value()][sub_value_name].set_value(sub_value)
         else:
