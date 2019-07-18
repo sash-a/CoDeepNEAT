@@ -7,21 +7,21 @@ num_gpus = 1
 num_workers = 0
 dataset = 'mnist'
 
-num_generations = 3
+num_generations = 150
 
 second_objective = "network_size"  # network_size
 second_objective_comparator = operator.lt#lt for minimisation, gt for maximisation
 third_objective = ""
 third_objective_comparator = operator.lt
 
-moo_optimiser = "cdn"#cdn/nsga
+moo_optimiser = "nsga"#cdn/nsga
 
 
 data_path = '../../data'
 
 test_in_run = False
-dummy_run = False
-protect_parsing_from_errors = True
+dummy_run = True
+protect_parsing_from_errors = False
 
 number_of_epochs_per_evaluation = 3
 

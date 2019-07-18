@@ -5,13 +5,16 @@ import math
 
 def merge_linear_and_conv(linear, conv, lossy= True):
     """takes in a single linear shaped tensor and a single conv2d shaped tensor and merges them"""
+    if list(conv.size())[2] != list(conv.size())[3]:
+        print("conv has non square dimensions:", conv.size())
     #print("merging linear",linear.size(), "and conv",conv.size())
     if(lossy):
-        #reduce conv features until it can be reshaped to match dimensionality of linear - then sum
+        """reduce conv features until it can be reshaped to match dimensionality of linear - then sum"""
         conv_features = Utils.get_flat_number(conv)
         conv_channels = list(conv.size())[1]
         linear_features = list(linear.size())[1]
         if conv_channels > linear_features:
+            """pad linear"""
             #print("conv has more channels(",conv_channels,")","than linear has features(",linear_features,") - must pad linear")
             left_pad = round((conv_channels-linear_features)/2)
             right_pad = (conv_channels-linear_features)-left_pad
@@ -20,6 +23,7 @@ def merge_linear_and_conv(linear, conv, lossy= True):
 
         #print("merging conv",conv.size(),"and linear",linear.size())
         if(conv_features > linear_features):
+            "reduce conv"
             reduction_factor = math.ceil(math.pow(conv_features/linear_features, 0.5))#square root because max pool reduces on two dims x*y
             batch_size = list(conv.size())[0]
             conv = F.max_pool2d(conv, kernel_size = (reduction_factor, reduction_factor)).view(batch_size,-1)
@@ -32,7 +36,10 @@ def merge_linear_and_conv(linear, conv, lossy= True):
         feature_diff = linear_features - conv_features
         conv = F.pad(input=conv, pad=(feature_diff//2, feature_diff - feature_diff//2))
         #print("summing",conv.size(), "and",linear.size(),"to",torch.sum(torch.stack([conv, linear],dim=0), dim = 0))
-        return torch.sum(torch.stack([conv, linear],dim=0), dim=0)
+        try:
+            return torch.sum(torch.stack([conv, linear],dim=0), dim=0)
+        except:
+            raise Exception("failed to merge conv("+repr(conv.size())+") and linear("+repr(linear.size())+") inputs:")
 
     else:
         #use an additional linear layer to map the conv features to a linear the same shape as the given linear

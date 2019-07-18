@@ -25,7 +25,7 @@ class BlueprintNode(Node):
 
     def generate_blueprint_node_from_gene(self, gene):
         """applies the properties of the blueprint gene for this node"""
-        # print("generating blueprint node from gene:",gene)
+        #print("generating blueprint node from gene:",gene, "setting species number:",gene.species_number(), "from:",gene.species_number)
         self.species_number = gene.species_number()
 
     def parseto_module_graph(self, generation, module_construct=None, species_indexes=None, in_features=1,

@@ -35,7 +35,7 @@ class Mutagen():
                   "value must either be discreet and provided with options. or numerical values with a provided range")
 
         self.sub_values = sub_mutagens
-        if not (discreet_value is None):
+        if value_type==ValueType.DISCRETE:
             self.set_value(discreet_value)
 
         if(mutation_chance is None):
@@ -47,7 +47,9 @@ class Mutagen():
                 self.mutation_chance = 0.2
         else:
             self.mutation_chance = mutation_chance
+
     def __call__(self):
+        #print("calling, returning:", self.get_value())
         return self.get_value()
 
     def mutate(self):
@@ -114,9 +116,10 @@ class Mutagen():
     def get_value(self):
         """returns the number value, or the option at curent_value_id
             depending on numerical or discreet mutagen respectively"""
-        if (self.value_type == ValueType.DISCRETE):
+        if self.value_type == ValueType.DISCRETE:
             return self.possible_values[self.current_value_id]
         else:
+            #print("returning:",self.current_value)
             return self.current_value
 
     def get_sub_value(self, sub_value_name, value=None, return_mutagen = False):
@@ -140,7 +143,10 @@ class Mutagen():
         """sets current_value=value, or curent_value_id = index(value)
             depending on numerical or discreet mutagen respectively"""
         if (self.value_type == ValueType.DISCRETE):
-            self.current_value_id = self.possible_values.index(value)
+            if value is None and None not in self.possible_values:
+                self.current_value_id = 0
+            else:
+                self.current_value_id = self.possible_values.index(value)
         else:
             self.current_value = value
 
