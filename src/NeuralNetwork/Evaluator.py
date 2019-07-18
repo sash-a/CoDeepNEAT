@@ -117,7 +117,7 @@ def evaluate(model, epochs, batch_size=64, augmentor=None, device=Config.device)
     :param batch_size: The dataset batch size
     :return: The trained model
     """
-    print('Received device', device.type)
+    print('Received device', device)
     train_loader, test_loader = load_data(batch_size)
 
     s = time.time()

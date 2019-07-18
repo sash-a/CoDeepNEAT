@@ -49,8 +49,10 @@ def parse_args():
                         help='Directory to store the training and test data')
     parser.add_argument('--dataset', type=str, nargs='?', default=Config.dataset,
                         choices=['mnist', 'fassion_mnist', 'cifar'], help='Dataset to train with')
-    parser.add_argument('-d', '--device', type=str, nargs='?', default=Config.device.type, choices=['cpu', 'cuda:0'],
-                        help='Device to train on')
+    parser.add_argument('-d', '--device', type=str, nargs='?', default=Config.device.type,
+                        help='Device to train on e.g cpu or cuda:0')
+    parser.add_argument('--n-gpus', type=int, nargs='?', default=Config.num_gpus,
+                        help='The number of GPUs available, make sure that --device is not cpu or leave it blank')
     parser.add_argument('--n-workers', type=int, nargs='?', default=Config.num_workers,
                         help='Number of workers to load each batch')
     parser.add_argument('-n', '--ngen', type=int, nargs='?', default=Config.num_generations,
@@ -82,6 +84,7 @@ def parse_args():
         Config.device = torch.device(args.device)
         Config.num_workers = args.n_workers
         Config.num_generations = args.ngen
+        Config.num_gpus = args.n_gpus
         if len(args.second) == 2:
             Config.second_objective, second_obj_comp = args.second
         if len(args.second) == 2:

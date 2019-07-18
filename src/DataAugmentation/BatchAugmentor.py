@@ -30,9 +30,9 @@ def augment_batch(images, labels, augmentor: AS):
     augmented_batch, aug_labels = augmentor.augment_images()
 
     # Displays original image + augmented image (for testing)
-    if random.random() < 0.001:
-        display_image(reformatted_images[0])
-        display_image(augmented_batch[0])
+    # if random.random() < 0.001:
+    #     display_image(reformatted_images[0])
+    #     display_image(augmented_batch[0])
 
     # Reformat augmented batch into the shape that the  rest of the code wants
     augmented_batch = augmented_batch.reshape(batch_size, channels, x_Dim, y_dim)

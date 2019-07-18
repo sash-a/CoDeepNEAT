@@ -64,12 +64,18 @@ class Generation:
         best_bp, best_bp_genome = None, None
         accuracies, second_objective_values, third_objective_values = [], [], []
 
-        pool = mp.Pool(Config.num_gpus)
         blueprints = self.blueprint_population.individuals * math.ceil(100 / len(self.blueprint_population.individuals))
         random.shuffle(blueprints)
+        blueprints = blueprints[:Props.INDIVIDUALS_TO_EVAL]
 
-        evaluations = pool.map(self.evaluate_blueprint, (bp for bp in blueprints[:Props.INDIVIDUALS_TO_EVAL]))
-        print(evaluations)
+        if Config.device.type == 'cpu' or Config.num_gpus <= 1:
+            evaluations = []
+            for bp in blueprints:
+                evaluations.append(self.evaluate_blueprint(bp))
+        else:
+            pool = mp.Pool(Config.num_gpus)
+            evaluations = pool.map(self.evaluate_blueprint, (bp for bp in blueprints[:Props.INDIVIDUALS_TO_EVAL]))
+
         for evaluation in evaluations:
             # Blueprint was defective
             if evaluation is None:
@@ -140,9 +146,10 @@ class Generation:
                 da_indv = blueprint_individual.pick_da_scheme(self.da_population)
                 da_scheme = da_indv.to_phenotype()
                 # print("got da scheme from blueprint", da_scheme, "indv:", da_scheme)
+                gpu = 'cuda:'
+                gpu += '0' if Config.num_gpus <= 1 else str(int(mp.current_process().name[-1]) % Config.num_gpus)
 
-                gpu = 'cuda:' + str(int(mp.current_process().name[-1]) % Config.num_gpus)
-                device = torch.device('cpu') if Config.device.type == 'cpu' else torch.device(gpu)
+                device = Config.device if Config.device.type == 'cpu' else torch.device(gpu)
                 acc = Evaluator.evaluate(net, Config.number_of_epochs_per_evaluation, 256, da_scheme, device)
 
             second_objective_value = None
