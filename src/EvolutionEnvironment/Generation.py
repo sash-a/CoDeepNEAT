@@ -1,5 +1,5 @@
 import src.Config.NeatProperties as Props
-from src.NEAT.Population import Population, single_objective_rank, cdn_rank
+from src.NEAT.Population import Population, single_objective_rank, cdn_rank, nsga_rank
 from src.NeuralNetwork import Evaluator
 from src.CoDeepNEAT import PopulationInitialiser as PopInit
 from src.Analysis import RuntimeAnalysis
@@ -19,7 +19,8 @@ class Generation:
 
     def initialise_populations(self):
         # Picking the ranking function
-        rank_fn = single_objective_rank if Config.second_objective == '' else cdn_rank
+        rank_fn = single_objective_rank if Config.second_objective == '' else nsga_rank
+
 
         self.module_population = Population(PopInit.initialise_modules(),
                                             rank_fn,
