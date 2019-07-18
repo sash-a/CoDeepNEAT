@@ -188,14 +188,18 @@ def cdn_rank(individuals):
             indv.fitness_values = [0, 0]  # TODO make sure second obj must be maximized
 
     ranked_individuals = []
+
+    fronts = []
     while individuals:
         pf = cdn_pareto_front(individuals)
+        fronts.append(pf)
         individuals = individuals[len(pf):]  # TODO does this drop an individual?
         ranked_individuals.extend(pf)
 
     for i, indv in enumerate(ranked_individuals):
         # print("ranking", ranked_individuals[0], "to",i)
         indv.rank = i + 1
+    return fronts
 
 def nsga_rank(individuals):
     fronts = general_pareto_sorting(individuals)
@@ -209,7 +213,7 @@ def nsga_rank(individuals):
             """estimate density by averaging the two nearest along each objective axis, then combining each distance"""
             objective_sorted  = sorted(front, key = lambda x: x.fitness_values[objective], reverse=True)
 
-            for i, indv in objective_sorted:
+            for i, indv in enumerate(objective_sorted):
                 distance = ((abs(objective_sorted[i] - objective_sorted[i+1]) if i<len(objective_sorted)-1 else 0) + (abs(objective_sorted[i] - objective_sorted[i-1]) if i>0 else 0))/ (2 if i>0 and i<len(sorted)-1 else 1)
                 distance = math.pow(distance,2)
                 if i == 0:
@@ -223,5 +227,72 @@ def nsga_rank(individuals):
 
 def general_pareto_sorting(individuals):
     """takes in a list of individuals and returns a list of fronts, each being a list of individuals"""
+    fronts = [[]]
+    dominations = {}
+    domination_counts = {}
+    for indv in individuals:
+        dominated_count = 0
+        domination_by_indv = []
+        for comparitor in individuals:
+            if indv == comparitor:
+                continue
+            if check_domination(indv,comparitor):
+                #print(indv.fitness_values,"dominated",comparitor.fitness_values)
+                domination_by_indv.append(comparitor)
+            elif check_domination(comparitor,indv):
+                #print(indv.fitness_values,"was dominated by",comparitor.fitness_values)
+                dominated_count+=1
+        if dominated_count == 0:
+            #print("found indv which is not dominated by anyone")
+            fronts[0].append(indv)
+        #print()
+
+        dominations[indv] = domination_by_indv
+        domination_counts[indv] = dominated_count
+
+    #print("found front 0:",fronts[0])
+
+    front_number = 0
+    while True:
+        next_front = set()
+        for leader in fronts[front_number]:
+            for dominated_individual in dominations[leader]:
+                domination_counts[dominated_individual]-=1
+                if domination_counts[dominated_individual] == 0:
+                    next_front.add(dominated_individual)
+
+        if len(next_front) ==0:
+            break
+        fronts.append(next_front)
+        front_number+=1
+
+    return fronts
+
+def check_domination(domination_candidate, comparitor):
+    """checks if the domination candidate dominates the comparitor"""
+    for i in range(len(domination_candidate.fitness_values)):
+        if comparitor.fitness_values[i] > domination_candidate.fitness_values[i]:
+            return False
+    return True
+
+
+
+if __name__ == "__main__":
+    import matplotlib.pyplot as plt
+    from src.NEAT.Genome import Genome
+    import random
+    fake_individuals = []
+    for i in range(1000):
+        fake_individuals.append(Genome([],[]))
+        fake_individuals[-1].fitness_values = [random.random(),random.random()]
+    fronts = cdn_rank(fake_individuals)
+    #print(len(fronts))
+    for front in fronts:
+        sorted_front = sorted(front,key=lambda indv: indv.fitness_values[0])
+        x = [indv.fitness_values[0] for indv in sorted_front]
+        y = [indv.fitness_values[1] for indv in sorted_front]
+        plt.plot(x,y)
+    plt.show()
+
 
 

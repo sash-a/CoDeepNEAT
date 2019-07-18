@@ -5,7 +5,7 @@ import random
 
 
 class Genome:
-    def __init__(self, connections: Iterable[ConnectionGene], nodes: Iterable[NodeGene], num_objectives=1):
+    def __init__(self, connections: Iterable[ConnectionGene], nodes: Iterable[NodeGene]):
         self.rank = 0  # The order of this genome when ranked by fitness values
         self.uses = 0  # The numbers of times this genome is used
         self.fitness_values: list = []
