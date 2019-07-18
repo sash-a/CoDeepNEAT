@@ -93,6 +93,17 @@ def test_all_networks(num_epochs):
         accuracies = run_model_over_different_batch_numbers(num_epochs,network_type)
         plot_accuracies(accuracies, network_type)
 
+def test_max_accuracy_of_networks(num_epochs):
+    for network_type in networks:
+        model = network_type()
+        optimiser = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
+        for epoch in range(num_epochs):  # loop over the dataset multiple times
+
+            run_epoch_for_n_batches(model, optimiser, num_batches=total_batches)
+
+        accuracy = test_model(model)
+        print(get_name_from_class(network_type),"max acc:",accuracy)
+
 
 def plot_accuracies(accuracies, model_type):
     plt.plot([list(x)[0] for x in accuracies], [list(x)[1] for x in accuracies])
@@ -108,4 +119,6 @@ def get_name_from_class(model_class):
 total_batches = get_num_batches()
 
 if __name__ == "__main__":
-    test_all_networks(1)
+    num_epochs = 5
+    test_max_accuracy_of_networks(num_epochs)
+    test_all_networks(num_epochs)

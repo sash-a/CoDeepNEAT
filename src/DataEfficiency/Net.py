@@ -25,12 +25,13 @@ class StandardNet(nn.Module):
 
 class DropOutNet(StandardNet):
 
-    def __init__(self, drop_out_factor = 0.09):
+    def __init__(self, drop_out_factor = 0.05):
         super(DropOutNet,self).__init__()
-        self.drop_out_2d = nn.Dropout2d(drop_out_factor)
+        self.drop_out_2d = nn.Dropout2d(drop_out_factor/2)
         self.drop_out_1d = nn.Dropout(drop_out_factor)
 
     def forward(self, x):
+        x = self.drop_out_2d(x)
         x = self.pool(F.relu(self.conv1(x)))
         x = self.drop_out_2d(x)
         x = self.pool(F.relu(self.conv2(x)))
@@ -43,3 +44,6 @@ class DropOutNet(StandardNet):
         x = self.fc3(x)
 
         return x
+
+    
+
