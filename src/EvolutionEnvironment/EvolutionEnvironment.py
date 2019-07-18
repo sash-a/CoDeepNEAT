@@ -62,7 +62,7 @@ def parse_args():
                         default=(Config.third_objective, 'lt'),
                         help='Third objective name and lt or gt to indicate if a lower or higher value is better')
     parser.add_argument('-f', '--fake', action='store_true', help='Runs a dummy version, for testing')
-    parser.add_argument('--protect', action='store_false', help='Protects from possible graph parsing errors')
+    parser.add_argument('--protect', action='store_false', help='Protects from possible graph parsing errors')  # TODO?
     parser.add_argument('-g', '--graph-save', action='store_true', help='Saves the best graphs in a generation')
 
     args = parser.parse_args()
