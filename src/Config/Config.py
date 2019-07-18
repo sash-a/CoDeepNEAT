@@ -1,13 +1,13 @@
 import torch
 import operator
 
-# device = torch.device('cuda:0')
-num_gpus = 4
-device = torch.device('cpu')
+device = torch.device('cuda:0')
+# device = torch.device('cpu')
+num_gpus = 1
 num_workers = 0
 dataset = 'mnist'
 
-num_generations = 2
+num_generations = 3
 
 second_objective = "network_size"  # network_size
 second_objective_comparator = operator.lt#lt for minimisation, gt for maximisation
@@ -19,9 +19,9 @@ moo_optimiser = "cdn"#cdn/nsga
 
 data_path = '../../data'
 
-test_in_run = True
-dummy_run = True
-protect_parsing_from_errors = False
+test_in_run = False
+dummy_run = False
+protect_parsing_from_errors = True
 
 number_of_epochs_per_evaluation = 3
 

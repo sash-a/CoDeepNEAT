@@ -14,7 +14,7 @@ printBatchEvery = -1  # -1 to switch off batch printing
 print_epoch_every = 1
 
 
-def train(model, train_loader, epoch, test_loader, augmentor=None, print_accuracy=False):
+def train(model, train_loader, epoch, test_loader, augmentor=None, print_accuracy=False, device=Config.device):
     """
     Run a single train epoch
 
@@ -25,7 +25,6 @@ def train(model, train_loader, epoch, test_loader, augmentor=None, print_accurac
     :param print_accuracy: True if should test when printing batch info
     """
     model.train()
-    device = Config.device
 
     loss = 0
     batch_idx = 0
@@ -73,7 +72,7 @@ def train(model, train_loader, epoch, test_loader, augmentor=None, print_accurac
             print("epoch", epoch, "average loss:", loss / batch_idx, "time for epoch:", (end_time - s))
 
 
-def test(model, test_loader, print_acc=True):
+def test(model, test_loader, print_acc=True, device=Config.device):
     """
     Run through a test dataset and return the accuracy
 
@@ -83,7 +82,6 @@ def test(model, test_loader, print_acc=True):
     :return: accuracy
     """
     model.eval()
-    device = Config.device
 
     correct = 0
     with torch.no_grad():
@@ -110,24 +108,24 @@ def test(model, test_loader, print_acc=True):
     return acc
 
 
-def evaluate(model, epochs, dataset='mnist', path='../../data', batch_size=64, augmentor=None):
+def evaluate(model, epochs, batch_size=64, augmentor=None, device=Config.device):
     """
     Runs all epochs and tests the model after all epochs have run
 
     :param model: instance of nn.Module
     :param epochs: number of training epochs
-    :param dataset: Either mnist or imgnet
     :param batch_size: The dataset batch size
     :return: The trained model
     """
+    print('Received device', device)
     train_loader, test_loader = load_data(batch_size)
 
     s = time.time()
     for epoch in range(1, epochs + 1):
-        train(model, train_loader, epoch, test_loader, augmentor)
+        train(model, train_loader, epoch, test_loader, augmentor, device=device)
     e = time.time()
 
-    test_acc = test(model, test_loader)
+    test_acc = test(model, test_loader, device=device)
     print('Evaluation took', e - s, 'seconds, Test acc:', test_acc)
     return test_acc
 

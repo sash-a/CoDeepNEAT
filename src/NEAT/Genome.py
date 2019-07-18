@@ -34,8 +34,8 @@ class Genome:
     def __lt__(self, other):
         return self.rank < other.rank
 
-    def __repr__(self):
-        return repr(list(self._connections.values()))
+    # def __repr__(self):
+    #     return repr(list(self._connections.values()))
 
     def get_unique_genes(self, other):
         return set(self._connections.keys()) - set(other._connections.keys())
