@@ -6,6 +6,9 @@ from src.Analysis import RuntimeAnalysis
 from src.Config import Config
 
 import random
+import torch.multiprocessing as mp
+import torch
+import math
 
 
 class Generation:
@@ -16,6 +19,8 @@ class Generation:
         self.speciesNumbers = []
         self.module_population, self.blueprint_population, self.da_population = None, None, None
         self.initialise_populations()
+
+        self._bp_index = 0
 
     def initialise_populations(self):
         # Picking the ranking function
@@ -61,6 +66,38 @@ class Generation:
             module_individual.end_step()  # this also sets fitness to zero
 
     def evaluate(self, generation_number):
+        inputs, targets = Evaluator.sample_data()
+
+        best_acc, best_second, best_third = float('-inf'), float('-inf'), float('-inf')
+        best_bp, best_bp_genome = None, None
+        accuracies, second_objective_values, third_objective_values = [], [], []
+
+        # Randomize the list so that random individuals are sampled more often
+        # random.shuffle(self.blueprint_population.individuals)  # TODO this does nothing atm
+
+        processes = []
+        lock = mp.Lock()
+        for i in range(Config.num_gpus):
+            p = mp.Process(target=self.evaluate, args=(generation_number, lock))
+            p.start()
+            processes.append(p)
+
+        for p in processes:
+            p.join()
+
+            # if generation_number % Config.print_best_graph_every_n_generations == 0:
+            #     if Config.save_best_graphs:
+            #         # print('Best blueprint:\n', best_bp_genome)
+            #         best_bp.plot_tree_with_graphvis(title="gen:" + str(generation_number) + " acc:" + str(best_acc),
+            #                                         file="best_of_gen_" + repr(generation_number))
+            #
+            # RuntimeAnalysis.log_new_generation(accuracies, generation_number,
+            #                                    second_objective_values=(
+            #                                        second_objective_values if len(second_objective_values) > 0 else None),
+            #                                    third_objective_values=(
+            #                                        third_objective_values if len(third_objective_values) > 0 else None))
+
+    def _evaluate(self, generation_number, lock):
         print("Num species:", len(self.module_population.species))
         inputs, targets = Evaluator.sample_data()
 
@@ -69,12 +106,15 @@ class Generation:
         accuracies, second_objective_values, third_objective_values = [], [], []
 
         # Randomize the list so that random individuals are sampled more often
-        random.shuffle(self.blueprint_population.individuals)
+        # random.shuffle(self.blueprint_population.individuals)  # TODO this does nothing atm
 
-        for i, blueprint_individual in enumerate(self.blueprint_population.individuals):
-            # Checking if done enough evals
-            if Props.INDIVIDUALS_TO_EVAL < i:
-                break
+        blueprints = self.blueprint_population.individuals
+        bp_pop_size = len(blueprints)
+
+        while self._bp_index < Props.INDIVIDUALS_TO_EVAL:
+            with lock:
+                blueprint_individual = blueprints[self._bp_index]
+                self._bp_index += 1
 
             # All computationally expensive tests
             if Config.test_in_run:
@@ -93,7 +133,7 @@ class Generation:
             else:
                 module_graph, blueprint_individual, results = self.evaluate_blueprint(blueprint_individual, inputs,
                                                                                       generation_number)
-            # Gathering results
+                # Gathering results
             acc = results[0]
             if len(results) >= 2:
                 second = results[1]
@@ -119,18 +159,8 @@ class Generation:
 
             accuracies.append(acc)
 
-        if generation_number % Config.print_best_graph_every_n_generations == 0:
-            if Config.save_best_graphs:
-                # print('Best blueprint:\n', best_bp_genome)
-                best_bp.plot_tree_with_graphvis(title="gen:" + str(generation_number) + " acc:" + str(best_acc),
-                                                file="best_of_gen_" + repr(generation_number))
-
-        RuntimeAnalysis.log_new_generation(accuracies, generation_number,
-                                           second_objective_values=(
-                                               second_objective_values if len(second_objective_values) > 0 else None),
-                                           third_objective_values=(
-                                               third_objective_values if len(third_objective_values) > 0 else None))
         print('Best accuracy:', best_acc)
+        return best_acc, best_bp, best_bp_genome, accuracies
 
     def evaluate_blueprint(self, blueprint_individual, inputs, generation_number):
         blueprint = blueprint_individual.to_blueprint()

@@ -33,6 +33,7 @@ def main():
     for i in range(Config.num_generations):
         print('Running gen', i)
         gen_start_time = time.time()
+        # current_generation.evaluate(i)
         current_generation.evaluate(i)
         current_generation.step()
         print('completed gen', i, "in", (time.time() - gen_start_time), "elapsed time:", (time.time() - start_time),
@@ -55,7 +56,7 @@ def parse_args():
     parser.add_argument('-n', '--ngen', type=int, nargs='?', default=Config.num_generations,
                         help='Max number of generations to run CoDeepNEAT')
     parser.add_argument('-s', '--second', type=str,
-                        nargs='*', default=(Config.second_objective, Config.second_objective_comparator),
+                        nargs='*', default=(Config.second_objective, 'lt'),
                         help='Second objective name and lt or gt to indicate if a lower or higher value is better')
     parser.add_argument('-t', '--third', type=str, nargs='*',
                         default=(Config.third_objective, 'lt'),
@@ -69,38 +70,38 @@ def parse_args():
     if not args.ignore:
         print(args)
 
-    if args.second is not None and len(args.second) not in (0, 2):
-        parser.error('Either give no values for second, or two, not {}.'.format(len(args.second)))
+        if args.second is not None and len(args.second) not in (0, 2):
+            parser.error('Either give no values for second, or two, not {}.'.format(len(args.second)))
 
-    if args.third is not None and len(args.third) not in (0, 2):
-        parser.error('Either give no values for third, or two, not {}.'.format(len(args.third)))
+        if args.third is not None and len(args.third) not in (0, 2):
+            parser.error('Either give no values for third, or two, not {}.'.format(len(args.third)))
 
-    Config.data_path = args.data_path
-    Config.dataset = args.dataset
-    Config.device = torch.device(args.device)
-    Config.num_workers = args.n_workers
-    Config.num_generations = args.ngen
-    Config.second_objective, second_obj_comp = args.second
-    Config.third_objective, third_obj_comp = args.third
-    Config.dummy_run = args.fake
-    Config.protect_parsing_from_errors = args.protect
-    Config.save_best_graphs = args.graph_save
+        Config.data_path = args.data_path
+        Config.dataset = args.dataset
+        Config.device = torch.device(args.device)
+        Config.num_workers = args.n_workers
+        Config.num_generations = args.ngen
+        Config.second_objective, second_obj_comp = args.second
+        Config.third_objective, third_obj_comp = args.third
+        Config.dummy_run = args.fake
+        Config.protect_parsing_from_errors = args.protect
+        Config.save_best_graphs = args.graph_save
 
-    if second_obj_comp == 'lt':
-        Config.second_objective_comparator = operator.lt
-    elif second_obj_comp == 'gt':
-        Config.second_objective_comparator = operator.gt
-    else:
-        parser.error('Must have only lt or gt as the second arg of --second')
+        if second_obj_comp == 'lt':
+            Config.second_objective_comparator = operator.lt
+        elif second_obj_comp == 'gt':
+            Config.second_objective_comparator = operator.gt
+        else:
+            parser.error('Must have only lt or gt as the second arg of --second')
 
-    if third_obj_comp == 'lt':
-        Config.third_objective_comparator = operator.lt
-    elif second_obj_comp == 'gt':
-        Config.third_objective_comparator = operator.gt
-    else:
-        parser.error('Must have only lt or gt as the second arg of --third')
+        if third_obj_comp == 'lt':
+            Config.third_objective_comparator = operator.lt
+        elif second_obj_comp == 'gt':
+            Config.third_objective_comparator = operator.gt
+        else:
+            parser.error('Must have only lt or gt as the second arg of --third')
 
-    print(Config.second_objective_comparator)
+        print(Config.second_objective_comparator)
 
 
 if __name__ == '__main__':
