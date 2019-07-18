@@ -56,7 +56,7 @@ def parse_args():
     parser.add_argument('-n', '--ngen', type=int, nargs='?', default=Config.num_generations,
                         help='Max number of generations to run CoDeepNEAT')
     parser.add_argument('-s', '--second', type=str,
-                        nargs='*', default=(Config.second_objective, Config.second_objective_comparator),
+                        nargs='*', default=(Config.second_objective, 'lt'),
                         help='Second objective name and lt or gt to indicate if a lower or higher value is better')
     parser.add_argument('-t', '--third', type=str, nargs='*',
                         default=(Config.third_objective, 'lt'),
@@ -84,26 +84,26 @@ def parse_args():
         Config.num_generations = args.ngen
         if len(args.second) == 2:
             Config.second_objective, second_obj_comp = args.second
-        if len(args.third) == 2:
+        if len(args.second) == 2:
             Config.third_objective, third_obj_comp = args.third
         Config.dummy_run = args.fake
         Config.protect_parsing_from_errors = args.protect
         Config.save_best_graphs = args.graph_save
 
-        if second_obj_comp is not None:
+        if len(args.second) == 2:
             if second_obj_comp == 'lt':
                 Config.second_objective_comparator = operator.lt
             elif second_obj_comp == 'gt':
                 Config.second_objective_comparator = operator.gt
-            elif len(args.second) == 2:
+            else:
                 parser.error('Must have only lt or gt as the second arg of --second')
 
-        if third_obj_comp is not None:
+        if len(args.second) == 2:
             if third_obj_comp == 'lt':
                 Config.third_objective_comparator = operator.lt
             elif second_obj_comp == 'gt':
                 Config.third_objective_comparator = operator.gt
-            elif len(args.third) == 2:
+            else:
                 parser.error('Must have only lt or gt as the second arg of --third')
 
         print(Config.second_objective_comparator)

@@ -68,28 +68,28 @@ class Generation:
         blueprints = self.blueprint_population.individuals * math.ceil(100 / len(self.blueprint_population.individuals))
         random.shuffle(blueprints)
 
-        returns = pool.map(self.evaluate_blueprint, (bp for bp in blueprints[:Props.INDIVIDUALS_TO_EVAL]))
-
-        for result in returns:
+        evaluations = pool.map(self.evaluate_blueprint, (bp for bp in blueprints[:Props.INDIVIDUALS_TO_EVAL]))
+        print(evaluations)
+        for evaluation in evaluations:
             # Blueprint was defective
-            if result is None:
+            if evaluation is None:
                 continue
 
-            module_graph, blueprint_individual, results = result
-            acc = results[0]
-            if len(results) >= 2:
-                second = results[1]
+            module_graph, blueprint_individual, objective_values = evaluation
+            acc = objective_values[0]
+            if len(objective_values) >= 2:
+                second = objective_values[1]
 
                 best_second = best_second if Config.second_objective_comparator(best_second, second) else second
                 second_objective_values.append(second)
 
-            if len(results) >= 3:
-                third = results[3]
+            if len(objective_values) >= 3:
+                third = objective_values[3]
 
                 best_third = best_third if Config.second_objective_comparator(best_third, third) else third
                 third_objective_values.append(third)
 
-            if len(results) > 3:
+            if len(objective_values) > 3:
                 raise Exception("Error: too many result values to unpack")
 
             if acc >= best_acc:
@@ -140,8 +140,9 @@ class Generation:
                 da_indv = blueprint_individual.pick_da_scheme(self.da_population)
                 da_scheme = da_indv.to_phenotype()
                 # print("got da scheme from blueprint", da_scheme, "indv:", da_scheme)
-                gpu_num = str(int(mp.current_process().name[-1]) % Config.num_gpus)
-                device = torch.device('cpu') if Config.device.type == 'cpu' else torch.device('cuda' + gpu_num)
+
+                gpu = 'cuda:' + str(int(mp.current_process().name[-1]) % Config.num_gpus)
+                device = torch.device('cpu') if Config.device.type == 'cpu' else torch.device(gpu)
                 acc = Evaluator.evaluate(net, Config.number_of_epochs_per_evaluation, 256, da_scheme, device)
 
             second_objective_value = None
