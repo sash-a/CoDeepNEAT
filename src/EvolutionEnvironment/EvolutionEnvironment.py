@@ -56,7 +56,7 @@ def parse_args():
     parser.add_argument('-n', '--ngen', type=int, nargs='?', default=Config.num_generations,
                         help='Max number of generations to run CoDeepNEAT')
     parser.add_argument('-s', '--second', type=str,
-                        nargs='*', default=(Config.second_objective, Config.second_objective_comparator),
+                        nargs='*', default=(Config.second_objective, 'lt'),
                         help='Second objective name and lt or gt to indicate if a lower or higher value is better')
     parser.add_argument('-t', '--third', type=str, nargs='*',
                         default=(Config.third_objective, 'lt'),
