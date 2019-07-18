@@ -3,6 +3,7 @@ import src.Config.NeatProperties as Props
 from src.Config import Config
 import math
 import operator
+import sys
 
 
 class MutationRecords:
@@ -218,11 +219,12 @@ def nsga_rank(individuals):
             objective_sorted = sorted(front, key=lambda x: x.fitness_values[objective])
 
             for i, indv in enumerate(objective_sorted):
-                distance = ((abs(objective_sorted[i] - objective_sorted[i + 1]) if i < len(
-                    objective_sorted) - 1 else 0) + (
-                                abs(objective_sorted[i] - objective_sorted[i - 1]) if i > 0 else 0)) / (
-                               2 if i > 0 and i < len(sorted) - 1 else 1)
-                distance = math.pow(distance, 2)
+                if i == 0 or i == len(objective_sorted)-1:
+                    distance = sys.maxint
+                else:
+                    distance = (abs(objective_sorted[i] - objective_sorted[i + 1])  + abs(objective_sorted[i] - objective_sorted[i - 1])) / 2
+                    distance = math.pow(distance, 2)
+
                 if i == 0:
                     distances[indv] = []
                 distances[indv].append(distance)
