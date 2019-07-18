@@ -229,7 +229,7 @@ def nsga_rank(individuals):
                     distances[indv] = []
                 distances[indv].append(distance)
 
-        distance_sorted = sorted(front, key=lambda x: sum(distances[x]))
+        distance_sorted = sorted(front, key=lambda x: sum(distances[x]), reverse=True)
         for indv in distance_sorted:
             indv.rank = rank
             rank += 1
