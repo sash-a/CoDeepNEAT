@@ -84,8 +84,9 @@ class ModuleNode(Node):
                                             stride=layer_type.get_sub_value("conv_stride"))
                 try:
                     self.deep_layer = self.deep_layer.to(device)
-                except:
-                    print("created conv layer - but failed to move it to device", device)
+                except Exception as e:
+                    print(e)
+                    raise Exception("created conv layer - but failed to move it to device" + repr(device))
 
             except Exception as e:
                 print("Error:", e)
@@ -96,6 +97,7 @@ class ModuleNode(Node):
 
         else:
             self.deep_layer = layer_type()(self.in_features, self.out_features).to(device)
+
 
         if not (self.reduction is None):
             self.reduction = self.reduction.to(device)
@@ -152,8 +154,9 @@ class ModuleNode(Node):
         if configuration_run and not (input is None):
             try:
                 self.add_reshape_node(list(input.size()))
-            except:
-                print("failed on",input.size(), input)
+            except Exception as e:
+                print(e)
+                raise Exception("failed on "+ repr(input.size()))
 
         output = self.pass_input_through_layer(input)  # will call aggregation if is aggregator node
 
@@ -176,6 +179,8 @@ class ModuleNode(Node):
     def pass_input_through_layer(self, input):
         if input is None:
             return None
+        if self.deep_layer is None:
+            raise Exception("no deep layer, cannot pass input through layer",self)
 
         if not (self.reshape is None):
             input = self.reshape.shape(input)

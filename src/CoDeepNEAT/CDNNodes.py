@@ -23,7 +23,7 @@ class ModulenNEATNode(NodeGene):
                                   discreet_value=activation)  # TODO try add in Selu, Elu
 
         self.out_features = Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=out_features, start_range=1,
-                                    end_range=1024)
+                                    end_range=256)
 
         if use_linears and not use_convs:
             self.layer_type = Mutagen(nn.Linear, discreet_value=nn.Linear, sub_mutagens={
@@ -79,7 +79,7 @@ class BlueprintNEATNode(NodeGene):
         return [self.species_number]
 
     def set_species_upper_bound(self, num_species):
-        self.species_number._end_range = num_species
+        self.species_number.end_range = num_species
         self.species_number.set_value(min(self.species_number(), num_species - 1))
 
 

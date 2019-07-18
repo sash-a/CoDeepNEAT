@@ -79,7 +79,7 @@ class Mutagen():
                     new_current_value = self.current_value + (1 if random.random()<0.5 else -1)
                     #print("readjusting value to",new_current_value)
 
-                new_current_value = max(self.start_range, min (self.end_range,new_current_value))
+                new_current_value = max(self.start_range, min (self.end_range-1,new_current_value))
                 self.current_value = new_current_value
 
                 #print("mutating whole number from", old_value, "to",self.current_value, "range:",self.start_range,self.end_range)

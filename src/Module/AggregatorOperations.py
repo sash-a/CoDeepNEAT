@@ -25,15 +25,17 @@ def merge_linear_and_conv(linear, conv, lossy= True):
         if(conv_features > linear_features):
             "reduce conv"
             reduction_factor = math.ceil(math.pow(conv_features/linear_features, 0.5))#square root because max pool reduces on two dims x*y
-            batch_size = list(conv.size())[0]
-            conv = F.max_pool2d(conv, kernel_size = (reduction_factor, reduction_factor)).view(batch_size,-1)
-            conv_features = list(conv.size())[1]
+            conv = F.max_pool2d(conv, kernel_size = (reduction_factor, reduction_factor))
+            conv_features = Utils.get_flat_number(conv)
 
             if(conv_features > linear_features):
                 raise Exception("error: reduced conv (factor=",reduction_factor,") in lossy merge with linear. but conv still has more features.\n"
                                                                                 "conv:",conv.size(),conv_features,"linear:",linear.size(),linear_features)
-
+        batch_size = list(conv.size())[0]
+        conv = conv.view(batch_size,-1)
+        conv_features = list(conv.size())[1]
         feature_diff = linear_features - conv_features
+
         conv = F.pad(input=conv, pad=(feature_diff//2, feature_diff - feature_diff//2))
         #print("summing",conv.size(), "and",linear.size(),"to",torch.sum(torch.stack([conv, linear],dim=0), dim = 0))
         try:
