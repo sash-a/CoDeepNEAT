@@ -2,13 +2,22 @@ from src.NEAT.Gene import ConnectionGene, NodeGene, NodeType
 from typing import Iterable
 import copy
 import random
+import sys
+from src.Config import Config
+import operator
 
 
 class Genome:
     def __init__(self, connections: Iterable[ConnectionGene], nodes: Iterable[NodeGene]):
         self.rank = 0  # The order of this genome when ranked by fitness values
         self.uses = 0  # The numbers of times this genome is used
-        self.fitness_values: list = []
+        self.fitness_values: list = [-(sys.maxsize - 1)]
+        if Config.second_objective != "":
+            self.fitness_values.append(
+                sys.maxsize if Config.second_objective_comparator == operator.lt else -(sys.maxsize - 1))
+        if Config.third_objective != "":
+            self.fitness_values.append(
+                sys.maxsize if Config.third_objective_comparator == operator.lt else -(sys.maxsize - 1))
 
         self._nodes = {}
         for node in nodes:
@@ -77,7 +86,7 @@ class Genome:
     def mutate(self, mutation_record):
         raise NotImplemented('Mutation should be called not in base class')
 
-    def _mutate(self, mutation_record, add_node_chance, add_connection_chance, allow_connections_to_mutate = True):
+    def _mutate(self, mutation_record, add_node_chance, add_connection_chance, allow_connections_to_mutate=True):
         topology_changed = False
         if random.random() < add_node_chance:
             topology_changed = True

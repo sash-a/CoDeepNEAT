@@ -10,9 +10,11 @@ dataset = 'mnist'
 num_generations = 2
 
 second_objective = "network_size"  # network_size
-second_objective_comparator = operator.lt
+second_objective_comparator = operator.lt#lt for minimisation, gt for maximisation
 third_objective = ""
 third_objective_comparator = operator.lt
+
+moo_optimiser = "cdn"#cdn/nsga
 
 
 data_path = '../../data'

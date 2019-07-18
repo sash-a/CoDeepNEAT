@@ -71,11 +71,11 @@ class Mutagen():
                 else:
                     deviation_fraction = math.pow(random.random(),4) * (1 if random.random()<0.5 else -1)
                     new_current_value = self.current_value + int(deviation_fraction*(  self.end_range - self.start_range))
-                    print("altering whole number from",old_value,"to",new_current_value,"using dev frac=",deviation_fraction,"range: [",self.start_range,",",self.end_range,")")
+                    #print("altering whole number from",old_value,"to",new_current_value,"using dev frac=",deviation_fraction,"range: [",self.start_range,",",self.end_range,")")
 
                 if new_current_value == self.current_value:
                     new_current_value = self.current_value + (1 if random.random()<0.5 else -1)
-                    print("readjusting value to",new_current_value)
+                    #print("readjusting value to",new_current_value)
 
                 new_current_value = max(self.start_range, min (self.end_range,new_current_value))
                 self.current_value = new_current_value
@@ -94,7 +94,7 @@ class Mutagen():
                 self.current_value = new_current_value
 
             #if self.print_when_mutating and not old_value == self():
-            print("mutated gene from",old_value,"to",self(), "range: [",self.start_range,",",self.end_range,")")
+            #print("mutated gene from",old_value,"to",self(), "range: [",self.start_range,",",self.end_range,")")
 
 
             return not old_value == self()

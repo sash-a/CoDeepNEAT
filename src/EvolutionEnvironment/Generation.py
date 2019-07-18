@@ -24,7 +24,7 @@ class Generation:
 
     def initialise_populations(self):
         # Picking the ranking function
-        rank_fn = single_objective_rank if Config.second_objective == '' else nsga_rank
+        rank_fn = single_objective_rank if Config.second_objective == '' else (nsga_rank if Config.moo_optimiser == "nsga" else cdn_rank)
 
 
         self.module_population = Population(PopInit.initialise_modules(),
