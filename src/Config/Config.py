@@ -2,8 +2,8 @@ import torch
 import operator
 import multiprocessing as mp
 
-device = torch.device('cuda:0')
-# device = torch.device('cpu')
+# device = 'gpu'
+device = 'cpu'
 num_gpus = 1
 num_workers = 0
 dataset = 'mnist'
@@ -36,8 +36,8 @@ def get_device():
     gpu = 'cuda:'
     gpu += '0' if num_gpus <= 1 else str(int(mp.current_process().name[-1]) % num_gpus)
 
-    return device if device.type == 'cpu' else torch.device(gpu)
+    return torch.device('cpu') if device == 'cpu' else torch.device(gpu)
 
 
 def is_parallel():
-    return not (device.type == 'cpu' or num_gpus <= 1)
+    return not (device == 'cpu' or num_gpus <= 1)

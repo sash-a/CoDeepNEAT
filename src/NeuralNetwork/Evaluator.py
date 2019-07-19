@@ -14,7 +14,7 @@ printBatchEvery = -1  # -1 to switch off batch printing
 print_epoch_every = 1
 
 
-def train(model, train_loader, epoch, test_loader, augmentor=None, print_accuracy=False, device=Config.device):
+def train(model, train_loader, epoch, test_loader, augmentor=None, print_accuracy=False, device=Config.get_device()):
     """
     Run a single train epoch
 
@@ -72,7 +72,7 @@ def train(model, train_loader, epoch, test_loader, augmentor=None, print_accurac
             print("epoch", epoch, "average loss:", loss / batch_idx, "time for epoch:", (end_time - s))
 
 
-def test(model, test_loader, print_acc=True, device=Config.device):
+def test(model, test_loader, print_acc=True, device=Config.get_device()):
     """
     Run through a test dataset and return the accuracy
 
@@ -109,7 +109,7 @@ def test(model, test_loader, print_acc=True, device=Config.device):
     return acc
 
 
-def evaluate(model, epochs, batch_size=64, augmentor=None, device=Config.device):
+def evaluate(model, epochs, batch_size=64, augmentor=None, device=Config.get_device()):
     """
     Runs all epochs and tests the model after all epochs have run
 
@@ -138,7 +138,7 @@ def sample_data(device, batch_size=64):
 
 
 def load_data(batch_size=64):
-    data_loader_args = {'num_workers': Config.num_workers, 'pin_memory': True if Config.device.type != 'cpu' else False}
+    data_loader_args = {'num_workers': Config.num_workers, 'pin_memory': True if Config.device != 'cpu' else False}
 
     if Config.dataset.lower() == 'mnist':
         train_loader = DataLoader(

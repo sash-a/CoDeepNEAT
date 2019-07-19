@@ -49,7 +49,7 @@ def parse_args():
                         help='Directory to store the training and test data')
     parser.add_argument('--dataset', type=str, nargs='?', default=Config.dataset,
                         choices=['mnist', 'fassion_mnist', 'cifar'], help='Dataset to train with')
-    parser.add_argument('-d', '--device', type=str, nargs='?', default=Config.device.type,
+    parser.add_argument('-d', '--device', type=str, nargs='?', default=Config.device,
                         help='Device to train on e.g cpu or cuda:0')
     parser.add_argument('--n-gpus', type=int, nargs='?', default=Config.num_gpus,
                         help='The number of GPUs available, make sure that --device is not cpu or leave it blank')
@@ -81,7 +81,7 @@ def parse_args():
 
         Config.data_path = args.data_path
         Config.dataset = args.dataset
-        Config.device = torch.device(args.device)
+        Config.device = args.device
         Config.num_workers = args.n_workers
         Config.num_generations = args.ngen
         Config.num_gpus = args.n_gpus
