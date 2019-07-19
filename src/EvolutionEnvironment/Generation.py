@@ -7,7 +7,7 @@ from src.Config import Config
 
 import torch
 import random
-import multiprocessing as mp
+import torch.multiprocessing as mp
 import math
 
 

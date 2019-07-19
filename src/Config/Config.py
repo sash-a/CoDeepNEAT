@@ -1,6 +1,6 @@
 import torch
 import operator
-import multiprocessing as mp
+import torch.multiprocessing as mp
 
 # device = 'gpu'
 device = 'cpu'
@@ -35,7 +35,7 @@ def get_device():
     """Used to obtain the correct device taking into account multiple gpus"""
     gpu = 'cuda:'
     gpu += '0' if num_gpus <= 1 else str(int(mp.current_process().name[-1]) % num_gpus)
-
+    print('In get device', mp.current_process().name, gpu)
     return torch.device('cpu') if device == 'cpu' else torch.device(gpu)
 
 

@@ -9,7 +9,7 @@ from src.DataAugmentation import BatchAugmentor
 from src.Config import Config
 
 import time
-import multiprocessing as mp
+import torch.multiprocessing as mp
 
 printBatchEvery = -1  # -1 to switch off batch printing
 print_epoch_every = 1
@@ -120,7 +120,8 @@ def evaluate(model, epochs, batch_size=64, augmentor=None, device=Config.get_dev
     :param batch_size: The dataset batch size
     :return: The trained model
     """
-    print('Eval received device', device, 'on processor', mp.current_process())
+    print('Eval received device', device, 'on processor', mp.current_process(), 'model is on',
+          model.cuda.current_device())
     train_loader, test_loader = load_data(batch_size)
 
     s = time.time()
