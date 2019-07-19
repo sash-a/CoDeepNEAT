@@ -122,8 +122,7 @@ def evaluate(model, epochs, batch_size=64, augmentor=None, device=torch.device('
     """
     print('Called get device from evaltr.eval')
 
-    print('Eval received device', device, 'on processor', mp.current_process(), 'model is on',
-          model.cuda.current_device())
+    print('Eval received device', device, 'on processor', mp.current_process())
     train_loader, test_loader = load_data(batch_size)
 
     s = time.time()

@@ -24,6 +24,11 @@ class Generation:
                 proc.name = str(i)
                 print(old_name, '->', proc.name)
 
+    def __getstate__(self):
+        self_dict = self.__dict__.copy()
+        del self_dict['pool']
+        return self_dict
+
     def initialise_populations(self):
         # Picking the ranking function
         rank_fn = single_objective_rank if Config.second_objective == '' else cdn_rank
