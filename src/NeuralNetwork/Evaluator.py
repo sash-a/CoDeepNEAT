@@ -9,6 +9,7 @@ from src.DataAugmentation import BatchAugmentor
 from src.Config import Config
 
 import time
+import multiprocessing as mp
 
 printBatchEvery = -1  # -1 to switch off batch printing
 print_epoch_every = 1
@@ -24,6 +25,7 @@ def train(model, train_loader, epoch, test_loader, augmentor=None, print_accurac
     :param test_loader: The test dataset loader
     :param print_accuracy: True if should test when printing batch info
     """
+    print('Train received device:', device)
     model.train()
 
     loss = 0
@@ -83,7 +85,7 @@ def test(model, test_loader, print_acc=True, device=Config.get_device()):
     """
     model.eval()
 
-    print('testing recieved device')
+    print('testing received device', device)
     correct = 0
     with torch.no_grad():
         for inputs, targets in test_loader:
@@ -118,7 +120,7 @@ def evaluate(model, epochs, batch_size=64, augmentor=None, device=Config.get_dev
     :param batch_size: The dataset batch size
     :return: The trained model
     """
-    print('Received device', device)
+    print('Eval received device', device, 'on processor', mp.current_process())
     train_loader, test_loader = load_data(batch_size)
 
     s = time.time()
