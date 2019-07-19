@@ -83,6 +83,7 @@ def test(model, test_loader, print_acc=True, device=Config.device):
     """
     model.eval()
 
+    print('testing recieved device')
     correct = 0
     with torch.no_grad():
         for inputs, targets in test_loader:

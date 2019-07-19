@@ -68,7 +68,7 @@ class Generation:
         random.shuffle(blueprints)
         blueprints = blueprints[:Props.INDIVIDUALS_TO_EVAL]
 
-        if Config.device.type == 'cpu' or Config.num_gpus <= 1:
+        if not Config.is_parallel():
             evaluations = []
             for bp in blueprints:
                 evaluations.append(self.evaluate_blueprint(bp))
@@ -120,10 +120,7 @@ class Generation:
 
     def evaluate_blueprint(self, blueprint_individual):
         try:
-            gpu = 'cuda:'
-            gpu += '0' if Config.num_gpus <= 1 else str(int(mp.current_process().name[-1]) % Config.num_gpus)
-
-            device = Config.device if Config.device.type == 'cpu' else torch.device(gpu)
+            device = Config.get_device()
             inputs, _ = Evaluator.sample_data(device)
 
             blueprint = blueprint_individual.to_blueprint()
@@ -133,7 +130,7 @@ class Generation:
                 raise Exception("None module graph produced from blueprint")
             try:
                 # print("using infeatures = ",module_graph.get_first_feature_count(inputs))
-                net = module_graph.to_nn(in_features=module_graph.get_first_feature_count(inputs))
+                net = module_graph.to_nn(in_features=module_graph.get_first_feature_count(inputs)).to(device)
             except Exception as e:
                 if Config.save_failed_graphs:
                     module_graph.plot_tree_with_graphvis("module graph which failed to parse to nn")
