@@ -64,7 +64,7 @@ class Generation:
         best_bp, best_bp_genome = None, None
         accuracies, second_objective_values, third_objective_values = [], [], []
 
-        blueprints = self.blueprint_population.individuals * math.ceil(100 / len(self.blueprint_population.individuals))
+        blueprints = self.blueprint_population.individuals * math.ceil(Props.INDIVIDUALS_TO_EVAL / len(self.blueprint_population.individuals))
         random.shuffle(blueprints)
         blueprints = blueprints[:Props.INDIVIDUALS_TO_EVAL]
 
@@ -74,7 +74,7 @@ class Generation:
                 evaluations.append(self.evaluate_blueprint(bp))
         else:
             pool = mp.Pool(Config.num_gpus)
-            evaluations = pool.map(self.evaluate_blueprint, (bp for bp in blueprints[:Props.INDIVIDUALS_TO_EVAL]))
+            evaluations = pool.map(self.evaluate_blueprint, (bp for bp in blueprints))
 
         for evaluation in evaluations:
             # Blueprint was defective
@@ -92,7 +92,7 @@ class Generation:
             if len(objective_values) >= 3:
                 third = objective_values[3]
 
-                best_third = best_third if Config.second_objective_comparator(best_third, third) else third
+                best_third = best_third if Config.third_objective_comparator(best_third, third) else third
                 third_objective_values.append(third)
 
             if len(objective_values) > 3:
