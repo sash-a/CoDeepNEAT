@@ -120,7 +120,11 @@ class Generation:
 
     def evaluate_blueprint(self, blueprint_individual):
         try:
-            inputs, _ = Evaluator.sample_data()
+            gpu = 'cuda:'
+            gpu += '0' if Config.num_gpus <= 1 else str(int(mp.current_process().name[-1]) % Config.num_gpus)
+
+            device = Config.device if Config.device.type == 'cpu' else torch.device(gpu)
+            inputs, _ = Evaluator.sample_data(device)
 
             blueprint = blueprint_individual.to_blueprint()
             module_graph, sans_aggregators = blueprint.parseto_module_graph(self, return_graph_without_aggregators=True)
@@ -146,10 +150,7 @@ class Generation:
                 da_indv = blueprint_individual.pick_da_scheme(self.da_population)
                 da_scheme = da_indv.to_phenotype()
                 # print("got da scheme from blueprint", da_scheme, "indv:", da_scheme)
-                gpu = 'cuda:'
-                gpu += '0' if Config.num_gpus <= 1 else str(int(mp.current_process().name[-1]) % Config.num_gpus)
 
-                device = Config.device if Config.device.type == 'cpu' else torch.device(gpu)
                 acc = Evaluator.evaluate(net, Config.number_of_epochs_per_evaluation, 256, da_scheme, device)
 
             second_objective_value = None

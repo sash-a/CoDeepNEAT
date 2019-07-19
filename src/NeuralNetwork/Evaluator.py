@@ -130,9 +130,8 @@ def evaluate(model, epochs, batch_size=64, augmentor=None, device=Config.device)
     return test_acc
 
 
-def sample_data(batch_size=64):
+def sample_data(device, batch_size=64):
     train_loader, test_loader = load_data(batch_size)
-    device = Config.device
     for batch_idx, (inputs, targets) in enumerate(train_loader):
         return inputs.to(device), targets.to(device)
 

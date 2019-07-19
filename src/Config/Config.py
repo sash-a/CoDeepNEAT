@@ -7,7 +7,7 @@ num_gpus = 1
 num_workers = 0
 dataset = 'mnist'
 
-num_generations = 3
+num_generations = 2
 
 second_objective = "network_size"  # network_size
 second_objective_comparator = operator.lt#lt for minimisation, gt for maximisation
@@ -23,9 +23,9 @@ test_in_run = False
 dummy_run = False
 protect_parsing_from_errors = True
 
-number_of_epochs_per_evaluation = 3
+number_of_epochs_per_evaluation = 1
 
 save_best_graphs = True
-print_best_graphs = True
+print_best_graphs = False
 print_best_graph_every_n_generations = 5
 save_failed_graphs = True
