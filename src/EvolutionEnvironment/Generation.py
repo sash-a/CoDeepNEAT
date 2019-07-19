@@ -80,7 +80,7 @@ class Generation:
             for bp in blueprints:
                 evaluations.append(self.evaluate_blueprint(bp))
         else:
-            evaluations = self.pool.map(self.evaluate_blueprint, (bp for bp in blueprints[:Props.INDIVIDUALS_TO_EVAL]))
+            evaluations = self.pool.map(self.evaluate_blueprint, (bp for bp in blueprints))
 
         for evaluation in evaluations:
             # Blueprint was defective
@@ -126,6 +126,7 @@ class Generation:
 
     def evaluate_blueprint(self, blueprint_individual):
         try:
+            print('Called get device from evaluate bp')
             device = Config.get_device()
             inputs, _ = Evaluator.sample_data(device)
 

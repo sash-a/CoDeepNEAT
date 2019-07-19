@@ -15,7 +15,7 @@ printBatchEvery = -1  # -1 to switch off batch printing
 print_epoch_every = 1
 
 
-def train(model, train_loader, epoch, test_loader, augmentor=None, print_accuracy=False, device=Config.get_device()):
+def train(model, train_loader, epoch, test_loader, augmentor=None, print_accuracy=False, device=torch.device('cuda:0')):
     """
     Run a single train epoch
 
@@ -74,7 +74,7 @@ def train(model, train_loader, epoch, test_loader, augmentor=None, print_accurac
             print("epoch", epoch, "average loss:", loss / batch_idx, "time for epoch:", (end_time - s))
 
 
-def test(model, test_loader, print_acc=True, device=Config.get_device()):
+def test(model, test_loader, print_acc=True, device=torch.device('cuda:0')):
     """
     Run through a test dataset and return the accuracy
 
@@ -111,7 +111,7 @@ def test(model, test_loader, print_acc=True, device=Config.get_device()):
     return acc
 
 
-def evaluate(model, epochs, batch_size=64, augmentor=None, device=Config.get_device()):
+def evaluate(model, epochs, batch_size=64, augmentor=None, device=torch.device('cuda:0')):
     """
     Runs all epochs and tests the model after all epochs have run
 
@@ -120,6 +120,8 @@ def evaluate(model, epochs, batch_size=64, augmentor=None, device=Config.get_dev
     :param batch_size: The dataset batch size
     :return: The trained model
     """
+    print('Called get device from evaltr.eval')
+
     print('Eval received device', device, 'on processor', mp.current_process(), 'model is on',
           model.cuda.current_device())
     train_loader, test_loader = load_data(batch_size)
