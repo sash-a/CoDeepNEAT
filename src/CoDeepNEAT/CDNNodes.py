@@ -16,14 +16,14 @@ use_linears = True
 class ModulenNEATNode(NodeGene):
     def __init__(self, id, node_type=NodeType.HIDDEN,
                  out_features=25, activation=F.relu, layer_type=nn.Conv2d,
-                 conv_window_size=7, conv_stride=1, regularisation=None, reduction=nn.MaxPool2d, max_pool_size=2):
+                 conv_window_size=7, conv_stride=1, max_pool_size=2):
         super(ModulenNEATNode, self).__init__(id, node_type)
 
         self.activation = Mutagen(F.relu, F.leaky_relu, torch.sigmoid, F.relu6,
                                   discreet_value=activation)  # TODO try add in Selu, Elu
 
         self.out_features = Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=out_features, start_range=1,
-                                    end_range=100)
+                                    end_range=256)
 
         if use_linears and not use_convs:
             self.layer_type = Mutagen(nn.Linear, discreet_value=nn.Linear, sub_mutagens={
@@ -43,7 +43,7 @@ class ModulenNEATNode(NodeGene):
                                           "regularisation": Mutagen(None, nn.BatchNorm2d, discreet_value=None)
                                       }})
         if use_convs and use_linears:
-            self.layer_type = Mutagen(nn.Conv2d, nn.Linear, discreet_value=nn.Conv2d,
+            self.layer_type = Mutagen(nn.Conv2d, nn.Linear, discreet_value=layer_type,
                                       sub_mutagens={
                                           nn.Conv2d: {
                                               "conv_window_size": Mutagen(3, 5, 7, discreet_value=conv_window_size),
@@ -79,7 +79,7 @@ class BlueprintNEATNode(NodeGene):
         return [self.species_number]
 
     def set_species_upper_bound(self, num_species):
-        self.species_number._end_range = num_species
+        self.species_number.end_range = num_species
         self.species_number.set_value(min(self.species_number(), num_species - 1))
 
 
@@ -95,3 +95,5 @@ class DANode(NodeGene):
 
     def get_all_mutagens(self):
         return [self.da]
+
+
