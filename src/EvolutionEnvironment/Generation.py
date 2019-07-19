@@ -17,6 +17,13 @@ class Generation:
         self.module_population, self.blueprint_population, self.da_population = None, None, None
         self.initialise_populations()
 
+        if Config.is_parallel():
+            self.pool = mp.Pool(Config.num_gpus)
+            for i, proc in enumerate(self.pool._pool):
+                old_name = proc.name
+                proc.name = str(i)
+                print(old_name, '->', proc.name)
+
     def initialise_populations(self):
         # Picking the ranking function
         rank_fn = single_objective_rank if Config.second_objective == '' else cdn_rank
@@ -73,8 +80,7 @@ class Generation:
             for bp in blueprints:
                 evaluations.append(self.evaluate_blueprint(bp))
         else:
-            pool = mp.Pool(Config.num_gpus)
-            evaluations = pool.map(self.evaluate_blueprint, (bp for bp in blueprints[:Props.INDIVIDUALS_TO_EVAL]))
+            evaluations = self.pool.map(self.evaluate_blueprint, (bp for bp in blueprints[:Props.INDIVIDUALS_TO_EVAL]))
 
         for evaluation in evaluations:
             # Blueprint was defective
