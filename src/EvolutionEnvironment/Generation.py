@@ -4,6 +4,8 @@ from src.NeuralNetwork import Evaluator
 from src.CoDeepNEAT import PopulationInitialiser as PopInit
 from src.Analysis import RuntimeAnalysis
 from src.Config import Config
+from data import DataManager
+import pickle
 
 import torch
 import random
@@ -12,10 +14,11 @@ import math
 
 
 class Generation:
+
     def __init__(self):
-        self.speciesNumbers = []
         self.module_population, self.blueprint_population, self.da_population = None, None, None
         self.initialise_populations()
+        self.generation_number = -1
 
     def initialise_populations(self):
         # Picking the ranking function
@@ -47,6 +50,7 @@ class Generation:
 
     def step(self):
         """Runs CDN for one generation - must be called after fitness evaluation"""
+        DataManager.save_generation_state(self)
         self.module_population.step()
         for blueprint_individual in self.blueprint_population.individuals:
             blueprint_individual.reset_number_of_module_species(self.module_population.get_num_species())
@@ -60,6 +64,7 @@ class Generation:
             module_individual.end_step()  # this also sets fitness to zero
 
     def evaluate(self, generation_number):
+        self.generation_number = generation_number
         best_acc, best_second, best_third = float('-inf'), float('-inf'), float('-inf')
         best_bp, best_bp_genome = None, None
         accuracies, second_objective_values, third_objective_values = [], [], []
@@ -182,7 +187,3 @@ class Generation:
             print('Blueprint ran with errors, marking as defective\n', blueprint_individual)
             print(e)
             return None
-
-
-if __name__ == '__main__':
-    pass

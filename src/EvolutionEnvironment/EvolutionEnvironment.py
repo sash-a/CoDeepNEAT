@@ -27,7 +27,7 @@ def main():
     parse_args()
 
     current_generation = Generation()
-    RuntimeAnalysis.configure(log_file_name="test")
+    RuntimeAnalysis.configure()
     start_time = time.time()
 
     for i in range(Config.num_generations):

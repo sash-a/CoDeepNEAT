@@ -3,6 +3,7 @@ import math
 import graphviz
 from src.Config import Config
 import os
+from data import DataManager
 
 class Node:
     """
@@ -77,9 +78,8 @@ class Node:
 
         return False
 
-    def plot_tree_with_graphvis(self, title="", graph=None, nodes_plotted=None, file="temp", folder = "runs"):
-        folder = "../Analysis/Graphs/"+folder
-        file = folder+"/" + file
+    def plot_tree_with_graphvis(self, title="", graph=None, nodes_plotted=None, file="temp"):
+        file = DataManager.get_Graphs_folder() + "\\" + file
 
         if graph is None:
             graph = graphviz.Digraph(comment=title)
@@ -103,8 +103,6 @@ class Node:
             graph.edge(self.traversal_id, child.traversal_id)
 
         if self.is_input_node():
-            if not os.path.exists(folder):
-                os.makedirs(folder)
             graph.render(file, view=Config.print_best_graphs)
 
     def get_layer_type_name(self):

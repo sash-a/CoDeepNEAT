@@ -7,6 +7,7 @@ from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 from src.DataAugmentation import BatchAugmentor
 from src.Config import Config
+from data import DataManager
 
 import time
 
@@ -139,10 +140,11 @@ def sample_data(device, batch_size=64):
 
 def load_data(batch_size=64):
     data_loader_args = {'num_workers': Config.num_workers, 'pin_memory': True if Config.device != 'cpu' else False}
-
+    data_path = DataManager.get_Datasets_folder()
+    #print("loading data from:",data_path)
     if Config.dataset.lower() == 'mnist':
         train_loader = DataLoader(
-            datasets.MNIST(Config.data_path,
+            datasets.MNIST(data_path,
                            train=True,
                            download=True,
                            transform=transforms.Compose([
@@ -152,7 +154,7 @@ def load_data(batch_size=64):
             batch_size=batch_size, shuffle=True, **data_loader_args)
 
         test_loader = DataLoader(
-            datasets.MNIST(Config.data_path,
+            datasets.MNIST(data_path,
                            train=False,
                            download=True,
                            transform=transforms.Compose([
@@ -163,7 +165,7 @@ def load_data(batch_size=64):
 
     elif Config.dataset.lower() == 'fassion_mnist':
         train_loader = DataLoader(
-            datasets.FashionMNIST(Config.data_path,
+            datasets.FashionMNIST(data_path,
                                   train=True,
                                   transform=transforms.Compose([
                                       transforms.ToTensor(),
@@ -173,7 +175,7 @@ def load_data(batch_size=64):
         )
 
         test_loader = DataLoader(
-            datasets.FashionMNIST(Config.data_path,
+            datasets.FashionMNIST(data_path,
                                   train=False,
                                   transform=transforms.Compose([
                                       transforms.ToTensor(),
@@ -183,7 +185,7 @@ def load_data(batch_size=64):
         )
     elif Config.dataset == 'cifar':
         train_loader = DataLoader(
-            datasets.CIFAR10(Config.data_path,
+            datasets.CIFAR10(data_path,
                              train=True,
                              transform=transforms.Compose([
                                  transforms.ToTensor(),
@@ -194,7 +196,7 @@ def load_data(batch_size=64):
         )
 
         test_loader = DataLoader(
-            datasets.CIFAR10(Config.data_path,
+            datasets.CIFAR10(data_path,
                              train=False,
                              transform=transforms.Compose([
                                  transforms.ToTensor(),
