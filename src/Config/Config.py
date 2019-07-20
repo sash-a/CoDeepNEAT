@@ -36,7 +36,7 @@ def get_device():
 
     gpu = 'cuda:'
     gpu += '0' if num_gpus <= 1 else mp.current_process().name
-    # return torch.device('cuda:0')
+    return torch.device('cuda:0')
     return torch.device('cpu') if device == 'cpu' else torch.device(gpu)
 
 

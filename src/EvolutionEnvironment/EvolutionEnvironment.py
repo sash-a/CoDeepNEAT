@@ -26,7 +26,7 @@ Acts as the driver of current generation
 
 def main():
     parse_args()
-    mp.set_start_method('spawn')
+    mp.set_start_method('fork')
 
     current_generation = Generation()
     RuntimeAnalysis.configure(log_file_name="test")

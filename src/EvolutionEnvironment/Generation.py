@@ -72,6 +72,7 @@ class Generation:
         for i in range(Config.num_gpus):
             procs.append(mp.Process(target=self._evaluate, args=(lock, results_dict), name=str(i)))
             procs[-1].start()
+            print('Started proc:', procs[-1])
 
         for proc in procs:
             proc.join()
@@ -83,6 +84,7 @@ class Generation:
     def _evaluate(self, lock, result_dict):
         inputs, targets = Evaluator.sample_data(Config.get_device())
 
+        # TODO make global
         blueprints = self.blueprint_population.individuals
         bp_pop_size = len(blueprints)
 
@@ -90,12 +92,13 @@ class Generation:
             with lock:
                 blueprint_individual = blueprints[self._bp_index.value % bp_pop_size]
                 self._bp_index.value += 1
-                print(mp.current_process().name, 'evaluating bp ', self._bp_index.value)
+                print('Proc:', mp.current_process().name, 'is evaluating bp', self._bp_index.value)
 
+            print('lock released on', mp.current_process())
             # Evaluating individual
             try:
                 module_graph, blueprint_individual, results = self.evaluate_blueprint(blueprint_individual, inputs)
-                print(results[0], mp.current_process().name)
+                print('Eval done acc:', results[0], 'on proc:', mp.current_process().name, '\n\n')
                 if mp.current_process().name in result_dict:
                     old_bp, old_results = result_dict[mp.current_process().name]
                     if results[0] > old_results[0]:  # TODO this only checks acc
@@ -113,6 +116,7 @@ class Generation:
                     raise Exception(e)
 
     def evaluate_blueprint(self, blueprint_individual, inputs):
+        print('in eval on:', mp.current_process())
         blueprint = blueprint_individual.to_blueprint()
         module_graph, sans_aggregators = blueprint.parseto_module_graph(self, return_graph_without_aggregators=True)
 
@@ -121,6 +125,7 @@ class Generation:
 
         try:
             net = module_graph.to_nn(in_features=module_graph.get_first_feature_count(inputs)).to(Config.get_device())
+            print('is now a net', mp.current_process())
             net.share_memory()
         except Exception as e:
             if Config.save_failed_graphs:
@@ -139,6 +144,7 @@ class Generation:
             da_scheme = da_indv.to_phenotype()
             acc = Evaluator.evaluate(net, Config.number_of_epochs_per_evaluation, Config.get_device(), batch_size=256,
                                      augmentor=da_scheme)
+        print('run finished', mp.current_process())
 
         second_objective_value = None
         third_objective_value = None
@@ -163,6 +169,7 @@ class Generation:
 
         blueprint_individual.da_scheme.report_fitness(*results)
 
+        print('stuff is reported', mp.current_process())
         return module_graph, blueprint_individual, results
 
 
