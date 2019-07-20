@@ -14,7 +14,7 @@ printBatchEvery = -1  # -1 to switch off batch printing
 print_epoch_every = 1
 
 
-def train(model, train_loader, epoch, test_loader, augmentor=None, print_accuracy=False):
+def train(model, train_loader, epoch, test_loader, augmentor=None, print_accuracy=False, device=Config.device):
     """
     Run a single train epoch
 
@@ -25,7 +25,6 @@ def train(model, train_loader, epoch, test_loader, augmentor=None, print_accurac
     :param print_accuracy: True if should test when printing batch info
     """
     model.train()
-    device = Config.device
 
     loss = 0
     batch_idx = 0
@@ -73,18 +72,16 @@ def train(model, train_loader, epoch, test_loader, augmentor=None, print_accurac
             print("epoch", epoch, "average loss:", loss / batch_idx, "time for epoch:", (end_time - s))
 
 
-def test(model, test_loader, print_acc=True):
+def test(model, test_loader, print_acc=True, device=Config.device):
     """
     Run through a test dataset and return the accuracy
 
     :param model: the network of type torch.nn.Module
-    :param device: Device to train on (cuda or cpu)
     :param test_loader: the training dataset
     :param print_acc: If true accuracy will be printed otherwise it will be returned
     :return: accuracy
     """
     model.eval()
-    device = Config.device
 
     correct = 0
     with torch.no_grad():
@@ -111,46 +108,40 @@ def test(model, test_loader, print_acc=True):
     return acc
 
 
-def evaluate(model, epochs, dataset='mnist', path='../../data', batch_size=64, augmentor=None):
+def evaluate(model, epochs, batch_size=64, augmentor=None, device=Config.device):
     """
     Runs all epochs and tests the model after all epochs have run
 
     :param model: instance of nn.Module
     :param epochs: number of training epochs
-    :param dataset: Either mnist or imgnet
     :param batch_size: The dataset batch size
     :return: The trained model
     """
-    # Make this params
-    # num_workers=1 is giving issues, but 0 runs slower
-    data_loader_args = {'num_workers': 0, 'pin_memory': True} if Config.device == 'cuda' else {}
-
-    train_loader, test_loader = load_data(dataset, Config.data_path, batch_size)
+    print('Received device', device)
+    train_loader, test_loader = load_data(batch_size)
 
     s = time.time()
     for epoch in range(1, epochs + 1):
-        train(model, train_loader, epoch, test_loader, augmentor)
+        train(model, train_loader, epoch, test_loader, augmentor, device=device)
     e = time.time()
 
-    test_acc = test(model, test_loader)
+    test_acc = test(model, test_loader, device=device)
     print('Evaluation took', e - s, 'seconds, Test acc:', test_acc)
     return test_acc
 
 
-def sample_data(dataset='mnist', batch_size=64):
-    train_loader, test_loader = load_data(dataset, Config.data_path, batch_size)
-    device = Config.device
+def sample_data(device, batch_size=64):
+    train_loader, test_loader = load_data(batch_size)
     for batch_idx, (inputs, targets) in enumerate(train_loader):
         return inputs.to(device), targets.to(device)
 
 
-def load_data(dataset, path, batch_size=64):
-    # data_loader_args = {'num_workers': 0, 'pin_memory': True} if device == 'cuda' else {}
-    data_loader_args = {}
+def load_data(batch_size=64):
+    data_loader_args = {'num_workers': Config.num_workers, 'pin_memory': True if Config.device.type != 'cpu' else False}
 
-    if dataset.lower() == 'mnist':
+    if Config.dataset.lower() == 'mnist':
         train_loader = DataLoader(
-            datasets.MNIST(path,
+            datasets.MNIST(Config.data_path,
                            train=True,
                            download=True,
                            transform=transforms.Compose([
@@ -160,7 +151,7 @@ def load_data(dataset, path, batch_size=64):
             batch_size=batch_size, shuffle=True, **data_loader_args)
 
         test_loader = DataLoader(
-            datasets.MNIST(path,
+            datasets.MNIST(Config.data_path,
                            train=False,
                            download=True,
                            transform=transforms.Compose([
@@ -169,15 +160,49 @@ def load_data(dataset, path, batch_size=64):
                            ])),
             batch_size=batch_size, shuffle=True, **data_loader_args)
 
-    elif dataset.lower() == 'imgnet':
+    elif Config.dataset.lower() == 'fassion_mnist':
         train_loader = DataLoader(
-            datasets.ImageNet(path, train=True)  # TODO
+            datasets.FashionMNIST(Config.data_path,
+                                  train=True,
+                                  transform=transforms.Compose([
+                                      transforms.ToTensor(),
+                                      transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+                                  ])),
+            batch_size=batch_size, shuffle=True, **data_loader_args
         )
 
         test_loader = DataLoader(
-            datasets.ImageNet(path, train=False)  # TODO
+            datasets.FashionMNIST(Config.data_path,
+                                  train=False,
+                                  transform=transforms.Compose([
+                                      transforms.ToTensor(),
+                                      transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+                                  ])),
+            batch_size=batch_size, shuffle=True, **data_loader_args
+        )
+    elif Config.dataset == 'cifar':
+        train_loader = DataLoader(
+            datasets.CIFAR10(Config.data_path,
+                             train=True,
+                             transform=transforms.Compose([
+                                 transforms.ToTensor(),
+                                 transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+                                 # TODO resize?
+                             ])),
+            batch_size=batch_size, shuffle=True, **data_loader_args
+        )
+
+        test_loader = DataLoader(
+            datasets.CIFAR10(Config.data_path,
+                             train=False,
+                             transform=transforms.Compose([
+                                 transforms.ToTensor(),
+                                 transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+                                 # TODO resize?
+                             ])),
+            batch_size=batch_size, shuffle=True, **data_loader_args
         )
     else:
-        raise Exception('Invalid dataset name, options are imgnet or mnist')
+        raise Exception('Invalid dataset name, options are fassion_mnist, mnist or cifar')
 
     return train_loader, test_loader
