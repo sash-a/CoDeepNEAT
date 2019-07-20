@@ -50,7 +50,6 @@ class Generation:
 
     def step(self):
         """Runs CDN for one generation - must be called after fitness evaluation"""
-        DataManager.save_generation_state(self)
         self.module_population.step()
         for blueprint_individual in self.blueprint_population.individuals:
             blueprint_individual.reset_number_of_module_species(self.module_population.get_num_species())
@@ -62,6 +61,8 @@ class Generation:
 
         for module_individual in self.module_population.individuals:
             module_individual.end_step()  # this also sets fitness to zero
+
+        DataManager.save_generation_state(self)
 
     def evaluate(self, generation_number):
         self.generation_number = generation_number

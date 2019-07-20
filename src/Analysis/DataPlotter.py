@@ -39,5 +39,5 @@ def plot_generations():
 
 
 if __name__ == "__main__":
-    RuntimeAnalysis.load_date_from_log_file("test",summary=False)
+    RuntimeAnalysis.load_date_from_log_file("test_run",summary=False)
     plot_generations()

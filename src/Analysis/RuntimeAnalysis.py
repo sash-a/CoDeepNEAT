@@ -5,14 +5,14 @@ import ast
 from data import DataManager
 
 generations = []
-log_file = None
 
 
-def log_new_generation(accuracies, generation_number, second_objective_values = None, third_objective_values = None, write_summaries = False):
+def log_new_generation(accuracies, generation_number, second_objective_values=None, third_objective_values=None,
+                       write_summaries=False):
     global generations
     global log_file
 
-    generations.append(GenerationData(accuracies, generation_number,second_objective_values,third_objective_values))
+    generations.append(GenerationData(accuracies, generation_number, second_objective_values, third_objective_values))
 
     if not os.path.exists(DataManager.get_Logs_folder()):
         os.makedirs(DataManager.get_Logs_folder())
@@ -23,27 +23,27 @@ def log_new_generation(accuracies, generation_number, second_objective_values = 
         else:
             f.write(generations[-1].get_data() + "\n")
 
-def load_date_from_log_file(filename, summary= False):
+
+def load_date_from_log_file(run_name, iteration=0, summary=False):
     global generations
 
-    filename = filename.replace(".txt","")
-    log = open(DataManager.get_Logs_folder() + "\\" + filename + ".txt")
+    filename = DataManager.get_Logs_folder(run_name) +"\\log" + (("_" + repr(iteration)) if iteration > 0 else "")
+    log = open( filename + ".txt")
     for gen in log:
         gen_number = int(gen.split("{")[0].split(":")[1])
         gen = gen.split("{")[1].split("}")[0]
         objectives = gen.split("|")
-        o=0
-        accuracies=second=third = None
+        o = 0
+        accuracies = second = third = None
         for objective in objectives:
             if summary:
                 name = objective.split("~")[0]
                 vals = objective.split("~")[1].split(";")
 
-
                 max = None
                 av = None
                 for val in vals:
-                    if "max" in val.split(":")[0] :
+                    if "max" in val.split(":")[0]:
                         max = float(val.split(":")[1])
                     if "average" in val.split(":")[0]:
                         av = float(val.split(":")[1])
@@ -51,20 +51,19 @@ def load_date_from_log_file(filename, summary= False):
                 name = objective.split(":")[0]
                 vals = objective.split(":")[1]
                 if "accuracy" in name:
-                    if o>0:
-                        print("warning, accuracy not the first objective in log",filename)
+                    if o > 0:
+                        print("warning, accuracy not the first objective in log", filename)
                         return
-                    #print(vals)
-                    accuracies =ast.literal_eval(vals)
+                    # print(vals)
+                    accuracies = ast.literal_eval(vals)
                 elif o == 1:
                     second = ast.literal_eval(vals)
-                elif o ==2:
+                elif o == 2:
                     third = ast.literal_eval(vals)
                 else:
-                    raise Exception("too many objectives in log",filename,o,name)
+                    raise Exception("too many objectives in log", filename, o, name)
             o += 1
         generations.append(GenerationData(accuracies, gen_number, second, third))
-
 
 
 def get_next_log_file_name(log_file_name=None):
@@ -75,14 +74,12 @@ def get_next_log_file_name(log_file_name=None):
     if (file_exists_already):
         counter = 1
         while (file_exists_already):
-            file_exists_already = os.path.isfile(DataManager.get_Logs_folder() + "\\" + log_file_name + "_" + repr(counter) + ".txt")
+            file_exists_already = os.path.isfile(
+                DataManager.get_Logs_folder() + "\\" + log_file_name + "_" + repr(counter) + ".txt")
             counter += 1
         counter -= 1
         log_file_name = log_file_name + "_" + repr(counter)
     return log_file_name + ".txt"
 
 
-def configure(log_file_name=None):
-    global log_file
-    log_file = get_next_log_file_name(log_file_name)
-
+log_file = get_next_log_file_name()
