@@ -52,12 +52,12 @@ class AugmentationScheme:
         # If s_i is false, The value will be sampled once per image and used for all sides
         # (i.e. all sides gain/lose the same number of rows/columns)
         # NOTE: automatically resizes images back to their original size after it has augmented them.
-        "Crop_per": lambda lo, hi, s_i: iaa.Crop(percent=(lo, hi), keep_size=True, sample_independently=s_i),
+        "Crop_Percent": lambda lo, hi, s_i: iaa.Crop(percent=(lo, hi), keep_size=True, sample_independently=s_i),
 
         # Crops images by a number of pixels between lo and hi
         # If s_i is false, The value will be sampled once per image and used for all sides
         # (i.e. all sides gain/lose the same number of rows/columns)
-        "Crop_px": lambda lo, hi, s_i: iaa.Crop(px=(lo, hi), keep_size=True, sample_independently=s_i),
+        "Crop_Pixels": lambda lo, hi, s_i: iaa.Crop(px=(lo, hi), keep_size=True, sample_independently=s_i),
 
         # Flip/mirror percent (i.e 0.5) of the input images horizontally
         # The default probability is 0, so to flip all images, percent=1
