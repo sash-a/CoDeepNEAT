@@ -38,8 +38,7 @@ def main():
         # current_generation.evaluate(i)
         current_generation.evaluate()
         current_generation.step()
-        print('completed gen', i, "in", (time.time() - gen_start_time), "elapsed time:", (time.time() - start_time),
-              "\n\n")
+        print('completed gen', i, 'in', (time.time() - gen_start_time), 'elapsed time:', (time.time() - start_time),'\n\n')
 
 
 def parse_args():

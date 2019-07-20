@@ -94,7 +94,6 @@ class Generation:
                 self._bp_index.value += 1
                 print('Proc:', mp.current_process().name, 'is evaluating bp', self._bp_index.value)
 
-            print('lock released on', mp.current_process())
             # Evaluating individual
             try:
                 module_graph, blueprint_individual, results = self.evaluate_blueprint(blueprint_individual, inputs)
@@ -116,7 +115,6 @@ class Generation:
                     raise Exception(e)
 
     def evaluate_blueprint(self, blueprint_individual, inputs):
-        print('in eval on:', mp.current_process())
         blueprint = blueprint_individual.to_blueprint()
         module_graph, sans_aggregators = blueprint.parseto_module_graph(self, return_graph_without_aggregators=True)
 
@@ -125,8 +123,6 @@ class Generation:
 
         try:
             net = module_graph.to_nn(in_features=module_graph.get_first_feature_count(inputs)).to(Config.get_device())
-            print('is now a net', mp.current_process())
-            net.share_memory()
         except Exception as e:
             if Config.save_failed_graphs:
                 module_graph.plot_tree_with_graphvis("module graph which failed to parse to nn")
@@ -144,7 +140,6 @@ class Generation:
             da_scheme = da_indv.to_phenotype()
             acc = Evaluator.evaluate(net, Config.number_of_epochs_per_evaluation, Config.get_device(), batch_size=256,
                                      augmentor=da_scheme)
-        print('run finished', mp.current_process())
 
         second_objective_value = None
         third_objective_value = None
@@ -169,7 +164,6 @@ class Generation:
 
         blueprint_individual.da_scheme.report_fitness(*results)
 
-        print('stuff is reported', mp.current_process())
         return module_graph, blueprint_individual, results
 
 
