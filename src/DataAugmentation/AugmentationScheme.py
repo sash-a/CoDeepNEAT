@@ -1,7 +1,6 @@
 # The imgaug library is integral to this class (must cite)
 import imgaug.augmenters as iaa
-from src.DataAugmentation.CustomOperations import CustomOperation
-import numpy as np
+from src.DataAugmentation.CustomOperations import CustomOperation as CO
 
 
 # The AugmenationScheme class allows for the creation of a pipeline consiting of different augmentations.
@@ -13,6 +12,7 @@ class AugmentationScheme:
 
     # Dictionary containing all possible augmentation functions
     Augmentations = {
+
         # WithColorspace: Apply child augmenters within a specific color space:
 
         # Convert images to HSV, then increase each pixel's Hue (H), Saturation (S) or Value/lightness (V) [0, 1, 2]
@@ -299,11 +299,9 @@ class AugmentationScheme:
         iaa.SigmoidContrast((lo, hi), (c_lo, c_hi), per_channel=percent),
         
         # Augmenter that calls a custom (lambda) function for each batch of input image.
-        # All custom operations are defined in the Custom_Operations file (customFunc1 is placeholder)
-        'Custom1': iaa.Lambda(CustomOperation.customFunc1, CustomOperation.keypoint_func)
-
-        # List of possible Augmentations that can still be added:
-        # Look for one that had good performance (can use custom operations class to include them)
+        # Extracts Canny Edges from images (refer to description in CO)
+        # Good default values for min and max are 100 and 200
+        'Custom_Canny_Edges': lambda min_val, max_val: iaa.Lambda(func_images=CO.Edges(min_value=min_val, max_value=max_val)),
 
     }
 
@@ -327,10 +325,7 @@ class AugmentationScheme:
             self.augs.append(AugmentationScheme.Augmentations[augmentation_name](*args))
             # print('got', augmentation_name, "args", args, "*args", *args)
 
-
-
-
-        #print('related function: ', AugmentationScheme.Augmentations[augmentation_name])
+        # print('related function: ', AugmentationScheme.Augmentations[augmentation_name])
 
     # This function returns a new list of augmented images based on the pipeline you create
     def augment_images(self):
