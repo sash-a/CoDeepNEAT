@@ -16,6 +16,7 @@ import torch
 import time
 import argparse
 import operator
+import torch.multiprocessing as mp
 
 """
 Evolution Environment is static as there should only ever be one
@@ -25,6 +26,7 @@ Acts as the driver of current generation
 
 def main():
     parse_args()
+    mp.set_start_method('spawn')
 
     current_generation = Generation()
     RuntimeAnalysis.configure(log_file_name="test")
@@ -34,7 +36,7 @@ def main():
         print('Running gen', i)
         gen_start_time = time.time()
         # current_generation.evaluate(i)
-        current_generation.evaluate(i)
+        current_generation.evaluate()
         current_generation.step()
         print('completed gen', i, "in", (time.time() - gen_start_time), "elapsed time:", (time.time() - start_time),
               "\n\n")
