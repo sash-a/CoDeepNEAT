@@ -74,7 +74,6 @@ class ModuleNode(Node):
     def create_layer(self, in_features):
 
         self.in_features = in_features
-        print('Called get device from create_layer')
         device = Config.get_device()
 
         layer_type = self.module_NEAT_node.layer_type

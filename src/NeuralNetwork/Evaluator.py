@@ -15,7 +15,7 @@ printBatchEvery = -1  # -1 to switch off batch printing
 print_epoch_every = 1
 
 
-def train(model, train_loader, epoch, test_loader, augmentor=None, print_accuracy=False, device=torch.device('cuda:0')):
+def train(model, train_loader, epoch, test_loader, device, augmentor=None, print_accuracy=False):
     """
     Run a single train epoch
 
@@ -74,7 +74,7 @@ def train(model, train_loader, epoch, test_loader, augmentor=None, print_accurac
             print("epoch", epoch, "average loss:", loss / batch_idx, "time for epoch:", (end_time - s))
 
 
-def test(model, test_loader, print_acc=True, device=torch.device('cuda:0')):
+def test(model, test_loader, device, print_acc=True):
     """
     Run through a test dataset and return the accuracy
 
@@ -111,7 +111,7 @@ def test(model, test_loader, print_acc=True, device=torch.device('cuda:0')):
     return acc
 
 
-def evaluate(model, epochs, batch_size=64, augmentor=None, device=torch.device('cuda:0')):
+def evaluate(model, epochs, device, batch_size=64, augmentor=None):
     """
     Runs all epochs and tests the model after all epochs have run
 
@@ -120,17 +120,15 @@ def evaluate(model, epochs, batch_size=64, augmentor=None, device=torch.device('
     :param batch_size: The dataset batch size
     :return: The trained model
     """
-    print('Called get device from evaltr.eval')
-
     print('Eval received device', device, 'on processor', mp.current_process())
     train_loader, test_loader = load_data(batch_size)
 
     s = time.time()
     for epoch in range(1, epochs + 1):
-        train(model, train_loader, epoch, test_loader, augmentor, device=device)
+        train(model, train_loader, epoch, test_loader, device, augmentor)
     e = time.time()
 
-    test_acc = test(model, test_loader, device=device)
+    test_acc = test(model, test_loader, device)
     print('Evaluation took', e - s, 'seconds, Test acc:', test_acc)
     return test_acc
 
@@ -142,7 +140,7 @@ def sample_data(device, batch_size=64):
 
 
 def load_data(batch_size=64):
-    data_loader_args = {'num_workers': Config.num_workers, 'pin_memory': True if Config.device != 'cpu' else False}
+    data_loader_args = {'num_workers': Config.num_workers, 'pin_memory': False if Config.device != 'cpu' else False}
 
     if Config.dataset.lower() == 'mnist':
         train_loader = DataLoader(

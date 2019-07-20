@@ -2,9 +2,9 @@ import torch
 import operator
 import torch.multiprocessing as mp
 
-# device = 'gpu'
-device = 'cpu'
-num_gpus = 1
+device = 'gpu'
+# device = 'cpu'
+num_gpus = 2
 num_workers = 0
 dataset = 'mnist'
 
@@ -21,7 +21,7 @@ data_path = '../../data'
 
 test_in_run = False
 dummy_run = False
-protect_parsing_from_errors = True
+protect_parsing_from_errors = False
 
 number_of_epochs_per_evaluation = 1
 
@@ -35,7 +35,6 @@ def get_device():
     """Used to obtain the correct device taking into account multiple gpus"""
     gpu = 'cuda:'
     gpu += '0' if num_gpus <= 1 else str(int(mp.current_process().name[-1]) % num_gpus)
-    print('In get device', mp.current_process().name, gpu)
     return torch.device('cpu') if device == 'cpu' else torch.device(gpu)
 
 

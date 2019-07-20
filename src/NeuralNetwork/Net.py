@@ -33,7 +33,6 @@ class ModuleNet(nn.Module):
 
         in_layers = Utils.get_flat_number(output)
         # print("out = ", output.size(), "using linear layer (", in_layers, ",", output_nodes, ")")
-        print('Called get device from spec dim')
 
         self.final_layer = nn.Linear(in_layers, output_nodes).to(Config.get_device())
         self.dimensionality_configured = True

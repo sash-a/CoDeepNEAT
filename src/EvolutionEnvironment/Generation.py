@@ -17,17 +17,14 @@ class Generation:
         self.module_population, self.blueprint_population, self.da_population = None, None, None
         self.initialise_populations()
 
-        if Config.is_parallel():
-            self.pool = mp.Pool(Config.num_gpus)
-            for i, proc in enumerate(self.pool._pool):
-                old_name = proc.name
-                proc.name = str(i)
-                print(old_name, '->', proc.name)
+        # if Config.is_parallel():
+        #     print(mp.set_start_method('forkserver'))
+        #     self.pool = mp.Pool(Config.num_gpus)
 
-    def __getstate__(self):
-        self_dict = self.__dict__.copy()
-        del self_dict['pool']
-        return self_dict
+    # def __getstate__(self):
+    #     self_dict = self.__dict__.copy()
+    #     del self_dict['pool']
+    #     return self_dict
 
     def initialise_populations(self):
         # Picking the ranking function
@@ -85,7 +82,9 @@ class Generation:
             for bp in blueprints:
                 evaluations.append(self.evaluate_blueprint(bp))
         else:
-            evaluations = self.pool.map(self.evaluate_blueprint, (bp for bp in blueprints))
+            mp.set_start_method('forkserver')
+            pool = mp.Pool(Config.num_gpus)
+            evaluations = pool.map(self.evaluate_blueprint, (bp for bp in blueprints))
 
         for evaluation in evaluations:
             # Blueprint was defective
@@ -131,13 +130,12 @@ class Generation:
 
     def evaluate_blueprint(self, blueprint_individual):
         try:
-            print('Called get device from evaluate bp')
             device = Config.get_device()
+            print('in eval', device)
             inputs, _ = Evaluator.sample_data(device)
 
             blueprint = blueprint_individual.to_blueprint()
             module_graph, sans_aggregators = blueprint.parseto_module_graph(self, return_graph_without_aggregators=True)
-
             if module_graph is None:
                 raise Exception("None module graph produced from blueprint")
             try:
@@ -147,7 +145,6 @@ class Generation:
                 if Config.save_failed_graphs:
                     module_graph.plot_tree_with_graphvis("module graph which failed to parse to nn")
                 raise Exception("Error: failed to parse module graph into nn", e)
-
             net.specify_dimensionality(inputs)
 
             if Config.dummy_run:
@@ -159,8 +156,9 @@ class Generation:
                 da_indv = blueprint_individual.pick_da_scheme(self.da_population)
                 da_scheme = da_indv.to_phenotype()
                 # print("got da scheme from blueprint", da_scheme, "indv:", da_scheme)
-
-                acc = Evaluator.evaluate(net, Config.number_of_epochs_per_evaluation, 256, da_scheme, device)
+                print('above eval' + mp.current_process())
+                acc = Evaluator.evaluate(net, Config.number_of_epochs_per_evaluation, device, 256, da_scheme)
+                print('done eval' + mp.current_process())
 
             second_objective_value = None
             third_objective_value = None
