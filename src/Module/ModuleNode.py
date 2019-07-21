@@ -41,6 +41,8 @@ class ModuleNode(Node):
         self.module_NEAT_genome = module_genome
         self.module_NEAT_node = module_NEAT_node
 
+        self.fitness_values = []
+
         if not (module_NEAT_node is None):
             self.generate_module_node_from_gene()
 
@@ -364,3 +366,10 @@ class ModuleNode(Node):
             return Utils.get_flat_number(input)
         else:
             print("layer type", layer_type(), "not implemented")
+
+    def report_fitness(self,*fitnesses):
+        if self.fitness_values is None or not self.fitness_values:
+            self.fitness_values = [0 for _ in fitnesses]
+
+        for i, fitness in enumerate(fitnesses):
+            self.fitness_values[i] = fitness

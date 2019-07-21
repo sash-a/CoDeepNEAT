@@ -24,8 +24,8 @@ Acts as the driver of current generation
 
 def main():
     parse_args()
-    continue_evolution_from_save_state("test_run")
-    #run_evolution_from_scratch()
+    #continue_evolution_from_save_state("test_run")
+    run_evolution_from_scratch()
 
 def run_evolution_from_scratch():
     evolve_generation(Generation())

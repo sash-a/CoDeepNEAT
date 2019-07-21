@@ -1,10 +1,12 @@
 import src.Config.NeatProperties as Props
-from src.NEAT.Population import Population, single_objective_rank, cdn_rank
+from src.NEAT.Population import Population
+from src.NEAT.PopulationRanking import single_objective_rank, cdn_rank, nsga_rank
 from src.NeuralNetwork import Evaluator
 from src.CoDeepNEAT import PopulationInitialiser as PopInit
 from src.Analysis import RuntimeAnalysis
 from src.Config import Config
 from data import DataManager
+from src.NeuralNetwork.ParetoPopulation import ParetoPopulation
 import pickle
 
 import torch
@@ -19,10 +21,11 @@ class Generation:
         self.module_population, self.blueprint_population, self.da_population = None, None, None
         self.initialise_populations()
         self.generation_number = -1
+        self.pareto_population = ParetoPopulation()
 
     def initialise_populations(self):
         # Picking the ranking function
-        rank_fn = single_objective_rank if Config.second_objective == '' else cdn_rank
+        rank_fn = single_objective_rank if Config.second_objective == '' else (cdn_rank if Config.moo_optimiser == "cdn" else nsga_rank())
 
         self.module_population = Population(PopInit.initialise_modules(),
                                             rank_fn,
@@ -50,6 +53,8 @@ class Generation:
 
     def step(self):
         """Runs CDN for one generation - must be called after fitness evaluation"""
+        self.pareto_population.update_pareto_front()
+        #self.pareto_population.plot_fitnesses()
         self.module_population.step()
         for blueprint_individual in self.blueprint_population.individuals:
             blueprint_individual.reset_number_of_module_species(self.module_population.get_num_species())
@@ -174,6 +179,8 @@ class Generation:
                 results = acc, second_objective_value, third_objective_value
 
             blueprint_individual.report_fitness(*results)
+            module_graph.report_fitness(*results)
+            self.pareto_population.queue_candidate(module_graph)
             for module_individual in blueprint_individual.modules_used:
                 module_individual.report_fitness(*results)
 
