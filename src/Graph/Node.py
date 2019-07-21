@@ -79,7 +79,7 @@ class Node:
         return False
 
     def plot_tree_with_graphvis(self, title="", graph=None, nodes_plotted=None, file="temp"):
-        file = DataManager.get_Graphs_folder() + "\\" + file
+        file = os.path.join(DataManager.get_Graphs_folder(),file)
 
         if graph is None:
             graph = graphviz.Digraph(comment=title)
