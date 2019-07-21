@@ -20,7 +20,7 @@ moo_optimiser = "cdn"  # cdn/nsga
 data_path = '../../data'
 
 test_in_run = False
-dummy_run = False
+dummy_run = True
 protect_parsing_from_errors = False
 
 number_of_epochs_per_evaluation = 1

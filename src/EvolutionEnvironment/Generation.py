@@ -5,11 +5,7 @@ from src.CoDeepNEAT import PopulationInitialiser as PopInit
 from src.Analysis import RuntimeAnalysis
 from src.Config import Config
 
-import random
 import multiprocessing as mp
-import torch
-import math
-import sys
 
 
 class Generation:
@@ -21,7 +17,7 @@ class Generation:
         self.module_population, self.blueprint_population, self.da_population = None, None, None
         self.initialise_populations()
 
-        self._bp_index = mp.Value('i', 0)
+        self._bp_index = mp.Value('i', 0, lock=False)
 
     def initialise_populations(self):
         # Picking the ranking function
@@ -55,7 +51,9 @@ class Generation:
         """Runs CDN for one generation - must be called after fitness evaluation"""
         self.module_population.step()
         for blueprint_individual in self.blueprint_population.individuals:
+            print('bp fitness:', blueprint_individual.fitness_values)
             blueprint_individual.reset_number_of_module_species(self.module_population.get_num_species())
+
         self.blueprint_population.step()
         self.da_population.step()
 
@@ -78,6 +76,10 @@ class Generation:
             proc.join()
 
         print('values: ', results_dict.values())
+        print('there are', len(self.blueprint_population), 'blueprints')
+
+        for key, fitness in results_dict.items():
+            self.blueprint_population[key % len(self.blueprint_population)].report_fitness(*fitness)
 
         self._bp_index.value = 0
 
@@ -92,18 +94,15 @@ class Generation:
             with lock:
                 blueprint_individual = blueprints[self._bp_index.value % bp_pop_size]
                 self._bp_index.value += 1
+                curr_index = self._bp_index.value - 1
                 print('Proc:', mp.current_process().name, 'is evaluating bp', self._bp_index.value)
 
             # Evaluating individual
             try:
                 module_graph, blueprint_individual, results = self.evaluate_blueprint(blueprint_individual, inputs)
                 print('Eval done acc:', results[0], 'on proc:', mp.current_process().name, '\n\n')
-                if mp.current_process().name in result_dict:
-                    old_bp, old_results = result_dict[mp.current_process().name]
-                    if results[0] > old_results[0]:  # TODO this only checks acc
-                        result_dict[mp.current_process().name] = (blueprint_individual, results)
-                else:
-                    result_dict[mp.current_process().name] = (blueprint_individual, results)
+                print('reported fitness of bp', curr_index, 'as', results)
+                result_dict[curr_index] = results
 
             except Exception as e:
                 blueprint_individual.defective = True
@@ -123,6 +122,7 @@ class Generation:
 
         try:
             net = module_graph.to_nn(in_features=module_graph.get_first_feature_count(inputs)).to(Config.get_device())
+            # net.share_memory()
         except Exception as e:
             if Config.save_failed_graphs:
                 module_graph.plot_tree_with_graphvis("module graph which failed to parse to nn")
@@ -158,11 +158,11 @@ class Generation:
         else:
             results = acc, second_objective_value, third_objective_value
 
-        blueprint_individual.report_fitness(*results)
-        for module_individual in blueprint_individual.modules_used:
-            module_individual.report_fitness(*results)
-
-        blueprint_individual.da_scheme.report_fitness(*results)
+        # blueprint_individual.report_fitness(*results)
+        # for module_individual in blueprint_individual.modules_used:
+        #     module_individual.report_fitness(*results)
+        #
+        # blueprint_individual.da_scheme.report_fitness(*results)
 
         return module_graph, blueprint_individual, results
 

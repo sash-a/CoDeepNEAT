@@ -71,6 +71,12 @@ class Population:
             individuals.extend(species.members)
         return individuals
 
+    def __len__(self):
+        return len(self._get_all_individuals())
+
+    def __getitem__(self, item):
+        return self._get_all_individuals()[item]
+
     def get_num_species(self):
         return len(self.species)
 
@@ -208,26 +214,30 @@ def nsga_rank(individuals):
     for front in fronts:
         """rank is firstly based on which front the indv is in"""
         distances = {}
-        #print("num_objectives =",individuals[0].fitness_values)
+        # print("num_objectives =",individuals[0].fitness_values)
         for objective in range(len(individuals[0].fitness_values)):
             """estimate density by averaging the two nearest along each objective axis, then combining each distance"""
 
             objective_sorted = sorted(front, key=lambda x: x.fitness_values[objective])
-            #print("sorted:", objective_sorted)
+            # print("sorted:", objective_sorted)
 
             for i, indv in enumerate(objective_sorted):
-                if i == 0 or i == len(objective_sorted)-1:
+                if i == 0 or i == len(objective_sorted) - 1:
                     distance = sys.maxsize
                 else:
-                    distance = (abs(objective_sorted[i].fitness_values[objective] - objective_sorted[i + 1].fitness_values[objective] )  + abs(objective_sorted[i].fitness_values[objective]  - objective_sorted[i - 1].fitness_values[objective] )) / 2
+                    distance = (abs(
+                        objective_sorted[i].fitness_values[objective] - objective_sorted[i + 1].fitness_values[
+                            objective]) + abs(
+                        objective_sorted[i].fitness_values[objective] - objective_sorted[i - 1].fitness_values[
+                            objective])) / 2
                     distance = math.pow(distance, 2)
 
                 if objective == 0:
                     distances[indv] = []
                 distances[indv].append(distance)
 
-        #print("front:",front)
-        #print(distances)
+        # print("front:",front)
+        # print(distances)
         distance_sorted = sorted(front, key=lambda x: sum(distances[x]), reverse=True)
         for indv in distance_sorted:
             indv.rank = rank

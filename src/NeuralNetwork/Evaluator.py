@@ -34,7 +34,7 @@ def train(model, train_loader, epoch, test_loader, device, augmentor=None, print
     s = time.time()
 
     for batch_idx, (inputs, targets) in enumerate(train_loader):
-        print('training loop on proc:', mp.current_process())
+        # print('training loop on proc:', mp.current_process())
         if augmentor is not None:
             aug_inputs, aug_labels = BatchAugmentor.augment_batch(inputs.numpy(), targets.numpy(), augmentor)
         inputs, targets = inputs.to(device), targets.to(device)
