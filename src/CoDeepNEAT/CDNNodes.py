@@ -133,7 +133,10 @@ class DANode(NodeGene):
             },
                           discreet_value="Flip_lr")
 
+        self.enabled = Mutagen(True, False, discreet_value=True)
+
+
     def get_all_mutagens(self):
-        return [self.da]
+        return [self.da, self.enabled]
 
 

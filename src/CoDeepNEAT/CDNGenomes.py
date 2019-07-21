@@ -104,5 +104,6 @@ class DAGenome(Genome):
         for node_id in traversal_dictionary[curr_node_id]:
             da_name = self._nodes[node_id].da()
             #print("found da",da_name)
-            da_scheme.add_augmentation(self._nodes[node_id].da)
+            if self._nodes[node_id].enabled():
+                da_scheme.add_augmentation(self._nodes[node_id].da)
             self._to_da_scheme(da_scheme, node_id, traversal_dictionary)
