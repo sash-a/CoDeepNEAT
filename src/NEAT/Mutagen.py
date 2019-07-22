@@ -9,7 +9,7 @@ class ValueType(Enum):  # TODO assign node type
 
 class Mutagen():
 
-    def __init__(self, *discreet_options, current_value=-1, start_range=None, end_range=None,
+    def __init__(self, *discreet_options, name = "",current_value=-1, start_range=None, end_range=None,
                  value_type=ValueType.DISCRETE, sub_mutagens: dict = None, discreet_value=None, mutation_chance = None, print_when_mutating = False):
         """defaults to discrete values. can hold whole numbers/ real numbers in a range"""
 
@@ -17,6 +17,7 @@ class Mutagen():
         self.end_range = end_range
         self.start_range = None
         self.print_when_mutating = print_when_mutating
+        self.name = name
 
         if (len(discreet_options) > 0):
             self.possible_values = discreet_options
@@ -38,12 +39,12 @@ class Mutagen():
         if value_type==ValueType.DISCRETE:
             self.set_value(discreet_value)
 
-        if(mutation_chance is None):
-            if (value_type == ValueType.DISCRETE):
+        if mutation_chance is None:
+            if value_type == ValueType.DISCRETE:
                 self.mutation_chance = 0.05
-            if (value_type == ValueType.WHOLE_NUMBERS):
+            if value_type == ValueType.WHOLE_NUMBERS:
                 self.mutation_chance = 0.1
-            if (value_type == ValueType.CONTINUOUS):
+            if value_type == ValueType.CONTINUOUS:
                 self.mutation_chance = 0.2
         else:
             self.mutation_chance = mutation_chance
@@ -56,6 +57,8 @@ class Mutagen():
         """:returns whether or not this gene mutated"""
         old_value = self()
         self.mutate_sub_mutagens()
+        if self.print_when_mutating:
+            print("trying to mutate mutagen",self.name,"mutation chance:",self.mutation_chance)
 
         if random.random()<self.mutation_chance:
             if self.value_type == ValueType.DISCRETE:
@@ -91,12 +94,13 @@ class Mutagen():
                 else:
                     deviation_fraction = math.pow(random.random(), 4)  * (1 if random.random()<0.5 else -1)
                     new_current_value = self.current_value + deviation_fraction * (self.end_range - self.start_range)
-                    print("altering continuous number from",old_value,"to",new_current_value, "using dev frac=",deviation_fraction,"range: [",self.start_range,",",self.end_range,")")
                 new_current_value = max(self.start_range, min (self.end_range,new_current_value))
+                if self.print_when_mutating:
+                    print("altering continuous number from",old_value,"to",new_current_value, "using dev frac=",deviation_fraction,"range: [",self.start_range,",",self.end_range,")")
                 self.current_value = new_current_value
 
-            #if self.print_when_mutating and not old_value == self():
-            #print("mutated gene from",old_value,"to",self(), "range: [",self.start_range,",",self.end_range,")")
+            if self.print_when_mutating and old_value != self():
+                print("mutated gene from",old_value,"to",self(), "range: [",self.start_range,",",self.end_range,")")
 
 
             return not old_value == self()

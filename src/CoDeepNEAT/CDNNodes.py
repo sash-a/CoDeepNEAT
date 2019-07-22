@@ -20,10 +20,10 @@ class ModulenNEATNode(NodeGene):
         super(ModulenNEATNode, self).__init__(id, node_type)
 
         self.activation = Mutagen(F.relu, F.leaky_relu, torch.sigmoid, F.relu6,
-                                  discreet_value=activation)  # TODO try add in Selu, Elu
+                                  discreet_value=activation, name="activation function")  # TODO try add in Selu, Elu
 
         self.out_features = Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=out_features, start_range=1,
-                                    end_range=256)
+                                    end_range=256, name = "num out features")
 
         if use_linears and not use_convs:
             self.layer_type = Mutagen(nn.Linear, discreet_value=nn.Linear, sub_mutagens={
@@ -61,7 +61,7 @@ class ModulenNEATNode(NodeGene):
                                           nn.Linear: {
                                               "regularisation": Mutagen(None, nn.BatchNorm1d, discreet_value=None),
                                               "reduction": Mutagen(None, discreet_value=None)}
-                                      })
+                                      }, name="deep layer type")
 
     def get_all_mutagens(self):
         return [self.activation, self.out_features, self.layer_type]
@@ -73,9 +73,10 @@ class BlueprintNEATNode(NodeGene):
         super(BlueprintNEATNode, self).__init__(id, node_type)
 
         self.species_number = Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=0, start_range=0,
-                                      end_range=1, print_when_mutating=False)
+                                      end_range=1, print_when_mutating=False, name = "species number")
 
     def get_all_mutagens(self):
+        #raise Exception("getting species no mutagen from blueprint neat node")
         return [self.species_number]
 
     def set_species_upper_bound(self, num_species):
@@ -87,9 +88,9 @@ class DANode(NodeGene):
     def __init__(self, id, node_type=NodeType.HIDDEN):
         super().__init__(id, node_type)
         # self.da = Mutagen(*list(AugmentationScheme.Augmentations.keys()), discreet_value='No_Operation')
-        self.da = Mutagen("Flip_lr", "Flip_ud" "Rotate", "Translate_Pixels", "Scale", "Pad_Pixels", "Crop_Pixels",
+        self.da = Mutagen("Flip_lr", "Flip_ud" , "Rotate", "Translate_Pixels", "Scale", "Pad_Pixels", "Crop_Pixels",
                           "Grayscale", "Custom_Canny_Edges", "Shear", "Additive_Gaussian_Noise",
-                          "Coarse_Dropout", "No_Operation", sub_mutagens={
+                          "Coarse_Dropout", "No_Operation",name = "da type", sub_mutagens={
 
                 "Rotate": {"lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=-45, start_range=-180, end_range=0),
                            "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=+45, start_range=0, end_range=180)},
@@ -133,7 +134,7 @@ class DANode(NodeGene):
             },
                           discreet_value="Flip_lr")
 
-        self.enabled = Mutagen(True, False, discreet_value=True)
+        self.enabled = Mutagen(True, False, discreet_value=True, name= "da enabled")
 
 
     def get_all_mutagens(self):
