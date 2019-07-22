@@ -10,14 +10,14 @@ continue_from_last_run = True
 device = 'gpu'
 #device = 'cpu'
 num_gpus = 1
-num_workers = 0
+num_workers = 2
 dataset = 'mnist'
 data_path = ''
 
 
 
 max_num_generations = 100
-number_of_epochs_per_evaluation = 1
+number_of_epochs_per_evaluation = 3
 
 
 
@@ -35,7 +35,7 @@ evolve_data_augmentations = False
 
 
 test_in_run = False
-dummy_run = True
+dummy_run = False
 protect_parsing_from_errors = False
 save_best_graphs = True
 print_best_graphs = False
