@@ -9,10 +9,9 @@ sys.path.append(dir_path_1)
 sys.path.append(dir_path_2)
 
 from src.EvolutionEnvironment.Generation import Generation
-from src.Analysis import RuntimeAnalysis
 import src.Config.Config as Config
+from data import DataManager
 
-import torch
 import time
 import argparse
 import operator
@@ -25,19 +24,34 @@ Acts as the driver of current generation
 
 def main():
     parse_args()
+    #   continue_evolution_from_save_state("test_run")
+    run_evolution_from_scratch()
 
-    current_generation = Generation()
-    RuntimeAnalysis.configure(log_file_name="test")
+def run_evolution_from_scratch():
+    evolve_generation(Generation())
+
+def continue_evolution_from_save_state(run_name):
+    evolve_generation(DataManager.load_generation_state(run_name))
+
+def evolve_generation(generation):
+    if generation.generation_number == -1:
+        print("evolving gen from scratch")
+        start_gen = 0
+    else:
+        print("continueing evolution of generation:",generation)
+        start_gen = generation.generation_number + 1 #genertions save after completing their step. before incremeting their generation number
+
     start_time = time.time()
 
-    for i in range(Config.num_generations):
+    for i in range(start_gen,Config.num_generations):
         print('Running gen', i)
         gen_start_time = time.time()
         # current_generation.evaluate(i)
-        current_generation.evaluate(i)
-        current_generation.step()
+        generation.evaluate(i)
+        generation.step()
         print('completed gen', i, "in", (time.time() - gen_start_time), "elapsed time:", (time.time() - start_time),
               "\n\n")
+
 
 
 def parse_args():
@@ -49,7 +63,7 @@ def parse_args():
                         help='Directory to store the training and test data')
     parser.add_argument('--dataset', type=str, nargs='?', default=Config.dataset,
                         choices=['mnist', 'fassion_mnist', 'cifar'], help='Dataset to train with')
-    parser.add_argument('-d', '--device', type=str, nargs='?', default=Config.device.type,
+    parser.add_argument('-d', '--device', type=str, nargs='?', default=Config.device,
                         help='Device to train on e.g cpu or cuda:0')
     parser.add_argument('--n-gpus', type=int, nargs='?', default=Config.num_gpus,
                         help='The number of GPUs available, make sure that --device is not cpu or leave it blank')
@@ -81,7 +95,7 @@ def parse_args():
 
         Config.data_path = args.data_path
         Config.dataset = args.dataset
-        Config.device = torch.device(args.device)
+        Config.device = args.device
         Config.num_workers = args.n_workers
         Config.num_generations = args.ngen
         Config.num_gpus = args.n_gpus

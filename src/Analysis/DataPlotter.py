@@ -21,16 +21,6 @@ def plot_objectives_at_gen(generation):
 
 def plot_acc_vs_second(acc, second):
     global plot
-    #print("plotting",acc,"against",second)
-    # if plot is None:
-    #     #plt.ion()
-    #     plt.pause(0.0001)
-    #     plot = plt.scatter(acc, second)
-    #     print("created plot obj",plot)
-    #     plt.show()
-    # else:
-    #     plot.set_data(acc,second)
-    #     plot.draw()
     plt.scatter(acc, second)
     plt.show()
 
@@ -49,5 +39,5 @@ def plot_generations():
 
 
 if __name__ == "__main__":
-    RuntimeAnalysis.load_date_from_log_file("test",summary=False)
+    RuntimeAnalysis.load_date_from_log_file("test_run",summary=False)
     plot_generations()

@@ -7,6 +7,7 @@ from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 from src.DataAugmentation import BatchAugmentor
 from src.Config import Config
+from data import DataManager
 
 import time
 
@@ -14,7 +15,7 @@ printBatchEvery = -1  # -1 to switch off batch printing
 print_epoch_every = 1
 
 
-def train(model, train_loader, epoch, test_loader, augmentor=None, print_accuracy=False, device=Config.device):
+def train(model, train_loader, epoch, test_loader, augmentor=None, print_accuracy=False, device=Config.get_device()):
     """
     Run a single train epoch
 
@@ -72,7 +73,7 @@ def train(model, train_loader, epoch, test_loader, augmentor=None, print_accurac
             print("epoch", epoch, "average loss:", loss / batch_idx, "time for epoch:", (end_time - s))
 
 
-def test(model, test_loader, print_acc=True, device=Config.device):
+def test(model, test_loader, print_acc=True, device=Config.get_device()):
     """
     Run through a test dataset and return the accuracy
 
@@ -83,6 +84,7 @@ def test(model, test_loader, print_acc=True, device=Config.device):
     """
     model.eval()
 
+    print('testing recieved device')
     correct = 0
     with torch.no_grad():
         for inputs, targets in test_loader:
@@ -108,7 +110,7 @@ def test(model, test_loader, print_acc=True, device=Config.device):
     return acc
 
 
-def evaluate(model, epochs, batch_size=64, augmentor=None, device=Config.device):
+def evaluate(model, epochs, batch_size=64, augmentor=None, device=Config.get_device()):
     """
     Runs all epochs and tests the model after all epochs have run
 
@@ -137,11 +139,12 @@ def sample_data(device, batch_size=64):
 
 
 def load_data(batch_size=64):
-    data_loader_args = {'num_workers': Config.num_workers, 'pin_memory': True if Config.device.type != 'cpu' else False}
-
+    data_loader_args = {'num_workers': Config.num_workers, 'pin_memory': True if Config.device != 'cpu' else False}
+    data_path = DataManager.get_Datasets_folder()
+    #print("loading data from:",data_path)
     if Config.dataset.lower() == 'mnist':
         train_loader = DataLoader(
-            datasets.MNIST(Config.data_path,
+            datasets.MNIST(data_path,
                            train=True,
                            download=True,
                            transform=transforms.Compose([
@@ -151,7 +154,7 @@ def load_data(batch_size=64):
             batch_size=batch_size, shuffle=True, **data_loader_args)
 
         test_loader = DataLoader(
-            datasets.MNIST(Config.data_path,
+            datasets.MNIST(data_path,
                            train=False,
                            download=True,
                            transform=transforms.Compose([
@@ -162,7 +165,7 @@ def load_data(batch_size=64):
 
     elif Config.dataset.lower() == 'fassion_mnist':
         train_loader = DataLoader(
-            datasets.FashionMNIST(Config.data_path,
+            datasets.FashionMNIST(data_path,
                                   train=True,
                                   transform=transforms.Compose([
                                       transforms.ToTensor(),
@@ -172,7 +175,7 @@ def load_data(batch_size=64):
         )
 
         test_loader = DataLoader(
-            datasets.FashionMNIST(Config.data_path,
+            datasets.FashionMNIST(data_path,
                                   train=False,
                                   transform=transforms.Compose([
                                       transforms.ToTensor(),
@@ -182,7 +185,7 @@ def load_data(batch_size=64):
         )
     elif Config.dataset == 'cifar':
         train_loader = DataLoader(
-            datasets.CIFAR10(Config.data_path,
+            datasets.CIFAR10(data_path,
                              train=True,
                              transform=transforms.Compose([
                                  transforms.ToTensor(),
@@ -193,7 +196,7 @@ def load_data(batch_size=64):
         )
 
         test_loader = DataLoader(
-            datasets.CIFAR10(Config.data_path,
+            datasets.CIFAR10(data_path,
                              train=False,
                              transform=transforms.Compose([
                                  transforms.ToTensor(),

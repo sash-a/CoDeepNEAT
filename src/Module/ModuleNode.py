@@ -9,6 +9,7 @@ from src.Config import Config
 
 minimum_conv_dim = 8
 
+
 class ModuleNode(Node):
     """
     ModuleNode represents a node in a module
@@ -35,10 +36,12 @@ class ModuleNode(Node):
         self.reduction = None
         self.regularisation = None
 
-        self.reshape = None# reshapes the input given before passing it through this nodes deeplayer
+        self.reshape = None  # reshapes the input given before passing it through this nodes deeplayer
 
         self.module_NEAT_genome = module_genome
         self.module_NEAT_node = module_NEAT_node
+
+        self.fitness_values = []
 
         if not (module_NEAT_node is None):
             self.generate_module_node_from_gene()
@@ -65,16 +68,15 @@ class ModuleNode(Node):
                 print("Error not implemented reduction ", neat_reduction())
 
     def to_nn(self, in_features, print_graphs=False):
-        device = Config.device
         self.create_layer(in_features)
         if print_graphs:
             self.plot_tree_with_matplotlib()
-        return ModuleNet(self).to(device)
+        return ModuleNet(self)
 
     def create_layer(self, in_features):
 
         self.in_features = in_features
-        device = Config.device
+        device = Config.get_device()
 
         layer_type = self.module_NEAT_node.layer_type
         if layer_type() == nn.Conv2d:
@@ -98,13 +100,11 @@ class ModuleNode(Node):
         else:
             self.deep_layer = layer_type()(self.in_features, self.out_features).to(device)
 
-
         if not (self.reduction is None):
             self.reduction = self.reduction.to(device)
 
         if not (self.regularisation is None):
             self.regularisation = self.regularisation.to(device)
-
 
     # could be made more efficient as a breadth first instead of depth first because of duplicate paths
     def insert_aggregator_nodes(self, state="start"):
@@ -146,7 +146,7 @@ class ModuleNode(Node):
             input_node.clear()
             input_node.get_traversal_ids('_')
 
-    def pass_ann_input_up_graph(self, input, parent_id="",configuration_run = False):
+    def pass_ann_input_up_graph(self, input, parent_id="", configuration_run=False):
         """
         Called by the forward method of the NN - traverses the module graph passes the nn's input all the way up through
         the graph aggregator nodes wait for all inputs before passing outputs
@@ -156,7 +156,7 @@ class ModuleNode(Node):
                 self.add_reshape_node(list(input.size()))
             except Exception as e:
                 print(e)
-                raise Exception("failed on "+ repr(input.size()))
+                raise Exception("failed on " + repr(input.size()))
 
         output = self.pass_input_through_layer(input)  # will call aggregation if is aggregator node
 
@@ -180,18 +180,16 @@ class ModuleNode(Node):
         if input is None:
             return None
         if self.deep_layer is None:
-            raise Exception("no deep layer, cannot pass input through layer",self)
+            raise Exception("no deep layer, cannot pass input through layer", self)
 
         if not (self.reshape is None):
             input = self.reshape.shape(input)
-
-
 
         if self.is_conv2d() and list(input.size())[2] < minimum_conv_dim:
             xkernel, ykernel = self.deep_layer.kernel_size
             xkernel, ykernel = (xkernel - 1) // 2, (ykernel - 1) // 2
             input = F.pad(input=input, pad=(ykernel, ykernel, xkernel, xkernel), mode='constant',
-                         value=0)
+                          value=0)
 
         if self.regularisation is None:
             output = self.deep_layer(input)
@@ -202,11 +200,11 @@ class ModuleNode(Node):
             if type(self.reduction) == nn.MaxPool2d or type(self.reduction) == nn.MaxPool1d:
                 # a reduction should only be done on inputs large enough to reduce
                 if list(input.size())[2] > minimum_conv_dim:
-                   output = self.reduction(self.activation(output))
+                    output = self.reduction(self.activation(output))
             else:
                 print("Error: reduction", self.reduction, " is not implemented")
 
-        #print("conv dim size of output:",list(output.size())[2])
+        # print("conv dim size of output:",list(output.size())[2])
         if self.is_linear() or (self.is_conv2d() and list(output.size())[2] > minimum_conv_dim):
             return self.activation(output)
         else:
@@ -222,27 +220,27 @@ class ModuleNode(Node):
         try:
             features = input_shape[1]
         except:
-            raise Exception("could not extract features from",input_shape)
+            raise Exception("could not extract features from", input_shape)
 
+        if (self.is_conv2d()):
+            # TODO non square conv dims
+            conv_dim = int(math.pow(input_flat_size / features, 0.5))
+            if not (math.pow(conv_dim, 2) * features == input_flat_size):
+                raise Exception("error calculating conv dim from input flat size:", input_flat_size, " tried conv size",
+                                conv_dim)
 
-        if(self.is_conv2d()):
-            #TODO non square conv dims
-            conv_dim = int(math.pow(input_flat_size/features,0.5))
-            if not (math.pow(conv_dim,2)*features == input_flat_size):
-                raise Exception("error calculating conv dim from input flat size:",input_flat_size, " tried conv size",conv_dim)
+            output_shape = [input_shape[0], features, conv_dim, conv_dim]
+            # print('adding convreshape node for', input_shape, "num features:",features, "out shape:",output_shape)
 
-            output_shape = [input_shape[0], features, conv_dim,conv_dim]
-            #print('adding convreshape node for', input_shape, "num features:",features, "out shape:",output_shape)
-
-        if(self.is_linear()):
+        if (self.is_linear()):
             features = input_flat_size
             output_shape = [input_shape[0], input_flat_size]
-            #print('adding linear reshape node for', input_shape, "num features:",features, "out shape:",output_shape)
+            # print('adding linear reshape node for', input_shape, "num features:",features, "out shape:",output_shape)
 
         self.create_layer(features)
         if input_shape == output_shape:
             return
-        #print("using reshape node from",input_shape,"to",output_shape)
+        # print("using reshape node from",input_shape,"to",output_shape)
 
         self.reshape = ReshapeNode(input_shape, output_shape)
 
@@ -300,9 +298,9 @@ class ModuleNode(Node):
     def get_layer_type_name(self):
         layer_type = self.module_NEAT_node.layer_type
 
-        extras = "\nout features:" +repr(self.out_features)
-        extras += "\n"+repr(self.regularisation).split("(")[0] if not (self.regularisation is None) else ""
-        extras+= "\n"+repr(self.reduction).split("(")[0] if not (self.reduction is None) else ""
+        extras = "\nout features:" + repr(self.out_features)
+        extras += "\n" + repr(self.regularisation).split("(")[0] if not (self.regularisation is None) else ""
+        extras += "\n" + repr(self.reduction).split("(")[0] if not (self.reduction is None) else ""
 
         if layer_type() == nn.Conv2d:
             return "Conv" + extras
@@ -351,7 +349,8 @@ class ModuleNode(Node):
         elif type(deep_layer) == nn.Linear:
             return self.get_out_features(deep_layer=deep_layer)
         else:
-            print("have not implemented layer type",deep_layer)
+            print("have not implemented layer type", deep_layer)
+
     def is_linear(self):
         return self.module_NEAT_node.layer_type.get_value() == nn.Linear
 
@@ -366,4 +365,11 @@ class ModuleNode(Node):
         elif layer_type() == nn.Linear:
             return Utils.get_flat_number(input)
         else:
-            print("layer type",layer_type(),"not implemented")
+            print("layer type", layer_type(), "not implemented")
+
+    def report_fitness(self,*fitnesses):
+        if self.fitness_values is None or not self.fitness_values:
+            self.fitness_values = [0 for _ in fitnesses]
+
+        for i, fitness in enumerate(fitnesses):
+            self.fitness_values[i] = fitness

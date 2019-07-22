@@ -1,9 +1,13 @@
 import src.Config.NeatProperties as Props
-from src.NEAT.Population import Population, single_objective_rank, cdn_rank
+from src.NEAT.Population import Population
+from src.NEAT.PopulationRanking import single_objective_rank, cdn_rank, nsga_rank
 from src.NeuralNetwork import Evaluator
 from src.CoDeepNEAT import PopulationInitialiser as PopInit
 from src.Analysis import RuntimeAnalysis
 from src.Config import Config
+from data import DataManager
+from src.NeuralNetwork.ParetoPopulation import ParetoPopulation
+import pickle
 
 import torch
 import random
@@ -12,14 +16,16 @@ import math
 
 
 class Generation:
+
     def __init__(self):
-        self.speciesNumbers = []
         self.module_population, self.blueprint_population, self.da_population = None, None, None
         self.initialise_populations()
+        self.generation_number = -1
+        self.pareto_population = ParetoPopulation()
 
     def initialise_populations(self):
         # Picking the ranking function
-        rank_fn = single_objective_rank if Config.second_objective == '' else cdn_rank
+        rank_fn = single_objective_rank if Config.second_objective == '' else (cdn_rank if Config.moo_optimiser == "cdn" else nsga_rank())
 
         self.module_population = Population(PopInit.initialise_modules(),
                                             rank_fn,
@@ -47,6 +53,8 @@ class Generation:
 
     def step(self):
         """Runs CDN for one generation - must be called after fitness evaluation"""
+        self.pareto_population.update_pareto_front()
+        #self.pareto_population.plot_fitnesses()
         self.module_population.step()
         for blueprint_individual in self.blueprint_population.individuals:
             blueprint_individual.reset_number_of_module_species(self.module_population.get_num_species())
@@ -59,7 +67,10 @@ class Generation:
         for module_individual in self.module_population.individuals:
             module_individual.end_step()  # this also sets fitness to zero
 
+        DataManager.save_generation_state(self)
+
     def evaluate(self, generation_number):
+        self.generation_number = generation_number
         best_acc, best_second, best_third = float('-inf'), float('-inf'), float('-inf')
         best_bp, best_bp_genome = None, None
         accuracies, second_objective_values, third_objective_values = [], [], []
@@ -68,7 +79,7 @@ class Generation:
         random.shuffle(blueprints)
         blueprints = blueprints[:Props.INDIVIDUALS_TO_EVAL]
 
-        if Config.device.type == 'cpu' or Config.num_gpus <= 1:
+        if not Config.is_parallel():
             evaluations = []
             for bp in blueprints:
                 evaluations.append(self.evaluate_blueprint(bp))
@@ -120,10 +131,7 @@ class Generation:
 
     def evaluate_blueprint(self, blueprint_individual):
         try:
-            gpu = 'cuda:'
-            gpu += '0' if Config.num_gpus <= 1 else str(int(mp.current_process().name[-1]) % Config.num_gpus)
-
-            device = Config.device if Config.device.type == 'cpu' else torch.device(gpu)
+            device = Config.get_device()
             inputs, _ = Evaluator.sample_data(device)
 
             blueprint = blueprint_individual.to_blueprint()
@@ -133,7 +141,7 @@ class Generation:
                 raise Exception("None module graph produced from blueprint")
             try:
                 # print("using infeatures = ",module_graph.get_first_feature_count(inputs))
-                net = module_graph.to_nn(in_features=module_graph.get_first_feature_count(inputs))
+                net = module_graph.to_nn(in_features=module_graph.get_first_feature_count(inputs)).to(device)
             except Exception as e:
                 if Config.save_failed_graphs:
                     module_graph.plot_tree_with_graphvis("module graph which failed to parse to nn")
@@ -171,6 +179,8 @@ class Generation:
                 results = acc, second_objective_value, third_objective_value
 
             blueprint_individual.report_fitness(*results)
+            module_graph.report_fitness(*results)
+            self.pareto_population.queue_candidate(module_graph)
             for module_individual in blueprint_individual.modules_used:
                 module_individual.report_fitness(*results)
 
@@ -185,7 +195,3 @@ class Generation:
             print('Blueprint ran with errors, marking as defective\n', blueprint_individual)
             print(e)
             return None
-
-
-if __name__ == '__main__':
-    pass
