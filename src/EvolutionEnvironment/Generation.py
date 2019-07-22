@@ -9,9 +9,6 @@ import multiprocessing as mp
 
 
 class Generation:
-    numBlueprints = 1
-    numModules = 5
-
     def __init__(self):
         self.speciesNumbers = []
         self.module_population, self.blueprint_population, self.da_population = None, None, None
@@ -78,8 +75,15 @@ class Generation:
         print('values: ', results_dict.values())
         print('there are', len(self.blueprint_population), 'blueprints')
 
-        for key, fitness in results_dict.items():
-            self.blueprint_population[key % len(self.blueprint_population)].report_fitness(*fitness)
+        for bp_key, (fitness, bp) in results_dict.items():
+            self.blueprint_population[bp_key % len(self.blueprint_population)].report_fitness(*fitness)
+            if bp.da_scheme_index != -1:
+                self.da_population[bp.da_scheme_index].report_fitness(*fitness)
+            for species_index, member_index in bp.modules_used_index:
+                self.module_population.species[species_index].members[member_index].report_fitness(*fitness)
+
+        for module in self.module_population:
+            print('mfv', module.fitness_values)
 
         self._bp_index.value = 0
 
@@ -102,7 +106,7 @@ class Generation:
                 module_graph, blueprint_individual, results = self.evaluate_blueprint(blueprint_individual, inputs)
                 print('Eval done acc:', results[0], 'on proc:', mp.current_process().name, '\n\n')
                 print('reported fitness of bp', curr_index, 'as', results)
-                result_dict[curr_index] = results
+                result_dict[curr_index] = results, blueprint_individual
 
             except Exception as e:
                 blueprint_individual.defective = True
@@ -122,7 +126,6 @@ class Generation:
 
         try:
             net = module_graph.to_nn(in_features=module_graph.get_first_feature_count(inputs)).to(Config.get_device())
-            # net.share_memory()
         except Exception as e:
             if Config.save_failed_graphs:
                 module_graph.plot_tree_with_graphvis("module graph which failed to parse to nn")
