@@ -22,6 +22,9 @@ class Species:
     def __repr__(self):
         return "Species age:" + repr(self.age) + " type: " + repr(type(self.members[0]))
 
+    def __getitem__(self, item):
+        return self.members[item]
+
     def add(self, individual):
         self.members.append(individual)
         """removed becasue speciation redifines species borders  -so allowing more individuals in is acceptable"""
@@ -62,8 +65,9 @@ class Species:
 
             if parent1 == parent2:
                 if not parent1.validate():
-                    print("invalid parent trav dict:",parent1._get_traversal_dictionary(exclude_disabled_connection=True))
-                    raise Exception("invalid parent in species members list",parent1)
+                    print("invalid parent trav dict:",
+                          parent1._get_traversal_dictionary(exclude_disabled_connection=True))
+                    raise Exception("invalid parent in species members list", parent1)
 
             best = parent1 if parent1 < parent2 else parent2
             worst = parent1 if parent1 > parent2 else parent2
@@ -78,7 +82,9 @@ class Species:
 
             tries -= 1
             if tries == 0:
-                raise Exception("Error: Species " + repr(self) + " failed to create enough healthy offspring. "+repr(len(children))+ "/" + repr(self.next_species_size -len(elite) )  + " num members="+ repr(len(self.members)))
+                raise Exception("Error: Species " + repr(self) + " failed to create enough healthy offspring. " + repr(
+                    len(children)) + "/" + repr(self.next_species_size - len(elite)) + " num members=" + repr(
+                    len(self.members)))
 
         children.extend(elite)
         self.members = children
@@ -111,9 +117,6 @@ class Species:
     def sample_individual(self):
         index = random.randint(0, len(self.members) - 1)
         return self.members[index], index
-
-    def get_individual_by_index(self, index):
-        return self.members[index]
 
     def get_species_type(self):
         if len(self.members) > 0:

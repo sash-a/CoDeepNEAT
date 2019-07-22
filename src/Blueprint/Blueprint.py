@@ -42,13 +42,15 @@ class BlueprintNode(Node):
             # to be added as child to existing module construct
             try:
                 if self.species_number in module_index_map:
-                    input_module_individual = generation.module_population.species[
-                        self.species_number].get_individual_by_index(module_index_map[self.species_number])
-                    index = None
+                    index = module_index_map[self.species_number]
+
+                    input_module_individual = generation.module_population.species[self.species_number][index]
+                    print('found same species', self.species_number, index)
                 else:
                     input_module_individual, index = \
                         generation.module_population.species[self.species_number].sample_individual()
                     module_index_map[self.species_number] = index
+                    print('new mod used', self.species_number, index)
 
             except Exception:
                 raise Exception("failed to sample indv from species " + repr(

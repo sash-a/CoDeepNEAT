@@ -20,7 +20,7 @@ moo_optimiser = "cdn"  # cdn/nsga
 data_path = '../../data'
 
 test_in_run = False
-dummy_run = True
+dummy_run = False
 protect_parsing_from_errors = False
 
 number_of_epochs_per_evaluation = 1
@@ -30,13 +30,15 @@ print_best_graphs = False
 print_best_graph_every_n_generations = 5
 save_failed_graphs = True
 
+interleaving_check = True
+
 
 def get_device():
     """Used to obtain the correct device taking into account multiple gpus"""
 
     gpu = 'cuda:'
     gpu += '0' if num_gpus <= 1 else mp.current_process().name
-    return torch.device('cuda:0')
+    # return torch.device('cuda:0')
     return torch.device('cpu') if device == 'cpu' else torch.device(gpu)
 
 

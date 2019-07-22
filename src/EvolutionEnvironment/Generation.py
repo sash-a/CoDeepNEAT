@@ -80,7 +80,8 @@ class Generation:
             if bp.da_scheme_index != -1:
                 self.da_population[bp.da_scheme_index].report_fitness(*fitness)
             for species_index, member_index in bp.modules_used_index:
-                self.module_population.species[species_index].members[member_index].report_fitness(*fitness)
+                print('spc, mem:', species_index, member_index)
+                self.module_population.species[species_index][member_index].report_fitness(*fitness)
 
         for module in self.module_population:
             print('mfv', module.fitness_values)
@@ -160,12 +161,6 @@ class Generation:
             results = acc, second_objective_value
         else:
             results = acc, second_objective_value, third_objective_value
-
-        # blueprint_individual.report_fitness(*results)
-        # for module_individual in blueprint_individual.modules_used:
-        #     module_individual.report_fitness(*results)
-        #
-        # blueprint_individual.da_scheme.report_fitness(*results)
 
         return module_graph, blueprint_individual, results
 
