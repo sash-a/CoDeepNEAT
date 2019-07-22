@@ -43,7 +43,8 @@ class Generation:
                                                2,
                                                Props.BP_TARGET_NUM_SPECIES)
 
-        self.da_population = Population(PopInit.initialise_da(),
+        if Config.evolve_data_augmentations:
+            self.da_population = Population(PopInit.initialise_da(),
                                         rank_fn,
                                         PopInit.da_initial_mutations(),
                                         Props.DA_POP_SIZE,
@@ -59,7 +60,9 @@ class Generation:
         for blueprint_individual in self.blueprint_population.individuals:
             blueprint_individual.reset_number_of_module_species(self.module_population.get_num_species())
         self.blueprint_population.step()
-        self.da_population.step()
+
+        if Config.evolve_data_augmentations:
+            self.da_population.step()
 
         for blueprint_individual in self.blueprint_population.individuals:
             blueprint_individual.end_step()
@@ -151,15 +154,20 @@ class Generation:
 
             if Config.dummy_run:
                 acc = hash(net)
-                da_indv = blueprint_individual.pick_da_scheme(self.da_population)
-                da_scheme = da_indv.to_phenotype()
+                if Config.evolve_data_augmentations:
+                    da_indv = blueprint_individual.pick_da_scheme(self.da_population)
+                    da_scheme = da_indv.to_phenotype()
+                else:
+                    da_scheme = None
             else:
-                # TODO if DA on
-                da_indv = blueprint_individual.pick_da_scheme(self.da_population)
-                da_scheme = da_indv.to_phenotype()
+                if Config.evolve_data_augmentations:
+                    da_indv = blueprint_individual.pick_da_scheme(self.da_population)
+                    da_scheme = da_indv.to_phenotype()
+                else:
+                    da_scheme = None
                 # print("got da scheme from blueprint", da_scheme, "indv:", da_scheme)
 
-                acc = Evaluator.evaluate(net, Config.number_of_epochs_per_evaluation, 256, da_scheme, device)
+                acc = Evaluator.evaluate(net, Config.number_of_epochs_per_evaluation, 256,augmentor= da_scheme,device= device)
 
             second_objective_value = None
             third_objective_value = None
@@ -184,7 +192,8 @@ class Generation:
             for module_individual in blueprint_individual.modules_used:
                 module_individual.report_fitness(*results)
 
-            blueprint_individual.da_scheme.report_fitness(*results)
+            if Config.evolve_data_augmentations:
+                blueprint_individual.da_scheme.report_fitness(*results)
 
             return module_graph, blueprint_individual, results
         except Exception as e:

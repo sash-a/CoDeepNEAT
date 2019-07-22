@@ -24,8 +24,15 @@ Acts as the driver of current generation
 
 def main():
     parse_args()
-    #   continue_evolution_from_save_state("test_run")
-    run_evolution_from_scratch()
+    if Config.continue_from_last_run:
+        try:
+            continue_evolution_from_save_state(Config.run_name)
+        except Exception as e:
+            print(e)
+            print("could not load save state for run name:",Config.run_name, "starting from scratch instead")
+            run_evolution_from_scratch()
+    else:
+        run_evolution_from_scratch()
 
 def run_evolution_from_scratch():
     evolve_generation(Generation())
@@ -43,7 +50,7 @@ def evolve_generation(generation):
 
     start_time = time.time()
 
-    for i in range(start_gen,Config.num_generations):
+    for i in range(start_gen, Config.max_num_generations):
         print('Running gen', i)
         gen_start_time = time.time()
         # current_generation.evaluate(i)
@@ -69,7 +76,7 @@ def parse_args():
                         help='The number of GPUs available, make sure that --device is not cpu or leave it blank')
     parser.add_argument('--n-workers', type=int, nargs='?', default=Config.num_workers,
                         help='Number of workers to load each batch')
-    parser.add_argument('-n', '--ngen', type=int, nargs='?', default=Config.num_generations,
+    parser.add_argument('-n', '--ngen', type=int, nargs='?', default=Config.max_num_generations,
                         help='Max number of generations to run CoDeepNEAT')
     parser.add_argument('-s', '--second', type=str,
                         nargs='*', default=(Config.second_objective, 'lt'),
@@ -97,7 +104,7 @@ def parse_args():
         Config.dataset = args.dataset
         Config.device = args.device
         Config.num_workers = args.n_workers
-        Config.num_generations = args.ngen
+        Config.max_num_generations = args.ngen
         Config.num_gpus = args.n_gpus
         if len(args.second) == 2:
             Config.second_objective, second_obj_comp = args.second
