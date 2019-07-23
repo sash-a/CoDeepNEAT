@@ -84,10 +84,16 @@ def run_model_over_different_batch_numbers(num_epochs, model_type):
     return accuracies
 
 def test_all_networks(num_epochs):
+    plot_points = []
 
     for network_type in networks:
         accuracies = run_model_over_different_batch_numbers(num_epochs,network_type)
-        plot_accuracies(accuracies, network_type)
+        plot_model_accuracies(accuracies, network_type)
+        plot_points.append((accuracies,network_type))
+
+    plot_all_accuracies(plot_points)
+
+
 
 def test_max_accuracy_of_networks(num_epochs):
     for network_type in networks:
@@ -101,12 +107,27 @@ def test_max_accuracy_of_networks(num_epochs):
         print(get_name_from_class(network_type),"max acc:",accuracy)
 
 
-def plot_accuracies(accuracies, model_type):
+def plot_model_accuracies(accuracies, model_type):
     plt.plot([list(x)[0] for x in accuracies], [list(x)[1] for x in accuracies])
     plt.title(get_name_from_class(model_type))
     plt.xlabel("% of full training set")
     plt.ylabel("% classification accuracy")
+    plt.xlim([0,100])
+    plt.ylim([0,100])
     plt.show()
+
+def plot_all_accuracies(values):
+    for model_values in values:
+        accuracies, model_type = model_values
+        name = get_name_from_class(model_type)
+        plt.plot([list(x)[0] for x in accuracies], [list(x)[1] for x in accuracies], label = name)
+        plt.xlabel("% of full training set")
+        plt.ylabel("% classification accuracy")
+    plt.xlim([0, 100])
+    plt.ylim([0, 100])
+
+    plt.show()
+
 
 def get_name_from_class(model_class):
     return repr(model_class).split(".")[-1].split("'")[0]
@@ -115,7 +136,7 @@ def get_name_from_class(model_class):
 total_batches = get_num_batches()
 
 def run_tests():
-    num_epochs = 10
+    num_epochs = 15
     test_max_accuracy_of_networks(num_epochs)
     test_all_networks(num_epochs)
 
