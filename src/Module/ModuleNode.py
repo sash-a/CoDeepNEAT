@@ -49,7 +49,7 @@ class ModuleNode(Node):
 
     def generate_module_node_from_gene(self):
         # print("generating module node from gene:", self.module_NEAT_node)
-        self.out_features = self.module_NEAT_node.out_features()
+        self.out_features = self.module_NEAT_node.layer_type.get_sub_value("out_features")
         self.activation = self.module_NEAT_node.activation()
 
         neat_regularisation = self.module_NEAT_node.layer_type.get_sub_value("regularisation", return_mutagen=True)
