@@ -5,19 +5,21 @@ from src.NeuralNetwork.Evaluator import load_data
 import math
 import matplotlib.pyplot as plt
 
-trainloader,testloader = load_data(dataset="cifar10")
 
 import torch.nn as nn
 import torch.optim as optim
 
 criterion = nn.CrossEntropyLoss()
 networks = [Net.BatchNormNet, Net.DropOutNet ,Net.StandardNet]
-
+total_batches = None
 
 def test_model(model):
     model.eval()
     correct = 0
     total = 0
+
+    trainloader, testloader = load_data(dataset="cifar10")
+
     with torch.no_grad():
         for data in testloader:
             images, labels = data
@@ -33,10 +35,8 @@ def test_model(model):
 
     return accuracy
 
-def get_num_batches():
-    return len(trainloader)
-
 def run_epoch_for_n_batches(model,optimiser, num_batches = -1):
+    trainloader, testloader = load_data(dataset="cifar10")
 
     for i, data in enumerate(trainloader, 0):
         # get the inputs; data is a list of [inputs, labels]
@@ -88,7 +88,7 @@ def test_all_networks(num_epochs):
 
     for network_type in networks:
         accuracies = run_model_over_different_batch_numbers(num_epochs,network_type)
-        plot_model_accuracies(accuracies, network_type)
+        #plot_model_accuracies(accuracies, network_type)
         plot_points.append((accuracies,network_type))
 
     plot_all_accuracies(plot_points)
@@ -125,7 +125,8 @@ def plot_all_accuracies(values):
         plt.ylabel("% classification accuracy")
     plt.xlim([0, 100])
     plt.ylim([0, 100])
-
+    handles, labels = plt.gca().get_legend_handles_labels()
+    plt.gca().legend(handles,labels)
     plt.show()
 
 
@@ -133,11 +134,12 @@ def get_name_from_class(model_class):
     return repr(model_class).split(".")[-1].split("'")[0]
 
 
-total_batches = get_num_batches()
-
 def run_tests():
     num_epochs = 15
-    test_max_accuracy_of_networks(num_epochs)
+    global total_batches
+    trainloader, testloader = load_data(dataset="cifar10")
+    total_batches = len(trainloader)
+    #test_max_accuracy_of_networks(num_epochs)
     test_all_networks(num_epochs)
 
 if __name__ == "__main__":
