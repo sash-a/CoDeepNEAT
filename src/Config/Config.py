@@ -35,11 +35,11 @@ evolve_data_augmentations = False
 
 
 test_in_run = False
-dummy_run = True
+dummy_run = False
 protect_parsing_from_errors = False
 save_best_graphs = True
-print_best_graphs = True
-print_best_graph_every_n_generations = 1
+print_best_graphs = False
+print_best_graph_every_n_generations = 5
 save_failed_graphs = True
 
 
