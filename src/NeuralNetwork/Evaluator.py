@@ -167,28 +167,28 @@ def load_data(batch_size=64, dataset = ""):
     elif dataset == 'fassion_mnist':
         train_loader = DataLoader(
             datasets.FashionMNIST(data_path,
-                                  train=True,
+                                  train=True, download=True,
                                   transform=image_transform),
             batch_size=batch_size, shuffle=True, **data_loader_args
         )
 
         test_loader = DataLoader(
             datasets.FashionMNIST(data_path,
-                                  train=False,
+                                  train=False, download=True,
                                   transform=image_transform),
             batch_size=batch_size, shuffle=True, **data_loader_args
         )
     elif dataset == 'cifar10':
         train_loader = DataLoader(
             datasets.CIFAR10(data_path,
-                             train=True,
+                             train=True, download=True,
                              transform=image_transform),
             batch_size=batch_size, shuffle=True, **data_loader_args
         )
 
         test_loader = DataLoader(
             datasets.CIFAR10(data_path,
-                             train=False,
+                             train=False, download=True,
                              transform=image_transform),
             batch_size=batch_size, shuffle=True, **data_loader_args
         )
