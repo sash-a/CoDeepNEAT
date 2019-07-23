@@ -5,7 +5,6 @@ from src.NeuralNetwork.Evaluator import load_data
 import math
 import matplotlib.pyplot as plt
 
-
 import torch.nn as nn
 import torch.optim as optim
 

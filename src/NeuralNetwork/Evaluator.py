@@ -138,15 +138,17 @@ def sample_data(device, batch_size=64):
         return inputs.to(device), targets.to(device)
 
 
-def load_data(batch_size=64, dataset = ""):
+def load_data(batch_size=64, dataset=""):
     data_loader_args = {'num_workers': Config.num_workers, 'pin_memory': True if Config.device != 'cpu' else False}
     data_path = DataManager.get_Datasets_folder()
     image_transform = transforms.Compose([
-                                 transforms.ToTensor(),
-                                 transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-                             ])
+        transforms.ToTensor(),
+        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+    ])
 
-    #print("loading data from:",data_path)
+    download = False
+
+    # print("loading data from:",data_path)
     if dataset == "":
         dataset = Config.dataset.lower()
 
@@ -154,41 +156,41 @@ def load_data(batch_size=64, dataset = ""):
         train_loader = DataLoader(
             datasets.MNIST(data_path,
                            train=True,
-                           download=True,
+                           download=download,
                            transform=image_transform),
             batch_size=batch_size, shuffle=True, **data_loader_args)
 
         test_loader = DataLoader(
             datasets.MNIST(data_path,
                            train=False,
-                           download=True,
+                           download=download,
                            transform=image_transform),
             batch_size=batch_size, shuffle=True, **data_loader_args)
     elif dataset == 'fassion_mnist':
         train_loader = DataLoader(
             datasets.FashionMNIST(data_path,
-                                  train=True, download=True,
+                                  train=True, download=download,
                                   transform=image_transform),
             batch_size=batch_size, shuffle=True, **data_loader_args
         )
 
         test_loader = DataLoader(
             datasets.FashionMNIST(data_path,
-                                  train=False, download=True,
+                                  train=False, download=download,
                                   transform=image_transform),
             batch_size=batch_size, shuffle=True, **data_loader_args
         )
     elif dataset == 'cifar10':
         train_loader = DataLoader(
             datasets.CIFAR10(data_path,
-                             train=True, download=True,
+                             train=True, download=download,
                              transform=image_transform),
             batch_size=batch_size, shuffle=True, **data_loader_args
         )
 
         test_loader = DataLoader(
             datasets.CIFAR10(data_path,
-                             train=False, download=True,
+                             train=False, download=download,
                              transform=image_transform),
             batch_size=batch_size, shuffle=True, **data_loader_args
         )
