@@ -2,13 +2,22 @@ from src.NEAT.Gene import ConnectionGene, NodeGene, NodeType
 from typing import Iterable
 import copy
 import random
+import sys
+from src.Config import Config
+import operator
 
 
 class Genome:
-    def __init__(self, connections: Iterable[ConnectionGene], nodes: Iterable[NodeGene], num_objectives=1):
+    def __init__(self, connections: Iterable[ConnectionGene], nodes: Iterable[NodeGene]):
         self.rank = 0  # The order of this genome when ranked by fitness values
         self.uses = 0  # The numbers of times this genome is used
-        self.fitness_values: list = []
+        self.fitness_values: list = [-(sys.maxsize - 1)]
+        if Config.second_objective != "":
+            self.fitness_values.append(
+                sys.maxsize if Config.second_objective_comparator == operator.lt else -(sys.maxsize - 1))
+        if Config.third_objective != "":
+            self.fitness_values.append(
+                sys.maxsize if Config.third_objective_comparator == operator.lt else -(sys.maxsize - 1))
 
         self._nodes = {}
         for node in nodes:
@@ -25,8 +34,8 @@ class Genome:
     def __lt__(self, other):
         return self.rank < other.rank
 
-    def __repr__(self):
-        return repr(list(self._connections.values()))
+    # def __repr__(self):
+    #     return repr(list(self._connections.values()))
 
     def get_unique_genes(self, other):
         return set(self._connections.keys()) - set(other._connections.keys())
@@ -77,7 +86,7 @@ class Genome:
     def mutate(self, mutation_record):
         raise NotImplemented('Mutation should be called not in base class')
 
-    def _mutate(self, mutation_record, add_node_chance, add_connection_chance):
+    def _mutate(self, mutation_record, add_node_chance, add_connection_chance, allow_connections_to_mutate=True):
         topology_changed = False
         if random.random() < add_node_chance:
             topology_changed = True
@@ -94,13 +103,14 @@ class Genome:
                                                       random.choice(list(self._nodes.values())))
                 tries -= 1
 
-        for connection in self._connections.values():
-            orig_conn = copy.deepcopy(connection)
-            mutated = connection.mutate()
-            topology_changed = topology_changed or mutated
-            # If mutation made the genome invalid then undo it
-            if mutated and not self.validate():
-                self._connections[orig_conn.id] = orig_conn
+        if allow_connections_to_mutate:
+            for connection in self._connections.values():
+                orig_conn = copy.deepcopy(connection)
+                mutated = connection.mutate()
+                topology_changed = topology_changed or mutated
+                # If mutation made the genome invalid then undo it
+                if mutated and not self.validate():
+                    self._connections[orig_conn.id] = orig_conn
 
         for node in self._nodes.values():
             node.mutate()
@@ -207,10 +217,10 @@ class Genome:
     def _validate_traversal(self, current_node_id, traversal_dictionary, nodes_visited):
         if self._nodes[current_node_id].is_output_node():
             return True
-        if self in nodes_visited:
+        if current_node_id in nodes_visited:
             return False
 
-        nodes_visited.add(self)
+        nodes_visited.add(current_node_id)
 
         found_output = False
         if current_node_id in traversal_dictionary:

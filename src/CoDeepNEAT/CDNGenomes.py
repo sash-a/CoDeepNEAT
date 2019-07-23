@@ -5,12 +5,15 @@ from src.Config import NeatProperties as Props
 from src.Module.ModuleNode import ModuleNode
 from src.NEAT.Genome import Genome
 
+from src.DataAugmentation.AugmentationScheme import AugmentationScheme
+
 
 class BlueprintGenome(Genome):
 
     def __init__(self, connections, nodes):
         super(BlueprintGenome, self).__init__(connections, nodes)
         self.modules_used = []  # holds ref to module individuals used - can multiple represent
+        self.da_scheme: DAGenome = None
 
     def to_blueprint(self):
         """
@@ -18,6 +21,14 @@ class BlueprintGenome(Genome):
         :return: the blueprint graph this individual represents
         """
         return super().to_phenotype(BlueprintNode)
+
+    def pick_da_scheme(self, da_population):
+        if self.da_scheme is not None and self.da_scheme in da_population.species[0]:
+            return self.da_scheme
+
+        # Assuming data augmentation only has 1 species
+        self.da_scheme, _ = da_population.species[0].sample_individual()
+        return self.da_scheme
 
     def mutate(self, mutation_record):
         return super()._mutate(mutation_record, Props.BP_NODE_MUTATION_CHANCE, Props.BP_CONN_MUTATION_CHANCE)
@@ -30,11 +41,11 @@ class BlueprintGenome(Genome):
         for node in self._nodes.values():
             node.set_species_upper_bound(num_module_species)
 
-    def __repr__(self):
-        return '------------------Blueprint structure------------------\n' + \
-               super().__repr__() + \
-               '\n------------------Modules used------------------\n' + \
-               repr([repr(module) for module in self.modules_used])
+    # def __repr__(self):
+    #     return '------------------Blueprint structure------------------\n' + \
+    #            super().__repr__() + \
+    #            '\n------------------Modules used------------------\n' + \
+    #            repr([repr(module) for module in self.modules_used])
 
 
 class ModuleGenome(Genome):
@@ -72,6 +83,27 @@ class DAGenome(Genome):
         """Only want linear graphs for data augmentation"""
         return True
 
-    def to_phenotype(self, Phenotype):
+    def mutate(self, mutation_record):
+        return super()._mutate(mutation_record, 0.1, 0, allow_connections_to_mutate=False)
+
+    def to_phenotype(self, Phenotype=None):
         # Construct DA scheme from nodes
-        pass
+        #print("parsing",self, "to da scheme")
+        da_scheme = AugmentationScheme(None, None)
+        traversal = self._get_traversal_dictionary()
+        curr_node = self.get_input_node().id
+
+        self._to_da_scheme(da_scheme, curr_node, traversal)
+
+        return da_scheme
+
+    def _to_da_scheme(self, da_scheme: AugmentationScheme, curr_node_id, traversal_dictionary):
+        if curr_node_id not in traversal_dictionary:
+            return
+
+        for node_id in traversal_dictionary[curr_node_id]:
+            da_name = self._nodes[node_id].da()
+            #print("found da",da_name)
+            if self._nodes[node_id].enabled():
+                da_scheme.add_augmentation(self._nodes[node_id].da)
+            self._to_da_scheme(da_scheme, node_id, traversal_dictionary)

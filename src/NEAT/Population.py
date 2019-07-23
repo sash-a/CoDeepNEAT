@@ -1,6 +1,10 @@
 from src.NEAT.Species import Species
 import src.Config.NeatProperties as Props
+from src.Config import Config
 import math
+import operator
+import sys
+
 
 class MutationRecords:
     def __init__(self, initial_mutations, current_max_node_id, current_max_conn_id):
@@ -58,6 +62,9 @@ class Population:
     def __iter__(self):
         return iter(self._get_all_individuals())
 
+    def __repr__(self):
+        return "population of type:" + repr(type(self.species[0].members[0]))
+
     def _get_all_individuals(self):
         individuals = []
         for species in self.species:
@@ -112,19 +119,21 @@ class Population:
             """still not right - must have jumped over the ideal value
                 adjust by base modification
             """
-            self.speciation_threshold = min(max(Props.SPECIES_DISTANCE_THRESH_MOD_MIN, self.speciation_threshold + (new_dir * Props.SPECIES_DISTANCE_THRESH_MOD_BASE)),
+            self.speciation_threshold = min(max(Props.SPECIES_DISTANCE_THRESH_MOD_MIN, self.speciation_threshold + (
+                    new_dir * Props.SPECIES_DISTANCE_THRESH_MOD_BASE)),
                                             Props.SPECIES_DISTANCE_THRESH_MOD_MAX)
         else:
             """still approaching the ideal value - exponentially speed up"""
-            self.speciation_threshold *= math.pow(2,new_dir)
+            self.speciation_threshold *= math.pow(2, new_dir)
 
-        #print("\tsetting new spec thresh to:",self.speciation_threshold,type(self._get_all_individuals()[0]), "num species:",len(self.species),"target:", self.target_num_species , "thresh:",self.speciation_threshold, "new dir:",new_dir, "old dir:",self.current_threshold_dir)
+        # print("\tsetting new spec thresh to:",self.speciation_threshold,type(self._get_all_individuals()[0]), "num species:",len(self.species),"target:", self.target_num_species , "thresh:",self.speciation_threshold, "new dir:",new_dir, "old dir:",self.current_threshold_dir)
         self.current_threshold_dir = new_dir
-
 
     def update_species_sizes(self):
         """should be called before species.step()"""
         population_average_rank = self.get_average_rank()
+        if population_average_rank == 0:
+            raise Exception("population", self, "has an average rank of 0")
 
         total_species_fitness = 0
         for species in self.species:
@@ -138,11 +147,14 @@ class Population:
 
     def get_average_rank(self):
         individuals = self._get_all_individuals()
+        if len(individuals) == 0:
+            raise Exception("no individuals in population", self, "cannot get average rank")
         return sum([indv.rank for indv in individuals]) / len(individuals)
 
     def step(self):
-        #print("stepping population of",type(self._get_all_individuals()[0]))
+        # print("stepping population of",type(self._get_all_individuals()[0]))
         self.rank_population_fn(self._get_all_individuals())
+        # print(self,"ranked individuals")
         self.update_species_sizes()
 
         for species in self.species:
@@ -153,34 +165,3 @@ class Population:
         self.speciate(individuals)
 
 
-def single_objective_rank(individuals):
-    individuals.sort(key=lambda indv: (0 if not indv.fitness_values else indv.fitness_values[0]), reverse=True)
-    for i, individual in enumerate(individuals):
-        individual.rank = i
-
-
-def cdn_pareto_front(individuals):
-    individuals.sort(key=lambda indv: indv.fitness_values[0], reverse=True)
-
-    pf = [individuals[0]]  # pareto front populated with best individual in primary objective
-
-    for indv in individuals[1:]:
-        if indv.fitness_values[1] > pf[-1].fitness_values[1]:
-            pf.append(indv)
-
-    return pf
-
-
-def cdn_rank(individuals):
-    for indv in individuals:
-        if not indv.fitness_values:
-            indv.fitness_values = [0, 0]  # TODO make sure second obj must be maximized
-
-    ranked_individuals = []
-    while individuals:
-        pf = cdn_pareto_front(individuals)
-        individuals = individuals[len(pf):]  # TODO does this drop an individual?
-        ranked_individuals.extend(pf)
-
-    for i, indv in enumerate(ranked_individuals):
-        indv.rank = i

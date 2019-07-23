@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt
 from src.Analysis import RuntimeAnalysis
 import time
 
+plot = None
+
 def plot_objectives_at_gen(generation):
     if len(RuntimeAnalysis.generations) <= generation:
         return
@@ -18,6 +20,7 @@ def plot_objectives_at_gen(generation):
         pass
 
 def plot_acc_vs_second(acc, second):
+    global plot
     plt.scatter(acc, second)
     plt.show()
 
@@ -36,5 +39,5 @@ def plot_generations():
 
 
 if __name__ == "__main__":
-    RuntimeAnalysis.load_date_from_log_file("test",summary=False)
+    RuntimeAnalysis.load_date_from_log_file("test_run",summary=False)
     plot_generations()

@@ -1,6 +1,5 @@
-from src.CoDeepNEAT.CDNNodes import ModulenNEATNode
-from src.CoDeepNEAT.CDNNodes import BlueprintNEATNode
-from src.CoDeepNEAT.CDNGenomes import BlueprintGenome, ModuleGenome
+from src.CoDeepNEAT.CDNNodes import BlueprintNEATNode, ModulenNEATNode, DANode
+from src.CoDeepNEAT.CDNGenomes import BlueprintGenome, ModuleGenome, DAGenome
 from src.NEAT.Gene import ConnectionGene, NodeType
 
 
@@ -17,9 +16,9 @@ def initialise_blueprints():
                        ConnectionGene(2, tri_nodes[1].id, tri_nodes[2].id)]
 
     pop = [
-            BlueprintGenome(linear_connections, linear_nodes),
-            BlueprintGenome(tri_connections, tri_nodes)
-        ]
+        BlueprintGenome(linear_connections, linear_nodes),
+        BlueprintGenome(tri_connections, tri_nodes)
+    ]
     for indv in pop:
         indv.calculate_heights()
 
@@ -53,3 +52,19 @@ def initialize_mutations():
             0: 2,  # node mutation on linear connection
             (0, 2): 1,  # connection mutation for above node mutation
             (2, 1): 2}  # connection mutation for above node mutation
+
+
+def initialise_da():
+    linear_nodes = [DANode(0, node_type=NodeType.INPUT),
+                    DANode(1, node_type=NodeType.OUTPUT)]
+
+    linear_connections = [ConnectionGene(0, linear_nodes[0].id, linear_nodes[1].id)]
+    pop = [DAGenome(linear_connections, linear_nodes)]
+    for indv in pop:
+        indv.calculate_heights()
+
+    return pop
+
+
+def da_initial_mutations():
+    return {(0, 1): 0}  # linear connection
