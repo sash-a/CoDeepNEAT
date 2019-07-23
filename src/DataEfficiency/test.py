@@ -15,6 +15,7 @@ networks = [Net.BatchNormNet, Net.DropOutNet ,Net.StandardNet]
 
 
 def test_model(model):
+    model.eval()
     correct = 0
     total = 0
     with torch.no_grad():
