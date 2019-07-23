@@ -35,6 +35,7 @@ class ModuleNode(Node):
 
         self.reduction = None
         self.regularisation = None
+        self.dropout = None
 
         self.reshape = None  # reshapes the input given before passing it through this nodes deeplayer
 
@@ -53,11 +54,12 @@ class ModuleNode(Node):
 
         neat_regularisation = self.module_NEAT_node.layer_type.get_sub_value("regularisation", return_mutagen=True)
         neat_reduction = self.module_NEAT_node.layer_type.get_sub_value("reduction", return_mutagen=True)
+        neat_dropout = self.module_NEAT_node.layer_type.get_sub_value("dropout", return_mutagen=True)
 
         if not (neat_regularisation() is None):
             self.regularisation = neat_regularisation()(self.out_features)
 
-        if not (neat_reduction() is None):
+        if not (neat_reduction is None) and not (neat_reduction() is None):
             if neat_reduction() == nn.MaxPool2d or neat_reduction() == nn.MaxPool1d:
                 pool_size = neat_reduction.get_sub_value("pool_size")
                 if neat_reduction() == nn.MaxPool2d:
@@ -66,6 +68,9 @@ class ModuleNode(Node):
                     self.reduction = nn.MaxPool1d(pool_size)
             else:
                 print("Error not implemented reduction ", neat_reduction())
+
+        if not (neat_dropout is None) and not (neat_dropout() is None):
+            self.dropout = neat_dropout()(neat_dropout.get_sub_value("dropout_factor"))
 
     def to_nn(self, in_features, print_graphs=False):
         self.create_layer(in_features)
@@ -204,6 +209,9 @@ class ModuleNode(Node):
             else:
                 print("Error: reduction", self.reduction, " is not implemented")
 
+        if self.dropout is not None:
+            output = self.dropout(output)
+
         # print("conv dim size of output:",list(output.size())[2])
         if self.is_linear() or (self.is_conv2d() and list(output.size())[2] > minimum_conv_dim):
             return self.activation(output)
@@ -301,6 +309,8 @@ class ModuleNode(Node):
         extras = "\nout features:" + repr(self.out_features)
         extras += "\n" + repr(self.regularisation).split("(")[0] if not (self.regularisation is None) else ""
         extras += "\n" + repr(self.reduction).split("(")[0] if not (self.reduction is None) else ""
+        extras += "\n" + repr(self.dropout).split("(")[0] if not (self.dropout is None) else ""
+
 
         if layer_type() == nn.Conv2d:
             return "Conv" + extras

@@ -82,10 +82,12 @@ class Generation:
         random.shuffle(blueprints)
         blueprints = blueprints[:Props.INDIVIDUALS_TO_EVAL]
 
+        sample_inputs, _ = Evaluator.sample_data(Config.get_device())
+
         if not Config.is_parallel():
             evaluations = []
             for bp in blueprints:
-                evaluations.append(self.evaluate_blueprint(bp))
+                evaluations.append(self.evaluate_blueprint(bp, sample_inputs))
         else:
             pool = mp.Pool(Config.num_gpus)
             evaluations = pool.map(self.evaluate_blueprint, (bp for bp in blueprints))
@@ -132,10 +134,9 @@ class Generation:
                                            third_objective_values=(
                                                third_objective_values if len(third_objective_values) > 0 else None))
 
-    def evaluate_blueprint(self, blueprint_individual):
+    def evaluate_blueprint(self, blueprint_individual, inputs):
         try:
             device = Config.get_device()
-            inputs, _ = Evaluator.sample_data(device)
 
             blueprint = blueprint_individual.to_blueprint()
             module_graph, sans_aggregators = blueprint.parseto_module_graph(self, return_graph_without_aggregators=True)

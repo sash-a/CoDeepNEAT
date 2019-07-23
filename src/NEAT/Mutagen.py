@@ -90,7 +90,7 @@ class Mutagen():
             if self.value_type == ValueType.CONTINUOUS:
                 if random.random() < 0.1:
                     """random reset"""
-                    new_current_value = random.random(self.start_range, self.end_range)
+                    new_current_value = random.uniform(self.start_range, self.end_range)
                 else:
                     deviation_fraction = math.pow(random.random(), 4)  * (1 if random.random()<0.5 else -1)
                     new_current_value = self.current_value + deviation_fraction * (self.end_range - self.start_range)
@@ -129,9 +129,13 @@ class Mutagen():
     def get_sub_value(self, sub_value_name, value=None, return_mutagen = False):
 
         if value is None:
-            mutagen =  self.sub_values[self.get_value()][sub_value_name]
+            mutagen =  self.sub_values[self.get_value()]
         else:
             mutagen =  self.sub_values[value][sub_value_name]
+        if sub_value_name in mutagen:
+           mutagen = mutagen[sub_value_name]
+        else:
+            return None
 
         if return_mutagen:
             return mutagen

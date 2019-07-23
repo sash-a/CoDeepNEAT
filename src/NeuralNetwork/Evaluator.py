@@ -133,7 +133,7 @@ def evaluate(model, epochs, batch_size=64, augmentor=None, device=Config.get_dev
 
 
 def sample_data(device, batch_size=64):
-    train_loader, test_loader = load_data(batch_size)
+    train_loader, test_loader = load_data(batch_size=batch_size)
     for batch_idx, (inputs, targets) in enumerate(train_loader):
         return inputs.to(device), targets.to(device)
 
@@ -148,23 +148,31 @@ def load_data(batch_size=64, dataset=""):
 
     download = False
 
-    # print("loading data from:",data_path)
     if dataset == "":
         dataset = Config.dataset.lower()
+
+    #print("loading(",dataset,")data from:",data_path)
+
 
     if dataset == 'mnist':
         train_loader = DataLoader(
             datasets.MNIST(data_path,
                            train=True,
                            download=download,
-                           transform=image_transform),
+                           transform=transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize((0.5,), (0.5,))
+    ])),
             batch_size=batch_size, shuffle=True, **data_loader_args)
 
         test_loader = DataLoader(
             datasets.MNIST(data_path,
                            train=False,
                            download=download,
-                           transform=image_transform),
+                           transform=transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize((0.5,), (0.5,))
+    ])),
             batch_size=batch_size, shuffle=True, **data_loader_args)
     elif dataset == 'fassion_mnist':
         train_loader = DataLoader(
