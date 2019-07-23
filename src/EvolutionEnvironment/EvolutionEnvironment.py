@@ -26,7 +26,7 @@ Acts as the driver of current generation
 
 def main():
     parse_args()
-    mp.set_start_method('fork')
+    mp.set_start_method('spawn', force=True)
 
     current_generation = Generation()
     RuntimeAnalysis.configure(log_file_name="test")
@@ -38,7 +38,8 @@ def main():
         # current_generation.evaluate(i)
         current_generation.evaluate()
         current_generation.step()
-        print('completed gen', i, 'in', (time.time() - gen_start_time), 'elapsed time:', (time.time() - start_time),'\n\n')
+        print('completed gen', i, 'in', (time.time() - gen_start_time), 'elapsed time:', (time.time() - start_time),
+              '\n\n')
 
 
 def parse_args():
@@ -113,5 +114,19 @@ def parse_args():
         print(Config.second_objective_comparator)
 
 
+def test(j):
+    for _ in range(10000):
+        print(j*j)
+
+
 if __name__ == '__main__':
+    procs = []
+    for i in range(Config.num_gpus):
+        procs.append(mp.Process(target=test, args=(i + 1,), name=str(i)))
+        procs[-1].start()
+        print('Started proc:', procs[-1])
+
+    for p in procs:
+        p.join()
+
     main()

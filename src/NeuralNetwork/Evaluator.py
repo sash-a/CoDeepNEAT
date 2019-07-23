@@ -92,6 +92,8 @@ def test(model, test_loader, device, print_acc=True):
     correct = 0
     with torch.no_grad():
         for inputs, targets in test_loader:
+            if Config.interleaving_check:
+                print('test loop on proc:', mp.current_process().name)
             inputs, targets = inputs.to(device), targets.to(device)
             output = model(inputs)
             if len(list(targets.size())) == 1:
