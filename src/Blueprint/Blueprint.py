@@ -43,18 +43,15 @@ class BlueprintNode(Node):
             try:
                 if self.species_number in module_index_map:
                     index = module_index_map[self.species_number]
-
                     input_module_individual = generation.module_population.species[self.species_number][index]
-                    print('found same species', self.species_number, index)
                 else:
                     input_module_individual, index = \
                         generation.module_population.species[self.species_number].sample_individual()
                     module_index_map[self.species_number] = index
-                    print('new mod used', self.species_number, index)
 
             except Exception:
-                raise Exception("failed to sample indv from species " + repr(
-                    self.species_number) + " num species available: " + repr(len(generation.module_population.species)))
+                raise Exception("failed to sample indv from species " + repr(self.species_number) +
+                                " num species available: " + repr(len(generation.module_population.species)))
 
             # Setting the module used and its index
             index = module_index_map[self.species_number] if index is None else index

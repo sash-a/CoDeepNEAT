@@ -35,7 +35,6 @@ def main():
     for i in range(Config.num_generations):
         print('Running gen', i)
         gen_start_time = time.time()
-        # current_generation.evaluate(i)
         current_generation.evaluate()
         current_generation.step()
         print('completed gen', i, 'in', (time.time() - gen_start_time), 'elapsed time:', (time.time() - start_time),
@@ -51,23 +50,20 @@ def parse_args():
                         help='Directory to store the training and test data')
     parser.add_argument('--dataset', type=str, nargs='?', default=Config.dataset,
                         choices=['mnist', 'fassion_mnist', 'cifar'], help='Dataset to train with')
-    parser.add_argument('-d', '--device', type=str, nargs='?', default=Config.device,
-                        help='Device to train on e.g cpu or cuda:0')
+    parser.add_argument('-d', '--device', type=str, nargs='?', default=Config.device, choices=['cpu', 'gpu'],
+                        help='Device to train on')
     parser.add_argument('--n-gpus', type=int, nargs='?', default=Config.num_gpus,
                         help='The number of GPUs available, make sure that --device is not cpu or leave it blank')
     parser.add_argument('--n-workers', type=int, nargs='?', default=Config.num_workers,
                         help='Number of workers to load each batch')
     parser.add_argument('-n', '--ngen', type=int, nargs='?', default=Config.num_generations,
                         help='Max number of generations to run CoDeepNEAT')
-    parser.add_argument('-s', '--second', type=str,
-                        nargs='*', default=(Config.second_objective, 'lt'),
+    parser.add_argument('-s', '--second', type=str, nargs='*', default=(Config.second_objective, 'lt'),
                         help='Second objective name and lt or gt to indicate if a lower or higher value is better')
-    parser.add_argument('-t', '--third', type=str, nargs='*',
-                        default=(Config.third_objective, 'lt'),
+    parser.add_argument('-t', '--third', type=str, nargs='*', default=(Config.third_objective, 'lt'),
                         help='Third objective name and lt or gt to indicate if a lower or higher value is better')
     parser.add_argument('-f', '--fake', action='store_true', help='Runs a dummy version, for testing')
-    parser.add_argument('--protect', action='store_false',
-                        help='Protects from possible graph parsing errors')  # TODO?git
+    parser.add_argument('--protect', action='store_true', help='Protects from possible graph parsing errors')
     parser.add_argument('-g', '--graph-save', action='store_true', help='Saves the best graphs in a generation')
 
     args = parser.parse_args()
@@ -111,22 +107,6 @@ def parse_args():
             else:
                 parser.error('Must have only lt or gt as the second arg of --third')
 
-        print(Config.second_objective_comparator)
-
-
-def test(j):
-    for _ in range(10000):
-        print(j*j)
-
 
 if __name__ == '__main__':
-    procs = []
-    for i in range(Config.num_gpus):
-        procs.append(mp.Process(target=test, args=(i + 1,), name=str(i)))
-        procs[-1].start()
-        print('Started proc:', procs[-1])
-
-    for p in procs:
-        p.join()
-
     main()

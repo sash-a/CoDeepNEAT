@@ -67,31 +67,28 @@ class Generation:
         for i in range(Config.num_gpus):
             procs.append(mp.Process(target=self._evaluate, args=(lock, results_dict), name=str(i)))
             procs[-1].start()
-            print('Started proc:', procs[-1])
 
         for proc in procs:
             proc.join()
 
-        print('values: ', results_dict.values())
-        print('there are', len(self.blueprint_population), 'blueprints')
-
+        bp_pop_size = len(self.blueprint_population)
         for bp_key, (fitness, bp) in results_dict.items():
-            self.blueprint_population[bp_key % len(self.blueprint_population)].report_fitness(*fitness)
+            if fitness == 'defective':
+                self.blueprint_population[bp_key % bp_pop_size].defective = True
+                continue
+
+            self.blueprint_population[bp_key % bp_pop_size].report_fitness(*fitness)
+
             if bp.da_scheme_index != -1:
                 self.da_population[bp.da_scheme_index].report_fitness(*fitness)
             for species_index, member_index in bp.modules_used_index:
-                print('spc, mem:', species_index, member_index)
                 self.module_population.species[species_index][member_index].report_fitness(*fitness)
-
-        for module in self.module_population:
-            print('mfv', module.fitness_values)
 
         self._bp_index.value = 0
 
     def _evaluate(self, lock, result_dict):
         inputs, targets = Evaluator.sample_data(Config.get_device())
 
-        # TODO make global
         blueprints = self.blueprint_population.individuals
         bp_pop_size = len(blueprints)
 
@@ -100,18 +97,13 @@ class Generation:
                 blueprint_individual = blueprints[self._bp_index.value % bp_pop_size]
                 self._bp_index.value += 1
                 curr_index = self._bp_index.value - 1
-                print('Proc:', mp.current_process().name, 'is evaluating bp', self._bp_index.value)
 
             # Evaluating individual
             try:
                 module_graph, blueprint_individual, results = self.evaluate_blueprint(blueprint_individual, inputs)
-                print('Eval done acc:', results[0], 'on proc:', mp.current_process().name, '\n\n')
-                print('reported fitness of bp', curr_index, 'as', results)
                 result_dict[curr_index] = results, blueprint_individual
-
             except Exception as e:
-                blueprint_individual.defective = True
-
+                result_dict[curr_index] = 'defective', False
                 if Config.protect_parsing_from_errors:
                     print('Blueprint ran with errors, marking as defective\n', blueprint_individual)
                     print(e)

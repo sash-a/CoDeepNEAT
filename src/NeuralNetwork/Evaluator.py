@@ -34,9 +34,6 @@ def train(model, train_loader, epoch, test_loader, device, augmentor=None, print
     s = time.time()
 
     for batch_idx, (inputs, targets) in enumerate(train_loader):
-        if Config.interleaving_check:
-            print('training loop on proc:', mp.current_process().name)
-
         if augmentor is not None:
             aug_inputs, aug_labels = BatchAugmentor.augment_batch(inputs.numpy(), targets.numpy(), augmentor)
         inputs, targets = inputs.to(device), targets.to(device)
@@ -92,8 +89,6 @@ def test(model, test_loader, device, print_acc=True):
     correct = 0
     with torch.no_grad():
         for inputs, targets in test_loader:
-            if Config.interleaving_check:
-                print('test loop on proc:', mp.current_process().name)
             inputs, targets = inputs.to(device), targets.to(device)
             output = model(inputs)
             if len(list(targets.size())) == 1:
