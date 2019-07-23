@@ -134,7 +134,7 @@ def get_name_from_class(model_class):
 
 
 def run_tests():
-    num_epochs = 15
+    num_epochs = 20
     global total_batches
     trainloader, testloader = load_data(dataset="cifar10")
     total_batches = len(trainloader)
