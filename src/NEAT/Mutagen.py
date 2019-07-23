@@ -18,6 +18,7 @@ class Mutagen():
         self.start_range = None
         self.print_when_mutating = print_when_mutating
         self.name = name
+        self.age = 0
 
         if (len(discreet_options) > 0):
             self.possible_values = discreet_options
@@ -58,7 +59,10 @@ class Mutagen():
         old_value = self()
         self.mutate_sub_mutagens()
         if self.print_when_mutating:
-            print("trying to mutate mutagen",self.name,"mutation chance:",self.mutation_chance)
+            #print("trying to mutate mutagen",self.name,"mutation chance:",self.mutation_chance)
+            pass
+
+        self.age +=1
 
         if random.random()<self.mutation_chance:
             if self.value_type == ValueType.DISCRETE:
@@ -91,6 +95,7 @@ class Mutagen():
                 if random.random() < 0.1:
                     """random reset"""
                     new_current_value = random.uniform(self.start_range, self.end_range)
+                    deviation_fraction = -1
                 else:
                     deviation_fraction = math.pow(random.random(), 4)  * (1 if random.random()<0.5 else -1)
                     new_current_value = self.current_value + deviation_fraction * (self.end_range - self.start_range)
@@ -104,6 +109,7 @@ class Mutagen():
 
 
             return not old_value == self()
+
 
     def mutate_sub_mutagens(self):
         #print("called mutate_sub_mutagens",self.sub_values)

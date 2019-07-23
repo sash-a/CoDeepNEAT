@@ -31,7 +31,6 @@ class DropOutNet(StandardNet):
         self.drop_out_1d = nn.Dropout(drop_out_factor)
 
     def forward(self, x):
-        x = self.drop_out_2d(x)
         x = self.pool(F.relu(self.conv1(x)))
         x = self.drop_out_2d(x)
         x = self.pool(F.relu(self.conv2(x)))
@@ -40,7 +39,6 @@ class DropOutNet(StandardNet):
         x = F.relu(self.fc1(x))
         x = self.drop_out_1d(x)
         x = F.relu(self.fc2(x))
-        x = self.drop_out_1d(x)
         x = self.fc3(x)
 
         return x

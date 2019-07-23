@@ -6,11 +6,11 @@ from src.Config import Config
 
 
 class ModuleNet(nn.Module):
-    def __init__(self, module_graph, lr=0.001, beta1=0.9, beta2=0.999, loss_fn=nn.MSELoss()):
+    def __init__(self, module_graph, beta1=0.9, beta2=0.999, loss_fn=nn.MSELoss()):
         super(ModuleNet, self).__init__()
         self.module_graph = module_graph
         self.loss_fn = loss_fn
-        self.lr = lr
+        self.lr = 0
         self.dimensionality_configured = False
         self.outputDimensionality = None
         # self.optimizer = optim.Adam(module_graph.get_parameters({}), lr=self.lr, betas=(beta1, beta2))
@@ -22,6 +22,9 @@ class ModuleNet(nn.Module):
         if self.dimensionality_configured:
             print("warning - trying to configure dimensionality multiple times on the same network")
             return
+        if self.lr == 0:
+            raise Exception('please set net learning rate before calling specify dims')
+
         # print("configuring output dims with in=", input_sample.size())
 
         # self.module_graph.add_reshape_node(list(input_sample.size()))

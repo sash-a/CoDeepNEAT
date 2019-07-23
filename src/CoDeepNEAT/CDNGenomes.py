@@ -4,6 +4,8 @@ from src.Blueprint.Blueprint import BlueprintNode
 from src.Config import NeatProperties as Props
 from src.Module.ModuleNode import ModuleNode
 from src.NEAT.Genome import Genome
+from src.NEAT.Mutagen import Mutagen,ValueType
+
 
 from src.DataAugmentation.AugmentationScheme import AugmentationScheme
 
@@ -14,6 +16,8 @@ class BlueprintGenome(Genome):
         super(BlueprintGenome, self).__init__(connections, nodes)
         self.modules_used = []  # holds ref to module individuals used - can multiple represent
         self.da_scheme: DAGenome = None
+        self.learning_rate = Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.001, start_range= 0.0003, end_range= 0.005, print_when_mutating=False)
+
 
     def to_blueprint(self):
         """
@@ -46,6 +50,9 @@ class BlueprintGenome(Genome):
     #            super().__repr__() + \
     #            '\n------------------Modules used------------------\n' + \
     #            repr([repr(module) for module in self.modules_used])
+
+    def get_all_mutagens(self):
+        return [self.learning_rate]
 
 
 class ModuleGenome(Genome):

@@ -118,7 +118,13 @@ class Genome:
         if topology_changed:
             self.calculate_heights()
 
+        for mutagen in self.get_all_mutagens():
+            mutagen.mutate()
+
         return self
+
+    def get_all_mutagens(self):
+        return []
 
     def _mutate_add_connection(self, mutation_record, node1, node2):
         # Validation

@@ -1,0 +1,36 @@
+BatchNormNet
+num_batches: 1 / 782 (0%) acc: 10.0 %
+num_batches: 80 / 782 (10%) acc: 51.46 %
+num_batches: 159 / 782 (20%) acc: 57.98 %
+num_batches: 238 / 782 (30%) acc: 58.38 %
+num_batches: 317 / 782 (41%) acc: 61.36 %
+num_batches: 396 / 782 (51%) acc: 63.8 %
+num_batches: 475 / 782 (61%) acc: 65.03 %
+num_batches: 554 / 782 (71%) acc: 63.84 %
+num_batches: 633 / 782 (81%) acc: 65.98 %
+num_batches: 712 / 782 (91%) acc: 66.92 %
+num_batches: 782 / 782 (100%) acc: 66.3 %
+DropOutNet
+num_batches: 1 / 782 (0%) acc: 8.82 %
+num_batches: 80 / 782 (10%) acc: 30.8 %
+num_batches: 159 / 782 (20%) acc: 38.87 %
+num_batches: 238 / 782 (30%) acc: 45.57 %
+num_batches: 317 / 782 (41%) acc: 50.34 %
+num_batches: 396 / 782 (51%) acc: 50.58 %
+num_batches: 475 / 782 (61%) acc: 53.55 %
+num_batches: 554 / 782 (71%) acc: 55.51 %
+num_batches: 633 / 782 (81%) acc: 57.33 %
+num_batches: 712 / 782 (91%) acc: 58.69 %
+num_batches: 782 / 782 (100%) acc: 58.2 %
+StandardNet
+num_batches: 1 / 782 (0%) acc: 10.01 %
+num_batches: 80 / 782 (10%) acc: 29.48 %
+num_batches: 159 / 782 (20%) acc: 40.64 %
+num_batches: 238 / 782 (30%) acc: 46.31 %
+num_batches: 317 / 782 (41%) acc: 50.88 %
+num_batches: 396 / 782 (51%) acc: 52.78 %
+num_batches: 475 / 782 (61%) acc: 53.71 %
+num_batches: 554 / 782 (71%) acc: 55.96 %
+num_batches: 633 / 782 (81%) acc: 57.64 %
+num_batches: 712 / 782 (91%) acc: 58.81 %
+num_batches: 782 / 782 (100%) acc: 61.02 %

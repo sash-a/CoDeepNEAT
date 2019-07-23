@@ -150,7 +150,7 @@ class Generation:
                 if Config.save_failed_graphs:
                     module_graph.plot_tree_with_graphvis("module graph which failed to parse to nn")
                 raise Exception("Error: failed to parse module graph into nn", e)
-
+            net.lr = blueprint_individual.learning_rate()
             net.specify_dimensionality(inputs)
 
             if Config.dummy_run:

@@ -1,11 +1,11 @@
 from src.NEAT.Gene import NodeGene, NodeType
-from src.NEAT.Mutagen import Mutagen, ValueType
 from src.NEAT.Gene import NodeGene, NodeType
 from src.NEAT.Mutagen import Mutagen
 from src.NEAT.Mutagen import ValueType
 import torch.nn as nn
 import torch.nn.functional as F
 import torch
+import random
 
 from src.DataAugmentation.AugmentationScheme import AugmentationScheme
 
@@ -19,16 +19,24 @@ class ModulenNEATNode(NodeGene):
                  conv_window_size=7, conv_stride=1, max_pool_size=2):
         super(ModulenNEATNode, self).__init__(id, node_type)
 
+        batch_norm_chance = 0.65
+        use_batch_norm = random.random() < batch_norm_chance
+
+        dropout_chance = 0.3
+        use_dropout = random.random() < dropout_chance
+
         self.activation = Mutagen(F.relu, F.leaky_relu, torch.sigmoid, F.relu6,
                                   discreet_value=activation, name="activation function")  # TODO try add in Selu, Elu
 
-        linear_submutagens = {"regularisation": Mutagen(None, nn.BatchNorm1d, discreet_value=nn.BatchNorm1d),
-                              "dropout": Mutagen(None, nn.Dropout, sub_mutagens={nn.Dropout: {
-                                  "dropout_factor": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.15,
-                                                            start_range=0, end_range=0.85)}}),
-                              "out_features": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=100,
-                                                      start_range=10,
-                                                      end_range=1024, name="num out features")}
+        linear_submutagens = {
+            "regularisation": Mutagen(None, nn.BatchNorm1d, discreet_value=nn.BatchNorm1d if use_batch_norm else None),
+            "dropout": Mutagen(None, nn.Dropout, sub_mutagens={nn.Dropout: {
+                "dropout_factor": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.15,
+                                          start_range=0, end_range=0.75)}},
+                               discreet_value=nn.Dropout if use_dropout else None),
+            "out_features": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=100,
+                                    start_range=10,
+                                    end_range=1024, name="num out features")}
 
         conv_submutagens = {"conv_window_size": Mutagen(3, 5, 7, discreet_value=conv_window_size),
                             "conv_stride": Mutagen(value_type=ValueType.WHOLE_NUMBERS,
@@ -40,11 +48,13 @@ class ModulenNEATNode(NodeGene):
                                                          value_type=ValueType.WHOLE_NUMBERS,
                                                          current_value=max_pool_size, start_range=2,
                                                          end_range=5)}}),
-                            "regularisation": Mutagen(None, nn.BatchNorm2d, discreet_value=nn.BatchNorm2d),
+                            "regularisation": Mutagen(None, nn.BatchNorm2d,
+                                                      discreet_value=nn.BatchNorm2d if use_batch_norm else None),
                             "dropout": Mutagen(None, nn.Dropout2d, sub_mutagens={
                                 nn.Dropout2d: {
                                     "dropout_factor": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.1,
-                                                              start_range=0, end_range=0.85)}}),
+                                                              start_range=0, end_range=0.75)}},
+                                               discreet_value=nn.Dropout2d if use_dropout else None),
                             "out_features": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=out_features,
                                                     start_range=1,
                                                     end_range=100, name="num out features")
@@ -75,6 +85,8 @@ class BlueprintNEATNode(NodeGene):
 
         self.species_number = Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=0, start_range=0,
                                       end_range=1, print_when_mutating=False, name="species number")
+
+
 
     def get_all_mutagens(self):
         # raise Exception("getting species no mutagen from blueprint neat node")

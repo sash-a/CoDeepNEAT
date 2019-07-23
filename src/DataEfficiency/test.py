@@ -9,7 +9,7 @@ import torch.nn as nn
 import torch.optim as optim
 
 criterion = nn.CrossEntropyLoss()
-networks = [Net.BatchNormNet, Net.DropOutNet ,Net.StandardNet]
+networks = [ Net.DropOutNet ,Net.StandardNet,Net.BatchNormNet]
 total_batches = None
 
 def test_model(model):
@@ -86,6 +86,7 @@ def test_all_networks(num_epochs):
     plot_points = []
 
     for network_type in networks:
+        print(get_name_from_class(network_type))
         accuracies = run_model_over_different_batch_numbers(num_epochs,network_type)
         #plot_model_accuracies(accuracies, network_type)
         plot_points.append((accuracies,network_type))
@@ -138,7 +139,7 @@ def run_tests():
     global total_batches
     trainloader, testloader = load_data(dataset="cifar10")
     total_batches = len(trainloader)
-    #test_max_accuracy_of_networks(num_epochs)
+    test_max_accuracy_of_networks(num_epochs)
     test_all_networks(num_epochs)
 
 if __name__ == "__main__":
