@@ -5,20 +5,13 @@ from src.NeuralNetwork.Evaluator import load_data
 import math
 import matplotlib.pyplot as plt
 
-
-transform = transforms.Compose(
-    [transforms.ToTensor(),
-     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
-
-path='../../data'
-trainloader,testloader = load_data("cifar10",path)
+trainloader,testloader = load_data(dataset="cifar10")
 
 import torch.nn as nn
 import torch.optim as optim
 
 criterion = nn.CrossEntropyLoss()
-
-networks = [Net.DropOutNet,Net.StandardNet]
+networks = [Net.BatchNormNet, Net.DropOutNet ,Net.StandardNet]
 
 
 def test_model(model):
@@ -27,6 +20,8 @@ def test_model(model):
     with torch.no_grad():
         for data in testloader:
             images, labels = data
+            images, labels = images.to(torch.device("cuda:0")), labels.to(torch.device("cuda:0"))
+
             outputs = model(images)
             _, predicted = torch.max(outputs.data, 1)
             total += labels.size(0)
@@ -38,17 +33,17 @@ def test_model(model):
     return accuracy
 
 def get_num_batches():
-    for i, data in enumerate(trainloader, 0):
-        pass
-    return i
+    return len(trainloader)
 
 def run_epoch_for_n_batches(model,optimiser, num_batches = -1):
+
     for i, data in enumerate(trainloader, 0):
         # get the inputs; data is a list of [inputs, labels]
         if i+2 >= num_batches > 0:
             return
-
+        #print("training",model)
         inputs, labels = data
+        inputs,labels = inputs.to(torch.device("cuda:0")), labels.to(torch.device("cuda:0"))
 
         # zero the parameter gradients
         optimiser.zero_grad()
@@ -67,7 +62,7 @@ def run_model_over_different_batch_numbers(num_epochs, model_type):
     accuracies = []#tuples of (%training_set, %accuracy)
     for i in range(11):
 
-        model = model_type()
+        model = model_type().to(torch.device("cuda:0"))
         optimiser = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
         for epoch in range(num_epochs):  # loop over the dataset multiple times
 
@@ -95,7 +90,7 @@ def test_all_networks(num_epochs):
 
 def test_max_accuracy_of_networks(num_epochs):
     for network_type in networks:
-        model = network_type()
+        model = network_type().to(torch.device("cuda:0"))
         optimiser = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
         for epoch in range(num_epochs):  # loop over the dataset multiple times
 
@@ -118,7 +113,10 @@ def get_name_from_class(model_class):
 
 total_batches = get_num_batches()
 
-if __name__ == "__main__":
-    num_epochs = 5
+def run_tests():
+    num_epochs = 10
     test_max_accuracy_of_networks(num_epochs)
     test_all_networks(num_epochs)
+
+if __name__ == "__main__":
+    run_tests()

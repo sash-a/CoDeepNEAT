@@ -138,71 +138,58 @@ def sample_data(device, batch_size=64):
         return inputs.to(device), targets.to(device)
 
 
-def load_data(batch_size=64):
+def load_data(batch_size=64, dataset = ""):
     data_loader_args = {'num_workers': Config.num_workers, 'pin_memory': True if Config.device != 'cpu' else False}
     data_path = DataManager.get_Datasets_folder()
+    image_transform = transforms.Compose([
+                                 transforms.ToTensor(),
+                                 transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+                             ])
+
     #print("loading data from:",data_path)
-    if Config.dataset.lower() == 'mnist':
+    if dataset == "":
+        dataset = Config.dataset.lower()
+
+    if dataset == 'mnist':
         train_loader = DataLoader(
             datasets.MNIST(data_path,
                            train=True,
                            download=True,
-                           transform=transforms.Compose([
-                               transforms.ToTensor(),
-                               transforms.Normalize((0.1307,), (0.3081,))
-                           ])),
+                           transform=image_transform),
             batch_size=batch_size, shuffle=True, **data_loader_args)
 
         test_loader = DataLoader(
             datasets.MNIST(data_path,
                            train=False,
                            download=True,
-                           transform=transforms.Compose([
-                               transforms.ToTensor(),
-                               transforms.Normalize((0.1307,), (0.3081,))
-                           ])),
+                           transform=image_transform),
             batch_size=batch_size, shuffle=True, **data_loader_args)
-
-    elif Config.dataset.lower() == 'fassion_mnist':
+    elif dataset == 'fassion_mnist':
         train_loader = DataLoader(
             datasets.FashionMNIST(data_path,
                                   train=True,
-                                  transform=transforms.Compose([
-                                      transforms.ToTensor(),
-                                      transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-                                  ])),
+                                  transform=image_transform),
             batch_size=batch_size, shuffle=True, **data_loader_args
         )
 
         test_loader = DataLoader(
             datasets.FashionMNIST(data_path,
                                   train=False,
-                                  transform=transforms.Compose([
-                                      transforms.ToTensor(),
-                                      transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-                                  ])),
+                                  transform=image_transform),
             batch_size=batch_size, shuffle=True, **data_loader_args
         )
-    elif Config.dataset == 'cifar':
+    elif dataset == 'cifar10':
         train_loader = DataLoader(
             datasets.CIFAR10(data_path,
                              train=True,
-                             transform=transforms.Compose([
-                                 transforms.ToTensor(),
-                                 transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-                                 # TODO resize?
-                             ])),
+                             transform=image_transform),
             batch_size=batch_size, shuffle=True, **data_loader_args
         )
 
         test_loader = DataLoader(
             datasets.CIFAR10(data_path,
                              train=False,
-                             transform=transforms.Compose([
-                                 transforms.ToTensor(),
-                                 transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-                                 # TODO resize?
-                             ])),
+                             transform=image_transform),
             batch_size=batch_size, shuffle=True, **data_loader_args
         )
     else:
