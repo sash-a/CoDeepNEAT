@@ -3,7 +3,8 @@
 **/venv/*
 **/env/*
 
-**/data/*
+**/Datasets/*
+**/runs/*
 **/results/*
 **/learner/*
 **/Logs/*

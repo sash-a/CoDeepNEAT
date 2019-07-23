@@ -29,3 +29,20 @@ class ParetoPopulation():
             pass
         else:
             raise Exception()
+
+    def plot_all_in_pareto_front(self):
+        for graph in self.pareto_front:
+            graph.plot_tree_with_graphvis(file="fitnesses="+repr(graph.fitness_values))
+
+
+    def get_highest_accuracy(self, print = False):
+        highest_acc = 0
+        best_graph = None
+
+        for graph in self.pareto_front:
+            if graph.fitness_values[0] > highest_acc:
+                highest_acc = graph.fitness_values[0]
+                best_graph = graph
+        if print:
+            best_graph.plot_tree_with_graphvis("best acc graph in pareto population - acc="+repr(highest_acc))
+        return highest_acc

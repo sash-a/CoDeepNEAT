@@ -41,6 +41,9 @@ def continue_evolution_from_save_state(run_name):
     evolve_generation(DataManager.load_generation_state(run_name))
 
 def evolve_generation(generation):
+    #generation.pareto_population.plot_fitnesses()
+    #generation.pareto_population.plot_all_in_pareto_front()
+    #print("highest acc so far:",generation.pareto_population.get_highest_accuracy(print=True))
     if generation.generation_number == -1:
         print("evolving gen from scratch")
         start_gen = 0

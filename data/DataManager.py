@@ -3,7 +3,7 @@ from src.Config import Config
 import pickle
 
 def create_runs_folder():
-    print("creating runs folder at:", get_run_folder())
+    #print("creating runs folder at:", get_run_folder())
 
     if not os.path.exists(get_Datasets_folder()):
         os.makedirs(get_Datasets_folder())
