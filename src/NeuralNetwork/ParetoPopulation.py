@@ -45,4 +45,5 @@ class ParetoPopulation():
                 best_graph = graph
         if print:
             best_graph.plot_tree_with_graphvis("best acc graph in pareto population - acc="+repr(highest_acc))
-        return highest_acc
+        return best_graph
+
