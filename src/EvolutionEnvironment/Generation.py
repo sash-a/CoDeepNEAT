@@ -63,7 +63,8 @@ class Generation:
             module_individual.end_step()  # this also sets fitness to zero
 
     def evaluate(self):
-        blueprints = self.blueprint_population.individuals * math.ceil(100 / len(self.blueprint_population.individuals))
+        blueprints = self.blueprint_population.individuals * math.ceil(
+            Props.INDIVIDUALS_TO_EVAL / len(self.blueprint_population.individuals))
         random.shuffle(blueprints)
         blueprints = blueprints[:Props.INDIVIDUALS_TO_EVAL]
 
@@ -81,7 +82,7 @@ class Generation:
                 self.blueprint_population[bp_key % bp_pop_size].defective = True
                 continue
 
-            evaluated_bp, fitness = evaluations
+            evaluated_bp, fitness = evaluation
             self.blueprint_population[bp_key % bp_pop_size].report_fitness(*fitness)
 
             if evaluated_bp.da_scheme_index != -1:
