@@ -105,10 +105,12 @@ class Generation:
 
             # TODO test this extensively (from Shane)
             evaluated_bp, fitness, module_graph = evaluation
-            print('mg', module_graph)
             blueprints[bp_key].report_fitness(*fitness)
 
-            if evaluated_bp.da_scheme_index != -1:
+            print('eval', evaluated_bp)
+            print('real', blueprints[bp_key])
+
+            if Config.evolve_data_augmentations and evaluated_bp.da_scheme_index != -1:
                 self.da_population[evaluated_bp.da_scheme_index].report_fitness(*fitness)
             for species_index, member_index in evaluated_bp.modules_used_index:
                 self.module_population.species[species_index][member_index].report_fitness(*fitness)
@@ -120,7 +122,6 @@ class Generation:
                 third_objective_values.append(fitness[2])
 
             self.pareto_population.queue_candidate(module_graph)
-
 
         RuntimeAnalysis.log_new_generation(accuracies, generation_number,
                                            second_objective_values=(
