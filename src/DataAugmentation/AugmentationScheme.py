@@ -325,7 +325,11 @@ class AugmentationScheme:
             # print('got', augmentation_name)
         else:
             args = [sub_values[x]() for x in sub_values]
-            self.augs.append(AugmentationScheme.Augmentations[augmentation_name](*args))
+            try:
+                self.augs.append(AugmentationScheme.Augmentations[augmentation_name](*args))
+            except Exception as e:
+                print(e)
+                raise Exception(augmentation_name + " failed to initialise with parameters" + repr(args))
             # print('got', augmentation_name, "args", args, "*args", *args)
 
         # print('related function: ', AugmentationScheme.Augmentations[augmentation_name])

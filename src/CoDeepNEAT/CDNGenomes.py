@@ -17,6 +17,8 @@ class BlueprintGenome(Genome):
         self.modules_used = []  # holds ref to module individuals used - can multiple represent
         self.da_scheme: DAGenome = None
         self.learning_rate = Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.001, start_range= 0.0003, end_range= 0.005, print_when_mutating=False)
+        self.beta1 = Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.9, start_range= 0.0003, end_range= 0.005)
+        self.beta2 = Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.999, start_range= 0.0003, end_range= 0.005)
 
 
     def to_blueprint(self):

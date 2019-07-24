@@ -10,7 +10,7 @@ class CustomOperation:
     # non-edges based on their connectivity. If they are connected to “sure-edge” pixels,
     # they are considered to be part of edges. Otherwise, they are also discarded.
     class Edges:
-        def __init__(self, min_value, max_value, alpha_lo, alpha_hi):
+        def __init__(self, min_value, max_value):
             self.min_value = min_value
             self.max_value = max_value
 

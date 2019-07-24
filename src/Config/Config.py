@@ -3,7 +3,7 @@ import operator
 import multiprocessing as mp
 
 run_name = "test_run"
-continue_from_last_run = True
+continue_from_last_run = False
 
 
 
@@ -16,7 +16,7 @@ data_path = ''
 
 
 
-max_num_generations = 100
+max_num_generations = 150
 number_of_epochs_per_evaluation = 3
 
 
@@ -30,7 +30,7 @@ moo_optimiser = "cdn"  # cdn/nsga
 
 
 
-evolve_data_augmentations = False
+evolve_data_augmentations = True
 
 
 

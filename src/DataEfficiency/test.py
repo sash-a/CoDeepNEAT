@@ -9,7 +9,8 @@ import torch.nn as nn
 import torch.optim as optim
 
 criterion = nn.CrossEntropyLoss()
-networks = [ Net.DropOutNet ,Net.StandardNet,Net.BatchNormNet]
+#networks = [ Net.DropOutNet ,Net.StandardNet,Net.BatchNormNet]
+networks = [ Net.DropOutNet ,Net.DropOutNet ,Net.DropOutNet,Net.DropOutNet,Net.DropOutNet,Net.DropOutNet,Net.DropOutNet   ]
 total_batches = None
 
 def test_model(model):
@@ -96,8 +97,11 @@ def test_all_networks(num_epochs):
 
 
 def test_max_accuracy_of_networks(num_epochs):
+    i=0
     for network_type in networks:
-        model = network_type().to(torch.device("cuda:0"))
+        dropout = 0.03 + 0.02 * math.pow(i, 2)
+        print("dropout:",dropout)
+        model = network_type(drop_out_factor = dropout).to(torch.device("cuda:0"))
         optimiser = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
         for epoch in range(num_epochs):  # loop over the dataset multiple times
 
@@ -105,6 +109,7 @@ def test_max_accuracy_of_networks(num_epochs):
 
         accuracy = test_model(model)
         print(get_name_from_class(network_type),"max acc:",accuracy)
+        i+=1
 
 
 def plot_model_accuracies(accuracies, model_type):
