@@ -152,16 +152,17 @@ class DANode(NodeGene):
                 "Additive_Gaussian_Noise": {
                     "lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.0, start_range=0.0, end_range=0.5),
                     "hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.5, end_range=1.0),
-                    "percent": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.6, start_range=0.5, end_range=1.0)
+                    "percent": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.6, start_range=0.5,
+                                       end_range=1.0)
                 },
 
                 "Coarse_Dropout": {
-                    "d_lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.0, end_range=0.1),
-                    "d_hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.1, start_range=0.1, end_range=0.3),
+                    "d_lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.05, start_range=0.0,
+                                    end_range=0.1),
+                    "d_hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.2, start_range=0.1, end_range=0.3),
                     "s_lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.025, start_range=0.0,
-                                    end_range=0.25),
-                    "s_hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.25,
-                                    end_range=0.75)}
+                                    end_range=0.1),
+                    "s_hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.1, end_range=1.0)}
 
             },
                           discreet_value="Flip_lr")
