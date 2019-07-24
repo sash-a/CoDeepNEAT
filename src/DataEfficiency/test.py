@@ -19,7 +19,7 @@ DataEfficiency function:
 acc = max_acc * ln( set_fraction + A / A) * A^fix           solve for A given max_acc and best fit line of all the (set_fraction,acc) tuples
 
 where   A = 1/learning_rate                                 the primary data efficiency component
-        fix = log(0.434294482/log((100+b)/b))/log(b)        a solution to fix the point (100,max_acc)
+        fix = log(0.434294482/log((100+A)/A))/log(A)        a solution to fix the point (100,max_acc)
         
         learning rate >0 ≠ 1                                as learning rate->∞ the model gets closer to instant learning
                 a measure of how quickly a model learns given its data. models with higher learning_rates would perform better with less data
