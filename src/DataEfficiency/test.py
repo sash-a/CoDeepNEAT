@@ -9,9 +9,24 @@ import torch.nn as nn
 import torch.optim as optim
 
 criterion = nn.CrossEntropyLoss()
-#networks = [ Net.DropOutNet ,Net.StandardNet,Net.BatchNormNet]
-networks = [ Net.DropOutNet ,Net.DropOutNet ,Net.DropOutNet,Net.DropOutNet,Net.DropOutNet,Net.DropOutNet,Net.DropOutNet   ]
+networks = [Net.RedundantComplexityNet,Net.StandardNet,Net.BatchNormNet]
 total_batches = None
+
+
+"""
+DataEfficiency function:
+
+acc = max_acc * ln( set_fraction + A / A) * A^fix           solve for A given max_acc and best fit line of all the (set_fraction,acc) tuples
+
+where   A = 1/learning_rate                                 the primary data efficiency component
+        fix = log(0.434294482/log((100+b)/b))/log(b)        a solution to fix the point (100,max_acc)
+        
+        learning rate >0 ≠ 1                                as learning rate->∞ the model gets closer to instant learning
+                a measure of how quickly a model learns given its data. models with higher learning_rates would perform better with less data
+                
+        data_efficiency = max_acc * learning_rate^2         ?possibly change to keep DE constant for a model under data restriction
+        
+"""
 
 def test_model(model):
     model.eval()
@@ -97,11 +112,8 @@ def test_all_networks(num_epochs):
 
 
 def test_max_accuracy_of_networks(num_epochs):
-    i=0
     for network_type in networks:
-        dropout = 0.03 + 0.02 * math.pow(i, 2)
-        print("dropout:",dropout)
-        model = network_type(drop_out_factor = dropout).to(torch.device("cuda:0"))
+        model = network_type().to(torch.device("cuda:0"))
         optimiser = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
         for epoch in range(num_epochs):  # loop over the dataset multiple times
 
@@ -109,7 +121,6 @@ def test_max_accuracy_of_networks(num_epochs):
 
         accuracy = test_model(model)
         print(get_name_from_class(network_type),"max acc:",accuracy)
-        i+=1
 
 
 def plot_model_accuracies(accuracies, model_type):
