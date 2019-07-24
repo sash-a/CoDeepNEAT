@@ -9,7 +9,7 @@ continue_from_last_run = False
 
 device = 'gpu'
 #device = 'cpu'
-num_gpus = 1
+num_gpus = 2
 num_workers = 2
 dataset = 'mnist'
 data_path = ''
@@ -35,7 +35,7 @@ evolve_data_augmentations = True
 
 
 test_in_run = False
-dummy_run = True
+dummy_run = False
 protect_parsing_from_errors = False
 save_best_graphs = True
 print_best_graphs = False
@@ -50,7 +50,7 @@ def get_device():
 
     gpu = 'cuda:'
     gpu += '0' if num_gpus <= 1 else str(int(mp.current_process().pid % num_gpus))
-    # return torch.device('cuda:0')
+    return torch.device('cuda:0')
     return torch.device('cpu') if device == 'cpu' else torch.device(gpu)
 
 

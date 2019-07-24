@@ -27,7 +27,8 @@ class Generation:
 
     def initialise_populations(self):
         # Picking the ranking function
-        rank_fn = single_objective_rank if Config.second_objective == '' else (cdn_rank if Config.moo_optimiser == "cdn" else nsga_rank())
+        rank_fn = single_objective_rank if Config.second_objective == '' else (
+            cdn_rank if Config.moo_optimiser == "cdn" else nsga_rank())
 
         self.module_population = Population(PopInit.initialise_modules(),
                                             rank_fn,
@@ -47,17 +48,17 @@ class Generation:
 
         if Config.evolve_data_augmentations:
             self.da_population = Population(PopInit.initialise_da(),
-                                        rank_fn,
-                                        PopInit.da_initial_mutations(),
-                                        Props.DA_POP_SIZE,
-                                        1,
-                                        1,
-                                        Props.DA_TARGET_NUM_SPECIES)
+                                            rank_fn,
+                                            PopInit.da_initial_mutations(),
+                                            Props.DA_POP_SIZE,
+                                            1,
+                                            1,
+                                            Props.DA_TARGET_NUM_SPECIES)
 
     def step(self):
         """Runs CDN for one generation - must be called after fitness evaluation"""
         self.pareto_population.update_pareto_front()
-        #self.pareto_population.plot_fitnesses()
+        # self.pareto_population.plot_fitnesses()
         self.module_population.step()
         for blueprint_individual in self.blueprint_population.individuals:
             print('bp fitness:', blueprint_individual.fitness_values)
@@ -79,9 +80,12 @@ class Generation:
     def evaluate(self, generation_number):
         self.generation_number = generation_number
 
-        blueprints = self.blueprint_population.individuals * math.ceil(Props.INDIVIDUALS_TO_EVAL / len(self.blueprint_population.individuals))
+        blueprints = self.blueprint_population.individuals * math.ceil(
+            Props.INDIVIDUALS_TO_EVAL / len(self.blueprint_population.individuals))
         random.shuffle(blueprints)
         blueprints = blueprints[:Props.INDIVIDUALS_TO_EVAL]
+
+        print('above eval')
 
         if not Config.is_parallel():
             evaluations = []
@@ -91,32 +95,44 @@ class Generation:
             pool = mp.Pool(Config.num_gpus)
             evaluations = pool.imap(self.evaluate_blueprint, blueprints)
 
-        bp_pop_size = len(self.blueprint_population)
+        print('done eval')
+        accuracies, second_objective_values, third_objective_values = [], [], []
+
         for bp_key, evaluation in enumerate(evaluations):
             if evaluation is None:
-                self.blueprint_population[bp_key % bp_pop_size].defective = True
+                blueprints[bp_key].defective = True
                 continue
 
-            evaluated_bp, fitness = evaluation
-            self.blueprint_population[bp_key % bp_pop_size].report_fitness(*fitness)
+            # TODO test this extensively (from Shane)
+            evaluated_bp, fitness, module_graph = evaluation
+            print('mg', module_graph)
+            self.pareto_population.queue_candidate(module_graph)
+            blueprints[bp_key].report_fitness(*fitness)
 
             if evaluated_bp.da_scheme_index != -1:
                 self.da_population[evaluated_bp.da_scheme_index].report_fitness(*fitness)
             for species_index, member_index in evaluated_bp.modules_used_index:
                 self.module_population.species[species_index][member_index].report_fitness(*fitness)
 
-        # TODO
-        # RuntimeAnalysis.log_new_generation(accuracies, generation_number,
-        #                                    second_objective_values=(
-        #                                        second_objective_values if len(second_objective_values) > 0 else None),
-        #                                    third_objective_values=(
-        #                                        third_objective_values if len(third_objective_values) > 0 else None))
+            accuracies.append(fitness[0])
+            if len(fitness) > 1:
+                second_objective_values.append(fitness[1])
+            if len(fitness) > 2:
+                third_objective_values.append(fitness[2])
+
+        RuntimeAnalysis.log_new_generation(accuracies, generation_number,
+                                           second_objective_values=(
+                                               second_objective_values if second_objective_values else None),
+                                           third_objective_values=(
+                                               third_objective_values if third_objective_values else None))
 
     def evaluate_blueprint(self, blueprint_individual):
+
         try:
             device = Config.get_device()
             print('in eval', device)
             inputs, _ = Evaluator.sample_data(device)
+            print('sampled')
 
             blueprint = blueprint_individual.to_blueprint()
             module_graph, sans_aggregators = blueprint.parseto_module_graph(self, return_graph_without_aggregators=True)
@@ -130,7 +146,8 @@ class Generation:
                     module_graph.plot_tree_with_graphvis("module graph which failed to parse to nn")
                 raise Exception("Error: failed to parse module graph into nn", e)
 
-            net.configure(blueprint_individual.learning_rate(), blueprint_individual.beta1(), blueprint_individual.beta2())
+            net.configure(blueprint_individual.learning_rate(), blueprint_individual.beta1(),
+                          blueprint_individual.beta2())
             net.specify_dimensionality(inputs)
 
             if Config.dummy_run:
@@ -148,7 +165,7 @@ class Generation:
                     da_scheme = None
                 # print("got da scheme from blueprint", da_scheme, "indv:", da_scheme)
 
-                acc = Evaluator.evaluate(net, Config.number_of_epochs_per_evaluation, 256,augmentor= da_scheme,device= device)
+                acc = Evaluator.evaluate(net, Config.number_of_epochs_per_evaluation, device, 256, augmentor=da_scheme)
 
             second_objective_value = None
             third_objective_value = None
@@ -173,7 +190,13 @@ class Generation:
 
             blueprint_individual.da_scheme.report_fitness(*results)
 
-            return blueprint_individual, results
+            # net.share_memory()
+            # for node in module_graph.get_all_nodes_via_bottom_up(set()):
+            #     if node.deep_layer is not None:
+            #         node.deep_layer.share_memory()
+            #         node.reduction.share
+
+            return blueprint_individual, results, net
         except Exception as e:
             if not Config.protect_parsing_from_errors:
                 raise Exception(e)
