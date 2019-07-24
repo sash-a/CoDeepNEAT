@@ -85,8 +85,6 @@ class Generation:
         random.shuffle(blueprints)
         blueprints = blueprints[:Props.INDIVIDUALS_TO_EVAL]
 
-        print('above eval')
-
         if not Config.is_parallel():
             evaluations = []
             for bp in blueprints:
@@ -95,7 +93,6 @@ class Generation:
             pool = mp.Pool(Config.num_gpus)
             evaluations = pool.imap(self.evaluate_blueprint, blueprints)
 
-        print('done eval')
         accuracies, second_objective_values, third_objective_values = [], [], []
 
         for bp_key, evaluation in enumerate(evaluations):
@@ -133,16 +130,13 @@ class Generation:
 
         try:
             device = Config.get_device()
-            print('in eval', device)
             inputs, _ = Evaluator.sample_data(device)
-            print('sampled')
 
             blueprint = blueprint_individual.to_blueprint()
             module_graph, sans_aggregators = blueprint.parseto_module_graph(self, return_graph_without_aggregators=True)
             if module_graph is None:
                 raise Exception("None module graph produced from blueprint")
             try:
-                # print("using infeatures = ",module_graph.get_first_feature_count(inputs))
                 net = module_graph.to_nn(in_features=module_graph.get_first_feature_count(inputs)).to(device)
             except Exception as e:
                 if Config.save_failed_graphs:
@@ -186,12 +180,6 @@ class Generation:
                 results = acc, second_objective_value
             else:
                 results = acc, second_objective_value, third_objective_value
-
-            blueprint_individual.report_fitness(*results)
-            for module_individual in blueprint_individual.modules_used:
-                module_individual.report_fitness(*results)
-
-            blueprint_individual.da_scheme.report_fitness(*results)
 
             module_graph.delete_all_layers()
 
