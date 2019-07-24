@@ -113,8 +113,10 @@ class ModuleNode(Node):
 
     def delete_layer(self):
         self.deep_layer = None
-        #del self.reduction
-
+        self.reduction = None
+        self.regularisation = None
+        self.dropout = None
+        
     def delete_all_layers(self):
         if not self.is_input_node():
             raise Exception("must be called on root node")
