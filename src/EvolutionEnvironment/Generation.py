@@ -190,13 +190,9 @@ class Generation:
 
             blueprint_individual.da_scheme.report_fitness(*results)
 
-            # net.share_memory()
-            # for node in module_graph.get_all_nodes_via_bottom_up(set()):
-            #     if node.deep_layer is not None:
-            #         node.deep_layer.share_memory()
-            #         node.reduction.share
+            module_graph.delete_all_layers()
 
-            return blueprint_individual, results, net
+            return blueprint_individual, results, module_graph
         except Exception as e:
             if not Config.protect_parsing_from_errors:
                 raise Exception(e)

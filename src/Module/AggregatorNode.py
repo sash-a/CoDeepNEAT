@@ -19,6 +19,9 @@ class AggregatorNode(Module):
         for child in self.children:
             child.create_layer(device = device)
 
+    def delete_layer(self):
+        pass
+
     def insert_aggregator_nodes(self, state="start"):
         # if aggregator node has already been created - then the multi parent situation has already been dealt with here
         # since at the time the decendants of this aggregator node were travered further already, there is no need to

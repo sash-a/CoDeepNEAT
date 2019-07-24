@@ -111,6 +111,17 @@ class ModuleNode(Node):
         if not (self.regularisation is None):
             self.regularisation = self.regularisation.to(device)
 
+    def delete_layer(self):
+        self.deep_layer = None
+        #del self.reduction
+
+    def delete_all_layers(self):
+        if not self.is_input_node():
+            raise Exception("must be called on root node")
+
+        for node in self.get_all_nodes_via_bottom_up(set()):
+            node.delete_layer()
+
     # could be made more efficient as a breadth first instead of depth first because of duplicate paths
     def insert_aggregator_nodes(self, state="start"):
         from src.Module.AggregatorNode import AggregatorNode as Aggregator
@@ -158,7 +169,7 @@ class ModuleNode(Node):
         """
         if configuration_run and not (input is None):
             try:
-                self.add_reshape_node(list(input.size()))
+                self.shape_layer(list(input.size()))
             except Exception as e:
                 print(e)
                 raise Exception("failed on " + repr(input.size()))
@@ -223,7 +234,12 @@ class ModuleNode(Node):
             return F.pad(input=self.activation(output), pad=(ykernel, ykernel, xkernel, xkernel), mode='constant',
                          value=0)
 
-    def add_reshape_node(self, input_shape):
+    def shape_layer(self, input_shape):
+        """
+        adds reshape nodes and creates layer on this node
+
+        :param input_shape: a list form of the shape of the input which will be given to this node
+        """
         input_flat_size = Utils.get_flat_number(sizes=input_shape)
         try:
             features = input_shape[1]
@@ -278,13 +294,6 @@ class ModuleNode(Node):
     def get_net_size(self):
         net_params = self.get_parameters({})
         return sum(p.numel() for p in net_params if p.requires_grad)
-
-    def print_node(self, print_to_console=True):
-        out = " " * (len(self.traversal_id)) + self.traversal_id
-        if print_to_console:
-            print(out)
-        else:
-            return out
 
     def get_plot_colour(self, include_shape=True):
         # print("plotting agg node")
