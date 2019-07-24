@@ -106,7 +106,6 @@ class Generation:
             # TODO test this extensively (from Shane)
             evaluated_bp, fitness, module_graph = evaluation
             print('mg', module_graph)
-            self.pareto_population.queue_candidate(module_graph)
             blueprints[bp_key].report_fitness(*fitness)
 
             if evaluated_bp.da_scheme_index != -1:
@@ -119,6 +118,9 @@ class Generation:
                 second_objective_values.append(fitness[1])
             if len(fitness) > 2:
                 third_objective_values.append(fitness[2])
+
+            self.pareto_population.queue_candidate(module_graph)
+
 
         RuntimeAnalysis.log_new_generation(accuracies, generation_number,
                                            second_objective_values=(
