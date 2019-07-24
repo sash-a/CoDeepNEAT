@@ -99,34 +99,8 @@ class Generation:
 
             module_graph, blueprint_individual, objective_values = evaluation
             acc = objective_values[0]
-            if len(objective_values) >= 2:
-                second = objective_values[1]
-
-                best_second = best_second if Config.second_objective_comparator(best_second, second) else second
-                second_objective_values.append(second)
-
-            if len(objective_values) >= 3:
-                third = objective_values[3]
-
-                best_third = best_third if Config.third_objective_comparator(best_third, third) else third
-                third_objective_values.append(third)
-
-            if len(objective_values) > 3:
-                raise Exception("Error: too many result values to unpack")
-
-            if acc >= best_acc:
-                best_acc = acc
-                best_bp = module_graph
 
             accuracies.append(acc)
-
-        print('Best accuracy:', best_acc)
-
-        if generation_number % Config.print_best_graph_every_n_generations == 0:
-            if Config.save_best_graphs:
-                # print('Best blueprint:\n', best_bp_genome)
-                best_bp.plot_tree_with_graphvis(title="gen:" + str(generation_number) + " acc:" + str(best_acc),
-                                                file="best_of_gen_" + repr(generation_number))
 
         RuntimeAnalysis.log_new_generation(accuracies, generation_number,
                                            second_objective_values=(
@@ -150,6 +124,7 @@ class Generation:
                 if Config.save_failed_graphs:
                     module_graph.plot_tree_with_graphvis("module graph which failed to parse to nn")
                 raise Exception("Error: failed to parse module graph into nn", e)
+            net.configure(blueprint_individual.learning_rate(), blueprint_individual.beta1(), blueprint_individual.beta2())
             net.lr = blueprint_individual.learning_rate()
             net.specify_dimensionality(inputs)
 

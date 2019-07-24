@@ -11,12 +11,16 @@ class ModuleNet(nn.Module):
         self.module_graph = module_graph
         self.loss_fn = loss_fn
         self.lr = 0
+        self.beta1 = -1
+        self.beta2 = -1
         self.dimensionality_configured = False
         self.outputDimensionality = None
-        # self.optimizer = optim.Adam(module_graph.get_parameters({}), lr=self.lr, betas=(beta1, beta2))
+        self.optimizer = None
+
+    def configure(self, learning_rate, beta1, beta2):
+        self.lr = learning_rate
         self.beta1 = beta1
         self.beta2 = beta2
-        self.optimizer = None
 
     def specify_dimensionality(self, input_sample, output_dimensionality=torch.tensor([1])):
         if self.dimensionality_configured:
@@ -31,7 +35,7 @@ class ModuleNet(nn.Module):
 
         output_nodes = Utils.get_flat_number(output_dimensionality, 0)
         output = self(input_sample, configuration_run=True)
-        if (output is None):
+        if output is None:
             raise Exception("Error: failed to pass input through nn")
 
         in_layers = Utils.get_flat_number(output)
