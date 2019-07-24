@@ -71,6 +71,12 @@ class Population:
             individuals.extend(species.members)
         return individuals
 
+    def __len__(self):
+        return len(self._get_all_individuals())
+
+    def __getitem__(self, item):
+        return self._get_all_individuals()[item]
+
     def get_num_species(self):
         return len(self.species)
 

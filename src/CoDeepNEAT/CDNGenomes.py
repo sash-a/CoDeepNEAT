@@ -15,11 +15,13 @@ class BlueprintGenome(Genome):
     def __init__(self, connections, nodes):
         super(BlueprintGenome, self).__init__(connections, nodes)
         self.modules_used = []  # holds ref to module individuals used - can multiple represent
+        self.modules_used_index = []  # hold tuple (species no, module index) of module used
         self.da_scheme: DAGenome = None
         self.learning_rate = Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.001, start_range= 0.0003, end_range= 0.005, print_when_mutating=False)
         self.beta1 = Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.9, start_range= 0.87, end_range= 0.93)
         self.beta2 = Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.999, start_range= 0.9987, end_range= 0.9993)
 
+        self.da_scheme_index = -1
 
     def to_blueprint(self):
         """
@@ -33,7 +35,8 @@ class BlueprintGenome(Genome):
             return self.da_scheme
 
         # Assuming data augmentation only has 1 species
-        self.da_scheme, _ = da_population.species[0].sample_individual()
+        # TODO make sure there is only ever 1 species - could make it random choice from individuals
+        self.da_scheme, self.da_scheme_index = da_population.species[0].sample_individual()
         return self.da_scheme
 
     def mutate(self, mutation_record):
@@ -91,7 +94,7 @@ class DAGenome(Genome):
 
     def to_phenotype(self, Phenotype=None):
         # Construct DA scheme from nodes
-        #print("parsing",self, "to da scheme")
+        # print("parsing",self, "to da scheme")
         da_scheme = AugmentationScheme(None, None)
         traversal = self._get_traversal_dictionary()
         curr_node = self.get_input_node().id

@@ -1,3 +1,5 @@
+import math
+
 import src.Config.NeatProperties as Props
 from src.NEAT.Population import Population
 from src.NEAT.PopulationRanking import single_objective_rank, cdn_rank, nsga_rank
@@ -9,15 +11,15 @@ from data import DataManager
 from src.NeuralNetwork.ParetoPopulation import ParetoPopulation
 import pickle
 
-import torch
-import random
 import multiprocessing as mp
-import math
+import random
+import torch
 
 
 class Generation:
 
     def __init__(self):
+        self.speciesNumbers = []
         self.module_population, self.blueprint_population, self.da_population = None, None, None
         self.initialise_populations()
         self.generation_number = -1
@@ -58,7 +60,9 @@ class Generation:
         #self.pareto_population.plot_fitnesses()
         self.module_population.step()
         for blueprint_individual in self.blueprint_population.individuals:
+            print('bp fitness:', blueprint_individual.fitness_values)
             blueprint_individual.reset_number_of_module_species(self.module_population.get_num_species())
+
         self.blueprint_population.step()
 
         if Config.evolve_data_augmentations:
@@ -74,47 +78,48 @@ class Generation:
 
     def evaluate(self, generation_number):
         self.generation_number = generation_number
-        best_acc, best_second, best_third = float('-inf'), float('-inf'), float('-inf')
-        best_bp, best_bp_genome = None, None
-        accuracies, second_objective_values, third_objective_values = [], [], []
 
         blueprints = self.blueprint_population.individuals * math.ceil(Props.INDIVIDUALS_TO_EVAL / len(self.blueprint_population.individuals))
         random.shuffle(blueprints)
         blueprints = blueprints[:Props.INDIVIDUALS_TO_EVAL]
 
-        sample_inputs, _ = Evaluator.sample_data(Config.get_device())
-
         if not Config.is_parallel():
             evaluations = []
             for bp in blueprints:
-                evaluations.append(self.evaluate_blueprint(bp, sample_inputs))
+                evaluations.append(self.evaluate_blueprint(bp))
         else:
             pool = mp.Pool(Config.num_gpus)
-            evaluations = pool.map(self.evaluate_blueprint, (bp for bp in blueprints))
+            evaluations = pool.imap(self.evaluate_blueprint, blueprints)
 
-        for evaluation in evaluations:
-            # Blueprint was defective
+        bp_pop_size = len(self.blueprint_population)
+        for bp_key, evaluation in enumerate(evaluations):
             if evaluation is None:
+                self.blueprint_population[bp_key % bp_pop_size].defective = True
                 continue
 
-            module_graph, blueprint_individual, objective_values = evaluation
-            acc = objective_values[0]
+            evaluated_bp, fitness = evaluation
+            self.blueprint_population[bp_key % bp_pop_size].report_fitness(*fitness)
 
-            accuracies.append(acc)
+            if evaluated_bp.da_scheme_index != -1:
+                self.da_population[evaluated_bp.da_scheme_index].report_fitness(*fitness)
+            for species_index, member_index in evaluated_bp.modules_used_index:
+                self.module_population.species[species_index][member_index].report_fitness(*fitness)
 
-        RuntimeAnalysis.log_new_generation(accuracies, generation_number,
-                                           second_objective_values=(
-                                               second_objective_values if len(second_objective_values) > 0 else None),
-                                           third_objective_values=(
-                                               third_objective_values if len(third_objective_values) > 0 else None))
+        # TODO
+        # RuntimeAnalysis.log_new_generation(accuracies, generation_number,
+        #                                    second_objective_values=(
+        #                                        second_objective_values if len(second_objective_values) > 0 else None),
+        #                                    third_objective_values=(
+        #                                        third_objective_values if len(third_objective_values) > 0 else None))
 
-    def evaluate_blueprint(self, blueprint_individual, inputs):
+    def evaluate_blueprint(self, blueprint_individual):
         try:
             device = Config.get_device()
+            print('in eval', device)
+            inputs, _ = Evaluator.sample_data(device)
 
             blueprint = blueprint_individual.to_blueprint()
             module_graph, sans_aggregators = blueprint.parseto_module_graph(self, return_graph_without_aggregators=True)
-
             if module_graph is None:
                 raise Exception("None module graph produced from blueprint")
             try:
@@ -124,8 +129,8 @@ class Generation:
                 if Config.save_failed_graphs:
                     module_graph.plot_tree_with_graphvis("module graph which failed to parse to nn")
                 raise Exception("Error: failed to parse module graph into nn", e)
+
             net.configure(blueprint_individual.learning_rate(), blueprint_individual.beta1(), blueprint_individual.beta2())
-            net.lr = blueprint_individual.learning_rate()
             net.specify_dimensionality(inputs)
 
             if Config.dummy_run:
@@ -163,15 +168,12 @@ class Generation:
                 results = acc, second_objective_value, third_objective_value
 
             blueprint_individual.report_fitness(*results)
-            module_graph.report_fitness(*results)
-            self.pareto_population.queue_candidate(module_graph)
             for module_individual in blueprint_individual.modules_used:
                 module_individual.report_fitness(*results)
 
-            if Config.evolve_data_augmentations:
-                blueprint_individual.da_scheme.report_fitness(*results)
+            blueprint_individual.da_scheme.report_fitness(*results)
 
-            return module_graph, blueprint_individual, results
+            return blueprint_individual, results
         except Exception as e:
             if not Config.protect_parsing_from_errors:
                 raise Exception(e)

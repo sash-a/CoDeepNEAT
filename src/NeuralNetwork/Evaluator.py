@@ -1,4 +1,5 @@
 # modified from https://github.com/pytorch/examples/blob/master/mnist/main.py
+import sys
 
 import torch
 from torch import nn
@@ -10,12 +11,13 @@ from src.Config import Config
 from data import DataManager
 
 import time
+import torch.multiprocessing as mp
 
 printBatchEvery = -1  # -1 to switch off batch printing
 print_epoch_every = 1
 
 
-def train(model, train_loader, epoch, test_loader, augmentor=None, print_accuracy=False, device=Config.get_device()):
+def train(model, train_loader, epoch, test_loader, device, augmentor=None, print_accuracy=False):
     """
     Run a single train epoch
 
@@ -25,6 +27,7 @@ def train(model, train_loader, epoch, test_loader, augmentor=None, print_accurac
     :param test_loader: The test dataset loader
     :param print_accuracy: True if should test when printing batch info
     """
+    print('Train received device:', device)
     model.train()
 
     loss = 0
@@ -35,6 +38,11 @@ def train(model, train_loader, epoch, test_loader, augmentor=None, print_accurac
     for batch_idx, (inputs, targets) in enumerate(train_loader):
         if augmentor is not None:
             aug_inputs, aug_labels = BatchAugmentor.augment_batch(inputs.numpy(), targets.numpy(), augmentor)
+
+        if Config.interleaving_check:
+            print('in train', mp.current_process().name)
+            sys.stdout.flush()
+
         inputs, targets = inputs.to(device), targets.to(device)
 
         model.optimizer.zero_grad()
@@ -73,7 +81,7 @@ def train(model, train_loader, epoch, test_loader, augmentor=None, print_accurac
             print("epoch", epoch, "average loss:", loss / batch_idx, "time for epoch:", (end_time - s))
 
 
-def test(model, test_loader, print_acc=True, device=Config.get_device()):
+def test(model, test_loader, device, print_acc=True):
     """
     Run through a test dataset and return the accuracy
 
@@ -84,10 +92,14 @@ def test(model, test_loader, print_acc=True, device=Config.get_device()):
     """
     model.eval()
 
-    print('testing recieved device')
+    print('testing received device', device)
     correct = 0
     with torch.no_grad():
         for inputs, targets in test_loader:
+            if Config.interleaving_check:
+                print('in test', mp.current_process().name)
+                sys.stdout.flush()
+
             inputs, targets = inputs.to(device), targets.to(device)
             output = model(inputs)
             if len(list(targets.size())) == 1:
@@ -110,7 +122,7 @@ def test(model, test_loader, print_acc=True, device=Config.get_device()):
     return acc
 
 
-def evaluate(model, epochs, batch_size=64, augmentor=None, device=Config.get_device()):
+def evaluate(model, epochs, device, batch_size=64, augmentor=None):
     """
     Runs all epochs and tests the model after all epochs have run
 
@@ -119,15 +131,15 @@ def evaluate(model, epochs, batch_size=64, augmentor=None, device=Config.get_dev
     :param batch_size: The dataset batch size
     :return: The trained model
     """
-    print('Received device', device)
+    print('Eval received device', device, 'on processor', mp.current_process())
     train_loader, test_loader = load_data(batch_size)
 
     s = time.time()
     for epoch in range(1, epochs + 1):
-        train(model, train_loader, epoch, test_loader, augmentor, device=device)
+        train(model, train_loader, epoch, test_loader, device, augmentor)
     e = time.time()
 
-    test_acc = test(model, test_loader, device=device)
+    test_acc = test(model, test_loader, device)
     print('Evaluation took', e - s, 'seconds, Test acc:', test_acc)
     return test_acc
 
@@ -139,7 +151,7 @@ def sample_data(device, batch_size=64):
 
 
 def load_data(batch_size=64, dataset=""):
-    data_loader_args = {'num_workers': Config.num_workers, 'pin_memory': True if Config.device != 'cpu' else False}
+    data_loader_args = {'num_workers': Config.num_workers, 'pin_memory': False if Config.device != 'cpu' else False}
     data_path = DataManager.get_Datasets_folder()
     image_transform = transforms.Compose([
         transforms.ToTensor(),
