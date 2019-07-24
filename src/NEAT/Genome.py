@@ -5,6 +5,9 @@ import random
 import sys
 from src.Config import Config
 import operator
+import os
+from data import DataManager
+import graphviz
 
 
 class Genome:
@@ -27,6 +30,8 @@ class Genome:
         self._connections = {}
         for connection in connections:
             self.add_connection(connection, True)
+
+        self.traversal_id = ""
 
     def __gt__(self, other):
         return self.rank > other.rank
@@ -280,3 +285,36 @@ class Genome:
 
         root_node.get_traversal_ids("_")
         return root_node
+
+    def get_traversal_ids(self, current_id=""):
+
+        if not self.traversal_id == "":
+            return
+
+        self.traversal_id = current_id
+
+        new_id = current_id + (',' if not current_id == "" else "") + repr(self)
+        self.get_traversal_ids(new_id)
+
+    def plot_tree_with_graphvis(self, title="", graph=None, genomes_plotted=None, file="temp_g"):
+        file = os.path.join(DataManager.get_Graphs_folder(), file)
+
+        if graph is None:
+            graph = graphviz.Digraph(comment=title)
+
+        if genomes_plotted is None:
+            genomes_plotted = set()
+        else:
+            if self in genomes_plotted:
+                return
+
+        genomes_plotted.add(self)
+
+        graph.node(self.traversal_id, style="filled", fillcolor="blue")
+
+        for node in self._nodes:
+            node.plot_tree_with_graphvis(graph=graph, nodes_plotted=genomes_plotted)
+            graph.edge(self.traversal_id, node.traversal_id)
+
+        # if self.is_input_node():
+        graph.render(file, view=Config.print_best_graphs)
