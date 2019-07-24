@@ -1,4 +1,4 @@
-BatchNormNet
+BatchNormNet - tuples: [(10,51.5),(20,58),(30,58.5),(41,61.5),(51,64),(61,65),(71,64),(81,66),(91,67),(100,66)]
 num_batches: 1 / 782 (0%) acc: 10.0 %
 num_batches: 80 / 782 (10%) acc: 51.46 %
 num_batches: 159 / 782 (20%) acc: 57.98 %
@@ -22,7 +22,7 @@ num_batches: 554 / 782 (71%) acc: 55.51 %
 num_batches: 633 / 782 (81%) acc: 57.33 %
 num_batches: 712 / 782 (91%) acc: 58.69 %
 num_batches: 782 / 782 (100%) acc: 58.2 %
-StandardNet
+StandardNet - tuples: [(10,29.5),(20,40.5),(30,46),(41,51),(51,53),(61,54),(71,56),(81,57.5),(91,59),(100,61)]
 num_batches: 1 / 782 (0%) acc: 10.01 %
 num_batches: 80 / 782 (10%) acc: 29.48 %
 num_batches: 159 / 782 (20%) acc: 40.64 %
