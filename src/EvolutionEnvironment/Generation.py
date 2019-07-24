@@ -67,15 +67,13 @@ class Generation:
         random.shuffle(blueprints)
         blueprints = blueprints[:Props.INDIVIDUALS_TO_EVAL]
 
-        inputs, _ = Evaluator.sample_data(torch.device('cpu'))
-
         if not Config.is_parallel():
             evaluations = []
             for bp in blueprints:
-                evaluations.append(self.evaluate_blueprint(bp, inputs))
+                evaluations.append(self.evaluate_blueprint(bp))
         else:
             pool = mp.Pool(Config.num_gpus)
-            evaluations = pool.starmap(self.evaluate_blueprint, [(bp, inputs) for bp in blueprints])
+            evaluations = pool.imap(self.evaluate_blueprint, blueprints)
 
         bp_pop_size = len(self.blueprint_population)
         for bp_key, evaluation in enumerate(evaluations):
@@ -91,11 +89,11 @@ class Generation:
             for species_index, member_index in evaluated_bp.modules_used_index:
                 self.module_population.species[species_index][member_index].report_fitness(*fitness)
 
-    def evaluate_blueprint(self, blueprint_individual, inputs):
+    def evaluate_blueprint(self, blueprint_individual):
         try:
             device = Config.get_device()
             print('in eval', device)
-            inputs.to(device)
+            inputs, _ = Evaluator.sample_data(device)
 
             blueprint = blueprint_individual.to_blueprint()
             module_graph, sans_aggregators = blueprint.parseto_module_graph(self, return_graph_without_aggregators=True)

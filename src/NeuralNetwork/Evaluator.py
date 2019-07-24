@@ -1,4 +1,5 @@
 # modified from https://github.com/pytorch/examples/blob/master/mnist/main.py
+import sys
 
 import torch
 from torch import nn
@@ -36,6 +37,11 @@ def train(model, train_loader, epoch, test_loader, device, augmentor=None, print
     for batch_idx, (inputs, targets) in enumerate(train_loader):
         if augmentor is not None:
             aug_inputs, aug_labels = BatchAugmentor.augment_batch(inputs.numpy(), targets.numpy(), augmentor)
+
+        if Config.interleaving_check:
+            print('in train', mp.current_process().name)
+            sys.stdout.flush()
+
         inputs, targets = inputs.to(device), targets.to(device)
 
         model.optimizer.zero_grad()
@@ -89,6 +95,10 @@ def test(model, test_loader, device, print_acc=True):
     correct = 0
     with torch.no_grad():
         for inputs, targets in test_loader:
+            if Config.interleaving_check:
+                print('in test', mp.current_process().name)
+                sys.stdout.flush()
+
             inputs, targets = inputs.to(device), targets.to(device)
             output = model(inputs)
             if len(list(targets.size())) == 1:
