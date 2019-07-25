@@ -18,7 +18,7 @@ data_path = ''
 number_of_epochs_per_evaluation = 5
 
 # --------------------------------------------------------------------------------------------------------------------#
-max_num_generations = 100
+max_num_generations = 150
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Multiobjective options
@@ -37,7 +37,7 @@ evolve_data_augmentations = False
 # Debug and test options
 dummy_run = False
 
-protect_parsing_from_errors = False
+protect_parsing_from_errors = True
 test_in_run = False
 interleaving_check = False
 
