@@ -37,12 +37,12 @@ evolve_data_augmentations = True
 # Debug and test options
 dummy_run = False
 
-protect_parsing_from_errors = True
+protect_parsing_from_errors = False
 test_in_run = False
 interleaving_check = False
 
 save_best_graphs = True
-print_best_graphs = False
+print_best_graphs = True
 print_best_graph_every_n_generations = 5
 save_failed_graphs = True
 

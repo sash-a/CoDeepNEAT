@@ -1,10 +1,9 @@
-from src.Graph.Node import Node
-from src.Module.ReshapeNode import ReshapeNode
+from src.Phenotype.Node import Node
+from src.Phenotype.ReshapeNode import ReshapeNode
 from src.Utilities import Utils
 import torch.nn as nn
 import torch.nn.functional as F
 import math
-from src.NeuralNetwork.Net import ModuleNet
 from src.Config import Config
 
 minimum_conv_dim = 8
@@ -26,7 +25,7 @@ class ModuleNode(Node):
 
     def __init__(self, module_NEAT_node, module_genome):
         Node.__init__(self)
-        self.traversed = False
+        # self.traversed = False
 
         self.deep_layer = None  # an nn layer object such as    nn.Conv2d(3, 6, 5) or nn.Linear(84, 10)
         self.in_features = -1
@@ -41,11 +40,6 @@ class ModuleNode(Node):
 
         self.module_NEAT_genome = module_genome
         self.module_NEAT_node = module_NEAT_node
-        self.blueprint_genome = None#held only by the root of a fully constructed module_graph
-
-        self.fitness_values = []
-
-        self.data_augmentation_schemes = []
 
         if not (module_NEAT_node is None):
             self.generate_module_node_from_gene()
@@ -74,12 +68,6 @@ class ModuleNode(Node):
 
         if not (neat_dropout is None) and not (neat_dropout() is None):
             self.dropout = neat_dropout()(neat_dropout.get_sub_value("dropout_factor"))
-
-    def to_nn(self, in_features, print_graphs=False):
-        self.create_layer(in_features)
-        if print_graphs:
-            self.plot_tree_with_matplotlib()
-        return ModuleNet(self)
 
     def create_layer(self, in_features):
 
@@ -120,16 +108,9 @@ class ModuleNode(Node):
         self.regularisation = None
         self.dropout = None
 
-    def delete_all_layers(self):
-        if not self.is_input_node():
-            raise Exception("must be called on root node")
-
-        for node in self.get_all_nodes_via_bottom_up(set()):
-            node.delete_layer()
-
     # could be made more efficient as a breadth first instead of depth first because of duplicate paths
     def insert_aggregator_nodes(self, state="start"):
-        from src.Module.AggregatorNode import AggregatorNode as Aggregator
+        from src.Phenotype.AggregatorNode import AggregatorNode as Aggregator
         """
         *NB  -- must have called getTraversalIDs on root node to use this function
         traverses the module graph from the input up to output, and inserts aggregators
@@ -295,10 +276,6 @@ class ModuleNode(Node):
                     else:
                         params.extend(list(param))
                 return params
-
-    def get_net_size(self):
-        net_params = self.get_parameters({})
-        return sum(p.numel() for p in net_params if p.requires_grad)
 
     def get_plot_colour(self, include_shape=True):
         # print("plotting agg node")

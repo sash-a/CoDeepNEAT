@@ -4,12 +4,11 @@ import src.Config.NeatProperties as Props
 import src.Validation.DataLoader
 from src.NEAT.Population import Population
 from src.NEAT.PopulationRanking import single_objective_rank, cdn_rank, nsga_rank
-from src.Validation import Evaluator
 from src.CoDeepNEAT import PopulationInitialiser as PopInit
 from src.Analysis import RuntimeAnalysis
 from src.Config import Config
 from data import DataManager
-from src.NeuralNetwork.ParetoPopulation import ParetoPopulation
+from src.Phenotype.ParetoPopulation import ParetoPopulation
 from src.Validation import DataLoader
 from src.Validation import Validation
 
@@ -94,6 +93,7 @@ class Generation:
         bp_pop_size = len(self.blueprint_population)
         bp_pop_indvs = self.blueprint_population.individuals
 
+        print("got results:",results_dict)
         for bp_key, (fitness, evaluated_bp, module_graph) in results_dict.items():
             if fitness == 'defective':
                 bp_pop_indvs[bp_key % bp_pop_size].defective = True
@@ -124,7 +124,7 @@ class Generation:
                 second_objective_values.append(fitness[1])
             if len(fitness) > 2:
                 third_objective_values.append(fitness[2])
-
+            print("calling queue candidate with",module_graph)
             self.pareto_population.queue_candidate(module_graph)
 
         RuntimeAnalysis.log_new_generation(accuracies, generation_number,
@@ -185,4 +185,5 @@ class Generation:
 
         module_graph.delete_all_layers()
         module_graph.fitness_values = results
+
         return module_graph, blueprint_individual, results

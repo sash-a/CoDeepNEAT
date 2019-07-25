@@ -6,7 +6,8 @@ from src.Config import Config
 
 
 class ModuleNet(nn.Module):
-    def __init__(self, module_graph, beta1=0.9, beta2=0.999, loss_fn=F.nll_loss):
+
+    def __init__(self, module_graph, loss_fn=F.nll_loss):
         super(ModuleNet, self).__init__()
         self.module_graph = module_graph
         self.loss_fn = loss_fn
@@ -46,7 +47,7 @@ class ModuleNet(nn.Module):
         self.dimensionality_configured = True
         self.outputDimensionality = output_dimensionality
         final_params = self.final_layer.parameters()
-        full_parameters = self.module_graph.get_parameters({})
+        full_parameters = self.module_graph.module_graph_root_node.get_parameters({})
         full_parameters.extend(final_params)
         self.optimizer = optim.Adam(full_parameters, lr=self.lr, betas=(self.beta1, self.beta2))
 
@@ -54,7 +55,7 @@ class ModuleNet(nn.Module):
         if x is None:
             print("null x passed to forward 1")
             return
-        x = self.module_graph.pass_ann_input_up_graph(x, configuration_run=configuration_run)
+        x = self.module_graph.module_graph_root_node.pass_ann_input_up_graph(x, configuration_run=configuration_run)
         if x is None:
             print("received null output from module graph given non null input")
             return
@@ -70,3 +71,23 @@ class ModuleNet(nn.Module):
             pass
 
         return torch.squeeze(F.log_softmax(x, dim=1))
+
+
+def create_nn(module_graph, sample_inputs):
+    blueprint_individual = module_graph.blueprint_genome
+
+    if module_graph is None:
+        raise Exception("None module graph produced from blueprint")
+    try:
+        net = module_graph.to_nn(in_features=module_graph.get_first_feature_count(sample_inputs)).to(Config.get_device())
+
+    except Exception as e:
+        if Config.save_failed_graphs:
+            module_graph.plot_tree_with_graphvis("Module graph which failed to parse to nn")
+        raise Exception("Error: failed to parse module graph into nn", e)
+
+    net.configure(blueprint_individual.learning_rate(), blueprint_individual.beta1(), blueprint_individual.beta2())
+    net.specify_dimensionality(sample_inputs)
+    #module_graph.plot_tree_with_graphvis("test")
+
+    return net

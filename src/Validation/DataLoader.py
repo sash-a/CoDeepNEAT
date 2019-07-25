@@ -75,7 +75,7 @@ def load_data(batch_size=64, dataset=""):
     return train_loader, test_loader
 
 
-def sample_data(device, batch_size=16):
-    train_loader, test_loader = load_data(batch_size=batch_size)
+def sample_data(device, batch_size=16, dataset = ""):
+    train_loader, test_loader = load_data(batch_size=batch_size, dataset=dataset)
     for batch_idx, (inputs, targets) in enumerate(train_loader):
         return inputs.to(device), targets.to(device)

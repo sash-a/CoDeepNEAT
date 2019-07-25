@@ -1,7 +1,5 @@
-from src.Graph.Node import Node
-from src.Module.ModuleNode import ModuleNode
-import torch
-import copy
+from src.Phenotype.Node import Node
+from src.Phenotype.ModuleGraph import ModuleGraph
 
 
 class BlueprintNode(Node):
@@ -28,8 +26,7 @@ class BlueprintNode(Node):
         # print("generating blueprint node from gene:",gene, "setting species number:",gene.species_number(), "from:",gene.species_number)
         self.species_number = gene.species_number()
 
-    def parseto_module_graph(self, generation, module_construct=None, species_indexes=None, in_features=1,
-                             return_graph_without_aggregators=False, module_index_map=None):
+    def parseto_module_graph(self, generation, module_construct=None, species_indexes=None, module_index_map=None):
         """
         :param module_construct: the output module node to have this newly sampled module attached to. None if this is root blueprint node
         :return: a handle on the root node of the newly created module graph
@@ -88,8 +85,6 @@ class BlueprintNode(Node):
             # print("blueprint parsed. getting module node traversal ID's")
             input_module_node.clear()
             input_module_node.get_traversal_ids("_")
-            if return_graph_without_aggregators:
-                sans_aggregators = copy.deepcopy(input_module_node)
 
             try:
 
@@ -107,7 +102,4 @@ class BlueprintNode(Node):
                 input_module_node.plot_tree_with_graphviz("Failed to insert agg nodes")
                 raise Exception("failed to insert agg nodes")
 
-            if not return_graph_without_aggregators:
-                return input_module_node
-            else:
-                return input_module_node, sans_aggregators
+            return ModuleGraph(input_module_node)

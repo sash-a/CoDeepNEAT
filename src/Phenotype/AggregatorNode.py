@@ -1,7 +1,7 @@
-from src.Module.ModuleNode import ModuleNode as Module
+from src.Phenotype.ModuleNode import ModuleNode as Module
 import torch
 import torch.nn as nn
-from src.Module import AggregatorOperations
+from src.Phenotype import AggregatorOperations
 from src.Config import Config
 
 

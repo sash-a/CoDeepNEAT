@@ -1,8 +1,8 @@
 import copy
 
-from src.Blueprint.Blueprint import BlueprintNode
+from src.Phenotype.Blueprint import BlueprintNode
 from src.Config import NeatProperties as Props
-from src.Module.ModuleNode import ModuleNode
+from src.Phenotype.ModuleNode import ModuleNode
 from src.NEAT.Genome import Genome
 from src.NEAT.Mutagen import Mutagen, ValueType
 from src.DataAugmentation.AugmentationScheme import AugmentationScheme
