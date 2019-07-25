@@ -28,37 +28,46 @@ class ModulenNEATNode(NodeGene):
         self.activation = Mutagen(F.relu, F.leaky_relu, torch.sigmoid, F.relu6,
                                   discreet_value=activation, name="activation function")  # TODO try add in Selu, Elu
 
-        linear_submutagens = {
-            "regularisation": Mutagen(None, nn.BatchNorm1d, discreet_value=nn.BatchNorm1d if use_batch_norm else None),
-            "dropout": Mutagen(None, nn.Dropout, sub_mutagens={nn.Dropout: {
-                "dropout_factor": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.15,
-                                          start_range=0, end_range=0.75)}},
-                               discreet_value=nn.Dropout if use_dropout else None),
-            "out_features": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=100,
-                                    start_range=10,
-                                    end_range=1024, name="num out features")}
+        linear_submutagens = \
+            {
+                "regularisation": Mutagen(None, nn.BatchNorm1d,
+                                          discreet_value=nn.BatchNorm1d if use_batch_norm else None),
 
-        conv_submutagens = {"conv_window_size": Mutagen(3, 5, 7, discreet_value=conv_window_size),
-                            "conv_stride": Mutagen(value_type=ValueType.WHOLE_NUMBERS,
-                                                   current_value=conv_stride, start_range=1,
-                                                   end_range=5),
-                            "reduction": Mutagen(None, nn.MaxPool2d, discreet_value=None,
-                                                 sub_mutagens={nn.MaxPool2d: {
-                                                     "pool_size": Mutagen(
-                                                         value_type=ValueType.WHOLE_NUMBERS,
-                                                         current_value=max_pool_size, start_range=2,
-                                                         end_range=5)}}),
-                            "regularisation": Mutagen(None, nn.BatchNorm2d,
-                                                      discreet_value=nn.BatchNorm2d if use_batch_norm else None),
-                            "dropout": Mutagen(None, nn.Dropout2d, sub_mutagens={
-                                nn.Dropout2d: {
-                                    "dropout_factor": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.1,
-                                                              start_range=0, end_range=0.75)}},
-                                               discreet_value=nn.Dropout2d if use_dropout else None),
-                            "out_features": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=out_features,
-                                                    start_range=1,
-                                                    end_range=100, name="num out features")
-                            }
+                "dropout": Mutagen(None, nn.Dropout, discreet_value=nn.Dropout if use_dropout else None, sub_mutagens=
+                {
+                    nn.Dropout: {
+                        "dropout_factor": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.15, start_range=0,
+                                                  end_range=0.75)}
+                }),
+
+                "out_features": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=100, start_range=10,
+                                        end_range=1024, name="num out features")
+            }
+
+        conv_submutagens = {
+            "conv_window_size": Mutagen(3, 5, 7, discreet_value=conv_window_size),
+
+            "conv_stride": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=conv_stride, start_range=1,
+                                   end_range=5),
+
+            "reduction": Mutagen(None, nn.MaxPool2d, discreet_value=None, sub_mutagens=
+            {
+                nn.MaxPool2d: {"pool_size": Mutagen(
+                    value_type=ValueType.WHOLE_NUMBERS, current_value=max_pool_size, start_range=2, end_range=5)}
+            }),
+
+            "regularisation": Mutagen(None, nn.BatchNorm2d, discreet_value=nn.BatchNorm2d if use_batch_norm else None),
+
+            "dropout": Mutagen(None, nn.Dropout2d, discreet_value=nn.Dropout2d if use_dropout else None, sub_mutagens=
+            {
+                nn.Dropout2d: {
+                    "dropout_factor": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.1,
+                                              start_range=0, end_range=0.75)}
+            }),
+
+            "out_features": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=out_features, start_range=1,
+                                    end_range=100, name="num out features")
+        }
 
         if use_linears and not use_convs:
             self.layer_type = Mutagen(nn.Linear, discreet_value=nn.Linear, sub_mutagens={
@@ -85,8 +94,6 @@ class BlueprintNEATNode(NodeGene):
 
         self.species_number = Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=0, start_range=0,
                                       end_range=1, print_when_mutating=False, name="species number")
-
-
 
     def get_all_mutagens(self):
         # raise Exception("getting species no mutagen from blueprint neat node")

@@ -4,9 +4,7 @@ from src.Blueprint.Blueprint import BlueprintNode
 from src.Config import NeatProperties as Props
 from src.Module.ModuleNode import ModuleNode
 from src.NEAT.Genome import Genome
-from src.NEAT.Mutagen import Mutagen,ValueType
-
-
+from src.NEAT.Mutagen import Mutagen, ValueType
 from src.DataAugmentation.AugmentationScheme import AugmentationScheme
 
 
@@ -17,9 +15,10 @@ class BlueprintGenome(Genome):
         self.modules_used = []  # holds ref to module individuals used - can multiple represent
         self.modules_used_index = []  # hold tuple (species no, module index) of module used
         self.da_scheme: DAGenome = None
-        self.learning_rate = Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.001, start_range= 0.0003, end_range= 0.005, print_when_mutating=False)
-        self.beta1 = Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.9, start_range= 0.87, end_range= 0.93)
-        self.beta2 = Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.999, start_range= 0.9987, end_range= 0.9993)
+        self.learning_rate = Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.001, start_range=0.0003,
+                                     end_range=0.005, print_when_mutating=False)
+        self.beta1 = Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.9, start_range=0.87, end_range=0.93)
+        self.beta2 = Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.999, start_range=0.9987, end_range=0.9993)
 
         self.da_scheme_index = -1
 
@@ -45,6 +44,8 @@ class BlueprintGenome(Genome):
     def end_step(self):
         super().end_step()
         self.modules_used = []
+        self.modules_used_index = []
+        # self.da_scheme_index = -1  # don't reset because bp holds onto its DA if it can
 
     def reset_number_of_module_species(self, num_module_species):
         for node in self._nodes.values():
@@ -109,7 +110,7 @@ class DAGenome(Genome):
 
         for node_id in traversal_dictionary[curr_node_id]:
             da_name = self._nodes[node_id].da()
-            #print("found da",da_name)
+            # print("found da",da_name)
             if self._nodes[node_id].enabled():
                 da_scheme.add_augmentation(self._nodes[node_id].da)
             self._to_da_scheme(da_scheme, node_id, traversal_dictionary)
