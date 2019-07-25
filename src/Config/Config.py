@@ -5,7 +5,7 @@ import torch.multiprocessing as mp
 # --------------------------------------------------------------------------------------------------------------------#
 # Run state options
 run_name = "test_run"
-continue_from_last_run = False
+continue_from_last_run = True
 
 # --------------------------------------------------------------------------------------------------------------------#
 # nn options
