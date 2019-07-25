@@ -31,7 +31,7 @@ moo_optimiser = "cdn"  # cdn/nsga
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Data augmentation options
-evolve_data_augmentations = False
+evolve_data_augmentations = True
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Debug and test options
