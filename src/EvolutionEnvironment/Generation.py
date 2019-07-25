@@ -111,11 +111,20 @@ class Generation:
             evaluated_bp, fitness, module_graph = evaluation
             bp_pop_indv[bp_key % bp_pop_len].report_fitness(*fitness)
 
-            print('eval', evaluated_bp)
-            print('real', bp_pop_indv[bp_key % bp_pop_len])
+            # print('eval', evaluated_bp)
+            # print('real', bp_pop_indv[bp_key % bp_pop_len])
+
+            if evaluated_bp.eq(bp_pop_indv[bp_key % bp_pop_len]):
+                raise Exception('Evaled bp topology not same as main one')
 
             if Config.evolve_data_augmentations and evaluated_bp.da_scheme_index != -1:
                 self.da_population[evaluated_bp.da_scheme_index].report_fitness(*fitness)
+
+            if not evaluated_bp.modules_used_index:
+                raise Exception('Modules used index is empty in evaluated bp', evaluated_bp.modules_used_index)
+
+            if not evaluated_bp.modules_used:
+                raise Exception('Modules used is empty in evaluated bp', evaluated_bp.modules_used)
 
             for species_index, member_index in evaluated_bp.modules_used_index:
                 self.module_population.species[species_index][member_index].report_fitness(*fitness)
@@ -135,10 +144,15 @@ class Generation:
                                                third_objective_values if third_objective_values else None))
 
     def evaluate_blueprint(self, blueprint_individual):
-
         try:
             device = Config.get_device()
             inputs, _ = Evaluator.sample_data(device)
+
+            if blueprint_individual.modules_used_index:
+                raise Exception('Modules used index is not empty', blueprint_individual.modules_used_index)
+
+            if blueprint_individual.modules_used:
+                raise Exception('Modules used is not empty', blueprint_individual.modules_used)
 
             blueprint = blueprint_individual.to_blueprint()
             module_graph, sans_aggregators = blueprint.parseto_module_graph(self, return_graph_without_aggregators=True)
@@ -199,7 +213,6 @@ class Generation:
             if not Config.protect_parsing_from_errors:
                 raise Exception(e)
 
-            blueprint_individual.defective = True
             print('Blueprint ran with errors, marking as defective\n', blueprint_individual)
             print(e)
             return None

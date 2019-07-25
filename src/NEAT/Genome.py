@@ -42,6 +42,12 @@ class Genome:
     def __repr__(self):
         return repr(list(self._connections.values()))
 
+    def eq(self, other):
+        if type(other) != type(self):
+            return False
+
+        return self._nodes.keys() == other._nodes.keys() and self._connections.values() == other._connections.values()
+
     def get_unique_genes(self, other):
         return set(self._connections.keys()) - set(other._connections.keys())
 
