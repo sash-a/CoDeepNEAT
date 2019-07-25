@@ -18,7 +18,7 @@ data_path = ''
 number_of_epochs_per_evaluation = 3
 
 # --------------------------------------------------------------------------------------------------------------------#
-max_num_generations = 150
+max_num_generations = 3
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Multiobjective options
@@ -31,15 +31,15 @@ moo_optimiser = "cdn"  # cdn/nsga
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Data augmentation options
-evolve_data_augmentations = True
+evolve_data_augmentations = False
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Debug and test options
-dummy_run = True
+dummy_run = False
 
 protect_parsing_from_errors = False
 test_in_run = False
-interleaving_check = False
+interleaving_check = True
 
 save_best_graphs = True
 print_best_graphs = False
@@ -54,7 +54,7 @@ def get_device():
 
     gpu = 'cuda:'
     gpu += '0' if num_gpus <= 1 else str(int(mp.current_process().pid % num_gpus))
-    return torch.device('cuda:0')
+    # return torch.device('cuda:0')
     return torch.device('cpu') if device == 'cpu' else torch.device(gpu)
 
 
