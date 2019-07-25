@@ -60,7 +60,7 @@ def train(model, train_loader, epoch, test_loader, device, augmentor=None, print
             aug_inputs, aug_labels = aug_inputs.to(device), aug_labels.to(device)
             # print("training on augmented images shape:",augmented_inputs.size())
             output = model(aug_inputs)
-            m_loss = model.loss_fn(output, aug_labels.float())
+            m_loss = model.loss_fn(output, aug_labels)
             m_loss.backward()
             model.optimizer.step()
 

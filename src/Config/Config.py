@@ -5,7 +5,7 @@ import torch.multiprocessing as mp
 # --------------------------------------------------------------------------------------------------------------------#
 # Run state options
 run_name = "test_run"
-continue_from_last_run = False
+continue_from_last_run = True
 
 # --------------------------------------------------------------------------------------------------------------------#
 # nn options
@@ -31,13 +31,13 @@ moo_optimiser = "cdn"  # cdn/nsga
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Data augmentation options
-evolve_data_augmentations = True
+evolve_data_augmentations = False
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Debug and test options
-dummy_run = True
+dummy_run = False
 
-protect_parsing_from_errors = False
+protect_parsing_from_errors = True
 test_in_run = False
 interleaving_check = False
 
