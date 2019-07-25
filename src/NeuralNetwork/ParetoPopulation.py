@@ -17,7 +17,7 @@ class ParetoPopulation():
         self.pareto_front = general_pareto_sorting(self.candidates + self.pareto_front, return_pareto_front_only=True)
         self.candidates = []
         #print("after:",len(self.pareto_front),"in front time:", (time.time() - start_time))
-        self.plot_fitnesses()
+        #self.plot_fitnesses()
 
     def plot_fitnesses(self):
         #print("lengths:" , repr([len(x.fitness_values) for x in self.pareto_front]))
