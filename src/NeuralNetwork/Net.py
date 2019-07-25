@@ -5,7 +5,6 @@ from src.Utilities import Utils
 from src.Config import Config
 
 
-
 class ModuleNet(nn.Module):
     def __init__(self, module_graph, beta1=0.9, beta2=0.999, loss_fn=F.nll_loss):
         super(ModuleNet, self).__init__()
@@ -43,7 +42,7 @@ class ModuleNet(nn.Module):
         # print("out = ", output.size(), "using linear layer (", in_layers, ",", output_nodes, ")")
 
         self.final_layer = nn.Linear(in_layers, output_nodes).to(Config.get_device())
-        # print("created final layer:",self.final_layer)
+
         self.dimensionality_configured = True
         self.outputDimensionality = output_dimensionality
         final_params = self.final_layer.parameters()
@@ -52,11 +51,11 @@ class ModuleNet(nn.Module):
         self.optimizer = optim.Adam(full_parameters, lr=self.lr, betas=(self.beta1, self.beta2))
 
     def forward(self, x, configuration_run=False):
-        if (x is None):
+        if x is None:
             print("null x passed to forward 1")
             return
         x = self.module_graph.pass_ann_input_up_graph(x, configuration_run=configuration_run)
-        if (x is None):
+        if x is None:
             print("received null output from module graph given non null input")
             return
 

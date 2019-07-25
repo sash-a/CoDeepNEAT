@@ -50,6 +50,9 @@ class Population:
         self.speciation_threshold = 1
         self.current_threshold_dir = 1
 
+        if target_num_species == 1:
+            self.speciation_threshold = float('inf')
+
         self.mutation_record = MutationRecords(initial_mutations, max_node_id, max_innovation)
 
         self.rank_population_fn = rank_population_fn
@@ -90,13 +93,12 @@ class Population:
         for species in self.species:
             species.empty_species()
 
-        """note original neat placed individuals in the first species they fit this places in the closest species"""
-
+        # note original neat placed individuals in the first species they fit this places in the closest species
         for individual in individuals:
             best_fit_species = None
             best_distance = individual.distance_to(self.species[0].representative) + 1
 
-            """find best species"""
+            # find best species
             for species in self.species:
                 distance = individual.distance_to(species.representative)
                 if distance < best_distance:
@@ -111,6 +113,9 @@ class Population:
         self.species = [spc for spc in self.species if spc.members]
 
     def adjust_speciation_threshold(self):
+        if self.target_num_species == 1:
+            return
+
         if len(self.species) < self.target_num_species:
             new_dir = -1  # decrease thresh
         elif len(self.species) > self.target_num_species:
@@ -119,20 +124,21 @@ class Population:
             self.current_threshold_dir = 0
             return
 
-        """threshold must be adjusted"""
-
+        # threshold must be adjusted
         if new_dir != self.current_threshold_dir:
-            """still not right - must have jumped over the ideal value
-                adjust by base modification
-            """
+            # still not right - must have jumped over the ideal value adjust by base modification
+
             self.speciation_threshold = min(max(Props.SPECIES_DISTANCE_THRESH_MOD_MIN, self.speciation_threshold + (
                     new_dir * Props.SPECIES_DISTANCE_THRESH_MOD_BASE)),
                                             Props.SPECIES_DISTANCE_THRESH_MOD_MAX)
         else:
-            """still approaching the ideal value - exponentially speed up"""
+            # still approaching the ideal value - exponentially speed up
             self.speciation_threshold *= math.pow(2, new_dir)
 
-        # print("\tsetting new spec thresh to:",self.speciation_threshold,type(self._get_all_individuals()[0]), "num species:",len(self.species),"target:", self.target_num_species , "thresh:",self.speciation_threshold, "new dir:",new_dir, "old dir:",self.current_threshold_dir)
+        # print("\tsetting new spec thresh to:",self.speciation_threshold,type(self._get_all_individuals()[0]),
+        # "num species:",len(self.species),"target:", self.target_num_species , "thresh:",self.speciation_threshold,
+        # "new dir:",new_dir, "old dir:",self.current_threshold_dir)
+
         self.current_threshold_dir = new_dir
 
     def update_species_sizes(self):
@@ -173,5 +179,3 @@ class Population:
         self.adjust_speciation_threshold()
         individuals = self._get_all_individuals()
         self.speciate(individuals)
-
-

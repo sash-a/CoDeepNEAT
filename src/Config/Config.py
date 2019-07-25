@@ -12,13 +12,13 @@ continue_from_last_run = False
 device = 'gpu'
 # device = 'cpu'
 num_gpus = 2
-num_workers = 0  # TODO this doesn't work in parallel because daemonic processes cannot spawn children
-dataset = 'mnist'
+num_workers = 0  # this doesn't work in parallel because daemonic processes cannot spawn children
+dataset = 'fassion_mnist'
 data_path = ''
-number_of_epochs_per_evaluation = 3
+number_of_epochs_per_evaluation = 5
 
 # --------------------------------------------------------------------------------------------------------------------#
-max_num_generations = 30
+max_num_generations = 100
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Multiobjective options
@@ -53,7 +53,7 @@ def get_device():
     """Used to obtain the correct device taking into account multiple gpus"""
 
     gpu = 'cuda:'
-    gpu += '0' if num_gpus <= 1 else str(int(mp.current_process().pid % num_gpus))
+    gpu += '0' if num_gpus <= 1 else mp.current_process().name
     # return torch.device('cuda:0')
     return torch.device('cpu') if device == 'cpu' else torch.device(gpu)
 
