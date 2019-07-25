@@ -11,6 +11,7 @@ import graphviz
 
 
 class Genome:
+
     def __init__(self, connections: Iterable[ConnectionGene], nodes: Iterable[NodeGene]):
         self.rank = 0  # The order of this genome when ranked by fitness values
         self.uses = 0  # The numbers of times this genome is used
@@ -31,7 +32,13 @@ class Genome:
         for connection in connections:
             self.add_connection(connection, True)
 
-        self.traversal_id = ""
+
+    def has_branches(self):
+        traversal_dict = self._get_traversal_dictionary(exclude_disabled_connection=True)
+        for children in traversal_dict.values():
+            if len(children) >1 :
+                return True
+        return False
 
     def __gt__(self, other):
         return self.rank > other.rank
@@ -98,6 +105,9 @@ class Genome:
         raise NotImplemented('Mutation should be called not in base class')
 
     def _mutate(self, mutation_record, add_node_chance, add_connection_chance, allow_connections_to_mutate=True, debug = False):
+        if debug:
+            print("before mutation: " , self, "has branches;",self.has_branches())
+
         topology_changed = False
         if random.random() < add_node_chance:
             topology_changed = True
@@ -135,6 +145,9 @@ class Genome:
 
         for mutagen in self.get_all_mutagens():
             mutagen.mutate()
+
+        if debug:
+            print("after mutation: " , self, "has branches;",self.has_branches())
 
         return self
 

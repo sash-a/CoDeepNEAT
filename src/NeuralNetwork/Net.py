@@ -43,7 +43,7 @@ class ModuleNet(nn.Module):
         # print("out = ", output.size(), "using linear layer (", in_layers, ",", output_nodes, ")")
 
         self.final_layer = nn.Linear(in_layers, output_nodes).to(Config.get_device())
-        print("created final layer:",self.final_layer)
+        # print("created final layer:",self.final_layer)
         self.dimensionality_configured = True
         self.outputDimensionality = output_dimensionality
         final_params = self.final_layer.parameters()

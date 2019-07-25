@@ -49,6 +49,7 @@ class Node:
 
         return self.parents[0].get_input_node()
 
+
     def get_traversal_ids(self, current_id=""):
         """should be called on root node
             calculates all nodes traversal ID
