@@ -9,8 +9,8 @@ continue_from_last_run = False
 
 # --------------------------------------------------------------------------------------------------------------------#
 # nn options
-device = 'gpu'
-# device = 'cpu'
+#device = 'gpu'
+device = 'cpu'
 num_gpus = 1
 num_workers = 0  # TODO this doesn't work in parallel because daemonic processes cannot spawn children
 dataset = 'mnist'
@@ -31,7 +31,7 @@ moo_optimiser = "cdn"  # cdn/nsga
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Data augmentation options
-evolve_data_augmentations = False
+evolve_data_augmentations = True
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Debug and test options

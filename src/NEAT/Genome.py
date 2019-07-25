@@ -91,13 +91,15 @@ class Genome:
     def mutate(self, mutation_record):
         raise NotImplemented('Mutation should be called not in base class')
 
-    def _mutate(self, mutation_record, add_node_chance, add_connection_chance, allow_connections_to_mutate=True):
+    def _mutate(self, mutation_record, add_node_chance, add_connection_chance, allow_connections_to_mutate=True, debug = False):
         topology_changed = False
         if random.random() < add_node_chance:
             topology_changed = True
             random.choice(list(self._connections.values())).mutate_add_node(mutation_record, self)
 
         if random.random() < add_connection_chance:
+            if debug:
+                print("adding connection mutation")
             topology_changed = True
             mutated = False
             tries = 100
@@ -109,6 +111,8 @@ class Genome:
                 tries -= 1
 
         if allow_connections_to_mutate:
+            if debug:
+                print("connection change mutation")
             for connection in self._connections.values():
                 orig_conn = copy.deepcopy(connection)
                 mutated = connection.mutate()
@@ -288,14 +292,15 @@ class Genome:
 
     def plot_tree_with_graphvis(self, title="", file="temp_g"):
 
+        #print("genome_graph")
         file = os.path.join(DataManager.get_Graphs_folder(), file)
 
         graph = graphviz.Digraph(comment=title)
 
         for node in self._nodes:
-            graph.node(node.traversal_id, style="filled", fillcolor="blue")
+            graph.node(str(node), style="filled", fillcolor="blue")
 
         for c in self._connected_nodes:
-            graph.edge(c[0].traversal_id, c[1].traversal_id)
+            graph.edge(str(c[0]), str(c[1]))
 
         graph.render(file, view=Config.print_best_graphs)

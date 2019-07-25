@@ -107,7 +107,7 @@ class BlueprintNEATNode(NodeGene):
 class DANode(NodeGene):
     def __init__(self, id, node_type=NodeType.HIDDEN):
         super().__init__(id, node_type)
-        # self.da = Mutagen(*list(AugmentationScheme.Augmentations.keys()), discreet_value='No_Operation')
+
         self.da = Mutagen("Flip_lr", "Flip_ud", "Rotate", "Translate_Pixels", "Scale", "Pad_Pixels", "Crop_Pixels",
                           "Grayscale", "Custom_Canny_Edges", "Shear", "Additive_Gaussian_Noise",
                           "Coarse_Dropout", "No_Operation", name="da type", sub_mutagens={
@@ -178,6 +178,8 @@ class DANode(NodeGene):
                           discreet_value="Flip_lr")
 
         self.enabled = Mutagen(True, False, discreet_value=True, name="da enabled")
+
+
 
     def get_all_mutagens(self):
         return [self.da, self.enabled]
