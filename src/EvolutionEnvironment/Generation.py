@@ -160,18 +160,9 @@ class Generation:
         device = Config.get_device()
 
         blueprint = blueprint_individual.to_blueprint()
-        module_graph, sans_aggregators = blueprint.parseto_module_graph(self, return_graph_without_aggregators=True)
+        module_graph = blueprint.parseto_module_graph(self)
 
-        if module_graph is None:
-            raise Exception("None module graph produced from blueprint")
 
-        try:
-            net = module_graph.to_nn(in_features=module_graph.get_first_feature_count(inputs)).to(device)
-
-        except Exception as e:
-            if Config.save_failed_graphs:
-                module_graph.plot_tree_with_graphvis("Module graph which failed to parse to nn")
-            raise Exception("Error: failed to parse module graph into nn", e)
 
         net.configure(blueprint_individual.learning_rate(), blueprint_individual.beta1(), blueprint_individual.beta2())
         net.specify_dimensionality(inputs)
