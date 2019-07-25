@@ -91,7 +91,7 @@ class DAGenome(Genome):
         return True
 
     def mutate(self, mutation_record):
-        return super()._mutate(mutation_record, 0.1, 0, allow_connections_to_mutate=False, debug=True)
+        return super()._mutate(mutation_record, 0.1, 0, allow_connections_to_mutate=False, debug=False)
 
     def to_phenotype(self, Phenotype=None):
         # Construct DA scheme from nodes
