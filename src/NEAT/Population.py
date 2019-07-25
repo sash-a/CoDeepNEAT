@@ -158,7 +158,11 @@ class Population:
         return sum([indv.rank for indv in individuals]) / len(individuals)
 
     def step(self):
+
         # print("stepping population of",type(self._get_all_individuals()[0]))
+        # self._get_all_individuals()[0].plot_tree_with_graphvis(str(type(self._get_all_individuals()[0])))
+        # print("Genome!!,", self._get_all_individuals()[0])
+
         self.rank_population_fn(self._get_all_individuals())
         # print(self,"ranked individuals")
         self.update_species_sizes()
