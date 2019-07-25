@@ -11,8 +11,8 @@ continue_from_last_run = False
 # nn options
 device = 'gpu'
 # device = 'cpu'
-num_gpus = 2
-num_workers = 0  # TODO this doesn't work in parallel because daemonic processes cannot spawn children
+num_gpus = 1
+num_workers = 0  # this doesn't work in parallel because daemonic processes cannot spawn children
 dataset = 'mnist'
 data_path = ''
 number_of_epochs_per_evaluation = 3
@@ -35,7 +35,7 @@ evolve_data_augmentations = False
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Debug and test options
-dummy_run = False
+dummy_run = True
 
 protect_parsing_from_errors = False
 test_in_run = False

@@ -248,7 +248,7 @@ class ModuleNode(Node):
         except:
             raise Exception("could not extract features from", input_shape)
 
-        if (self.is_conv2d()):
+        if self.is_conv2d():
             # TODO non square conv dims
             conv_dim = int(math.pow(input_flat_size / features, 0.5))
             if not (math.pow(conv_dim, 2) * features == input_flat_size):
@@ -258,7 +258,7 @@ class ModuleNode(Node):
             output_shape = [input_shape[0], features, conv_dim, conv_dim]
             # print('adding convreshape node for', input_shape, "num features:",features, "out shape:",output_shape)
 
-        if (self.is_linear()):
+        if self.is_linear():
             features = input_flat_size
             output_shape = [input_shape[0], input_flat_size]
             # print('adding linear reshape node for', input_shape, "num features:",features, "out shape:",output_shape)

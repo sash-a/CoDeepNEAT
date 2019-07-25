@@ -76,7 +76,7 @@ class ConnectionGene(Gene):
             mutated_to_conn_id = mutation_record.mutations[(mutated_node_id, self.to_node)]
             # print("mutated node already existed - id's: node:",mutated_node_id,"connections:",mutated_from_conn_id,mutated_to_conn_id)
             if mutated_node_id in genome._nodes:  # this connection has already created a new node
-                return  # TODO retry
+                return  # TODO retry (not important)
 
         else:
             mutated_node_id = mutation_record.add_mutation(mutation)
