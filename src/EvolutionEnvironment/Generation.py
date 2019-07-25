@@ -108,13 +108,15 @@ class Generation:
                 raise Exception('Modules used is empty in evaluated bp', evaluated_bp.modules_used)
 
             # Fitness assignment
-            bp_pop_indvs[bp_key % bp_pop_size].report_fitness(*fitness)
+            bp_pop_indvs[bp_key % bp_pop_size].report_fitness(fitness)
 
             if Config.evolve_data_augmentations and evaluated_bp.da_scheme_index != -1:
-                self.da_population[evaluated_bp.da_scheme_index].report_fitness(*fitness)
+                self.da_population[evaluated_bp.da_scheme_index].report_fitness(fitness)
 
+            print("reporting fitnesses to: ",  evaluated_bp.modules_used_index)
             for species_index, member_index in evaluated_bp.modules_used_index:
-                self.module_population.species[species_index][member_index].report_fitness(*fitness)
+                print("reporting fitness",fitness, " to : ", self.module_population.species[species_index][member_index])
+                self.module_population.species[species_index][member_index].report_fitness(fitness)
 
             # Gathering results for analysis
             accuracies.append(fitness[0])
@@ -160,7 +162,7 @@ class Generation:
 
         blueprint = blueprint_individual.to_blueprint()
         module_graph = blueprint.parseto_module_graph(self)
-        net = src.Validation.Validation.create_nn(module_graph)
+        net = src.Validation.Validation.create_nn(module_graph, inputs)
 
         if Config.dummy_run:
             acc = hash(net)
@@ -176,22 +178,16 @@ class Generation:
 
             acc = Evaluator.evaluate(net, Config.number_of_epochs_per_evaluation, Config.get_device(), 256, augmentor=da_scheme)
 
-        second_objective_value = None
-        third_objective_value = None
+        objective_names = [Config.second_objective, Config.third_objective]
+        results = [acc]
+        for objective_name in objective_names:
 
-        if Config.second_objective == "network_size":
-            second_objective_value = net.module_graph.get_net_size()
-        elif Config.second_objective == "":
-            pass
-        else:
-            print("Error: did not recognise second objective", Config.second_objective)
-
-        if second_objective_value is None:
-            results = [acc]
-        elif third_objective_value is None:
-            results = acc, second_objective_value
-        else:
-            results = acc, second_objective_value, third_objective_value
+            if objective_name == "network_size":
+                results.append(net.module_graph.get_net_size())
+            elif objective_name == "":
+                pass
+            else:
+                print("Error: did not recognise second objective", Config.second_objective)
 
         module_graph.delete_all_layers()
         return module_graph, blueprint_individual, results

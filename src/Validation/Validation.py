@@ -4,7 +4,7 @@ def validate_fold(module_graph, dataset,  k=10, i=0):
     pass
 
 def create_nn(module_graph, inputs):
-    blueprint_individual = module_graph.self.blueprint_genome
+    blueprint_individual = module_graph.blueprint_genome
 
     if module_graph is None:
         raise Exception("None module graph produced from blueprint")

@@ -82,7 +82,7 @@ class Genome:
         self._connected_nodes.add((conn.from_node, conn.to_node))
         self._connections[conn.id] = conn
 
-    def report_fitness(self, *fitnesses):
+    def report_fitness(self, fitnesses):
         if self.fitness_values is None or not self.fitness_values:
             self.fitness_values = [0 for _ in fitnesses]
 
