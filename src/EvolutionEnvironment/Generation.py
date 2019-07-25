@@ -80,9 +80,14 @@ class Generation:
     def evaluate(self, generation_number):
         self.generation_number = generation_number
 
-        blueprints = self.blueprint_population.individuals * math.ceil(
-            Props.INDIVIDUALS_TO_EVAL / len(self.blueprint_population.individuals))
-        random.shuffle(blueprints)
+        import copy
+        reps = math.ceil(Props.INDIVIDUALS_TO_EVAL / len(self.blueprint_population.individuals))
+        blueprints = [copy.deepcopy(bp) for _ in range(reps) for bp in self.blueprint_population.individuals]
+
+        # TODO test if works with > 1 species
+        # blueprints = self.blueprint_population.individuals * math.ceil(
+        #     Props.INDIVIDUALS_TO_EVAL / len(self.blueprint_population.individuals))
+        # random.shuffle(blueprints)
         blueprints = blueprints[:Props.INDIVIDUALS_TO_EVAL]
 
         if not Config.is_parallel():
@@ -95,17 +100,19 @@ class Generation:
 
         accuracies, second_objective_values, third_objective_values = [], [], []
 
+        bp_pop_indv = self.blueprint_population.individuals
+        bp_pop_len = len(bp_pop_indv)
         for bp_key, evaluation in enumerate(evaluations):
             if evaluation is None:
-                blueprints[bp_key].defective = True
+                bp_pop_indv[bp_key % bp_pop_len].defective = True
                 continue
 
             # TODO test this extensively (from Shane)
             evaluated_bp, fitness, module_graph = evaluation
-            blueprints[bp_key].report_fitness(*fitness)
+            bp_pop_indv[bp_key % bp_pop_len].report_fitness(*fitness)
 
             print('eval', evaluated_bp)
-            print('real', blueprints[bp_key])
+            print('real', bp_pop_indv[bp_key % bp_pop_len])
 
             if Config.evolve_data_augmentations and evaluated_bp.da_scheme_index != -1:
                 self.da_population[evaluated_bp.da_scheme_index].report_fitness(*fitness)
