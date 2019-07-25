@@ -96,6 +96,7 @@ class BlueprintNode(Node):
                 input_module_node.insert_aggregator_nodes()
                 input_module_node.clear()
                 input_module_node.get_traversal_ids("_")
+                input_module_node.self.blueprint_genome = self
             except:
                 print('BP conns', self.blueprint_genome.connections)
                 print('BP nodes', self.blueprint_genome.nodes)

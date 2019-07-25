@@ -41,6 +41,7 @@ class ModuleNode(Node):
 
         self.module_NEAT_genome = module_genome
         self.module_NEAT_node = module_NEAT_node
+        self.blueprint_genome = None#held only by the root of a fully constructed module_graph
 
         self.fitness_values = []
 

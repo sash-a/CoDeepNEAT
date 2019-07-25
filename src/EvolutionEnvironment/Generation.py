@@ -11,6 +11,7 @@ from src.Config import Config
 from data import DataManager
 from src.NeuralNetwork.ParetoPopulation import ParetoPopulation
 from src.Validation import DataLoader
+from src.Validation import Validation
 
 import multiprocessing as mp
 
@@ -157,15 +158,9 @@ class Generation:
         if blueprint_individual.modules_used:
             raise Exception('Modules used is not empty', blueprint_individual.modules_used)
 
-        device = Config.get_device()
-
         blueprint = blueprint_individual.to_blueprint()
         module_graph = blueprint.parseto_module_graph(self)
-
-
-
-        net.configure(blueprint_individual.learning_rate(), blueprint_individual.beta1(), blueprint_individual.beta2())
-        net.specify_dimensionality(inputs)
+        net = src.Validation.Validation.create_nn(module_graph)
 
         if Config.dummy_run:
             acc = hash(net)
@@ -179,7 +174,7 @@ class Generation:
             else:
                 da_scheme = None
 
-            acc = Evaluator.evaluate(net, Config.number_of_epochs_per_evaluation, device, 256, augmentor=da_scheme)
+            acc = Evaluator.evaluate(net, Config.number_of_epochs_per_evaluation, Config.get_device(), 256, augmentor=da_scheme)
 
         second_objective_value = None
         third_objective_value = None
