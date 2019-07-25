@@ -27,5 +27,4 @@ class ModuleGraph():
             node.delete_layer()
 
     def plot_tree_with_graphvis(self, title="", file="temp"):
-        raise  Exception()
         self.module_graph_root_node.plot_tree_with_graphvis(title=title,file=file)

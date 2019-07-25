@@ -79,7 +79,7 @@ def create_nn(module_graph, sample_inputs):
     if module_graph is None:
         raise Exception("None module graph produced from blueprint")
     try:
-        net = module_graph.to_nn(in_features=module_graph.get_first_feature_count(sample_inputs)).to(Config.get_device())
+        net = module_graph.to_nn(in_features=module_graph.module_graph_root_node.get_first_feature_count(sample_inputs)).to(Config.get_device())
 
     except Exception as e:
         if Config.save_failed_graphs:

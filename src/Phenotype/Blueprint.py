@@ -91,7 +91,7 @@ class BlueprintNode(Node):
                 input_module_node.insert_aggregator_nodes()
                 input_module_node.clear()
                 input_module_node.get_traversal_ids("_")
-                input_module_node.blueprint_genome = self.blueprint_genome
+
             except:
                 print('BP conns', self.blueprint_genome.connections)
                 print('BP nodes', self.blueprint_genome.nodes)
@@ -102,4 +102,6 @@ class BlueprintNode(Node):
                 input_module_node.plot_tree_with_graphviz("Failed to insert agg nodes")
                 raise Exception("failed to insert agg nodes")
 
-            return ModuleGraph(input_module_node)
+            module_graph = ModuleGraph(input_module_node)
+            module_graph.blueprint_genome = self.blueprint_genome
+            return module_graph

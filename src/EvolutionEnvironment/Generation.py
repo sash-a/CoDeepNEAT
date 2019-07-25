@@ -93,7 +93,7 @@ class Generation:
         bp_pop_size = len(self.blueprint_population)
         bp_pop_indvs = self.blueprint_population.individuals
 
-        print("got results:",results_dict)
+        #print("got results:",results_dict)
         for bp_key, (fitness, evaluated_bp, module_graph) in results_dict.items():
             if fitness == 'defective':
                 bp_pop_indvs[bp_key % bp_pop_size].defective = True
@@ -124,7 +124,7 @@ class Generation:
                 second_objective_values.append(fitness[1])
             if len(fitness) > 2:
                 third_objective_values.append(fitness[2])
-            print("calling queue candidate with",module_graph)
+            #print("calling queue candidate with",module_graph)
             self.pareto_population.queue_candidate(module_graph)
 
         RuntimeAnalysis.log_new_generation(accuracies, generation_number,
@@ -151,7 +151,8 @@ class Generation:
             except Exception as e:
                 result_dict[curr_index] = 'defective', False, False
                 if not Config.protect_parsing_from_errors:
-                    raise Exception(e)
+                    print(e)
+                    raise Exception("defective blueprint evalutaion")
 
     def evaluate_blueprint(self, blueprint_individual, inputs):
         # Validation
