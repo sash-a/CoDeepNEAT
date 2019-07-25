@@ -10,6 +10,7 @@ num_batches: 554 / 782 (71%) acc: 63.84 %
 num_batches: 633 / 782 (81%) acc: 65.98 %
 num_batches: 712 / 782 (91%) acc: 66.92 %
 num_batches: 782 / 782 (100%) acc: 66.3 %
+
 DropOutNet
 num_batches: 1 / 782 (0%) acc: 8.82 %
 num_batches: 80 / 782 (10%) acc: 30.8 %
@@ -22,7 +23,8 @@ num_batches: 554 / 782 (71%) acc: 55.51 %
 num_batches: 633 / 782 (81%) acc: 57.33 %
 num_batches: 712 / 782 (91%) acc: 58.69 %
 num_batches: 782 / 782 (100%) acc: 58.2 %
-StandardNet - tuples: [(10,29.5),(20,40.5),(30,46),(41,51),(51,53),(61,54),(71,56),(81,57.5),(91,59),(100,61)]
+
+SmallNet - tuples: [(10,29.5),(20,40.5),(30,46),(41,51),(51,53),(61,54),(71,56),(81,57.5),(91,59),(100,61)]
 num_batches: 1 / 782 (0%) acc: 10.01 %
 num_batches: 80 / 782 (10%) acc: 29.48 %
 num_batches: 159 / 782 (20%) acc: 40.64 %
@@ -34,3 +36,42 @@ num_batches: 554 / 782 (71%) acc: 55.96 %
 num_batches: 633 / 782 (81%) acc: 57.64 %
 num_batches: 712 / 782 (91%) acc: 58.81 %
 num_batches: 782 / 782 (100%) acc: 61.02 %
+
+MediumNet - tuples: [(10,34.46),(20,44.19),(30,49.88),(41,52.08),(51,57.63),(61,59.05),(71,61.16),(81,63.19),(91,65.47),(100,67.27)]
+num_batches: 1 / 782 (0%) acc: 8.35 %
+num_batches: 80 / 782 (10%) acc: 34.46 %
+num_batches: 159 / 782 (20%) acc: 44.19 %
+num_batches: 238 / 782 (30%) acc: 49.88 %
+num_batches: 317 / 782 (41%) acc: 52.08 %
+num_batches: 396 / 782 (51%) acc: 57.63 %
+num_batches: 475 / 782 (61%) acc: 59.05 %
+num_batches: 554 / 782 (71%) acc: 61.16 %
+num_batches: 633 / 782 (81%) acc: 63.19 %
+num_batches: 712 / 782 (91%) acc: 65.47 %
+num_batches: 782 / 782 (100%) acc: 67.27 %
+
+LargeNet - tuples: [(10,35.97 ),(20,47.28),(30,52.64),(41,58.06),(51,60.87),(61,62.87),(71,65.42),(81,67.06),(91,68.49 ),(100,69.18)]
+num_batches: 1 / 782 (0%) acc: 10.78 %
+num_batches: 80 / 782 (10%) acc: 35.97 %
+num_batches: 159 / 782 (20%) acc: 47.28 %
+num_batches: 238 / 782 (30%) acc: 52.64 %
+num_batches: 317 / 782 (41%) acc: 58.06 %
+num_batches: 396 / 782 (51%) acc: 60.87 %
+num_batches: 475 / 782 (61%) acc: 62.87 %
+num_batches: 554 / 782 (71%) acc: 65.42 %
+num_batches: 633 / 782 (81%) acc: 67.06 %
+num_batches: 712 / 782 (91%) acc: 68.49 %
+num_batches: 782 / 782 (100%) acc: 69.18 %
+
+LargeBatchNormNet - tuples: [(10,35.97 ),(20,47.28),(30,52.64),(41,58.06),(51,60.87),(61,62.87),(71,65.42),(81,67.06),(91,68.49 ),(100,69.18)]
+num_batches: 1 / 782 (0%) acc: 10.0 %
+num_batches: 80 / 782 (10%) acc: 64.51 %
+num_batches: 159 / 782 (20%) acc: 68.57 %
+num_batches: 238 / 782 (30%) acc: 70.0 %
+num_batches: 317 / 782 (41%) acc: 69.34 %
+num_batches: 396 / 782 (51%) acc: 70.71 %
+num_batches: 475 / 782 (61%) acc: 70.98 %
+num_batches: 554 / 782 (71%) acc: 70.78 %
+num_batches: 633 / 782 (81%) acc: 70.65 %
+num_batches: 712 / 782 (91%) acc: 70.74 %
+num_batches: 782 / 782 (100%) acc: 71.24 %
