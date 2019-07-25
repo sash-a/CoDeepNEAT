@@ -160,8 +160,6 @@ class Generation:
                 if Config.evolve_data_augmentations:
                     da_indv = blueprint_individual.pick_da_scheme(self.da_population)
                     da_scheme = da_indv.to_phenotype()
-                else:
-                    da_scheme = None
             else:
                 if Config.evolve_data_augmentations:
                     da_indv = blueprint_individual.pick_da_scheme(self.da_population)
