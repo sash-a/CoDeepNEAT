@@ -20,7 +20,7 @@ class ParetoPopulation():
         self.plot_fitnesses()
 
     def plot_fitnesses(self):
-        print("lengths:" , repr([len(x.fitness_values) for x in self.pareto_front]))
+        #print("lengths:" , repr([len(x.fitness_values) for x in self.pareto_front]))
         accuracies = [x.fitness_values[0] for x in self.pareto_front]
         num_objectives = len(self.pareto_front[0].fitness_values)
         if num_objectives == 1:

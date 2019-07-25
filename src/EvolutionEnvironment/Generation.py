@@ -113,9 +113,9 @@ class Generation:
             if Config.evolve_data_augmentations and evaluated_bp.da_scheme_index != -1:
                 self.da_population[evaluated_bp.da_scheme_index].report_fitness(fitness)
 
-            print("reporting fitnesses to: ",  evaluated_bp.modules_used_index)
+            #print("reporting fitnesses to: ",  evaluated_bp.modules_used_index)
             for species_index, member_index in evaluated_bp.modules_used_index:
-                print("reporting fitness",fitness, " to : ", self.module_population.species[species_index][member_index])
+                #print("reporting fitness",fitness, " to : ", self.module_population.species[species_index][member_index])
                 self.module_population.species[species_index][member_index].report_fitness(fitness)
 
             # Gathering results for analysis
@@ -190,4 +190,5 @@ class Generation:
                 print("Error: did not recognise second objective", Config.second_objective)
 
         module_graph.delete_all_layers()
+        module_graph.fitness_values = results
         return module_graph, blueprint_individual, results

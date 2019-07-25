@@ -389,10 +389,9 @@ class ModuleNode(Node):
         else:
             print("layer type", layer_type(), "not implemented")
 
-    def report_fitness(self,fitnesses):
-        print("module graph getting fitness:", fitnesses)
-        if self.fitness_values is None or not self.fitness_values:
-            self.fitness_values = [0 for _ in fitnesses]
-
-        for i, fitness in enumerate(fitnesses):
-            self.fitness_values[i] = fitness
+    # def report_fitness(self,fitnesses):
+    #     if self.fitness_values is None or not self.fitness_values:
+    #         self.fitness_values = [0 for _ in fitnesses]
+    #
+    #     for i, fitness in enumerate(fitnesses):
+    #         self.fitness_values[i] = fitness
