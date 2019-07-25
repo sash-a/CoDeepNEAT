@@ -1,7 +1,6 @@
 import torch
-import torchvision.transforms as transforms
 from src.DataEfficiency import Net
-from src.NeuralNetwork.Evaluator import load_data
+from src.Validation.DataLoader import load_data
 import math
 import matplotlib.pyplot as plt
 

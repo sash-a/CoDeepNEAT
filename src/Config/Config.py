@@ -11,7 +11,7 @@ continue_from_last_run = False
 # nn options
 device = 'gpu'
 # device = 'cpu'
-num_gpus = 2
+num_gpus = 1
 num_workers = 0  # this doesn't work in parallel because daemonic processes cannot spawn children
 dataset = 'fassion_mnist'
 data_path = ''

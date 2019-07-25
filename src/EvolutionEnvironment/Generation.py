@@ -1,20 +1,18 @@
 import copy
 
 import src.Config.NeatProperties as Props
+import src.Validation.DataLoader
 from src.NEAT.Population import Population
 from src.NEAT.PopulationRanking import single_objective_rank, cdn_rank, nsga_rank
-from src.NeuralNetwork import Evaluator
+from src.Validation import Evaluator
 from src.CoDeepNEAT import PopulationInitialiser as PopInit
 from src.Analysis import RuntimeAnalysis
 from src.Config import Config
 from data import DataManager
 from src.NeuralNetwork.ParetoPopulation import ParetoPopulation
-import pickle
+from src.Validation import DataLoader
 
 import multiprocessing as mp
-import random
-import torch
-import math
 
 
 class Generation:
@@ -133,7 +131,7 @@ class Generation:
                                                third_objective_values if third_objective_values else None))
 
     def _evaluate(self, lock, bp_index, result_dict):
-        inputs, targets = Evaluator.sample_data(Config.get_device())
+        inputs, targets = DataLoader.sample_data(Config.get_device())
         blueprints = self.blueprint_population.individuals
         bp_pop_size = len(blueprints)
 
