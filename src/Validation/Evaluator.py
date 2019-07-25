@@ -121,7 +121,7 @@ def test(model, test_loader, device, print_acc=True):
     return acc
 
 
-def evaluate(model, epochs, device, batch_size=64, augmentor=None):
+def evaluate(model, epochs, device, batch_size=64, augmentor=None, train_loader = None, test_loader = None):
     """
     Runs all epochs and tests the model after all epochs have run
 
@@ -131,7 +131,9 @@ def evaluate(model, epochs, device, batch_size=64, augmentor=None):
     :return: The trained model
     """
     #print('Eval received device', device, 'on processor', mp.current_process())
-    train_loader, test_loader = load_data(batch_size)
+    if train_loader is None:
+        train_loader, test_loader = load_data(batch_size)
+
 
     s = time.time()
     for epoch in range(1, epochs + 1):

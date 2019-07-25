@@ -22,5 +22,13 @@ class DataSet():
     def __len__(self):
         return self.length
 
+    def get_training_fold(self,k,i):
+        """ith fold is the testing fold"""
+        return [ self[c] for c in range(len(self)) if (c//k) !=i]
+
+    def get_testing_fold(self,k,i):
+        """ith fold is the testing fold"""
+        return [ self[c] for c in range(len(self)) if (c//k) ==i]
+
 
 
