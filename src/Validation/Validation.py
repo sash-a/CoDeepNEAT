@@ -15,7 +15,7 @@ def cross_validate(module_graph, dataset="" ,k = 10):
         module_graph.delete_all_layers()
         print(k,"fold validation",i,":",acc)
 
-    return acc/10
+    return total_acc/k
 
 def validate_fold(model, da_scheme,dataset, k, i):
 
