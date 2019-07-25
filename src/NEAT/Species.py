@@ -23,6 +23,8 @@ class Species:
         return "Species age:" + repr(self.age) + " type: " + repr(type(self.members[0]))
 
     def __getitem__(self, item):
+        if item >= len(self.members):
+            raise Exception("index out of bounds, ased for indv:",item, "but only",len(self.members),"members")
         return self.members[item]
 
     def add(self, individual):

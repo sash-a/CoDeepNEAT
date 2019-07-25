@@ -2,9 +2,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-class StandardNet(nn.Module):
+class SmallNet(nn.Module):
     def __init__(self):
-        super(StandardNet, self).__init__()
+        super(SmallNet, self).__init__()
         self.conv1 = nn.Conv2d(3, 6, 5)
         self.pool = nn.MaxPool2d(2, 2)
         self.conv2 = nn.Conv2d(6, 16, 5)
@@ -21,10 +21,10 @@ class StandardNet(nn.Module):
         x = self.fc3(x)
         return x
 
-class RedundantComplexityNet(nn.Module):
+class MediumNet(nn.Module):
 
     def __init__(self):
-        super(RedundantComplexityNet, self).__init__()
+        super(MediumNet, self).__init__()
         self.conv1 = nn.Conv2d(3, 12, 5)
         self.pool = nn.MaxPool2d(2, 2)
         self.conv2 = nn.Conv2d(12, 32, 5)
@@ -42,8 +42,55 @@ class RedundantComplexityNet(nn.Module):
         return x
 
 
+class LargeNet(nn.Module):
 
-class DropOutNet(StandardNet):
+    def __init__(self):
+        super(LargeNet, self).__init__()
+        self.conv1 = nn.Conv2d(3, 24, 5)
+        self.pool = nn.MaxPool2d(2, 2)
+        self.conv2 = nn.Conv2d(24, 64, 5)
+        self.fc1 = nn.Linear(64 * 5 * 5, 480)
+        self.fc2 = nn.Linear(480, 320)
+        self.fc3 = nn.Linear(320, 10)
+
+    def forward(self, x):
+        x = self.pool(F.relu(self.conv1(x)))
+        x = self.pool(F.relu(self.conv2(x)))
+        x = x.view(-1, 64 * 5 * 5)
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = self.fc3(x)
+        return x
+
+class LargeBatchNormNet(LargeNet):
+
+    def __init__(self):
+        super(LargeBatchNormNet, self).__init__()
+        self.batch_norm_1d_1 = nn.BatchNorm1d(480)
+        self.batch_norm_1d_2 = nn.BatchNorm1d(320)
+
+        self.batch_norm_2d_1 = nn.BatchNorm2d(24)
+        self.batch_norm_2d_2 = nn.BatchNorm2d(64)
+
+    def forward(self, x):
+        x = self.pool(F.relu(self.conv1(x)))
+        x = self.batch_norm_2d_1(x)
+        x = self.pool(F.relu(self.conv2(x)))
+        x = self.batch_norm_2d_2(x)
+        x = x.view(-1, 64 * 5 * 5)
+        x = F.relu(self.fc1(x))
+        x = self.batch_norm_1d_1(x)
+        x = F.relu(self.fc2(x))
+        x = self.batch_norm_1d_2(x)
+        x = self.fc3(x)
+        return x
+
+
+
+
+
+
+class DropOutNet(SmallNet):
     """
     performs worse than standard met despite changing where and how much drop out
     """
@@ -67,7 +114,7 @@ class DropOutNet(StandardNet):
         return x
 
 
-class BatchNormNet(StandardNet):
+class BatchNormNet(SmallNet):
 
     def __init__(self):
         super(BatchNormNet,self).__init__()

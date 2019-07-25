@@ -9,24 +9,9 @@ import torch.nn as nn
 import torch.optim as optim
 
 criterion = nn.CrossEntropyLoss()
-networks = [Net.RedundantComplexityNet,Net.StandardNet,Net.BatchNormNet]
+networks = [Net.LargeBatchNormNet]
 total_batches = None
 
-
-"""
-DataEfficiency function:
-
-acc = max_acc * ln( set_fraction + A / A) * A^fix           solve for A given max_acc and best fit line of all the (set_fraction,acc) tuples
-
-where   A = 1/learning_rate                                 the primary data efficiency component
-        fix = log(0.434294482/log((100+b)/b))/log(b)        a solution to fix the point (100,max_acc)
-        
-        learning rate >0 ≠ 1                                as learning rate->∞ the model gets closer to instant learning
-                a measure of how quickly a model learns given its data. models with higher learning_rates would perform better with less data
-                
-        data_efficiency = max_acc * learning_rate^2         ?possibly change to keep DE constant for a model under data restriction
-        
-"""
 
 def test_model(model):
     model.eval()
@@ -155,7 +140,7 @@ def run_tests():
     global total_batches
     trainloader, testloader = load_data(dataset="cifar10")
     total_batches = len(trainloader)
-    test_max_accuracy_of_networks(num_epochs)
+    #test_max_accuracy_of_networks(num_epochs)
     test_all_networks(num_epochs)
 
 if __name__ == "__main__":

@@ -144,7 +144,7 @@ def evaluate(model, epochs, device, batch_size=64, augmentor=None):
     return test_acc
 
 
-def sample_data(device, batch_size=64):
+def sample_data(device, batch_size=16):
     train_loader, test_loader = load_data(batch_size=batch_size)
     for batch_idx, (inputs, targets) in enumerate(train_loader):
         return inputs.to(device), targets.to(device)

@@ -116,6 +116,7 @@ class Generation:
 
             if Config.evolve_data_augmentations and evaluated_bp.da_scheme_index != -1:
                 self.da_population[evaluated_bp.da_scheme_index].report_fitness(*fitness)
+
             for species_index, member_index in evaluated_bp.modules_used_index:
                 self.module_population.species[species_index][member_index].report_fitness(*fitness)
 
