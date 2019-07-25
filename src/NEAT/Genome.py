@@ -83,6 +83,7 @@ class Genome:
         self._connections[conn.id] = conn
 
     def report_fitness(self, fitnesses):
+        #print("reporting fitness",fitnesses, "to genome:", type(self))
         if self.fitness_values is None or not self.fitness_values:
             self.fitness_values = [0 for _ in fitnesses]
 

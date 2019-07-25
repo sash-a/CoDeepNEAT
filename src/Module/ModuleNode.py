@@ -45,6 +45,8 @@ class ModuleNode(Node):
 
         self.fitness_values = []
 
+        self.data_augmentation_schemes = []
+
         if not (module_NEAT_node is None):
             self.generate_module_node_from_gene()
 

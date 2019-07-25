@@ -24,7 +24,7 @@ def train(model, train_loader, epoch, test_loader, device, augmentor=None, print
     :param test_loader: The test dataset loader
     :param print_accuracy: True if should test when printing batch info
     """
-    print('Train received device:', device)
+    #print('Train received device:', device)
     model.train()
 
     loss = 0
@@ -91,7 +91,7 @@ def test(model, test_loader, device, print_acc=True):
     """
     model.eval()
 
-    print('testing received device', device)
+    #print('testing received device', device)
     correct = 0
     with torch.no_grad():
         for inputs, targets in test_loader:
@@ -130,7 +130,7 @@ def evaluate(model, epochs, device, batch_size=64, augmentor=None):
     :param batch_size: The dataset batch size
     :return: The trained model
     """
-    print('Eval received device', device, 'on processor', mp.current_process())
+    #print('Eval received device', device, 'on processor', mp.current_process())
     train_loader, test_loader = load_data(batch_size)
 
     s = time.time()

@@ -163,23 +163,17 @@ class Generation:
         blueprint = blueprint_individual.to_blueprint()
         module_graph = blueprint.parseto_module_graph(self)
         net = src.Validation.Validation.create_nn(module_graph, inputs)
-
-        if Config.dummy_run:
-            acc = hash(net)
-            if Config.evolve_data_augmentations:
-                da_indv = blueprint_individual.pick_da_scheme(self.da_population)
-                da_scheme = da_indv.to_phenotype()
+        if Config.evolve_data_augmentations:
+            da_indv = blueprint_individual.pick_da_scheme(self.da_population)
+            da_scheme = da_indv.to_phenotype()
+            module_graph.data_augmentation_schemes.append(da_scheme)
         else:
-            if Config.evolve_data_augmentations:
-                da_indv = blueprint_individual.pick_da_scheme(self.da_population)
-                da_scheme = da_indv.to_phenotype()
-            else:
-                da_scheme = None
+            da_scheme = None
 
-            acc = Evaluator.evaluate(net, Config.number_of_epochs_per_evaluation, Config.get_device(), 256, augmentor=da_scheme)
+        accuracy = Validation.get_accuracy_for_network(net,da_scheme=da_scheme, batch_size= 256 )
 
         objective_names = [Config.second_objective, Config.third_objective]
-        results = [acc]
+        results = [accuracy]
         for objective_name in objective_names:
 
             if objective_name == "network_size":
