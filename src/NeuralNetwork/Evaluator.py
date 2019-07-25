@@ -48,7 +48,9 @@ def train(model, train_loader, epoch, test_loader, device, augmentor=None, print
         model.optimizer.zero_grad()
 
         output = model(inputs)
-        m_loss = model.loss_fn(output, targets.float())
+        #print("out:",output.size(),"targets:",targets.size(), targets)
+        m_loss = model.loss_fn(output, targets)
+        #print("loss:", m_loss)
         del inputs
         del targets
         # augmented_inputs, augmented_labels = augmented_inputs.to(device), augmented_labels.to(device)
@@ -102,7 +104,7 @@ def test(model, test_loader, device, print_acc=True):
 
             inputs, targets = inputs.to(device), targets.to(device)
             output = model(inputs)
-            if len(list(targets.size())) == 1:
+            if len(list(output.size())) == 1:
                 # each batch item has only one value. this value is the class prediction
                 for i in range(list(targets.size())[0]):
                     prediction = round(list(output)[i].item())

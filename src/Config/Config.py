@@ -4,7 +4,7 @@ import torch.multiprocessing as mp
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Run state options
-run_name = "test_run"
+run_name = "test_run2"
 continue_from_last_run = False
 
 # --------------------------------------------------------------------------------------------------------------------#
@@ -35,11 +35,11 @@ evolve_data_augmentations = False
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Debug and test options
-dummy_run = True
+dummy_run = False
 
 protect_parsing_from_errors = False
 test_in_run = False
-interleaving_check = True
+interleaving_check = False
 
 save_best_graphs = True
 print_best_graphs = False

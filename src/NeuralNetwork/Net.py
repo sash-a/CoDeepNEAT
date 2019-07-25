@@ -5,8 +5,9 @@ from src.Utilities import Utils
 from src.Config import Config
 
 
+
 class ModuleNet(nn.Module):
-    def __init__(self, module_graph, beta1=0.9, beta2=0.999, loss_fn=nn.MSELoss()):
+    def __init__(self, module_graph, beta1=0.9, beta2=0.999, loss_fn=F.nll_loss):
         super(ModuleNet, self).__init__()
         self.module_graph = module_graph
         self.loss_fn = loss_fn
@@ -22,7 +23,7 @@ class ModuleNet(nn.Module):
         self.beta1 = beta1
         self.beta2 = beta2
 
-    def specify_dimensionality(self, input_sample, output_dimensionality=torch.tensor([1])):
+    def specify_dimensionality(self, input_sample, output_dimensionality=torch.tensor([10])):
         if self.dimensionality_configured:
             print("warning - trying to configure dimensionality multiple times on the same network")
             return
@@ -33,7 +34,7 @@ class ModuleNet(nn.Module):
 
         # self.module_graph.add_reshape_node(list(input_sample.size()))
 
-        output_nodes = Utils.get_flat_number(output_dimensionality, 0)
+        output_nodes = int(list(output_dimensionality)[0])
         output = self(input_sample, configuration_run=True)
         if output is None:
             raise Exception("Error: failed to pass input through nn")
@@ -42,6 +43,7 @@ class ModuleNet(nn.Module):
         # print("out = ", output.size(), "using linear layer (", in_layers, ",", output_nodes, ")")
 
         self.final_layer = nn.Linear(in_layers, output_nodes).to(Config.get_device())
+        print("created final layer:",self.final_layer)
         self.dimensionality_configured = True
         self.outputDimensionality = output_dimensionality
         final_params = self.final_layer.parameters()
@@ -68,4 +70,4 @@ class ModuleNet(nn.Module):
             # print("dimensionality of a net not configured x==none~", (x is None))
             pass
 
-        return x.squeeze()
+        return torch.squeeze(F.log_softmax(x, dim=1))
