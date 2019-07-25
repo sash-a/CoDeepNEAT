@@ -14,8 +14,7 @@ use_linears = True
 
 
 class ModulenNEATNode(NodeGene):
-    def __init__(self, id, node_type=NodeType.HIDDEN,
-                 out_features=25, activation=F.relu, layer_type=nn.Conv2d,
+    def __init__(self, id, node_type=NodeType.HIDDEN, activation=F.relu, layer_type=nn.Conv2d,
                  conv_window_size=7, conv_stride=1, max_pool_size=2):
         super(ModulenNEATNode, self).__init__(id, node_type)
 
@@ -27,6 +26,9 @@ class ModulenNEATNode(NodeGene):
 
         self.activation = Mutagen(F.relu, F.leaky_relu, torch.sigmoid, F.relu6,
                                   discreet_value=activation, name="activation function")  # TODO try add in Selu, Elu
+
+        conv_out_features = 25 + random.randint(0,25)
+        linear_out_features = 100 + random.randint(0,100)
 
         linear_submutagens = \
             {
@@ -40,7 +42,8 @@ class ModulenNEATNode(NodeGene):
                                                   end_range=0.75)}
                 }),
 
-                "out_features": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=100, start_range=10,
+                "out_features": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=linear_out_features,
+                                        start_range=10,
                                         end_range=1024, name="num out features")
             }
 
@@ -65,7 +68,7 @@ class ModulenNEATNode(NodeGene):
                                               start_range=0, end_range=0.75)}
             }),
 
-            "out_features": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=out_features, start_range=1,
+            "out_features": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=conv_out_features, start_range=1,
                                     end_range=100, name="num out features")
         }
 
@@ -178,8 +181,6 @@ class DANode(NodeGene):
                           discreet_value="Flip_lr")
 
         self.enabled = Mutagen(True, False, discreet_value=True, name="da enabled")
-
-
 
     def get_all_mutagens(self):
         return [self.da, self.enabled]

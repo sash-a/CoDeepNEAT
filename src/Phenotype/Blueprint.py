@@ -1,6 +1,6 @@
 from src.Phenotype.Node import Node
 from src.Phenotype.ModuleGraph import ModuleGraph
-
+import copy
 
 class BlueprintNode(Node):
     """
@@ -103,5 +103,5 @@ class BlueprintNode(Node):
                 raise Exception("failed to insert agg nodes")
 
             module_graph = ModuleGraph(input_module_node)
-            module_graph.blueprint_genome = self.blueprint_genome
+            module_graph.blueprint_genome = copy.deepcopy(self.blueprint_genome)
             return module_graph
