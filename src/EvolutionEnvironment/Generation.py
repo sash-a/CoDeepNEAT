@@ -93,7 +93,7 @@ class Generation:
         bp_pop_size = len(self.blueprint_population)
         bp_pop_indvs = self.blueprint_population.individuals
 
-        #print("got results:",results_dict)
+        # print("got results:",results_dict)
         for bp_key, (fitness, evaluated_bp, module_graph) in results_dict.items():
             if fitness == 'defective':
                 bp_pop_indvs[bp_key % bp_pop_size].defective = True
@@ -113,9 +113,8 @@ class Generation:
             if Config.evolve_data_augmentations and evaluated_bp.da_scheme_index != -1:
                 self.da_population[evaluated_bp.da_scheme_index].report_fitness(fitness)
 
-            #print("reporting fitnesses to: ",  evaluated_bp.modules_used_index)
+            # print("reporting fitnesses to: ",  evaluated_bp.modules_used_index)
             for species_index, member_index in evaluated_bp.modules_used_index:
-                #print("reporting fitness",fitness, " to : ", self.module_population.species[species_index][member_index])
                 self.module_population.species[species_index][member_index].report_fitness(fitness)
 
             # Gathering results for analysis
@@ -124,7 +123,7 @@ class Generation:
                 second_objective_values.append(fitness[1])
             if len(fitness) > 2:
                 third_objective_values.append(fitness[2])
-            #print("calling queue candidate with",module_graph)
+
             self.pareto_population.queue_candidate(module_graph)
 
         RuntimeAnalysis.log_new_generation(accuracies, generation_number,

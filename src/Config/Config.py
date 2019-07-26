@@ -11,9 +11,9 @@ continue_from_last_run = True
 # nn options
 device = 'gpu'
 # device = 'cpu'
-num_gpus = 1
+num_gpus = 2
 num_workers = 0  # this doesn't work in parallel because daemonic processes cannot spawn children
-dataset = 'fassion_mnist'
+dataset = 'fashion_mnist'
 data_path = ''
 number_of_epochs_per_evaluation = 5
 
@@ -31,20 +31,20 @@ moo_optimiser = "cdn"  # cdn/nsga
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Data augmentation options
-evolve_data_augmentations = True
+evolve_data_augmentations = False
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Debug and test options
-dummy_run = True
+dummy_run = False
 
 protect_parsing_from_errors = False
 test_in_run = False
 interleaving_check = False
 
-save_best_graphs = True
+save_best_graphs = False
 print_best_graphs = False
 print_best_graph_every_n_generations = 5
-save_failed_graphs = True
+save_failed_graphs = False
 
 
 # --------------------------------------------------------------------------------------------------------------------#
@@ -54,7 +54,6 @@ def get_device():
 
     gpu = 'cuda:'
     gpu += '0' if num_gpus <= 1 else mp.current_process().name
-    return torch.device('cuda:0')
     return torch.device('cpu') if device == 'cpu' else torch.device(gpu)
 
 

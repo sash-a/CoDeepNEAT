@@ -23,8 +23,7 @@ def load_data(batch_size=64, dataset=""):
     if dataset == "":
         dataset = Config.dataset.lower()
 
-    #print("loading(",dataset,")data from:",data_path)
-
+    # print("loading(",dataset,")data from:",data_path)
 
     if dataset == 'mnist':
         train_loader = DataLoader(
@@ -41,7 +40,7 @@ def load_data(batch_size=64, dataset=""):
                            transform=black_and_white_image_transform),
             batch_size=batch_size, shuffle=True, **data_loader_args)
 
-    elif dataset == 'fassion_mnist':
+    elif dataset == 'fashion_mnist':
         train_loader = DataLoader(
             datasets.FashionMNIST(data_path,
                                   train=True, download=download,
@@ -75,7 +74,7 @@ def load_data(batch_size=64, dataset=""):
     return train_loader, test_loader
 
 
-def sample_data(device, batch_size=16, dataset = ""):
+def sample_data(device, batch_size=16, dataset=""):
     train_loader, test_loader = load_data(batch_size=batch_size, dataset=dataset)
     for batch_idx, (inputs, targets) in enumerate(train_loader):
         return inputs.to(device), targets.to(device)

@@ -29,11 +29,8 @@ class ModuleNet(nn.Module):
             return
         if self.lr == 0:
             raise Exception('please set net learning rate before calling specify dims')
-
         # print("configuring output dims with in=", input_sample.size())
-
         # self.module_graph.add_reshape_node(list(input_sample.size()))
-
         output_nodes = int(list(output_dimensionality)[0])
         output = self(input_sample, configuration_run=True)
         if output is None:
@@ -67,9 +64,6 @@ class ModuleNet(nn.Module):
             x = F.relu(self.final_layer(x.view(batch_size, -1)))
             # only works with 1 output dimension
             x = x.view(batch_size, self.outputDimensionality[0].item(), -1)
-        else:
-            # print("dimensionality of a net not configured x==none~", (x is None))
-            pass
 
         return torch.squeeze(F.log_softmax(x, dim=1))
 
@@ -81,11 +75,7 @@ class ModuleNet(nn.Module):
             if child.deep_layer is None:
                 continue
 
-            # print(self.module_graph.blueprint_genome.weight_init)
-            print('b4', child.deep_layer.weight)
             self.module_graph.blueprint_genome.weight_init.get_value()(child.deep_layer.weight)
-            print('a5', child.deep_layer.weight)
-
             self._init_weights(child)
 
 

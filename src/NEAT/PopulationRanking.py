@@ -3,6 +3,7 @@ import sys
 import math
 import operator
 
+
 def single_objective_rank(individuals):
     individuals.sort(key=lambda indv: (0 if not indv.fitness_values else indv.fitness_values[0]), reverse=True)
     for i, individual in enumerate(individuals):
@@ -23,9 +24,9 @@ def cdn_pareto_front(individuals):
 
 def cdn_rank(individuals):
     ranked_individuals = []
-
     fronts = []
     remaining_individuals = set(individuals)
+
     while len(remaining_individuals) > 0:
         pf = cdn_pareto_front(list(remaining_individuals))
         fronts.append(pf)
@@ -33,7 +34,6 @@ def cdn_rank(individuals):
         ranked_individuals.extend(pf)
 
     for i, indv in enumerate(ranked_individuals):
-        # print("ranking", ranked_individuals[0], "to",i)
         indv.rank = i + 1
     return fronts
 
@@ -44,35 +44,35 @@ def nsga_rank(individuals):
     rank = 1
 
     for front in fronts:
-        """rank is firstly based on which front the indv is in"""
+        # rank is firstly based on which front the indv is in
         distances = {}
-        #print("num_objectives =",individuals[0].fitness_values)
+        # print("num_objectives =",individuals[0].fitness_values)
         for objective in range(len(individuals[0].fitness_values)):
-            """estimate density by averaging the two nearest along each objective axis, then combining each distance"""
-
+            # estimate density by averaging the two nearest along each objective axis, then combining each distance
             objective_sorted = sorted(front, key=lambda x: x.fitness_values[objective])
-            #print("sorted:", objective_sorted)
-
+            # print("sorted:", objective_sorted)
             for i, indv in enumerate(objective_sorted):
-                if i == 0 or i == len(objective_sorted)-1:
+                if i == 0 or i == len(objective_sorted) - 1:
                     distance = sys.maxsize
                 else:
-                    distance = (abs(objective_sorted[i].fitness_values[objective] - objective_sorted[i + 1].fitness_values[objective] )  + abs(objective_sorted[i].fitness_values[objective]  - objective_sorted[i - 1].fitness_values[objective] )) / 2
+                    distance = (abs(
+                        objective_sorted[i].fitness_values[objective] - objective_sorted[i + 1].fitness_values[
+                            objective]) + abs(
+                        objective_sorted[i].fitness_values[objective] - objective_sorted[i - 1].fitness_values[
+                            objective])) / 2
                     distance = math.pow(distance, 2)
 
                 if objective == 0:
                     distances[indv] = []
                 distances[indv].append(distance)
 
-        #print("front:",front)
-        #print(distances)
         distance_sorted = sorted(front, key=lambda x: sum(distances[x]), reverse=True)
         for indv in distance_sorted:
             indv.rank = rank
             rank += 1
 
 
-def general_pareto_sorting(individuals, return_pareto_front_only = False):
+def general_pareto_sorting(individuals, return_pareto_front_only=False):
     """takes in a list of individuals and returns a list of fronts, each being a list of individuals"""
     fronts = [[]]
     dominations = {}
@@ -129,7 +129,6 @@ def check_domination(domination_candidate, comparitor):
         if comparison(comparitor.fitness_values[i], domination_candidate.fitness_values[i]):
             return False
     return True
-
 
 
 if __name__ == "__main__":
