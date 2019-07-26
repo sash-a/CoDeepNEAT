@@ -51,6 +51,8 @@ class ModuleNet(nn.Module):
         full_parameters.extend(final_params)
         self.optimizer = optim.Adam(full_parameters, lr=self.lr, betas=(self.beta1, self.beta2))
 
+        self.init_weights()
+
     def forward(self, x, configuration_run=False):
         if x is None:
             print("null x passed to forward 1")
@@ -61,7 +63,6 @@ class ModuleNet(nn.Module):
             return
 
         if self.dimensionality_configured:
-
             batch_size = x.size()[0]
             x = F.relu(self.final_layer(x.view(batch_size, -1)))
             # only works with 1 output dimension
@@ -72,6 +73,21 @@ class ModuleNet(nn.Module):
 
         return torch.squeeze(F.log_softmax(x, dim=1))
 
+    def init_weights(self):
+        self._init_weights(self.module_graph.module_graph_root_node)
+
+    def _init_weights(self, module_node):
+        for child in module_node.children:
+            if child.deep_layer is None:
+                continue
+
+            # print(self.module_graph.blueprint_genome.weight_init)
+            print('b4', child.deep_layer.weight)
+            self.module_graph.blueprint_genome.weight_init.get_value()(child.deep_layer.weight)
+            print('a5', child.deep_layer.weight)
+
+            self._init_weights(child)
+
 
 def create_nn(module_graph, sample_inputs):
     blueprint_individual = module_graph.blueprint_genome
@@ -79,7 +95,9 @@ def create_nn(module_graph, sample_inputs):
     if module_graph is None:
         raise Exception("None module graph produced from blueprint")
     try:
-        net = module_graph.to_nn(in_features=module_graph.module_graph_root_node.get_first_feature_count(sample_inputs)).to(Config.get_device())
+        net = module_graph.to_nn(
+            in_features=module_graph.module_graph_root_node.get_first_feature_count(sample_inputs)).to(
+            Config.get_device())
 
     except Exception as e:
         if Config.save_failed_graphs:
@@ -88,6 +106,6 @@ def create_nn(module_graph, sample_inputs):
 
     net.configure(blueprint_individual.learning_rate(), blueprint_individual.beta1(), blueprint_individual.beta2())
     net.specify_dimensionality(sample_inputs)
-    #module_graph.plot_tree_with_graphvis("test")
+    # module_graph.plot_tree_with_graphvis("test")
 
     return net

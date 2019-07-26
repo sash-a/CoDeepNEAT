@@ -137,7 +137,6 @@ class Mutagen:
             return self.current_value
 
     def get_sub_value(self, sub_value_name, value=None, return_mutagen=False):
-
         if value is None:
             mutagen = self.sub_values[self.get_value()]
         else:
@@ -158,9 +157,9 @@ class Mutagen:
                 return self.sub_values[self.get_value()]
 
     def set_value(self, value):
-        """sets current_value=value, or curent_value_id = index(value)
+        """sets current_value=value, or current_value_id = index(value)
             depending on numerical or discreet mutagen respectively"""
-        if (self.value_type == ValueType.DISCRETE):
+        if self.value_type == ValueType.DISCRETE:
             if value is None and None not in self.possible_values:
                 self.current_value_id = 0
             else:

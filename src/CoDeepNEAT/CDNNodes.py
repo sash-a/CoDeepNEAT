@@ -27,8 +27,8 @@ class ModulenNEATNode(NodeGene):
         self.activation = Mutagen(F.relu, F.leaky_relu, torch.sigmoid, F.relu6,
                                   discreet_value=activation, name="activation function")  # TODO try add in Selu, Elu
 
-        conv_out_features = 25 + random.randint(0,25)
-        linear_out_features = 100 + random.randint(0,100)
+        conv_out_features = 25 + random.randint(0, 25)
+        linear_out_features = 100 + random.randint(0, 100)
 
         linear_submutagens = \
             {
@@ -91,7 +91,6 @@ class ModulenNEATNode(NodeGene):
 
 
 class BlueprintNEATNode(NodeGene):
-
     def __init__(self, id, node_type=NodeType.HIDDEN):
         super(BlueprintNEATNode, self).__init__(id, node_type)
 

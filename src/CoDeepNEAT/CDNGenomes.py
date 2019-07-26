@@ -1,4 +1,5 @@
 import copy
+from torch import nn
 
 from src.Phenotype.Blueprint import BlueprintNode
 from src.Config import NeatProperties as Props
@@ -19,7 +20,8 @@ class BlueprintGenome(Genome):
                                      end_range=0.005, print_when_mutating=False)
         self.beta1 = Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.9, start_range=0.87, end_range=0.93)
         self.beta2 = Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.999, start_range=0.9987, end_range=0.9993)
-
+        self.weight_init = Mutagen(nn.init.kaiming_uniform_, nn.init.xavier_uniform_,
+                                   discreet_value=nn.init.kaiming_uniform_, name='initialization function')
         self.da_scheme_index = -1
 
     def to_blueprint(self):
@@ -52,7 +54,7 @@ class BlueprintGenome(Genome):
             node.set_species_upper_bound(num_module_species)
 
     def get_all_mutagens(self):
-        return [self.learning_rate, self.beta1, self.beta2]
+        return [self.learning_rate, self.beta1, self.beta2, self.weight_init]
 
 
 class ModuleGenome(Genome):
