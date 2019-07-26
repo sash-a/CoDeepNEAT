@@ -73,7 +73,7 @@ def parse_args():
     parser.add_argument('-p', '--data-path', type=str, nargs='?', default=Config.data_path,
                         help='Directory to store the training and test data')
     parser.add_argument('--dataset', type=str, nargs='?', default=Config.dataset,
-                        choices=['mnist', 'fashion_mnist', 'cifar'], help='Dataset to train with')
+                        choices=['mnist', 'fashion_mnist', 'cifar10'], help='Dataset to train with')
     parser.add_argument('-d', '--device', type=str, nargs='?', default=Config.device, choices=['cpu', 'gpu'],
                         help='Device to train on')
     parser.add_argument('--n-gpus', type=int, nargs='?', default=Config.num_gpus,

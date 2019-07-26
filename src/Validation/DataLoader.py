@@ -3,11 +3,13 @@ from torchvision import transforms, datasets
 
 from data import DataManager
 from src.Config import Config
+import os
 
 
 def load_data(batch_size=64, dataset=""):
     data_loader_args = {'num_workers': Config.num_workers, 'pin_memory': False if Config.device != 'cpu' else False}
     data_path = DataManager.get_Datasets_folder()
+
     colour_image_transform = transforms.Compose([
         transforms.ToTensor(),
         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
@@ -69,7 +71,7 @@ def load_data(batch_size=64, dataset=""):
             batch_size=batch_size, shuffle=True, **data_loader_args
         )
     else:
-        raise Exception('Invalid dataset name, options are fassion_mnist, mnist or cifar')
+        raise Exception('Invalid dataset name, options are fashion_mnist, mnist or cifar10 you provided:' + dataset)
 
     return train_loader, test_loader
 
