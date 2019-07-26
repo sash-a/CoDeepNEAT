@@ -1,17 +1,4 @@
-BatchNormNet - tuples: [(10,51.5),(20,58),(30,58.5),(41,61.5),(51,64),(61,65),(71,64),(81,66),(91,67),(100,66)]
-num_batches: 1 / 782 (0%) acc: 10.0 %
-num_batches: 80 / 782 (10%) acc: 51.46 %
-num_batches: 159 / 782 (20%) acc: 57.98 %
-num_batches: 238 / 782 (30%) acc: 58.38 %
-num_batches: 317 / 782 (41%) acc: 61.36 %
-num_batches: 396 / 782 (51%) acc: 63.8 %
-num_batches: 475 / 782 (61%) acc: 65.03 %
-num_batches: 554 / 782 (71%) acc: 63.84 %
-num_batches: 633 / 782 (81%) acc: 65.98 %
-num_batches: 712 / 782 (91%) acc: 66.92 %
-num_batches: 782 / 782 (100%) acc: 66.3 %
-
-DropOutNet
+SmallDropOutNet
 num_batches: 1 / 782 (0%) acc: 8.82 %
 num_batches: 80 / 782 (10%) acc: 30.8 %
 num_batches: 159 / 782 (20%) acc: 38.87 %
@@ -62,6 +49,32 @@ num_batches: 554 / 782 (71%) acc: 65.42 %
 num_batches: 633 / 782 (81%) acc: 67.06 %
 num_batches: 712 / 782 (91%) acc: 68.49 %
 num_batches: 782 / 782 (100%) acc: 69.18 %
+
+ExtraLargeNet
+num_batches: 1 / 782 (0%) acc: 10.73 %
+num_batches: 80 / 782 (10%) acc: 38.73 %
+num_batches: 159 / 782 (20%) acc: 48.79 %
+num_batches: 238 / 782 (30%) acc: 55.17 %
+num_batches: 317 / 782 (41%) acc: 59.84 %
+num_batches: 396 / 782 (51%) acc: 63.91 %
+num_batches: 475 / 782 (61%) acc: 66.19 %
+num_batches: 554 / 782 (71%) acc: 67.18 %
+num_batches: 633 / 782 (81%) acc: 70.02 %
+num_batches: 712 / 782 (91%) acc: 70.87 %
+num_batches: 782 / 782 (100%) acc: 72.48 %
+
+SmallBatchNormNet - tuples: [(10,51.5),(20,58),(30,58.5),(41,61.5),(51,64),(61,65),(71,64),(81,66),(91,67),(100,66)]
+num_batches: 1 / 782 (0%) acc: 10.0 %
+num_batches: 80 / 782 (10%) acc: 51.46 %
+num_batches: 159 / 782 (20%) acc: 57.98 %
+num_batches: 238 / 782 (30%) acc: 58.38 %
+num_batches: 317 / 782 (41%) acc: 61.36 %
+num_batches: 396 / 782 (51%) acc: 63.8 %
+num_batches: 475 / 782 (61%) acc: 65.03 %
+num_batches: 554 / 782 (71%) acc: 63.84 %
+num_batches: 633 / 782 (81%) acc: 65.98 %
+num_batches: 712 / 782 (91%) acc: 66.92 %
+num_batches: 782 / 782 (100%) acc: 66.3 %
 
 LargeBatchNormNet - tuples: [(10,35.97 ),(20,47.28),(30,52.64),(41,58.06),(51,60.87),(61,62.87),(71,65.42),(81,67.06),(91,68.49 ),(100,69.18)]
 num_batches: 1 / 782 (0%) acc: 10.0 %

@@ -8,7 +8,7 @@ import torch.nn as nn
 import torch.optim as optim
 
 criterion = nn.CrossEntropyLoss()
-networks = [Net.LargeBatchNormNet]
+networks = [Net.LargeNet]
 total_batches = None
 
 
@@ -54,15 +54,12 @@ def run_epoch_for_n_batches(model,optimiser, num_batches = -1):
         loss.backward()
         optimiser.step()
 
-
-
-
-def run_model_over_different_batch_numbers(num_epochs, model_type):
+def run_model_over_different_batch_numbers(num_epochs, model_type, size):
     num_batches = 1
     accuracies = []#tuples of (%training_set, %accuracy)
     for i in range(11):
 
-        model = model_type().to(torch.device("cuda:0"))
+        model = model_type(size).to(torch.device("cuda:0"))
         optimiser = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
         for epoch in range(num_epochs):  # loop over the dataset multiple times
 
@@ -86,10 +83,12 @@ def test_all_networks(num_epochs):
     plot_points = []
 
     for network_type in networks:
-        print(get_name_from_class(network_type))
-        accuracies = run_model_over_different_batch_numbers(num_epochs,network_type)
-        #plot_model_accuracies(accuracies, network_type)
-        plot_points.append((accuracies,network_type))
+        for i in range(5):
+            size = math.pow(2,i)
+            print(get_name_from_class(network_type))
+            accuracies = run_model_over_different_batch_numbers(num_epochs,network_type,size)
+            #plot_model_accuracies(accuracies, network_type)
+            plot_points.append((accuracies,network_type))
 
     plot_all_accuracies(plot_points)
 
@@ -97,14 +96,15 @@ def test_all_networks(num_epochs):
 
 def test_max_accuracy_of_networks(num_epochs):
     for network_type in networks:
-        model = network_type().to(torch.device("cuda:0"))
-        optimiser = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
-        for epoch in range(num_epochs):  # loop over the dataset multiple times
 
-            run_epoch_for_n_batches(model, optimiser, num_batches=total_batches)
+            model = network_type().to(torch.device("cuda:0"))
+            optimiser = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
+            for epoch in range(num_epochs):  # loop over the dataset multiple times
 
-        accuracy = test_model(model)
-        print(get_name_from_class(network_type),"max acc:",accuracy)
+                run_epoch_for_n_batches(model, optimiser, num_batches=total_batches)
+
+            accuracy = test_model(model)
+            print(get_name_from_class(network_type),"max acc:",accuracy)
 
 
 def plot_model_accuracies(accuracies, model_type):
