@@ -17,11 +17,11 @@ class BlueprintGenome(Genome):
         self.modules_used_index = []  # hold tuple (species no, module index) of module used
         self.da_scheme: DAGenome = None
         self.learning_rate = Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.001, start_range=0.0003,
-                                     end_range=0.005, print_when_mutating=False)
-        self.beta1 = Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.9, start_range=0.87, end_range=0.93)
-        self.beta2 = Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.999, start_range=0.9987, end_range=0.9993)
+                                     end_range=0.005, print_when_mutating=False, mutation_chance=0.13)
+        self.beta1 = Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.9, start_range=0.87, end_range=0.93, mutation_chance=0.1)
+        self.beta2 = Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.999, start_range=0.9987, end_range=0.9993, mutation_chance=0.1)
         self.weight_init = Mutagen(nn.init.kaiming_uniform_, nn.init.xavier_uniform_,
-                                   discreet_value=nn.init.kaiming_uniform_, name='initialization function')
+                                   discreet_value=nn.init.kaiming_uniform_, name='initialization function', mutation_chance=0.13)
         self.da_scheme_index = -1
 
     def to_blueprint(self):
