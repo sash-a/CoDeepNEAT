@@ -13,6 +13,7 @@ from src.Validation import DataLoader
 from src.Validation import Validation
 
 import multiprocessing as mp
+import math
 
 
 class Generation:
@@ -178,6 +179,8 @@ class Generation:
                 results.append(net.module_graph.get_net_size())
             elif objective_name == 'network_size_adjusted':
                 results.append(net.module_graph.get_net_size() / (accuracy * accuracy))
+            elif objective_name == 'network_size_adjusted_2':
+                results.append(math.sqrt(net.module_graph.get_net_size()) / (accuracy * accuracy))
             elif objective_name == '':
                 pass
             else:

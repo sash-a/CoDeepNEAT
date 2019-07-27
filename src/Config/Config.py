@@ -21,7 +21,7 @@ max_num_generations = 150
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Multiobjective options
-second_objective = 'network_size_adjusted'  # network_size | network_size_adjusted
+second_objective = 'network_size_adjusted_2'  # network_size | network_size_adjusted | network_size_adjusted_2
 second_objective_comparator = operator.lt  # lt for minimisation, gt for maximisation
 third_objective = ''
 third_objective_comparator = operator.lt
