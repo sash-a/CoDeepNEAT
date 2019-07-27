@@ -25,7 +25,7 @@ def load_data(batch_size=64, dataset=""):
     if dataset == "":
         dataset = Config.dataset.lower()
 
-    # print("loading(",dataset,")data from:",data_path)
+    # print("loading(", dataset, ")data from:", data_path)
 
     if dataset == 'mnist':
         train_loader = DataLoader(

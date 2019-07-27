@@ -9,9 +9,8 @@ continue_from_last_run = True
 
 # --------------------------------------------------------------------------------------------------------------------#
 # nn options
-device = 'gpu'
-# device = 'cpu'
-num_gpus = 2
+device = 'gpu'  # gpu | cpu
+num_gpus = 1
 num_workers = 0  # this doesn't work in parallel because daemonic processes cannot spawn children
 dataset = 'fashion_mnist'
 data_path = ''
@@ -22,12 +21,12 @@ max_num_generations = 150
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Multiobjective options
-second_objective = "network_size"  # network_size
+second_objective = 'network_size_adjusted'  # network_size | network_size_adjusted
 second_objective_comparator = operator.lt  # lt for minimisation, gt for maximisation
-third_objective = ""
+third_objective = ''
 third_objective_comparator = operator.lt
 
-moo_optimiser = "cdn"  # cdn/nsga
+moo_optimiser = 'cdn'  # cdn | nsga
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Data augmentation options
@@ -41,7 +40,7 @@ protect_parsing_from_errors = False
 test_in_run = False
 interleaving_check = False
 
-save_best_graphs = False
+save_best_graphs = True
 print_best_graphs = False
 print_best_graph_every_n_generations = 5
 save_failed_graphs = False
@@ -50,7 +49,7 @@ save_failed_graphs = False
 # --------------------------------------------------------------------------------------------------------------------#
 
 def get_device():
-    """Used to obtain the correct device taking into account multiple gpus"""
+    """Used to obtain the correct device taking into account multiple GPUs"""
 
     gpu = 'cuda:'
     gpu += '0' if num_gpus <= 1 else mp.current_process().name

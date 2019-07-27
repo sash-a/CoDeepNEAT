@@ -57,7 +57,7 @@ class Generation:
     def step(self):
         """Runs CDN for one generation - must be called after fitness evaluation"""
         self.pareto_population.update_pareto_front()
-        # self.pareto_population.plot_fitnesses()
+
         self.module_population.step()
         for blueprint_individual in self.blueprint_population.individuals:
             blueprint_individual.reset_number_of_module_species(self.module_population.get_num_species())
@@ -93,7 +93,6 @@ class Generation:
         bp_pop_size = len(self.blueprint_population)
         bp_pop_indvs = self.blueprint_population.individuals
 
-        # print("got results:",results_dict)
         for bp_key, (fitness, evaluated_bp, module_graph) in results_dict.items():
             if fitness == 'defective':
                 bp_pop_indvs[bp_key % bp_pop_size].defective = True
@@ -170,15 +169,16 @@ class Generation:
         else:
             da_scheme = None
 
-        accuracy = Validation.get_accuracy_for_network(net,da_scheme=da_scheme, batch_size= 256 )
+        accuracy = Validation.get_accuracy_for_network(net, da_scheme=da_scheme, batch_size=256)
 
         objective_names = [Config.second_objective, Config.third_objective]
         results = [accuracy]
         for objective_name in objective_names:
-
-            if objective_name == "network_size":
+            if objective_name == 'network_size':
                 results.append(net.module_graph.get_net_size())
-            elif objective_name == "":
+            elif objective_name == 'network_size_adjusted':
+                results.append(net.module_graph.get_net_size() / (accuracy * accuracy))
+            elif objective_name == '':
                 pass
             else:
                 print("Error: did not recognise second objective", Config.second_objective)

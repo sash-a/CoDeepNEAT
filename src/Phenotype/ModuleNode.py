@@ -255,7 +255,6 @@ class ModuleNode(Node):
         self.reshape = ReshapeNode(input_shape, output_shape)
 
     def get_parameters(self, parametersDict, top=True):
-
         if self not in parametersDict:
             if self.deep_layer is None:
                 raise Exception("no deep layer - ", self)
@@ -270,7 +269,6 @@ class ModuleNode(Node):
                 # print("input node returned to from get parameters")
                 params = None
                 for param in parametersDict.values():
-
                     if params is None:
                         params = list(param)
                     else:
