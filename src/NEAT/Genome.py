@@ -311,7 +311,7 @@ class Genome:
         return root_node
 
     def plot_tree_with_graphvis(self, title="", file="temp_g"):
-        #print("genome_graph,1,2")
+
         file = os.path.join(DataManager.get_Graphs_folder(), file)
         print(file)
 
