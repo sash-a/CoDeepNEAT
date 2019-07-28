@@ -8,7 +8,7 @@ import torch.nn as nn
 import torch.optim as optim
 
 criterion = nn.CrossEntropyLoss()
-networks = [Net.LargeBatchNormNet]
+networks = [Net.StandardNet, Net.BatchNormNet, Net.DropOutNet]
 total_batches = None
 
 
@@ -54,15 +54,19 @@ def run_epoch_for_n_batches(model,optimiser, num_batches = -1):
         loss.backward()
         optimiser.step()
 
-
-
-
-def run_model_over_different_batch_numbers(num_epochs, model_type):
+def run_model_over_different_batch_numbers(num_epochs, model_type, size, verbose):
     num_batches = 1
     accuracies = []#tuples of (%training_set, %accuracy)
     for i in range(11):
 
-        model = model_type().to(torch.device("cuda:0"))
+        if verbose or i == 0:
+            """if summarised - the same model is used to train on each batch subset, on fewer epochs each"""
+            model = model_type(size).to(torch.device("cuda:0"))
+
+        if(model.does_net_have_results_file(verbose)):
+            print("model",model.get_name(), "already has results saved")
+            return []
+
         optimiser = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
         for epoch in range(num_epochs):  # loop over the dataset multiple times
 
@@ -71,7 +75,7 @@ def run_model_over_different_batch_numbers(num_epochs, model_type):
         accuracy = test_model(model)
         training_proportion = 100*num_batches/total_batches
 
-        print("num_batches:",num_batches,"/",total_batches,("("+str(round(training_proportion))+"%)"),"acc:",accuracy,"%")
+        print(model.get_name(),"num_batches:",num_batches,"/",total_batches,("("+str(round(training_proportion))+"%)"),"acc:",accuracy,"%")
 
 
         num_batches += math.ceil(total_batches/10)
@@ -79,48 +83,41 @@ def run_model_over_different_batch_numbers(num_epochs, model_type):
 
         accuracies.append((training_proportion,accuracy))
 
+    model.save_results(accuracies, verbose)
+
 
     return accuracies
 
-def test_all_networks(num_epochs):
+def test_all_networks(num_epochs, verbose):
     plot_points = []
 
     for network_type in networks:
-        print(get_name_from_class(network_type))
-        accuracies = run_model_over_different_batch_numbers(num_epochs,network_type)
-        #plot_model_accuracies(accuracies, network_type)
-        plot_points.append((accuracies,network_type))
+        for i in range(6):
+            size = int(math.pow(2,i))
+            accuracies = run_model_over_different_batch_numbers(num_epochs,network_type,size, verbose)
+            #plot_model_accuracies(accuracies, network_type)
+            plot_points.append((accuracies,network_type(size).get_name()))
 
-    plot_all_accuracies(plot_points)
-
+    plot_all_verbose_accuracies(plot_points)
 
 
 def test_max_accuracy_of_networks(num_epochs):
     for network_type in networks:
-        model = network_type().to(torch.device("cuda:0"))
-        optimiser = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
-        for epoch in range(num_epochs):  # loop over the dataset multiple times
+        for i in range(6):
+            size = int(math.pow(2, i))
+            model = network_type(size).to(torch.device("cuda:0"))
+            optimiser = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
+            for epoch in range(num_epochs):  # loop over the dataset multiple times
 
-            run_epoch_for_n_batches(model, optimiser, num_batches=total_batches)
+                run_epoch_for_n_batches(model, optimiser, num_batches=total_batches)
 
-        accuracy = test_model(model)
-        print(get_name_from_class(network_type),"max acc:",accuracy)
+            accuracy = test_model(model)
+            print(model.get_name(),"max acc:",accuracy)
 
-
-def plot_model_accuracies(accuracies, model_type):
-    plt.plot([list(x)[0] for x in accuracies], [list(x)[1] for x in accuracies])
-    plt.title(get_name_from_class(model_type))
-    plt.xlabel("% of full training set")
-    plt.ylabel("% classification accuracy")
-    plt.xlim([0,100])
-    plt.ylim([0,100])
-    plt.show()
-
-def plot_all_accuracies(values):
+def plot_all_verbose_accuracies(values):
     for model_values in values:
-        accuracies, model_type = model_values
-        name = get_name_from_class(model_type)
-        plt.plot([list(x)[0] for x in accuracies], [list(x)[1] for x in accuracies], label = name)
+        accuracies, model_name = model_values
+        plt.plot([list(x)[0] for x in accuracies], [list(x)[1] for x in accuracies], label = model_name)
         plt.xlabel("% of full training set")
         plt.ylabel("% classification accuracy")
     plt.xlim([0, 100])
@@ -129,18 +126,14 @@ def plot_all_accuracies(values):
     plt.gca().legend(handles,labels)
     plt.show()
 
-
-def get_name_from_class(model_class):
-    return repr(model_class).split(".")[-1].split("'")[0]
-
-
 def run_tests():
     num_epochs = 20
     global total_batches
     trainloader, testloader = load_data(dataset="cifar10")
     total_batches = len(trainloader)
     #test_max_accuracy_of_networks(num_epochs)
-    test_all_networks(num_epochs)
+    test_all_networks(num_epochs, True)
+    test_all_networks(num_epochs//10, False)
 
 if __name__ == "__main__":
     run_tests()

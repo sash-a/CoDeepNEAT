@@ -29,12 +29,14 @@ def get_run_folder(run_name=None):
     else:
         return os.path.join(get_current_folder(), "runs", run_name)
 
-
 def get_Datasets_folder():
     if Config.data_path == "":
         return os.path.join(get_current_folder(), "Datasets")
     else:
         return Config.data_path
+
+def get_DataEfficiencyResults_folder():
+    return os.path.join(get_current_folder(),"DataEfficiencyResults")
 
 
 def get_current_folder():
