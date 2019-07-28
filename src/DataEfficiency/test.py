@@ -69,7 +69,7 @@ def run_epoch_for_n_batches(model,optimiser, num_batches = -1):
 def run_model_over_different_batch_numbers(num_epochs, model_type, size, verbose):
     num_batches = 1
     accuracies = []#tuples of (%training_set, %accuracy)
-    for i in range(11):
+    for i in range(2):
 
         if verbose or i == 0:
             """if summarised - the same model is used to train on each batch subset, on fewer epochs each"""
@@ -110,7 +110,7 @@ def test_all_networks(num_epochs, verbose):
             #plot_model_accuracies(accuracies, network_type)
             plot_points.append((accuracies,network_type(size).get_name()))
 
-    plot_all_verbose_accuracies(plot_points)
+    #plot_all_verbose_accuracies(plot_points)
 
 
 def test_max_accuracy_of_networks(num_epochs):
@@ -139,7 +139,7 @@ def plot_all_verbose_accuracies(values):
     plt.show()
 
 def run_tests():
-    num_epochs = 20
+    num_epochs = 2*10
     global total_batches
     trainloader, testloader = load_data(dataset="cifar10")
     total_batches = len(trainloader)

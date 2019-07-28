@@ -38,11 +38,10 @@ class StandardNet(nn.Module):
         f = open(self.get_results_file_name(verbose), "w+")
         print("saving results:",set_size_accuracy_tuples,"to",self.get_results_file_name(verbose))
 
-        if verbose:
-            for tuple in set_size_accuracy_tuples:
-                set_size, accuracy = tuple
-                writable = repr(round(set_size,2))+":"+repr(accuracy)
-                f.write(writable + "\n")
+        for tuple in set_size_accuracy_tuples:
+            set_size, accuracy = tuple
+            writable = repr(round(set_size,2))+":"+repr(accuracy)
+            f.write(writable + "\n")
         f.close()
 
     def does_net_have_results_file(self, verbose):
