@@ -69,7 +69,7 @@ def run_epoch_for_n_batches(model,optimiser, num_batches = -1):
 def run_model_over_different_batch_numbers(num_epochs, model_type, size, verbose):
     num_batches = 1
     accuracies = []#tuples of (%training_set, %accuracy)
-    for i in range(2):
+    for i in range(11):
 
         if verbose or i == 0:
             """if summarised - the same model is used to train on each batch subset, on fewer epochs each"""
