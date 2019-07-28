@@ -8,7 +8,7 @@ import torch.nn as nn
 import torch.optim as optim
 
 criterion = nn.CrossEntropyLoss()
-networks = [Net.LargeNet]
+networks = [Net.StandardNet, Net.BatchNormNet, Net.DropOutNet]
 total_batches = None
 
 
@@ -60,6 +60,10 @@ def run_model_over_different_batch_numbers(num_epochs, model_type, size):
     for i in range(11):
 
         model = model_type(size).to(torch.device("cuda:0"))
+        if(model.does_net_have_results_file()):
+            print("model",model.get_name(), "already has results saved")
+            return []
+
         optimiser = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
         for epoch in range(num_epochs):  # loop over the dataset multiple times
 
@@ -68,13 +72,15 @@ def run_model_over_different_batch_numbers(num_epochs, model_type, size):
         accuracy = test_model(model)
         training_proportion = 100*num_batches/total_batches
 
-        print("num_batches:",num_batches,"/",total_batches,("("+str(round(training_proportion))+"%)"),"acc:",accuracy,"%")
+        print(model.get_name(),"num_batches:",num_batches,"/",total_batches,("("+str(round(training_proportion))+"%)"),"acc:",accuracy,"%")
 
 
         num_batches += math.ceil(total_batches/10)
         num_batches = min(total_batches,num_batches)
 
         accuracies.append((training_proportion,accuracy))
+
+    model.save_results(accuracies)
 
 
     return accuracies
@@ -83,12 +89,11 @@ def test_all_networks(num_epochs):
     plot_points = []
 
     for network_type in networks:
-        for i in range(5):
-            size = math.pow(2,i)
-            print(get_name_from_class(network_type))
+        for i in range(6):
+            size = int(math.pow(2,i))
             accuracies = run_model_over_different_batch_numbers(num_epochs,network_type,size)
             #plot_model_accuracies(accuracies, network_type)
-            plot_points.append((accuracies,network_type))
+            plot_points.append((accuracies,network_type(size).get_name()))
 
     plot_all_accuracies(plot_points)
 
@@ -96,20 +101,21 @@ def test_all_networks(num_epochs):
 
 def test_max_accuracy_of_networks(num_epochs):
     for network_type in networks:
-
-            model = network_type().to(torch.device("cuda:0"))
+        for i in range(6):
+            size = int(math.pow(2, i))
+            model = network_type(size).to(torch.device("cuda:0"))
             optimiser = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
             for epoch in range(num_epochs):  # loop over the dataset multiple times
 
                 run_epoch_for_n_batches(model, optimiser, num_batches=total_batches)
 
             accuracy = test_model(model)
-            print(get_name_from_class(network_type),"max acc:",accuracy)
+            print(model.get_name(),"max acc:",accuracy)
 
 
-def plot_model_accuracies(accuracies, model_type):
+def plot_model_accuracies(accuracies, model_name):
     plt.plot([list(x)[0] for x in accuracies], [list(x)[1] for x in accuracies])
-    plt.title(get_name_from_class(model_type))
+    plt.title(model_name)
     plt.xlabel("% of full training set")
     plt.ylabel("% classification accuracy")
     plt.xlim([0,100])
@@ -118,9 +124,8 @@ def plot_model_accuracies(accuracies, model_type):
 
 def plot_all_accuracies(values):
     for model_values in values:
-        accuracies, model_type = model_values
-        name = get_name_from_class(model_type)
-        plt.plot([list(x)[0] for x in accuracies], [list(x)[1] for x in accuracies], label = name)
+        accuracies, model_name = model_values
+        plt.plot([list(x)[0] for x in accuracies], [list(x)[1] for x in accuracies], label = model_name)
         plt.xlabel("% of full training set")
         plt.ylabel("% classification accuracy")
     plt.xlim([0, 100])
@@ -128,11 +133,6 @@ def plot_all_accuracies(values):
     handles, labels = plt.gca().get_legend_handles_labels()
     plt.gca().legend(handles,labels)
     plt.show()
-
-
-def get_name_from_class(model_class):
-    return repr(model_class).split(".")[-1].split("'")[0]
-
 
 def run_tests():
     num_epochs = 20
