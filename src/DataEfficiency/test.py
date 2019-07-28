@@ -1,3 +1,13 @@
+import sys
+import os
+
+# For importing project files
+dir_path = os.path.dirname(os.path.realpath(__file__))
+dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
+dir_path_2 = os.path.split(dir_path)[0]
+sys.path.append(dir_path_1)
+sys.path.append(dir_path_2)
+
 import torch
 from src.DataEfficiency import Net
 from src.Validation.DataLoader import load_data
@@ -6,6 +16,8 @@ import matplotlib.pyplot as plt
 
 import torch.nn as nn
 import torch.optim as optim
+
+
 
 criterion = nn.CrossEntropyLoss()
 networks = [Net.StandardNet, Net.BatchNormNet, Net.DropOutNet]
