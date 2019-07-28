@@ -311,16 +311,18 @@ class Genome:
         return root_node
 
     def plot_tree_with_graphvis(self, title="", file="temp_g"):
-
-        #print("genome_graph")
+        #print("genome_graph,1,2")
         file = os.path.join(DataManager.get_Graphs_folder(), file)
+        print(file)
 
         graph = graphviz.Digraph(comment=title)
 
-        for node in self._nodes:
-            graph.node(str(node), style="filled", fillcolor="blue")
+        for node in self._nodes.values():
+            graph.node(str(node.id), node.get_node_name(),style="filled", fillcolor="blue")
 
-        for c in self._connected_nodes:
-            graph.edge(str(c[0]), str(c[1]))
+        for c in self._connections.values():
+            if not c.enabled():
+                continue
+            graph.edge(repr(c.from_node), repr(c.to_node))
 
         graph.render(file, view=Config.print_best_graphs)

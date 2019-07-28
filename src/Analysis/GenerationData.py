@@ -20,7 +20,7 @@ class GenerationData:
 
         return total / len(objectives)
 
-    def get_max__of_objective(self, objective=0):
+    def get_max_of_objective(self, objective=0):
         objectives = self.objectives[objective]
         if objectives is None or len(objectives) == 0:
             return None
@@ -40,7 +40,7 @@ class GenerationData:
         for i in range(3):
             name = get_objective_name(i)
             average = self.get_average_of_objective(i)
-            max = self.get_max__of_objective(i)
+            max = self.get_max_of_objective(i)
             if average is None:
                 break
             if i > 0:

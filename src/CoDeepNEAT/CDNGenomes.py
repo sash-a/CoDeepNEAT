@@ -7,6 +7,11 @@ from src.Phenotype.ModuleNode import ModuleNode
 from src.NEAT.Genome import Genome
 from src.NEAT.Mutagen import Mutagen, ValueType
 from src.DataAugmentation.AugmentationScheme import AugmentationScheme
+import os
+from data import DataManager
+import graphviz
+from src.Config import Config
+
 
 
 class BlueprintGenome(Genome):
@@ -116,3 +121,5 @@ class DAGenome(Genome):
             if self._nodes[node_id].enabled():
                 da_scheme.add_augmentation(self._nodes[node_id].da)
             self._to_da_scheme(da_scheme, node_id, traversal_dictionary)
+
+

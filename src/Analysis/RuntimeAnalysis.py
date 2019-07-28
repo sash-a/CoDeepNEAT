@@ -3,8 +3,9 @@ import inspect, os
 import os.path
 import ast
 from data import DataManager
+from typing import List
 
-generations = []
+generations: List[GenerationData] = []
 
 
 def log_new_generation(accuracies, generation_number, second_objective_values=None, third_objective_values=None,
@@ -17,7 +18,7 @@ def log_new_generation(accuracies, generation_number, second_objective_values=No
     if not os.path.exists(DataManager.get_Logs_folder()):
         os.makedirs(DataManager.get_Logs_folder())
 
-    with open(os.path.join(DataManager.get_Logs_folder() , log_file), "a+") as f:
+    with open(os.path.join(DataManager.get_Logs_folder(), log_file), "a+") as f:
         if write_summaries:
             f.write(generations[-1].get_summary() + "\n")
         else:
@@ -27,8 +28,9 @@ def log_new_generation(accuracies, generation_number, second_objective_values=No
 def load_date_from_log_file(run_name, iteration=0, summary=False):
     global generations
 
-    filename = os.path.join(DataManager.get_Logs_folder(run_name),"log" + (("_" + repr(iteration)) if iteration > 0 else ""))
-    log = open( filename + ".txt")
+    filename = os.path.join(DataManager.get_Logs_folder(run_name),
+                            "log" + (("_" + repr(iteration)) if iteration > 0 else ""))
+    log = open(filename + ".txt")
     for gen in log:
         gen_number = int(gen.split("{")[0].split(":")[1])
         gen = gen.split("{")[1].split("}")[0]
@@ -70,11 +72,12 @@ def get_next_log_file_name(log_file_name=None):
     if log_file_name is None:
         log_file_name = "log"
 
-    file_exists_already = os.path.isfile(os.path.join(DataManager.get_Logs_folder(),log_file_name + ".txt" ))
-    if (file_exists_already):
+    file_exists_already = os.path.isfile(os.path.join(DataManager.get_Logs_folder(), log_file_name + ".txt"))
+    if file_exists_already:
         counter = 1
-        while (file_exists_already):
-            file_exists_already = os.path.isfile(os.path.join(DataManager.get_Logs_folder() , log_file_name + "_" + repr(counter) + ".txt"))
+        while file_exists_already:
+            file_exists_already = os.path.isfile(
+                os.path.join(DataManager.get_Logs_folder(), log_file_name + "_" + repr(counter) + ".txt"))
             counter += 1
         counter -= 1
         log_file_name = log_file_name + "_" + repr(counter)
