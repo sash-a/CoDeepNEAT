@@ -188,3 +188,6 @@ class DANode(NodeGene):
 
     def get_all_mutagens(self):
         return [self.da, self.enabled]
+
+    def get_node_name(self):
+        return repr(self.da())
