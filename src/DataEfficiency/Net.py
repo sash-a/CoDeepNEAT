@@ -34,6 +34,15 @@ class StandardNet(nn.Module):
         else:
             return os.path.join(DataManager.get_DataEfficiencyResults_folder(), "Summarised" , self.get_name())
 
+    def get_results(self, verbose):
+        f = open(self.get_results_file_name(verbose), "r")
+        tuples = []
+        for line in f:
+            frac, acc = line.split(":")[0], line.split(":")[1]
+            frac, acc = float(frac), float(acc)
+            tuples.append((frac,acc))
+        return tuples
+
     def save_results(self,set_size_accuracy_tuples, verbose):
         f = open(self.get_results_file_name(verbose), "w+")
         print("saving results:",set_size_accuracy_tuples,"to",self.get_results_file_name(verbose))

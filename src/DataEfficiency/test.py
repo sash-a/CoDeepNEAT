@@ -76,7 +76,7 @@ def run_model_over_different_batch_numbers(num_epochs, model_type, size, verbose
             model = model_type(size).to(torch.device("cuda:0"))
 
         if(model.does_net_have_results_file(verbose)):
-            print("model",model.get_name(), "already has results saved")
+            print("model",model.get_name(), "already has results saved:", model.get_results(verbose))
             return []
 
         optimiser = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
@@ -111,6 +111,7 @@ def test_all_networks(num_epochs, verbose):
             plot_points.append((accuracies,network_type(size).get_name()))
 
     #plot_all_verbose_accuracies(plot_points)
+    
 
 
 def test_max_accuracy_of_networks(num_epochs):
@@ -146,6 +147,8 @@ def run_tests():
     #test_max_accuracy_of_networks(num_epochs)
     test_all_networks(num_epochs, True)
     test_all_networks(num_epochs//5, False)
+
+
 
 if __name__ == "__main__":
     run_tests()
