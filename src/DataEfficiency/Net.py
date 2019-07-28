@@ -28,20 +28,27 @@ class StandardNet(nn.Module):
     def get_name(self):
         return repr(type(self)).split(".")[-1].split("'")[0] + "_" + repr(self.size)+".txt"
 
-    def get_results_file_name(self):
-        return os.path.join(DataManager.get_DataEfficiencyResults_folder(), self.get_name())
+    def get_results_file_name(self, verbose):
+        if verbose:
+            return os.path.join(DataManager.get_DataEfficiencyResults_folder(), "Verbose" , self.get_name())
+        else:
+            return os.path.join(DataManager.get_DataEfficiencyResults_folder(), "Summarised" , self.get_name())
 
-    def save_results(self,set_size_accuracy_tuples):
-        f = open(self.get_results_file_name(), "w+")
-        print("saving results:",set_size_accuracy_tuples,"to",self.get_results_file_name())
-        for tuple in set_size_accuracy_tuples:
-            set_size, accuracy = tuple
-            writable = repr(round(set_size,2))+":"+repr(accuracy)
-            f.write(writable + "\n")
+    def save_results(self,set_size_accuracy_tuples, verbose):
+        f = open(self.get_results_file_name(verbose), "w+")
+        print("saving results:",set_size_accuracy_tuples,"to",self.get_results_file_name(verbose))
+
+        if verbose:
+            for tuple in set_size_accuracy_tuples:
+                set_size, accuracy = tuple
+                writable = repr(round(set_size,2))+":"+repr(accuracy)
+                f.write(writable + "\n")
         f.close()
 
-    def does_net_have_results_file(self):
-        return os.path.exists(self.get_results_file_name())
+    def does_net_have_results_file(self, verbose):
+        return os.path.exists(self.get_results_file_name(verbose))
+
+    
         
 
 

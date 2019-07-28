@@ -54,13 +54,16 @@ def run_epoch_for_n_batches(model,optimiser, num_batches = -1):
         loss.backward()
         optimiser.step()
 
-def run_model_over_different_batch_numbers(num_epochs, model_type, size):
+def run_model_over_different_batch_numbers(num_epochs, model_type, size, verbose):
     num_batches = 1
     accuracies = []#tuples of (%training_set, %accuracy)
     for i in range(11):
 
-        model = model_type(size).to(torch.device("cuda:0"))
-        if(model.does_net_have_results_file()):
+        if verbose or i == 0:
+            """if summarised - the same model is used to train on each batch subset, on fewer epochs each"""
+            model = model_type(size).to(torch.device("cuda:0"))
+
+        if(model.does_net_have_results_file(verbose)):
             print("model",model.get_name(), "already has results saved")
             return []
 
@@ -80,23 +83,22 @@ def run_model_over_different_batch_numbers(num_epochs, model_type, size):
 
         accuracies.append((training_proportion,accuracy))
 
-    model.save_results(accuracies)
+    model.save_results(accuracies, verbose)
 
 
     return accuracies
 
-def test_all_networks(num_epochs):
+def test_all_networks(num_epochs, verbose):
     plot_points = []
 
     for network_type in networks:
         for i in range(6):
             size = int(math.pow(2,i))
-            accuracies = run_model_over_different_batch_numbers(num_epochs,network_type,size)
+            accuracies = run_model_over_different_batch_numbers(num_epochs,network_type,size, verbose)
             #plot_model_accuracies(accuracies, network_type)
             plot_points.append((accuracies,network_type(size).get_name()))
 
-    plot_all_accuracies(plot_points)
-
+    plot_all_verbose_accuracies(plot_points)
 
 
 def test_max_accuracy_of_networks(num_epochs):
@@ -112,17 +114,7 @@ def test_max_accuracy_of_networks(num_epochs):
             accuracy = test_model(model)
             print(model.get_name(),"max acc:",accuracy)
 
-
-def plot_model_accuracies(accuracies, model_name):
-    plt.plot([list(x)[0] for x in accuracies], [list(x)[1] for x in accuracies])
-    plt.title(model_name)
-    plt.xlabel("% of full training set")
-    plt.ylabel("% classification accuracy")
-    plt.xlim([0,100])
-    plt.ylim([0,100])
-    plt.show()
-
-def plot_all_accuracies(values):
+def plot_all_verbose_accuracies(values):
     for model_values in values:
         accuracies, model_name = model_values
         plt.plot([list(x)[0] for x in accuracies], [list(x)[1] for x in accuracies], label = model_name)
@@ -140,7 +132,8 @@ def run_tests():
     trainloader, testloader = load_data(dataset="cifar10")
     total_batches = len(trainloader)
     #test_max_accuracy_of_networks(num_epochs)
-    test_all_networks(num_epochs)
+    test_all_networks(num_epochs, True)
+    test_all_networks(num_epochs//10, False)
 
 if __name__ == "__main__":
     run_tests()
