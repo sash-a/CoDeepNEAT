@@ -24,7 +24,7 @@ class ParetoPopulation:
 
         self.candidates = []
         # self.plot_fitnesses()
-        self.plot_all_in_pareto_front()
+        #self.plot_all_in_pareto_front()
 
     def plot_fitnesses(self):
         # print("lengths:" , repr([len(x.fitness_values) for x in self.pareto_front]))

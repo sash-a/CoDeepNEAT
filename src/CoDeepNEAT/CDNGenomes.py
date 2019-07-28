@@ -93,7 +93,8 @@ class DAGenome(Genome):
         return True
 
     def mutate(self, mutation_record):
-        return super()._mutate(mutation_record, 0.1, 0, allow_connections_to_mutate=False, debug=False)
+        print("mutating DA genome")
+        return super()._mutate(mutation_record, 0.1, 0, allow_connections_to_mutate=False, debug=True)
 
     def to_phenotype(self, Phenotype=None):
         # Construct DA scheme from nodes
@@ -116,3 +117,7 @@ class DAGenome(Genome):
             if self._nodes[node_id].enabled():
                 da_scheme.add_augmentation(self._nodes[node_id].da)
             self._to_da_scheme(da_scheme, node_id, traversal_dictionary)
+
+
+    def validate(self):
+        return super().validate() and not self.has_branches()

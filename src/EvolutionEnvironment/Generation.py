@@ -11,6 +11,7 @@ from data import DataManager
 from src.Phenotype.ParetoPopulation import ParetoPopulation
 from src.Validation import DataLoader
 from src.Validation import Validation
+import random
 
 import multiprocessing as mp
 import math
@@ -165,6 +166,9 @@ class Generation:
         net = src.Validation.Validation.create_nn(module_graph, inputs)
         if Config.evolve_data_augmentations:
             da_indv = blueprint_individual.pick_da_scheme(self.da_population)
+            #if da_indv.has_branches():
+            if random.random() < 0.05:
+                da_indv.plot_tree_with_graphvis()
             da_scheme = da_indv.to_phenotype()
             module_graph.data_augmentation_schemes.append(da_scheme)
         else:
