@@ -145,7 +145,7 @@ def run_tests():
     total_batches = len(trainloader)
     #test_max_accuracy_of_networks(num_epochs)
     test_all_networks(num_epochs, True)
-    test_all_networks(num_epochs//10, False)
+    test_all_networks(num_epochs//5, False)
 
 if __name__ == "__main__":
     run_tests()
