@@ -6,6 +6,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch
 import random
+from src.Config import Config
 
 from src.DataAugmentation.AugmentationScheme import AugmentationScheme
 
@@ -115,76 +116,215 @@ class DANode(NodeGene):
     def __init__(self, id, node_type=NodeType.HIDDEN):
         super().__init__(id, node_type)
 
-        self.da = Mutagen("Flip_lr", "Flip_ud", "Rotate", "Translate_Pixels", "Scale", "Pad_Pixels", "Crop_Pixels",
-                          "Grayscale", "Custom_Canny_Edges", "Shear", "Additive_Gaussian_Noise",
-                          "Coarse_Dropout", "No_Operation", name="da type", sub_mutagens={
+        if Config.colour_augmentations:
+            self.da = Mutagen("Flip_lr", "Flip_ud", "Rotate", "Translate_Pixels", "Scale", "Pad_Pixels", "Crop_Pixels",
+                              "Grayscale", "Custom_Canny_Edges", "Shear", "Additive_Gaussian_Noise",
+                              "Coarse_Dropout", "HSV", "Contrast_Normalisation", "Increase_Channel", "Rotate_Channel",
+                              "No_Operation", name="da type", sub_mutagens={
 
-                "Rotate": {
-                    "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=-45, start_range=-180, end_range=0),
-                    "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=+45, start_range=0, end_range=180)},
+                    "Rotate": {
+                        "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=-45, start_range=-180,
+                                      end_range=0),
+                        "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=+45, start_range=0,
+                                      end_range=180)},
 
-                "Translate_Pixels": {
-                    "x_lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=-20, start_range=-50,
-                                    end_range=0),
-                    "x_hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=20, start_range=0, end_range=50),
-                    "y_lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=-20, start_range=-50,
-                                    end_range=0),
-                    "y_hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=20, start_range=0, end_range=50)},
+                    "Translate_Pixels": {
+                        "x_lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=-20, start_range=-50,
+                                        end_range=0),
+                        "x_hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=20, start_range=0,
+                                        end_range=50),
+                        "y_lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=-20, start_range=-50,
+                                        end_range=0),
+                        "y_hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=20, start_range=0,
+                                        end_range=50)},
 
-                "Scale": {
-                    "x_lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.0, end_range=1.0),
-                    "x_hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=1.5, start_range=1.0, end_range=2.0),
-                    "y_lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.0, end_range=1.0),
-                    "y_hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=1.5, start_range=1.0,
-                                    end_range=2.0)},
+                    "Scale": {
+                        "x_lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.0,
+                                        end_range=1.0),
+                        "x_hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=1.5, start_range=1.0,
+                                        end_range=2.0),
+                        "y_lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.0,
+                                        end_range=1.0),
+                        "y_hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=1.5, start_range=1.0,
+                                        end_range=2.0)},
 
-                "Pad_Pixels": {
-                    "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=10, start_range=0, end_range=25),
-                    "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=30, start_range=25, end_range=50),
-                    "s_i": Mutagen(True, False, discreet_value=False)},
+                    "Pad_Pixels": {
+                        "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=10, start_range=0,
+                                      end_range=25),
+                        "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=30, start_range=25,
+                                      end_range=50),
+                        "s_i": Mutagen(True, False, discreet_value=False, mutation_chance=0.25)},
 
-                "Crop_Pixels": {
-                    "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=10, start_range=0, end_range=25),
-                    "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=30, start_range=25, end_range=50),
-                    "s_i": Mutagen(True, False, discreet_value=False)},
+                    "Crop_Pixels": {
+                        "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=10, start_range=0,
+                                      end_range=25),
+                        "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=30, start_range=25,
+                                      end_range=50),
+                        "s_i": Mutagen(True, False, discreet_value=False, mutation_chance=0.25)},
 
-                "Grayscale": {"alpha_lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.0,
-                                                  end_range=0.5),
-                              "alpha_hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=1.0, start_range=0.5,
-                                                  end_range=1.0)},
+                    "Grayscale": {
+                        "alpha_lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.0,
+                                            end_range=0.5),
+                        "alpha_hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=1.0, start_range=0.5,
+                                            end_range=1.0)},
 
-                "Custom_Canny_Edges": {
-                    "min_val": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=100, start_range=0,
-                                       end_range=150),
-                    "max_val": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=200, start_range=150,
-                                       end_range=250)},
+                    "Custom_Canny_Edges": {
+                        "min_val": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=100, start_range=0,
+                                           end_range=150),
+                        "max_val": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=200, start_range=150,
+                                           end_range=250)},
 
-                "Shear": {
-                    "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=-15, start_range=-30, end_range=0),
-                    "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=15, start_range=0, end_range=30)},
+                    "Shear": {
+                        "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=-15, start_range=-30,
+                                      end_range=0),
+                        "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=15, start_range=0,
+                                      end_range=30)},
 
-                "Additive_Gaussian_Noise": {
-                    "lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.0, start_range=0.0, end_range=0.5),
-                    "hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.5, end_range=1.0),
-                    "percent": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.6, start_range=0.2,
-                                       end_range=0.8)
+                    "Additive_Gaussian_Noise": {
+                        "lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.0, start_range=0.0,
+                                      end_range=0.5),
+                        "hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.5,
+                                      end_range=1.0),
+                        "percent": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.6, start_range=0.2,
+                                           end_range=0.8)
+                    },
+
+                    "Coarse_Dropout": {
+                        "d_lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.05, start_range=0.0,
+                                        end_range=0.1),
+                        "d_hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.2, start_range=0.1,
+                                        end_range=0.3),
+                        "s_lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.025, start_range=0.0,
+                                        end_range=0.1),
+                        "s_hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.1,
+                                        end_range=1.0),
+                        "percent": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.6, start_range=0.2,
+                                           end_range=0.8)
+                    },
+
+                    "HSV": {
+                        "channel": Mutagen(0, 1, 2, discreet_value=0, mutation_chance=0.20),
+                        "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=20, start_range=0, end_range=30),
+                        "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=50, start_range=30, end_range=60)
+                    },
+
+                    "Contrast_Normalisation": {
+                        "lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.0, end_range=1.0),
+                        "hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=1.5, start_range=1.0, end_range=2.0),
+                        "percent": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.0, end_range=1.0)
+                    },
+
+                    "Increase_Channel": {
+                        "channel": Mutagen(0, 1, 2, discreet_value=0, mutation_chance=0.20),
+                        "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=25, start_range=0, end_range=50),
+                        "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=75, start_range=50, end_range=100)
+                    },
+
+                    "Rotate_Channel": {
+                        "channel": Mutagen(0, 1, 2, discreet_value=0, mutation_chance=0.20),
+                        "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=-45, start_range=-180,
+                                      end_range=0),
+                        "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=+45, start_range=0,
+                                      end_range=180)
+                    }
+
                 },
+                              discreet_value="Flip_lr")
 
-                "Coarse_Dropout": {
-                    "d_lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.05, start_range=0.0,
-                                    end_range=0.1),
-                    "d_hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.2, start_range=0.1, end_range=0.3),
-                    "s_lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.025, start_range=0.0,
-                                    end_range=0.1),
-                    "s_hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.1, end_range=1.0),
-                    "percent": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.6, start_range=0.2,
-                                       end_range=0.8)
-                }
+            self.enabled = Mutagen(True, False, discreet_value=True, name="da enabled")
 
-            },
-                          discreet_value="Flip_lr")
+        else:
 
-        self.enabled = Mutagen(True, False, discreet_value=True, name="da enabled")
+            self.da = Mutagen("Flip_lr", "Flip_ud", "Rotate", "Translate_Pixels", "Scale", "Pad_Pixels", "Crop_Pixels",
+                              "Grayscale", "Custom_Canny_Edges", "Shear", "Additive_Gaussian_Noise",
+                              "Coarse_Dropout", "No_Operation", name="da type", sub_mutagens={
+
+                    "Rotate": {
+                        "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=-45, start_range=-180,
+                                      end_range=0),
+                        "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=+45, start_range=0,
+                                      end_range=180)},
+
+                    "Translate_Pixels": {
+                        "x_lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=-20, start_range=-50,
+                                        end_range=0),
+                        "x_hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=20, start_range=0,
+                                        end_range=50),
+                        "y_lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=-20, start_range=-50,
+                                        end_range=0),
+                        "y_hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=20, start_range=0,
+                                        end_range=50)},
+
+                    "Scale": {
+                        "x_lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.0,
+                                        end_range=1.0),
+                        "x_hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=1.5, start_range=1.0,
+                                        end_range=2.0),
+                        "y_lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.0,
+                                        end_range=1.0),
+                        "y_hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=1.5, start_range=1.0,
+                                        end_range=2.0)},
+
+                    "Pad_Pixels": {
+                        "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=10, start_range=0,
+                                      end_range=25),
+                        "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=30, start_range=25,
+                                      end_range=50),
+                        "s_i": Mutagen(True, False, discreet_value=False)},
+
+                    "Crop_Pixels": {
+                        "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=10, start_range=0,
+                                      end_range=25),
+                        "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=30, start_range=25,
+                                      end_range=50),
+                        "s_i": Mutagen(True, False, discreet_value=False)},
+
+                    "Grayscale": {
+                        "alpha_lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.0,
+                                            end_range=0.5),
+                        "alpha_hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=1.0, start_range=0.5,
+                                            end_range=1.0)},
+
+                    "Custom_Canny_Edges": {
+                        "min_val": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=100, start_range=0,
+                                           end_range=150),
+                        "max_val": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=200, start_range=150,
+                                           end_range=250)},
+
+                    "Shear": {
+                        "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=-15, start_range=-30,
+                                      end_range=0),
+                        "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=15, start_range=0,
+                                      end_range=30)},
+
+                    "Additive_Gaussian_Noise": {
+                        "lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.0, start_range=0.0,
+                                      end_range=0.5),
+                        "hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.5,
+                                      end_range=1.0),
+                        "percent": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.6, start_range=0.2,
+                                           end_range=0.8)
+                    },
+
+                    "Coarse_Dropout": {
+                        "d_lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.05, start_range=0.0,
+                                        end_range=0.1),
+                        "d_hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.2, start_range=0.1,
+                                        end_range=0.3),
+                        "s_lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.025, start_range=0.0,
+                                        end_range=0.1),
+                        "s_hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.1,
+                                        end_range=1.0),
+                        "percent": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.6, start_range=0.2,
+                                           end_range=0.8)
+                    }
+
+                },
+                              discreet_value="Flip_lr")
+
+            self.enabled = Mutagen(True, False, discreet_value=True, name="da enabled")
+
+
 
     def get_all_mutagens(self):
         return [self.da, self.enabled]
