@@ -129,14 +129,14 @@ class DANode(NodeGene):
                                       end_range=180)},
 
                     "Translate_Pixels": {
-                        "x_lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=-20, start_range=-50,
+                        "x_lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=-10, start_range=-25,
                                         end_range=0),
-                        "x_hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=20, start_range=0,
-                                        end_range=50),
-                        "y_lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=-20, start_range=-50,
+                        "x_hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=10, start_range=0,
+                                        end_range=25),
+                        "y_lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=-10, start_range=-25,
                                         end_range=0),
-                        "y_hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=20, start_range=0,
-                                        end_range=50)},
+                        "y_hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=10, start_range=0,
+                                        end_range=25)},
 
                     "Scale": {
                         "x_lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.25,
@@ -149,17 +149,17 @@ class DANode(NodeGene):
                                         end_range=2.0)},
 
                     "Pad_Pixels": {
-                        "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=10, start_range=0,
-                                      end_range=25),
-                        "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=30, start_range=25,
-                                      end_range=50),
+                        "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=2, start_range=0,
+                                      end_range=5),
+                        "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=7, start_range=5,
+                                      end_range=10),
                         "s_i": Mutagen(True, False, discreet_value=False, mutation_chance=0.25)},
 
                     "Crop_Pixels": {
-                        "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=10, start_range=0,
-                                      end_range=25),
-                        "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=30, start_range=25,
-                                      end_range=50),
+                        "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=2, start_range=0,
+                                      end_range=5),
+                        "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=7, start_range=5,
+                                      end_range=10),
                         "s_i": Mutagen(True, False, discreet_value=False, mutation_chance=0.25)},
 
                     "Grayscale": {
@@ -169,22 +169,22 @@ class DANode(NodeGene):
                                             end_range=1.0)},
 
                     "Custom_Canny_Edges": {
-                        "min_val": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=100, start_range=0,
+                        "min_val": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=100, start_range=50,
                                            end_range=150),
                         "max_val": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=200, start_range=150,
                                            end_range=250)},
 
                     "Shear": {
-                        "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=-15, start_range=-30,
+                        "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=-20, start_range=-40,
                                       end_range=0),
-                        "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=15, start_range=0,
-                                      end_range=30)},
+                        "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=20, start_range=0,
+                                      end_range=40)},
 
-                    "Additive_Gaussian_Noise": {
-                        "lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.0, start_range=0.0,
-                                      end_range=0.5),
-                        "hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.5,
-                                      end_range=1.0),
+                     "Additive_Gaussian_Noise": {
+                        "lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.05, start_range=0.0,
+                                      end_range=0.10),
+                        "hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.20, start_range=0.10,
+                                      end_range=0.40),
                         "percent": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.6, start_range=0.2,
                                            end_range=0.8)
                     },
@@ -236,8 +236,8 @@ class DANode(NodeGene):
         else:
 
             self.da = Mutagen("Flip_lr", "Flip_ud", "Rotate", "Translate_Pixels", "Scale", "Pad_Pixels", "Crop_Pixels",
-                              "Grayscale", "Custom_Canny_Edges", "Shear", "Additive_Gaussian_Noise",
-                              "Coarse_Dropout", "No_Operation", name="da type", sub_mutagens={
+                              "Custom_Canny_Edges", "Shear", "Additive_Gaussian_Noise", "Coarse_Dropout",
+                              "No_Operation", name="da type", sub_mutagens={
 
                     "Rotate": {
                         "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=-45, start_range=-180,
@@ -246,14 +246,14 @@ class DANode(NodeGene):
                                       end_range=180)},
 
                     "Translate_Pixels": {
-                        "x_lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=-20, start_range=-50,
+                        "x_lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=-7, start_range=-15,
                                         end_range=0),
-                        "x_hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=20, start_range=0,
-                                        end_range=50),
-                        "y_lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=-20, start_range=-50,
+                        "x_hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=7, start_range=0,
+                                        end_range=15),
+                        "y_lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=-7, start_range=-15,
                                         end_range=0),
-                        "y_hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=20, start_range=0,
-                                        end_range=50)},
+                        "y_hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=7, start_range=0,
+                                        end_range=15)},
 
                     "Scale": {
                         "x_lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.25,
@@ -266,42 +266,36 @@ class DANode(NodeGene):
                                         end_range=2.0)},
 
                     "Pad_Pixels": {
-                        "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=10, start_range=0,
-                                      end_range=25),
-                        "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=30, start_range=25,
-                                      end_range=50),
-                        "s_i": Mutagen(True, False, discreet_value=False)},
+                        "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=2, start_range=0,
+                                      end_range=4),
+                        "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=4, start_range=4,
+                                      end_range=8),
+                        "s_i": Mutagen(True, False, discreet_value=False, mutation_chance=0.25)},
 
                     "Crop_Pixels": {
-                        "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=10, start_range=0,
-                                      end_range=25),
-                        "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=30, start_range=25,
-                                      end_range=50),
-                        "s_i": Mutagen(True, False, discreet_value=False)},
-
-                    "Grayscale": {
-                        "alpha_lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.0,
-                                            end_range=0.5),
-                        "alpha_hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=1.0, start_range=0.5,
-                                            end_range=1.0)},
+                        "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=2, start_range=0,
+                                      end_range=4),
+                        "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=4, start_range=4,
+                                      end_range=8),
+                        "s_i": Mutagen(True, False, discreet_value=False, mutation_chance=0.25)},
 
                     "Custom_Canny_Edges": {
-                        "min_val": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=100, start_range=0,
+                        "min_val": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=100, start_range=50,
                                            end_range=150),
                         "max_val": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=200, start_range=150,
                                            end_range=250)},
 
                     "Shear": {
-                        "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=-15, start_range=-30,
+                        "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=-20, start_range=-40,
                                       end_range=0),
-                        "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=15, start_range=0,
-                                      end_range=30)},
+                        "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=20, start_range=0,
+                                      end_range=40)},
 
                     "Additive_Gaussian_Noise": {
-                        "lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.0, start_range=0.0,
-                                      end_range=0.5),
-                        "hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.5,
-                                      end_range=1.0),
+                        "lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.05, start_range=0.0,
+                                      end_range=0.10),
+                        "hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.20, start_range=0.10,
+                                      end_range=0.40),
                         "percent": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.6, start_range=0.2,
                                            end_range=0.8)
                     },
@@ -317,13 +311,12 @@ class DANode(NodeGene):
                                         end_range=1.0),
                         "percent": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.6, start_range=0.2,
                                            end_range=0.8)
-                    }
+                    },
 
                 },
                               discreet_value="Flip_lr")
 
             self.enabled = Mutagen(True, False, discreet_value=True, name="da enabled")
-
 
 
     def get_all_mutagens(self):
