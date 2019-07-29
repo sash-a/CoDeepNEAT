@@ -26,6 +26,21 @@ class BlueprintNode(Node):
         # print("generating blueprint node from gene:",gene, "setting species number:",gene.species_number(), "from:",gene.species_number)
         self.species_number = gene.species_number()
 
+    def get_module_individual(self, generation ,module_index_map):
+        try:
+            if self.species_number in module_index_map:
+                index = module_index_map[self.species_number]
+                module_graph_individual = generation.module_population.species[self.species_number][index]
+            else:
+                module_graph_individual, index = generation.module_population.species[self.species_number].sample_individual()
+                module_index_map[self.species_number] = index
+
+        except Exception:
+            raise Exception("failed to sample indv from species " + repr(self.species_number) +
+                            " num species available: " + repr(len(generation.module_population.species)))
+
+        return module_graph_individual, index
+
     def parseto_module_graph(self, generation, module_construct=None, species_indexes=None, module_index_map=None):
         """
         :param module_construct: the output module node to have this newly sampled module attached to. None if this is root blueprint node
@@ -37,25 +52,14 @@ class BlueprintNode(Node):
         if self.module_root is None and self.module_leaf is None:
             # first time this blueprint node has been reached in the traversal
             # to be added as child to existing module construct
-            try:
-                if self.species_number in module_index_map:
-                    index = module_index_map[self.species_number]
-                    input_module_individual = generation.module_population.species[self.species_number][index]
-                else:
-                    input_module_individual, index = \
-                        generation.module_population.species[self.species_number].sample_individual()
-                    module_index_map[self.species_number] = index
 
-            except Exception:
-                raise Exception("failed to sample indv from species " + repr(self.species_number) +
-                                " num species available: " + repr(len(generation.module_population.species)))
+            module_graph_individual, index = self.get_module_individual(generation,module_index_map)
 
             # Setting the module used and its index
-            index = module_index_map[self.species_number] if index is None else index
             self.blueprint_genome.modules_used_index.append((self.species_number, index))
-            self.blueprint_genome.modules_used.append(input_module_individual)
+            self.blueprint_genome.modules_used.append(module_graph_individual)
 
-            input_module_node = input_module_individual.to_module()
+            input_module_node = module_graph_individual.to_module()
             if not input_module_node.is_input_node():
                 raise Exception("error! sampled module node is not root node")
 
