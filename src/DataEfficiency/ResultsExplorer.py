@@ -48,12 +48,30 @@ def plot_verbose_against_summarised():
     plt.show()
 
 
-def plot_size_vs_DE(model_type, verbose):
-    for i in range(6):
-        size = int(math.pow(2, i))
-        model = model_type(size)
-        DE = DataEfficiency.solve_for_learning_rate(model.get_results(verbose))
+def plot_size_vs_DE(model_type):
+
+    options = [True, False]
+    for verbose in options:
+        sizes = []
+        DEs = []
+        verbose_string = "verbose" if verbose else "summarised"
+        for i in range(6):
+            sizes.append(int(math.pow(2, i)))
+            model = model_type(sizes[-1])
+            DE = DataEfficiency.solve_for_learning_rate(model.get_results(verbose))
+            if not verbose:
+                DE*=15
+            DEs.append(DE)
+        plt.plot(sizes,DEs, label = repr(model_type) + " "+verbose_string)
+
+    handles, labels = plt.gca().get_legend_handles_labels()
+    plt.gca().legend(handles, labels)
+    plt.xlabel("Network Size")
+    plt.ylabel("DE")
+    plt.show()
 
 
 if __name__ == "__main__":
-    plot_verbose_against_summarised()
+    #plot_verbose_against_summarised()
+    for model_type in networks:
+        plot_size_vs_DE(model_type)
