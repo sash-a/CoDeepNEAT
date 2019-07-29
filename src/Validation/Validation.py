@@ -3,7 +3,7 @@ from src.Validation import Evaluator, DataLoader
 from src.Validation.DataSet import DataSet
 from src.NeuralNetwork.ModuleNet import create_nn
 from data import DataManager
-from sklearn.model_selection import cross_val_predict
+#from sklearn.model_selection import cross_val_predict
 
 
 def cross_validation(run_name):
@@ -44,10 +44,10 @@ def cross_validation(run_name):
 #     return acc
 #
 #
-# def get_accuracy_for_network(model, da_scheme=None, batch_size=256):
-#     if Config.dummy_run:
-#         acc = hash(model)
-#     else:
-#         acc = Evaluator.evaluate(model, Config.number_of_epochs_per_evaluation, Config.get_device(), batch_size,
-#                                  augmentor=da_scheme)
-#     return acc
+def get_accuracy_for_network(model, da_scheme=None, batch_size=256):
+    if Config.dummy_run:
+        acc = hash(model)
+    else:
+        acc = Evaluator.evaluate(model, Config.number_of_epochs_per_evaluation, Config.get_device(), batch_size,
+                                 augmentor=da_scheme)
+    return acc
