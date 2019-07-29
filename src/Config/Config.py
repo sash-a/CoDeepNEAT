@@ -9,7 +9,7 @@ continue_from_last_run = False
 
 # --------------------------------------------------------------------------------------------------------------------#
 # nn options
-device = 'cpu'  # gpu | cpu
+device = 'gpu'  # gpu | cpu
 num_gpus = 1
 num_workers = 0  # this doesn't work in parallel because daemonic processes cannot spawn children
 dataset = 'mnist'
@@ -41,8 +41,8 @@ protect_parsing_from_errors = False
 test_in_run = False
 interleaving_check = False
 
-save_best_graphs = True
-print_best_graphs = True
+save_best_graphs = False
+print_best_graphs = False
 print_best_graph_every_n_generations = 5
 save_failed_graphs = False
 

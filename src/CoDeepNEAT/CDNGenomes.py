@@ -96,8 +96,8 @@ class ModuleGenome(Genome):
                 attrib_dist += self_mutagen.distance_to(other_mutagen)
 
         attrib_dist /= len(common_nodes)
-        print('a t f', attrib_dist, topology_dist, math.sqrt(attrib_dist * attrib_dist + topology_dist * topology_dist))
 
+        # print(attrib_dist, topology_dist, math.sqrt(attrib_dist * attrib_dist + topology_dist * topology_dist))
         return math.sqrt(attrib_dist * attrib_dist + topology_dist * topology_dist)
 
     def mutate(self, mutation_record):

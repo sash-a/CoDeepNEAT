@@ -55,7 +55,6 @@ class Mutagen:
             self.mutation_chance = mutation_chance
 
     def __call__(self):
-        # print("calling, returning:", self.get_value())
         return self.get_value()
 
     def mutate(self):
@@ -157,19 +156,25 @@ class Mutagen:
             if self.get_value() in self.sub_values:
                 return self.sub_values[self.get_value()]
 
+    def __repr__(self):
+        return str(self.value_type) + ' ' + str(self.start_range) + ' ' + str(self.end_range)
+
     def distance_to(self, other):
         if self.value_type == ValueType.DISCRETE:
             dist = 0
             if self() != other():
                 dist = self.distance_weighting
         else:
-            dist = self.distance_weighting * (self() - other()) / (self.end_range - self.start_range)
+            dist = self.distance_weighting * abs(self() - other()) / (self.end_range - self.start_range)
 
         if self.sub_values is None:
             return dist
 
-        for sub_value_name, sub_value in self.sub_values.items():
-            dist += sub_value.distance_to(other.get_sub_value(sub_value_name, return_mutagen=True))
+        for sub_mutagen_group in self.sub_values.keys():
+            self_subs = self.sub_values[sub_mutagen_group]
+            other_subs = other.sub_values[sub_mutagen_group]
+            for sub_mut_key in self_subs.keys():
+                dist += self_subs[sub_mut_key].distance_to(other_subs[sub_mut_key])
 
         return dist
 

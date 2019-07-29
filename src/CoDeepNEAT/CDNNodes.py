@@ -78,7 +78,7 @@ class ModulenNEATNode(NodeGene):
             }, mutation_chance=0.08),
 
             "out_features": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=conv_out_features, start_range=1,
-                                    end_range=100, name="num out features", mutation_chance=0.22, distance_weighting=3)
+                                    end_range=100, name="num out features", mutation_chance=0.22, distance_weighting=4)
         }
 
         if use_linears and not use_convs:
