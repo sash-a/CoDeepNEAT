@@ -42,7 +42,7 @@ def solve_for_learning_rate(tuples):
 
     previous_MSE = min_MSE
     dir = 1 #either 1 or -1. 1 for increase lr, -1 for decrease lr
-    for i in range(100000):
+    for i in range(10000):
         MSE = get_mean_squared_error(tuples, learning_rate)
         if MSE<min_MSE:
             min_MSE = MSE
@@ -97,15 +97,17 @@ def plot_tuples_with_best_fit(tuples, learning_rate = None, title = ""):
     plt.ylim([0, 100])
     plt.show()
 
-tuples = {"BatchNormNet":[(10,51.5),(20,58),(30,58.5),(41,61.5),(50,64),(61,65),(71,64),(81,66),(91,67),(100,66)],
-          "SmallNet":[(10,29.5),(20,40.5),(30,46),(41,51),(51,53),(61,54),(71,56),(81,57.5),(91,59),(100,61)],
-          "MediumNet":[(10,34.46),(20,44.19),(30,49.88),(41,52.08),(51,57.63),(61,59.05),(71,61.16),(81,63.19),(91,65.47),(100,67.27)],
-          "LargeNet":[(10,35.97 ),(20,47.28),(30,52.64),(41,58.06),(51,60.87),(61,62.87),(71,65.42),(81,67.06),(91,68.49 ),(100,69.18)]}
+if __name__ == "__main__":
 
-for network_name in tuples.keys():
-    network_tuples = tuples[network_name]
-    lr = solve_for_learning_rate(network_tuples)
-    plot_tuples_with_best_fit(network_tuples, lr, title=network_name + ": lr=" + repr(lr) +" , de="+ repr(get_data_efficiency(network_tuples)) )
+    tuples = {"BatchNormNet":[(10,51.5),(20,58),(30,58.5),(41,61.5),(50,64),(61,65),(71,64),(81,66),(91,67),(100,66)],
+              "SmallNet":[(10,29.5),(20,40.5),(30,46),(41,51),(51,53),(61,54),(71,56),(81,57.5),(91,59),(100,61)],
+              "MediumNet":[(10,34.46),(20,44.19),(30,49.88),(41,52.08),(51,57.63),(61,59.05),(71,61.16),(81,63.19),(91,65.47),(100,67.27)],
+              "LargeNet":[(10,35.97 ),(20,47.28),(30,52.64),(41,58.06),(51,60.87),(61,62.87),(71,65.42),(81,67.06),(91,68.49 ),(100,69.18)]}
+
+    for network_name in tuples.keys():
+        network_tuples = tuples[network_name]
+        lr = solve_for_learning_rate(network_tuples)
+        plot_tuples_with_best_fit(network_tuples, lr, title=network_name + ": lr=" + repr(lr) +" , de="+ repr(get_data_efficiency(network_tuples)) )
 
 
 

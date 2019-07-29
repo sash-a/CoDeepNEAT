@@ -56,6 +56,9 @@ class StandardNet(nn.Module):
     def does_net_have_results_file(self, verbose):
         return os.path.exists(self.get_results_file_name(verbose))
 
+    def get_verbose_and_summarised_results(self):
+        return self.get_results(verbose=True), self.get_results(verbose=False)
+
 
         
 

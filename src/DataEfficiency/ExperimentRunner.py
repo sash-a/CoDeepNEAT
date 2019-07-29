@@ -113,9 +113,6 @@ def test_all_networks(num_epochs, verbose):
     #plot_all_verbose_accuracies(plot_points)
 
 
-
-
-
 def test_max_accuracy_of_networks(num_epochs):
     for network_type in networks:
         for i in range(6):
@@ -143,6 +140,7 @@ def plot_all_verbose_accuracies(values):
 
 def run_tests():
     num_epochs = 2*10
+
     global total_batches
     trainloader, testloader = load_data(dataset="cifar10")
     total_batches = len(trainloader)

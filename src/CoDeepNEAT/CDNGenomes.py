@@ -29,6 +29,7 @@ class BlueprintGenome(Genome):
                                    discreet_value=nn.init.kaiming_uniform_, name='initialization function', mutation_chance=0.13)
         self.da_scheme_index = -1
 
+
     def to_blueprint(self):
         """
         turns blueprintNEATNodes from self.nodes into BlueprintNodes and connects them into a graph with self.connections
