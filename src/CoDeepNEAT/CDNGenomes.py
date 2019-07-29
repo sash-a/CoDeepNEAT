@@ -88,8 +88,15 @@ class ModuleGenome(Genome):
         attrib_dist = 0
         topology_dist = super().distance_to(other)
 
-        for self_mutagen, other_mutagen in zip(self.get_all_mutagens(), other.get_all_mutagens()):
-            attrib_dist += self_mutagen.distance_to(other_mutagen)
+        common_nodes = self._nodes.keys() & other._nodes.keys()
+
+        for node_id in common_nodes:
+            self_node, other_node = self._nodes[node_id], other._nodes[node_id]
+            for self_mutagen, other_mutagen in zip(self_node.get_all_mutagens(), other_node.get_all_mutagens()):
+                attrib_dist += self_mutagen.distance_to(other_mutagen)
+
+        attrib_dist /= len(common_nodes)
+        print('a t f', attrib_dist, topology_dist, math.sqrt(attrib_dist * attrib_dist + topology_dist * topology_dist))
 
         return math.sqrt(attrib_dist * attrib_dist + topology_dist * topology_dist)
 

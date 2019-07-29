@@ -169,7 +169,7 @@ class Mutagen:
             return dist
 
         for sub_value_name, sub_value in self.sub_values.items():
-            dist += sub_value_name.distance_to(other.get_sub_value(sub_value_name, return_mutagen=True))
+            dist += sub_value.distance_to(other.get_sub_value(sub_value_name, return_mutagen=True))
 
         return dist
 

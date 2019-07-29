@@ -1,14 +1,13 @@
-from src.NEAT.Gene import NodeGene, NodeType
+import random
+
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+from src.Config import Config
 from src.NEAT.Gene import NodeGene, NodeType
 from src.NEAT.Mutagen import Mutagen
 from src.NEAT.Mutagen import ValueType
-import torch.nn as nn
-import torch.nn.functional as F
-import torch
-import random
-from src.Config import Config
-
-from src.DataAugmentation.AugmentationScheme import AugmentationScheme
 
 use_convs = True
 use_linears = True
@@ -28,10 +27,9 @@ class ModulenNEATNode(NodeGene):
         max_pool_chance = 0.3  # chance that a new node will start with drop out
         use_max_pool = random.random() < dropout_chance
 
-
-
         self.activation = Mutagen(F.relu, F.leaky_relu, torch.sigmoid, F.relu6,
-                                  discreet_value=activation, name="activation function", mutation_chance=0.15)  # TODO try add in Selu, Elu
+                                  discreet_value=activation, name="activation function",
+                                  mutation_chance=0.15)  # TODO try add in Selu, Elu
 
         conv_out_features = 25 + random.randint(0, 25)
         linear_out_features = 100 + random.randint(0, 100)
@@ -39,18 +37,20 @@ class ModulenNEATNode(NodeGene):
         linear_submutagens = \
             {
                 "regularisation": Mutagen(None, nn.BatchNorm1d,
-                                          discreet_value=nn.BatchNorm1d if use_batch_norm else None, mutation_chance=0.15),
+                                          discreet_value=nn.BatchNorm1d if use_batch_norm else None,
+                                          mutation_chance=0.15),
 
                 "dropout": Mutagen(None, nn.Dropout, discreet_value=nn.Dropout if use_dropout else None, sub_mutagens=
                 {
                     nn.Dropout: {
                         "dropout_factor": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.15, start_range=0,
                                                   end_range=0.75)}
-                }, mutation_chance= 0.08),
+                }, mutation_chance=0.08),
 
                 "out_features": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=linear_out_features,
                                         start_range=10,
-                                        end_range=1024, name="num out features", mutation_chance=0.22)
+                                        end_range=1024, name="num out features", mutation_chance=0.22,
+                                        distance_weighting=5)
             }
 
         conv_submutagens = {
@@ -59,13 +59,16 @@ class ModulenNEATNode(NodeGene):
             "conv_stride": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=conv_stride, start_range=1,
                                    end_range=5),
 
-            "reduction": Mutagen(None, nn.MaxPool2d, discreet_value=nn.MaxPool2d if use_max_pool else None, sub_mutagens=
-            {
-                nn.MaxPool2d: {"pool_size": Mutagen(
-                    value_type=ValueType.WHOLE_NUMBERS, current_value=max_pool_size, start_range=2, end_range=5)}
-            }, mutation_chance=0.15),
+            "reduction": Mutagen(None, nn.MaxPool2d, discreet_value=nn.MaxPool2d if use_max_pool else None,
+                                 sub_mutagens=
+                                 {
+                                     nn.MaxPool2d: {"pool_size": Mutagen(
+                                         value_type=ValueType.WHOLE_NUMBERS, current_value=max_pool_size, start_range=2,
+                                         end_range=5)}
+                                 }, mutation_chance=0.15),
 
-            "regularisation": Mutagen(None, nn.BatchNorm2d, discreet_value=nn.BatchNorm2d if use_batch_norm else None, mutation_chance=0.15),
+            "regularisation": Mutagen(None, nn.BatchNorm2d, discreet_value=nn.BatchNorm2d if use_batch_norm else None,
+                                      mutation_chance=0.15),
 
             "dropout": Mutagen(None, nn.Dropout2d, discreet_value=nn.Dropout2d if use_dropout else None, sub_mutagens=
             {
@@ -75,11 +78,11 @@ class ModulenNEATNode(NodeGene):
             }, mutation_chance=0.08),
 
             "out_features": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=conv_out_features, start_range=1,
-                                    end_range=100, name="num out features", mutation_chance=0.22)
+                                    end_range=100, name="num out features", mutation_chance=0.22, distance_weighting=3)
         }
 
         if use_linears and not use_convs:
-            self.layer_type = Mutagen(nn.Linear, discreet_value=nn.Linear, sub_mutagens={
+            self.layer_type = Mutagen(nn.Linear, discreet_value=nn.Linear, distance_weighting=6, sub_mutagens={
                 nn.Linear: linear_submutagens
             })
         if use_convs and not use_linears:
@@ -101,7 +104,8 @@ class BlueprintNEATNode(NodeGene):
         super(BlueprintNEATNode, self).__init__(id, node_type)
 
         self.species_number = Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=0, start_range=0,
-                                      end_range=1, print_when_mutating=False, name="species number", mutation_chance=0.13)
+                                      end_range=1, print_when_mutating=False, name="species number",
+                                      mutation_chance=0.13)
 
     def get_all_mutagens(self):
         # raise Exception("getting species no mutagen from blueprint neat node")
@@ -204,20 +208,27 @@ class DANode(NodeGene):
 
                     "HSV": {
                         "channel": Mutagen(0, 1, 2, discreet_value=0, mutation_chance=0.20),
-                        "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=20, start_range=0, end_range=30),
-                        "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=50, start_range=30, end_range=60)
+                        "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=20, start_range=0,
+                                      end_range=30),
+                        "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=50, start_range=30,
+                                      end_range=60)
                     },
 
                     "Contrast_Normalisation": {
-                        "lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.0, end_range=1.0),
-                        "hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=1.5, start_range=1.0, end_range=2.0),
-                        "percent": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.0, end_range=1.0)
+                        "lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.0,
+                                      end_range=1.0),
+                        "hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=1.5, start_range=1.0,
+                                      end_range=2.0),
+                        "percent": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.0,
+                                           end_range=1.0)
                     },
 
                     "Increase_Channel": {
                         "channel": Mutagen(0, 1, 2, discreet_value=0, mutation_chance=0.20),
-                        "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=25, start_range=0, end_range=50),
-                        "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=75, start_range=50, end_range=100)
+                        "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=25, start_range=0,
+                                      end_range=50),
+                        "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=75, start_range=50,
+                                      end_range=100)
                     },
 
                     "Rotate_Channel": {
@@ -323,8 +334,6 @@ class DANode(NodeGene):
                               discreet_value="Flip_lr")
 
             self.enabled = Mutagen(True, False, discreet_value=True, name="da enabled")
-
-
 
     def get_all_mutagens(self):
         return [self.da, self.enabled]
