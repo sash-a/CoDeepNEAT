@@ -3,9 +3,11 @@ from torch import nn
 
 from src.Phenotype.Blueprint import BlueprintNode
 from src.Config import NeatProperties as Props
-from src.Phenotype.ModuleNode import ModuleNode
+from src.DataAugmentation.AugmentationScheme import AugmentationScheme
 from src.NEAT.Genome import Genome
 from src.NEAT.Mutagen import Mutagen, ValueType
+from src.Phenotype.Blueprint import BlueprintNode
+from src.Phenotype.ModuleNode import ModuleNode
 from src.DataAugmentation.AugmentationScheme import AugmentationScheme
 
 
@@ -16,10 +18,10 @@ class BlueprintGenome(Genome):
         self.modules_used = []  # holds ref to module individuals used - can multiple represent
         self.modules_used_index = []  # hold tuple (species no, module index) of module used
         self.da_scheme: DAGenome = None
-        self.learning_rate = Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.001, start_range=0.0003,
-                                     end_range=0.005, print_when_mutating=False, mutation_chance=0.13)
-        self.beta1 = Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.9, start_range=0.87, end_range=0.93, mutation_chance=0.1)
-        self.beta2 = Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.999, start_range=0.9987, end_range=0.9993, mutation_chance=0.1)
+        self.learning_rate = Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.001, start_range=0.0006,
+                                     end_range=0.003, print_when_mutating=False, mutation_chance=0.13)
+        self.beta1 = Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.9, start_range=0.88, end_range=0.92, mutation_chance=0.1)
+        self.beta2 = Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.999, start_range=0.9988, end_range=0.9992, mutation_chance=0.1)
         self.weight_init = Mutagen(nn.init.kaiming_uniform_, nn.init.xavier_uniform_,
                                    discreet_value=nn.init.kaiming_uniform_, name='initialization function', mutation_chance=0.13)
         self.da_scheme_index = -1
@@ -33,17 +35,27 @@ class BlueprintGenome(Genome):
         return super().to_phenotype(BlueprintNode)
 
     def pick_da_scheme(self, da_population):
-
-        if self.da_scheme is not None and self.da_scheme in da_population.species[0]:
+        if self.da_scheme is not None and self.da_scheme in da_population.species[0].members:
+            self.da_scheme_index = da_population.species[0].members.index(self.da_scheme)
+            #print("keeping existing DA scheme, taking new index:",self.da_scheme_index)
             return self.da_scheme
 
         # Assuming data augmentation only has 1 species
         # TODO make sure there is only ever 1 species - could make it random choice from individuals
-        self.da_scheme, self.da_scheme_index = da_population.species[0].sample_individual()
+        self.da_scheme, self.da_scheme_index = da_population.species[0].sample_individual(debug=False)
+        #print("sampled new da scheme, index:",self.da_scheme_index)
         return self.da_scheme
 
     def mutate(self, mutation_record):
         return super()._mutate(mutation_record, Props.BP_NODE_MUTATION_CHANCE, Props.BP_CONN_MUTATION_CHANCE)
+
+    def inherit(self, genome):
+        self.da_scheme = genome.da_scheme
+        self.learning_rate = copy.deepcopy(genome.learning_rate)
+        self.beta1 = copy.deepcopy(genome.beta1)
+        self.beta2 = copy.deepcopy(genome.beta2)
+        #print("inhereting from Blueprint genome an lr of:",self.learning_rate(), "and da sc:",self.da_scheme)
+
 
     def end_step(self):
         super().end_step()
@@ -81,6 +93,9 @@ class ModuleGenome(Genome):
     def mutate(self, mutation_record):
         return super()._mutate(mutation_record, Props.MODULE_NODE_MUTATION_CHANCE, Props.MODULE_CONN_MUTATION_CHANCE)
 
+    def inherit(self, genome):
+        pass
+
     def end_step(self):
         super().end_step()
         self.module_node = None
@@ -97,6 +112,9 @@ class DAGenome(Genome):
     def mutate(self, mutation_record):
         #print("mutating DA genome")
         return super()._mutate(mutation_record, 0.1, 0, allow_connections_to_mutate=False, debug=False)
+
+    def inherit(self, genome):
+        pass
 
     def to_phenotype(self, Phenotype=None):
         # Construct DA scheme from nodes
