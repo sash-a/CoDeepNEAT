@@ -34,7 +34,7 @@ def main():
             continue_evolution_from_save_state(Config.run_name)
         except Exception as e:
             print(e)
-            print("could not load save state for run name:",Config.run_name, "starting from scratch instead")
+            print("could not load save state for run name:", Config.run_name, "starting from scratch instead")
             run_evolution_from_scratch()
     else:
         run_evolution_from_scratch()
