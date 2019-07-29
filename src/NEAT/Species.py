@@ -116,8 +116,10 @@ class Species:
     def set_next_species_size(self, species_size):
         self.next_species_size = species_size
 
-    def sample_individual(self):
+    def sample_individual(self, debug = False):
         index = random.randint(0, len(self.members) - 1)
+        # if debug:
+        #     print("sampling random indv:",index, "length:", len(self.members))
         return self.members[index], index
 
     def get_species_type(self):

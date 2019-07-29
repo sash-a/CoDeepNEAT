@@ -35,12 +35,15 @@ class BlueprintGenome(Genome):
         return super().to_phenotype(BlueprintNode)
 
     def pick_da_scheme(self, da_population):
-        if self.da_scheme is not None and self.da_scheme in da_population.species[0]:
+        if self.da_scheme is not None and self.da_scheme in da_population.species[0].members:
+            self.da_scheme_index = da_population.species[0].members.index(self.da_scheme)
+            #print("keeping existing DA scheme, taking new index:",self.da_scheme_index)
             return self.da_scheme
 
         # Assuming data augmentation only has 1 species
         # TODO make sure there is only ever 1 species - could make it random choice from individuals
-        self.da_scheme, self.da_scheme_index = da_population.species[0].sample_individual()
+        self.da_scheme, self.da_scheme_index = da_population.species[0].sample_individual(debug=True)
+        #print("sampled new da scheme, index:",self.da_scheme_index)
         return self.da_scheme
 
     def mutate(self, mutation_record):
@@ -51,7 +54,7 @@ class BlueprintGenome(Genome):
         self.learning_rate = copy.deepcopy(genome.learning_rate)
         self.beta1 = copy.deepcopy(genome.beta1)
         self.beta2 = copy.deepcopy(genome.beta2)
-        print("inhereting from Blueprint genome an lr of:",self.learning_rate(), "and da sc:",self.da_scheme)
+        #print("inhereting from Blueprint genome an lr of:",self.learning_rate(), "and da sc:",self.da_scheme)
 
 
     def end_step(self):
