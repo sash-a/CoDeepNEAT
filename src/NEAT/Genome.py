@@ -1,13 +1,15 @@
-from src.NEAT.Gene import ConnectionGene, NodeGene, NodeType
-from typing import Iterable
 import copy
-import random
-import sys
-from src.Config import Config
 import operator
 import os
-from data import DataManager
+import random
+import sys
+from typing import Iterable
+
 import graphviz
+from data import DataManager
+
+from src.Config import Config, NeatProperties as Props
+from src.NEAT.Gene import ConnectionGene, NodeGene, NodeType
 
 
 class Genome:
@@ -32,11 +34,10 @@ class Genome:
         for connection in connections:
             self.add_connection(connection, True)
 
-
     def has_branches(self):
         traversal_dict = self._get_traversal_dictionary(exclude_disabled_connection=True)
         for children in traversal_dict.values():
-            if len(children) >1 :
+            if len(children) > 1:
                 return True
         return False
 
@@ -56,10 +57,10 @@ class Genome:
         return self._nodes.keys() == other._nodes.keys() and self._connections.values() == other._connections.values()
 
     def get_unique_genes(self, other):
-        return set(self._connections.keys()) - set(other._connections.keys())
+        return self._connections.keys() - other._connections.keys()
 
-    def get_disjoint_genes(self, other):
-        return set(self._connections.keys()) ^ set(other._connections.keys())
+    def get_disjoint_excess_genes(self, other):
+        return self._connections.keys() ^ other._connections.keys()
 
     def add_node(self, node):
         """Add node. Nodes must be added before their connections"""
@@ -83,7 +84,7 @@ class Genome:
         self._connections[conn.id] = conn
 
     def report_fitness(self, fitnesses):
-        #print("reporting fitness",fitnesses, "to genome:", type(self))
+        # print("reporting fitness",fitnesses, "to genome:", type(self))
         if self.fitness_values is None or not self.fitness_values:
             self.fitness_values = [0 for _ in fitnesses]
 
@@ -100,14 +101,29 @@ class Genome:
         if other == self:
             return 0
 
-        return len(self.get_disjoint_genes(other)) / max(len(self._connections), len(other._connections))
+        num_disjoint = 0
+        num_excess = 0
+
+        self_max_conn_id = max(self._connections.keys())
+        other_max_conn_id = max(other._connections.keys())
+        smaller_id = min(self_max_conn_id, other_max_conn_id)
+
+        for conn_id in self.get_disjoint_excess_genes(other):
+            if conn_id > smaller_id:
+                num_excess += 1
+            else:
+                num_disjoint += 1
+
+        return (num_excess * Props.EXCESS_COEFFICIENT + num_disjoint * Props.DISJOINT_COEFFICIENT) / max(
+            len(self._connections), len(other._connections))
 
     def mutate(self, mutation_record):
         raise NotImplemented('Mutation should be called not in base class')
 
-    def _mutate(self, mutation_record, add_node_chance, add_connection_chance, allow_connections_to_mutate=True, debug = False):
+    def _mutate(self, mutation_record, add_node_chance, add_connection_chance, allow_connections_to_mutate=True,
+                debug=False):
         if debug:
-            print("before mutation: " , self, "has branches;",self.has_branches())
+            print("before mutation: ", self, "has branches;", self.has_branches())
 
         topology_changed = False
         if random.random() < add_node_chance:
@@ -148,7 +164,7 @@ class Genome:
             mutagen.mutate()
 
         if debug:
-            print("after mutation: " , self, "has branches;",self.has_branches())
+            print("after mutation: ", self, "has branches;", self.has_branches())
 
         return self
 
@@ -311,14 +327,14 @@ class Genome:
         return root_node
 
     def plot_tree_with_graphvis(self, title="", file="temp_g"):
-        #print("genome_graph,1,2")
+        # print("genome_graph,1,2")
         file = os.path.join(DataManager.get_Graphs_folder(), file)
         print(file)
 
         graph = graphviz.Digraph(comment=title)
 
         for node in self._nodes.values():
-            graph.node(str(node.id), node.get_node_name(),style="filled", fillcolor="blue")
+            graph.node(str(node.id), node.get_node_name(), style="filled", fillcolor="blue")
 
         for c in self._connections.values():
             if not c.enabled():

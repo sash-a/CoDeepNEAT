@@ -1,17 +1,14 @@
 import copy
+import math
+
 from torch import nn
 
-from src.Phenotype.Blueprint import BlueprintNode
 from src.Config import NeatProperties as Props
-from src.Phenotype.ModuleNode import ModuleNode
+from src.DataAugmentation.AugmentationScheme import AugmentationScheme
 from src.NEAT.Genome import Genome
 from src.NEAT.Mutagen import Mutagen, ValueType
-from src.DataAugmentation.AugmentationScheme import AugmentationScheme
-import os
-from data import DataManager
-import graphviz
-from src.Config import Config
-
+from src.Phenotype.Blueprint import BlueprintNode
+from src.Phenotype.ModuleNode import ModuleNode
 
 
 class BlueprintGenome(Genome):
@@ -23,10 +20,13 @@ class BlueprintGenome(Genome):
         self.da_scheme: DAGenome = None
         self.learning_rate = Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.001, start_range=0.0003,
                                      end_range=0.005, print_when_mutating=False, mutation_chance=0.13)
-        self.beta1 = Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.9, start_range=0.87, end_range=0.93, mutation_chance=0.1)
-        self.beta2 = Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.999, start_range=0.9987, end_range=0.9993, mutation_chance=0.1)
+        self.beta1 = Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.9, start_range=0.87, end_range=0.93,
+                             mutation_chance=0.1)
+        self.beta2 = Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.999, start_range=0.9987, end_range=0.9993,
+                             mutation_chance=0.1)
         self.weight_init = Mutagen(nn.init.kaiming_uniform_, nn.init.xavier_uniform_,
-                                   discreet_value=nn.init.kaiming_uniform_, name='initialization function', mutation_chance=0.13)
+                                   discreet_value=nn.init.kaiming_uniform_, name='initialization function',
+                                   mutation_chance=0.13)
         self.da_scheme_index = -1
 
     def to_blueprint(self):
@@ -81,6 +81,18 @@ class ModuleGenome(Genome):
         self.module_node = module
         return copy.deepcopy(module)
 
+    def distance_to(self, other):
+        if type(self) != type(other):
+            raise TypeError('Trying finding distance from Module genome to ' + str(type(other)))
+
+        attrib_dist = 0
+        topology_dist = super().distance_to(other)
+
+        for self_mutagen, other_mutagen in zip(self.get_all_mutagens(), other.get_all_mutagens()):
+            attrib_dist += self_mutagen.distance_to(other_mutagen)
+
+        return math.sqrt(attrib_dist * attrib_dist + topology_dist * topology_dist)
+
     def mutate(self, mutation_record):
         return super()._mutate(mutation_record, Props.MODULE_NODE_MUTATION_CHANCE, Props.MODULE_CONN_MUTATION_CHANCE)
 
@@ -98,7 +110,7 @@ class DAGenome(Genome):
         return True
 
     def mutate(self, mutation_record):
-        #print("mutating DA genome")
+        # print("mutating DA genome")
         return super()._mutate(mutation_record, 0.1, 0, allow_connections_to_mutate=False, debug=False)
 
     def to_phenotype(self, Phenotype=None):
@@ -122,7 +134,6 @@ class DAGenome(Genome):
             if self._nodes[node_id].enabled():
                 da_scheme.add_augmentation(self._nodes[node_id].da)
             self._to_da_scheme(da_scheme, node_id, traversal_dictionary)
-
 
     def validate(self):
         return super().validate() and not self.has_branches()

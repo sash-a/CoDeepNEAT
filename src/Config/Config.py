@@ -9,10 +9,10 @@ continue_from_last_run = True
 
 # --------------------------------------------------------------------------------------------------------------------#
 # nn options
-device = 'gpu'  # gpu | cpu
+device = 'cpu'  # gpu | cpu
 num_gpus = 1
 num_workers = 0  # this doesn't work in parallel because daemonic processes cannot spawn children
-dataset = 'fashion_mnist'
+dataset = 'cifar10'
 data_path = ''
 number_of_epochs_per_evaluation = 5
 

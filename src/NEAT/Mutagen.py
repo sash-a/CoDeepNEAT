@@ -1,6 +1,6 @@
-from enum import Enum
-import random
 import math
+import random
+from enum import Enum
 
 
 class ValueType(Enum):
@@ -13,7 +13,7 @@ class Mutagen:
 
     def __init__(self, *discreet_options, name="", current_value=-1, start_range=None, end_range=None,
                  value_type=ValueType.DISCRETE, sub_mutagens: dict = None, discreet_value=None, mutation_chance=None,
-                 print_when_mutating=False):
+                 print_when_mutating=False, distance_weighting=0):
         """defaults to discrete values. can hold whole numbers/ real numbers in a range"""
 
         self.value_type = value_type
@@ -22,6 +22,7 @@ class Mutagen:
         self.print_when_mutating = print_when_mutating
         self.name = name
         self.age = 0
+        self.distance_weighting = distance_weighting
 
         if len(discreet_options) > 0:
             self.possible_values = discreet_options
@@ -155,6 +156,22 @@ class Mutagen:
         if not (self.sub_values is None):
             if self.get_value() in self.sub_values:
                 return self.sub_values[self.get_value()]
+
+    def distance_to(self, other):
+        if self.value_type == ValueType.DISCRETE:
+            dist = 0
+            if self() != other():
+                dist = self.distance_weighting
+        else:
+            dist = self.distance_weighting * (self() - other()) / (self.end_range - self.start_range)
+
+        if self.sub_values is None:
+            return dist
+
+        for sub_value_name, sub_value in self.sub_values.items():
+            dist += sub_value_name.distance_to(other.get_sub_value(sub_value_name, return_mutagen=True))
+
+        return dist
 
     def set_value(self, value):
         """sets current_value=value, or current_value_id = index(value)

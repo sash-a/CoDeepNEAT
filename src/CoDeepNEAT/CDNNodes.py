@@ -19,19 +19,19 @@ class ModulenNEATNode(NodeGene):
                  conv_window_size=7, conv_stride=1, max_pool_size=2):
         super(ModulenNEATNode, self).__init__(id, node_type)
 
-        batch_norm_chance = 0.65#chance that a new node will start with batch norm
+        batch_norm_chance = 0.65  # chance that a new node will start with batch norm
         use_batch_norm = random.random() < batch_norm_chance
 
-        dropout_chance = 0.2#chance that a new node will start with drop out
+        dropout_chance = 0.2  # chance that a new node will start with drop out
         use_dropout = random.random() < dropout_chance
 
-        max_pool_chance = 0.3# chance that a new node will start with drop out
+        max_pool_chance = 0.3  # chance that a new node will start with drop out
         use_max_pool = random.random() < dropout_chance
 
 
 
         self.activation = Mutagen(F.relu, F.leaky_relu, torch.sigmoid, F.relu6,
-                                  discreet_value=activation, name="activation function", mutation_chance= 0.15)  # TODO try add in Selu, Elu
+                                  discreet_value=activation, name="activation function", mutation_chance=0.15)  # TODO try add in Selu, Elu
 
         conv_out_features = 25 + random.randint(0, 25)
         linear_out_features = 100 + random.randint(0, 100)
