@@ -49,7 +49,7 @@ class Generation:
 
         if Config.evolve_data_augmentations:
             self.da_population = Population(PopInit.initialise_da(),
-                                            rank_fn,
+                                            single_objective_rank,
                                             PopInit.da_initial_mutations(),
                                             Props.DA_POP_SIZE,
                                             1,
@@ -115,7 +115,7 @@ class Generation:
             bp_pop_indvs[bp_key % bp_pop_size].report_fitness(fitness)
 
             if Config.evolve_data_augmentations and evaluated_bp.da_scheme_index != -1:
-                self.da_population[evaluated_bp.da_scheme_index].report_fitness(fitness)
+                self.da_population[evaluated_bp.da_scheme_index].report_fitness([fitness[0]])
 
             # print("reporting fitnesses to: ",  evaluated_bp.modules_used_index)
             for species_index, member_index in evaluated_bp.modules_used_index:

@@ -1,13 +1,14 @@
 import copy
-
 from torch import nn
 
+from src.Phenotype.Blueprint import BlueprintNode
 from src.Config import NeatProperties as Props
 from src.DataAugmentation.AugmentationScheme import AugmentationScheme
 from src.NEAT.Genome import Genome
 from src.NEAT.Mutagen import Mutagen, ValueType
 from src.Phenotype.Blueprint import BlueprintNode
 from src.Phenotype.ModuleNode import ModuleNode
+from src.DataAugmentation.AugmentationScheme import AugmentationScheme
 
 
 class BlueprintGenome(Genome):
