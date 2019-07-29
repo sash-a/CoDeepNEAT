@@ -207,6 +207,7 @@ class Genome:
             child.add_connection(new_connection,
                                  ignore_height_exception=True)  # child heights not meaningful at this stage
 
+        child.inherit(best)
         child.calculate_heights()
         return child
 
