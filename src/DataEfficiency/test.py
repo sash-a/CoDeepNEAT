@@ -111,7 +111,9 @@ def test_all_networks(num_epochs, verbose):
             plot_points.append((accuracies,network_type(size).get_name()))
 
     #plot_all_verbose_accuracies(plot_points)
-    
+
+
+
 
 
 def test_max_accuracy_of_networks(num_epochs):
