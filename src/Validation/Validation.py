@@ -19,7 +19,7 @@ def cross_validate(module_graph, dataset="", k=10):
 
 
 def validate_fold(model, da_scheme, dataset, k, i):
-    acc = Evaluator.evaluate(model, Config.number_of_epochs_per_evaluation, Config.get_device(), batch_size=1,
+    acc = Evaluator.evaluate(model, 2, Config.get_device(), batch_size=1,
                              augmentor=da_scheme, train_loader=dataset.get_training_fold(k, i),
                              test_loader=dataset.get_testing_fold(k, i))
 

@@ -139,11 +139,11 @@ class DANode(NodeGene):
                                         end_range=50)},
 
                     "Scale": {
-                        "x_lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.0,
+                        "x_lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.01,
                                         end_range=1.0),
                         "x_hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=1.5, start_range=1.0,
                                         end_range=2.0),
-                        "y_lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.0,
+                        "y_lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.01,
                                         end_range=1.0),
                         "y_hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=1.5, start_range=1.0,
                                         end_range=2.0)},
@@ -256,11 +256,11 @@ class DANode(NodeGene):
                                         end_range=50)},
 
                     "Scale": {
-                        "x_lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.0,
+                        "x_lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.01,
                                         end_range=1.0),
                         "x_hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=1.5, start_range=1.0,
                                         end_range=2.0),
-                        "y_lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.0,
+                        "y_lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.01,
                                         end_range=1.0),
                         "y_hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=1.5, start_range=1.0,
                                         end_range=2.0)},

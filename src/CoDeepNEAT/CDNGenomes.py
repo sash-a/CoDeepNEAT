@@ -7,11 +7,6 @@ from src.Phenotype.ModuleNode import ModuleNode
 from src.NEAT.Genome import Genome
 from src.NEAT.Mutagen import Mutagen, ValueType
 from src.DataAugmentation.AugmentationScheme import AugmentationScheme
-import os
-from data import DataManager
-import graphviz
-from src.Config import Config
-
 
 
 class BlueprintGenome(Genome):
@@ -38,7 +33,9 @@ class BlueprintGenome(Genome):
         return super().to_phenotype(BlueprintNode)
 
     def pick_da_scheme(self, da_population):
+
         if self.da_scheme is not None and self.da_scheme in da_population.species[0]:
+            _, self.da_scheme_index = da_population.species[0].sample_individual()
             return self.da_scheme
 
         # Assuming data augmentation only has 1 species
@@ -123,7 +120,6 @@ class DAGenome(Genome):
             if self._nodes[node_id].enabled():
                 da_scheme.add_augmentation(self._nodes[node_id].da)
             self._to_da_scheme(da_scheme, node_id, traversal_dictionary)
-
 
     def validate(self):
         return super().validate() and not self.has_branches()
