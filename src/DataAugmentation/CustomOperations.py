@@ -20,8 +20,9 @@ class CustomOperation:
             for img in images:
                 # extract edges from image
                 edges = cv2.Canny(img, self.min_value, self.max_value)
+                rgb_edges = cv2.cvtColor(edges, cv2.COLOR_GRAY2RGB)
                 # add images to list
-                new_imgs.append(edges)
+                new_imgs.append(rgb_edges)
 
             # Convert list to numpy array
             aug_imgs = np.asarray(new_imgs)
