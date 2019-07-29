@@ -27,3 +27,5 @@ graphviz
 python-graphviz
 
 imgaug
+
+skorch

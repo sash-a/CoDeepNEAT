@@ -17,6 +17,8 @@ import argparse
 import operator
 import torch.multiprocessing as mp
 
+from src.Validation import Validation
+
 """
 Evolution Environment is static as there should only ever be one
 Acts as the driver of current generation
@@ -24,6 +26,7 @@ Acts as the driver of current generation
 
 
 def main():
+
     parse_args()
     mp.set_start_method('spawn', force=True)
     if Config.continue_from_last_run:
@@ -35,6 +38,8 @@ def main():
             run_evolution_from_scratch()
     else:
         run_evolution_from_scratch()
+
+    # Validation.cross_validation("cifar_netsizeadj_5ep")
 
 def run_evolution_from_scratch():
     evolve_generation(Generation())

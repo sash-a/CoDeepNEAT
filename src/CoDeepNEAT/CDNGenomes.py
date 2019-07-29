@@ -35,7 +35,6 @@ class BlueprintGenome(Genome):
     def pick_da_scheme(self, da_population):
 
         if self.da_scheme is not None and self.da_scheme in da_population.species[0]:
-            _, self.da_scheme_index = da_population.species[0].sample_individual()
             return self.da_scheme
 
         # Assuming data augmentation only has 1 species
