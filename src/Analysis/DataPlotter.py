@@ -40,7 +40,7 @@ def plot_generations():
         # time.sleep(1.5)
 
 
-def plot_all_generations(aggregation_type='max', fitness_index=0):
+def plot_all_generations(aggregation_type='max', fitness_index=0, run_name='unnamed run'):
     gens = list(range(0, len(RuntimeAnalysis.generations)))
     if aggregation_type == 'max':
         fitness = [gen.get_max_of_objective(fitness_index) for gen in RuntimeAnalysis.generations]
@@ -49,10 +49,14 @@ def plot_all_generations(aggregation_type='max', fitness_index=0):
     else:
         raise ValueError('Only aggregation types allowed are avg and max, received' + str(aggregation_type))
 
+    plt.ylim(0, 80)
     plt.scatter(gens, fitness)
+    plt.title(aggregation_type + ' value of objectives ' + str(
+        fitness_index) + ' per generation for ' + run_name)
     plt.show()
 
 
 if __name__ == "__main__":
-    RuntimeAnalysis.load_date_from_log_file("test_run", summary=False)
-    # plot_generations()
+    run_name = 'newspc5ep'
+    RuntimeAnalysis.load_date_from_log_file(run_name, summary=False)
+    plot_all_generations('max', 0, run_name)

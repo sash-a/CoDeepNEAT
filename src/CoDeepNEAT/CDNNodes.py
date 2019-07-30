@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from src.Config import Config
+from src.Config import Config, NeatProperties as Props
 from src.NEAT.Gene import NodeGene, NodeType
 from src.NEAT.Mutagen import Mutagen
 from src.NEAT.Mutagen import ValueType
@@ -50,7 +50,7 @@ class ModulenNEATNode(NodeGene):
                 "out_features": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=linear_out_features,
                                         start_range=10,
                                         end_range=1024, name="num out features", mutation_chance=0.22,
-                                        distance_weighting=5)
+                                        distance_weighting=Props.LAYER_SIZE_COEFFICIENT)
             }
 
         conv_submutagens = {
@@ -78,18 +78,22 @@ class ModulenNEATNode(NodeGene):
             }, mutation_chance=0.08),
 
             "out_features": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=conv_out_features, start_range=1,
-                                    end_range=100, name="num out features", mutation_chance=0.22, distance_weighting=4)
+                                    end_range=100, name="num out features", mutation_chance=0.22,
+                                    distance_weighting=Props.LAYER_SIZE_COEFFICIENT)
         }
 
         if use_linears and not use_convs:
-            self.layer_type = Mutagen(nn.Linear, discreet_value=nn.Linear, distance_weighting=6, sub_mutagens={
-                nn.Linear: linear_submutagens
-            })
+            self.layer_type = Mutagen(nn.Linear, discreet_value=nn.Linear,
+                                      distance_weighting=Props.LAYER_TYPE_COEFFICIENT,
+                                      sub_mutagens={nn.Linear: linear_submutagens}
+                                      )
         if use_convs and not use_linears:
             self.layer_type = Mutagen(nn.Conv2d, discreet_value=nn.Conv2d,
+                                      distance_weighting=Props.LAYER_TYPE_COEFFICIENT,
                                       sub_mutagens={nn.Conv2d: conv_submutagens})
         if use_convs and use_linears:
             self.layer_type = Mutagen(nn.Conv2d, nn.Linear, discreet_value=layer_type,
+                                      distance_weighting=Props.LAYER_TYPE_COEFFICIENT,
                                       sub_mutagens={
                                           nn.Conv2d: conv_submutagens,
                                           nn.Linear: linear_submutagens
