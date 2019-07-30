@@ -106,6 +106,15 @@ class DAGenome(Genome):
     def __init__(self, connections, nodes):
         super().__init__(connections, nodes)
 
+    def __repr__(self):
+        node_names = []
+        for node in self._nodes.values():
+            node_names.append(node.get_node_name())
+
+        toString = "\tNodes:" + repr(list(node_names))
+        return "\n" + "\tConnections: " + super().__repr__() + "\n" + toString
+
+
     def _mutate_add_connection(self, mutation_record, node1, node2):
         """Only want linear graphs for data augmentation"""
         return True
@@ -139,6 +148,7 @@ class DAGenome(Genome):
             # print("found da",da_name)
             if self._nodes[node_id].enabled():
                 added_an_aug = True
+                print("added augmentation to pipeline. genome: ", self)
                 da_scheme.add_augmentation(self._nodes[node_id].da)
             added_an_aug = added_an_aug or self._to_da_scheme(da_scheme, node_id, traversal_dictionary)
 
