@@ -108,22 +108,21 @@ class BlueprintGenome(Genome):
             module_individual = self.species_module_mapping[species_used]
             if module_individual is None:
                 continue
+            if species_used> len(generation.module_population.species):
+                continue
             if module_individual in generation.module_population.species[species_used].members:
                 index = generation.module_population.species[species_used].members.index(module_individual)
                 self.species_module_index_mapping[species_used] = index
-                print("module",module_individual,"survived and stayed in species",species_used)
+                #print("module",module_individual,"survived and stayed in species",species_used)
             else:
                 new_species, index = generation.module_population.find_individual(module_individual)
                 if new_species == -1:
-                    print("module handle", module_individual, "died")
+                    #print("module handle", module_individual, "died")
                     pass
                 else:
                     #self.species_number = new_species
-                    print("module handle moved species")
+                    #print("module handle moved species")
                     pass
-
-    def update_species_numbers(self, from_species, to_species):
-        pass
 
     def end_step(self, generation = None):
         super().end_step()

@@ -5,7 +5,7 @@ import torch.multiprocessing as mp
 # --------------------------------------------------------------------------------------------------------------------#
 # Run state options
 run_name = "test_run"
-continue_from_last_run = False
+continue_from_last_run = True
 
 # --------------------------------------------------------------------------------------------------------------------#
 # nn options
@@ -34,7 +34,7 @@ evolve_data_augmentations = False
 colour_augmentations = True
 
 # --------------------------------------------------------------------------------------------------------------------#
-maintain_module_handles = True
+maintain_module_handles = False
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Debug and test options

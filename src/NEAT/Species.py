@@ -89,7 +89,11 @@ class Species:
                     len(self.members)))
 
         children.extend(elite)
-        for i in range()
+        for i in range(number_of_elite,len(self.members)):
+            member = self.members[i]
+            self.members[i] = None
+            del member
+
         self.members = children
 
     def _rank_species(self):

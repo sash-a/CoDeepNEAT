@@ -100,7 +100,7 @@ class BlueprintNEATNode(NodeGene):
         super(BlueprintNEATNode, self).__init__(id, node_type)
 
         self.species_number = Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=0, start_range=0,
-                                      end_range=1, print_when_mutating=False, name="species number", mutation_chance=0.25)
+                                      end_range=1, print_when_mutating=False, name="species number", mutation_chance=0.35)
 
     def get_all_mutagens(self):
         # raise Exception("getting species no mutagen from blueprint neat node")

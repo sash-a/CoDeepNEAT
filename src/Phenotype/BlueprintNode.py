@@ -35,7 +35,7 @@ class BlueprintNode(Node):
         if Config.maintain_module_handles and self.species_number in genome_module_mapping and genome_module_mapping[self.species_number] is not None:
             index = genome_module_mapping[self.species_number]
             module_graph_individual = generation.module_population.species[self.species_number][index]
-            #print(self,"using module handle",self.species_number,index,module_graph_individual)
+            print(self,"using module handle",self.species_number,index,module_graph_individual)
 
         elif self.species_number in module_index_map:
             index = module_index_map[self.species_number]

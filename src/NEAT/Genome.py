@@ -321,7 +321,7 @@ class Genome:
         graph = graphviz.Digraph(comment=title)
 
         for node in self._nodes.values():
-            graph.node(str(node.id), node.get_node_name(),style="filled", fillcolor="blue")
+            graph.node(str(node.id), node.get_node_name(),style="filled", fillcolor="white")
 
         for c in self._connections.values():
             if not c.enabled():
