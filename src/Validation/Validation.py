@@ -3,28 +3,28 @@ from src.Validation import Evaluator, DataLoader
 from src.Validation.DataSet import DataSet
 from src.NeuralNetwork.ModuleNet import create_nn
 from data import DataManager
-from sklearn.model_selection import cross_val_predict
-from skorch import NeuralNetClassifier
+# from sklearn.model_selection import cross_val_predict
+# from skorch import NeuralNetClassifier
 import numpy as np
 import torch
 
 
-def cross_validation(run_name):
-    gen_state = DataManager.load_generation_state(run_name)
-    best_graph = gen_state.pareto_population.get_highest_accuracy()
-    train_loader, test_loader = DataLoader.load_data()
-    net = NeuralNetClassifier(module=best_graph, train_split=None)
-    x_train_loader, y_train_loader = [], []
-    for batch_idx, (inputs, targets) in enumerate(train_loader):
-        x_train_loader.append(inputs)
-        y_train_loader.append(targets)
-
-    np_x = np.asarray(x_train_loader)
-    ts_x = torch.from_numpy(np_x)
-    np_y = np.asarray(y_train_loader)
-    ts_y = torch.from_numpy(np_y)
-
-    y_pred = cross_val_predict(net, ts_x, ts_y, cv=5)
+# def cross_validation(run_name):
+#     gen_state = DataManager.load_generation_state(run_name)
+#     best_graph = gen_state.pareto_population.get_highest_accuracy()
+#     train_loader, test_loader = DataLoader.load_data()
+#     net = NeuralNetClassifier(module=best_graph, train_split=None)
+#     x_train_loader, y_train_loader = [], []
+#     for batch_idx, (inputs, targets) in enumerate(train_loader):
+#         x_train_loader.append(inputs)
+#         y_train_loader.append(targets)
+#
+#     np_x = np.asarray(x_train_loader)
+#     ts_x = torch.from_numpy(np_x)
+#     np_y = np.asarray(y_train_loader)
+#     ts_y = torch.from_numpy(np_y)
+#
+#     y_pred = cross_val_predict(net, ts_x, ts_y, cv=5)
 
 
 # def cross_validate(module_graph, dataset="", k=10):
