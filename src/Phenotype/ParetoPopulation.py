@@ -1,6 +1,7 @@
 from src.NEAT.PopulationRanking import general_pareto_sorting
 from src.Analysis.DataPlotter import plot_acc_vs_second, plot_histogram
 import time
+import numpy as np
 
 
 class ParetoPopulation:
@@ -44,14 +45,26 @@ class ParetoPopulation:
         for graph in self.pareto_front:
             graph.module_graph_root_node.plot_tree_with_graphvis(file="fitnesses=" + repr(graph.fitness_values))
 
-    def get_highest_accuracy(self, print=False):
+    def get_highest_accuracy(self, num, print=False):
         highest_acc = 0
         best_graph = None
 
-        for graph in self.pareto_front:
-            if graph.fitness_values[0] > highest_acc:
-                highest_acc = graph.fitness_values[0]
-                best_graph = graph
-        if print:
-            best_graph.plot_tree_with_graphvis("best acc graph in pareto population - acc=" + repr(highest_acc))
-        return best_graph
+        if num > 1:
+            acc_sorted = sorted(self.pareto_front, key=lambda x: x.fitness_values[0] )
+            num_best_graphs = acc_sorted[-num:]
+            return num_best_graphs
+
+        elif num == 1:
+
+            for graph in self.pareto_front:
+                if graph.fitness_values[0] > highest_acc:
+                    highest_acc = graph.fitness_values[0]
+                    best_graph = graph
+
+            if print:
+                best_graph.plot_tree_with_graphvis("best acc graph in pareto population - acc=" + repr(highest_acc))
+
+            return best_graph
+        else:
+            raise Exception("Amount of graphs chosen is negative")
+
