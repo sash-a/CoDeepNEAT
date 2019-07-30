@@ -148,7 +148,6 @@ class DAGenome(Genome):
             # print("found da",da_name)
             if self._nodes[node_id].enabled():
                 added_an_aug = True
-                print("added augmentation to pipeline. genome: ", self)
                 da_scheme.add_augmentation(self._nodes[node_id].da)
             added_an_aug = added_an_aug or self._to_da_scheme(da_scheme, node_id, traversal_dictionary)
 
