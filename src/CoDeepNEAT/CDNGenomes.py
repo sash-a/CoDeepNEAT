@@ -1,14 +1,13 @@
 import copy
+
 from torch import nn
 
-from src.Phenotype.Blueprint import BlueprintNode
 from src.Config import NeatProperties as Props
 from src.DataAugmentation.AugmentationScheme import AugmentationScheme
 from src.NEAT.Genome import Genome
 from src.NEAT.Mutagen import Mutagen, ValueType
 from src.Phenotype.Blueprint import BlueprintNode
 from src.Phenotype.ModuleNode import ModuleNode
-from src.DataAugmentation.AugmentationScheme import AugmentationScheme
 
 
 class BlueprintGenome(Genome):
@@ -111,7 +110,7 @@ class DAGenome(Genome):
         for node in self._nodes.values():
             node_names.append(node.get_node_name())
 
-        toString = "\tNodes:" + repr(list(node_names))
+        toString = "\tNodes:" + repr(list(node_names)) + "\n" + "\tTraversal_Dict: " + repr(self._get_traversal_dictionary())
         return "\n" + "\tConnections: " + super().__repr__() + "\n" + toString
 
 
@@ -134,16 +133,24 @@ class DAGenome(Genome):
         curr_node = self.get_input_node().id
 
         if not self._to_da_scheme(da_scheme, curr_node, traversal):
-            raise Exception("never added any augmentations to pipeline. genome:", self)
+            # self._to_da_scheme(da_scheme, curr_node, traversal,debug= True)
+            """all da's are disabled"""
+            da_scheme.augs.append(AugmentationScheme.Augmentations["No_Operation"])
+            # raise Exception("never added any augmentations to pipeline. genome:", self)
 
         return da_scheme
 
-    def _to_da_scheme(self, da_scheme: AugmentationScheme, curr_node_id, traversal_dictionary):
+    def _to_da_scheme(self, da_scheme: AugmentationScheme, curr_node_id, traversal_dictionary, debug=False):
+
         if curr_node_id not in traversal_dictionary:
+            if debug:
+                print("reached output node:", curr_node_id)
             return False
 
         added_an_aug = False
         for node_id in traversal_dictionary[curr_node_id]:
+            if debug:
+                print("visiting node:", node_id, "da_name:",self._nodes[node_id].da())
             da_name = self._nodes[node_id].da()
             # print("found da",da_name)
             if self._nodes[node_id].enabled():
