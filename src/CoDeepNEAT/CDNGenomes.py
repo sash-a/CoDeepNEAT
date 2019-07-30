@@ -102,6 +102,7 @@ class ModuleGenome(Genome):
 
 
 class DAGenome(Genome):
+
     def __init__(self, connections, nodes):
         super().__init__(connections, nodes)
 
@@ -123,20 +124,26 @@ class DAGenome(Genome):
         traversal = self._get_traversal_dictionary()
         curr_node = self.get_input_node().id
 
-        self._to_da_scheme(da_scheme, curr_node, traversal)
+        if not self._to_da_scheme(da_scheme, curr_node, traversal):
+            raise Exception("never added any augmentations to pipeline. genome:", self)
 
         return da_scheme
 
     def _to_da_scheme(self, da_scheme: AugmentationScheme, curr_node_id, traversal_dictionary):
         if curr_node_id not in traversal_dictionary:
-            return
+            return False
 
+        added_an_aug = False
         for node_id in traversal_dictionary[curr_node_id]:
             da_name = self._nodes[node_id].da()
             # print("found da",da_name)
             if self._nodes[node_id].enabled():
+                added_an_aug = True
                 da_scheme.add_augmentation(self._nodes[node_id].da)
-            self._to_da_scheme(da_scheme, node_id, traversal_dictionary)
+            added_an_aug = added_an_aug or self._to_da_scheme(da_scheme, node_id, traversal_dictionary)
+
+        return added_an_aug
+
 
     def validate(self):
         return super().validate() and not self.has_branches()
