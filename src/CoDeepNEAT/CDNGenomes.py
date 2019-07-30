@@ -73,7 +73,7 @@ class BlueprintGenome(Genome):
         self.beta2 = copy.deepcopy(genome.beta2)
         # print("inhereting from Blueprint genome an lr of:",self.learning_rate(), "and da sc:",self.da_scheme)
         self.species_module_mapping = genome.species_module_mapping  # TODO look up deep/ shallow
-        print("inheriting module mapping:",self.species_module_mapping)
+        #print("inheriting module mapping:",self.species_module_mapping)
 
     def inherit_species_module_mapping_from_phenotype(self, species_module_index_mapping, accuracy, master = False, generation = None):
         if accuracy > self.best_evaluation_accuracy:
@@ -87,7 +87,7 @@ class BlueprintGenome(Genome):
             self.best_evaluation_accuracy = accuracy
             if master:
                 self.species_module_mapping = self.get_module_refs_from_indexes(species_module_index_mapping, generation)
-                print("master genome got species module mapping:", self.species_module_mapping, "from",species_module_index_mapping)
+                #print("master genome got species module mapping:", self.species_module_mapping, "from",species_module_index_mapping)
             else:
                 self.species_module_index_mapping = species_module_index_mapping
                 #print("clone genome got species module index mapping:", self.species_module_index_mapping)
@@ -109,14 +109,16 @@ class BlueprintGenome(Genome):
             if module_individual in generation.module_population.species[species_used].members:
                 index = generation.module_population.species[species_used].members.index(module_individual)
                 self.species_module_index_mapping[species_used] = index
-                print("module",module_individual,"survived and stayed in species",species_used)
+                # print("module",module_individual,"survived and stayed in species",species_used)
             else:
                 new_species, index = generation.module_population.find_individual(module_individual)
                 if new_species == -1:
-                    print("module handle", module_individual, "died")
+                    # print("module handle", module_individual, "died")
+                    pass
                 else:
                     #self.species_number = new_species
-                    print("module handle moved species")
+                    # print("module handle moved species")
+                    pass
 
 
     def end_step(self, generation = None):
