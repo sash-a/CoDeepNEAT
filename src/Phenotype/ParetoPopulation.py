@@ -15,9 +15,9 @@ class ParetoPopulation:
 
     def update_pareto_front(self):
         start_time = time.time()
-        # print("updating pareto pop from",len(self.candidates),"candidates and",len(self.pareto_front),"in front", end = " ")
+        print("updating pareto pop from",len(self.candidates),"candidates and",len(self.pareto_front),"in front", end = " ")
         self.pareto_front = general_pareto_sorting(self.candidates + self.pareto_front, return_pareto_front_only=True)
-        # print("after:",len(self.pareto_front),"in front time:", (time.time() - start_time))
+        print("after:",len(self.pareto_front),"in front time:", (time.time() - start_time))
         # print("candidates:",repr(self.candidates))
 
         if len(self.pareto_front) == 0:
@@ -26,6 +26,7 @@ class ParetoPopulation:
         self.candidates = []
         # self.plot_fitnesses()
         #self.plot_all_in_pareto_front()
+        # self.get_highest_accuracy(print=True)
 
     def plot_fitnesses(self):
         # print("lengths:" , repr([len(x.fitness_values) for x in self.pareto_front]))

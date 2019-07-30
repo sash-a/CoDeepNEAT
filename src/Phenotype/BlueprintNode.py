@@ -1,6 +1,7 @@
 from src.Phenotype.Node import Node
 from src.Phenotype.ModuleGraph import ModuleGraph
 import copy
+from src.Config import Config
 
 class BlueprintNode(Node):
     """
@@ -16,6 +17,7 @@ class BlueprintNode(Node):
         self.module_root = None  # when this blueprint node is parsed to a module - this is a ref to input node
         self.module_leaf = None  # upon parsing this will hold the output node of the module
         self.blueprint_genome = blueprint_genome
+        self.blueprint_graph = None
 
         if blueprint_NEAT_node is None:
             print("null neat node passed to blueprint")
@@ -27,19 +29,28 @@ class BlueprintNode(Node):
         self.species_number = gene.species_number()
 
     def get_module_individual(self, generation ,module_index_map):
-        try:
-            if self.species_number in module_index_map:
-                index = module_index_map[self.species_number]
-                module_graph_individual = generation.module_population.species[self.species_number][index]
-            else:
-                module_graph_individual, index = generation.module_population.species[self.species_number].sample_individual()
-                module_index_map[self.species_number] = index
+        # try:
+        genome_module_mapping = self.blueprint_genome.species_module_index_mapping
+        #print("BPG parsing getting indv with genome mapping:",genome_module_mapping)
+        if Config.maintain_module_handles and self.species_number in genome_module_mapping and genome_module_mapping[self.species_number] is not None:
+            index = genome_module_mapping[self.species_number]
+            module_graph_individual = generation.module_population.species[self.species_number][index]
+            print(self,"using module handle",self.species_number,index,module_graph_individual)
 
-        except Exception:
-            raise Exception("failed to sample indv from species " + repr(self.species_number) +
-                            " num species available: " + repr(len(generation.module_population.species)))
+        elif self.species_number in module_index_map:
+            index = module_index_map[self.species_number]
+            module_graph_individual = generation.module_population.species[self.species_number][index]
+        else:
+            module_graph_individual, index = generation.module_population.species[self.species_number].sample_individual()
+            module_index_map[self.species_number] = index
+
+        # except Exception:
+        #     raise Exception("failed to sample indv from species " + repr(self.species_number) +
+        #                     " num species available: " + repr(len(generation.module_population.species)))
 
         return module_graph_individual, index
+
+
 
     def parseto_module_graph(self, generation, module_construct=None, species_indexes=None, module_index_map=None):
         """
@@ -108,4 +119,4 @@ class BlueprintNode(Node):
 
             module_graph = ModuleGraph(input_module_node)
             module_graph.blueprint_genome = copy.deepcopy(self.blueprint_genome)
-            return module_graph
+            return module_graph, module_index_map

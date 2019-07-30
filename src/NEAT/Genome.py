@@ -46,8 +46,8 @@ class Genome:
     def __lt__(self, other):
         return self.rank < other.rank
 
-    def __repr__(self):
-        return repr(list(self._connections.values()))
+    # def __repr__(self):
+    #     return repr(list(self._connections.values()))
 
     def eq(self, other):
         if type(other) != type(self):
@@ -91,7 +91,7 @@ class Genome:
             self.fitness_values[i] = (self.fitness_values[i] * self.uses + fitness) / (self.uses + 1)
         self.uses += 1
 
-    def end_step(self):
+    def end_step(self, generation = None):
         self.uses = 0
         if self.fitness_values is not None:
             self.fitness_values = [0 for _ in self.fitness_values]
@@ -311,19 +311,21 @@ class Genome:
         root_node.get_traversal_ids("_")
         return root_node
 
-    def plot_tree_with_graphvis(self, title="", file="temp_g"):
+    def plot_tree_with_graphvis(self, title="", file="temp_g", view = None):
+        if view is None:
+            view = Config.print_best_graphs
 
         file = os.path.join(DataManager.get_Graphs_folder(), file)
-        print(file)
+        #print(file)
 
         graph = graphviz.Digraph(comment=title)
 
         for node in self._nodes.values():
-            graph.node(str(node.id), node.get_node_name(),style="filled", fillcolor="blue")
+            graph.node(str(node.id), node.get_node_name(),style="filled", fillcolor="white")
 
         for c in self._connections.values():
             if not c.enabled():
                 continue
             graph.edge(repr(c.from_node), repr(c.to_node))
 
-        graph.render(file, view=Config.print_best_graphs)
+        graph.render(file, view=view)
