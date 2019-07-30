@@ -115,6 +115,9 @@ class Generation:
             # Fitness assignment
             bp_pop_indvs[bp_key % bp_pop_size].report_fitness(fitness)
 
+            """passing species:module mapping to master individual"""
+            bp_pop_indvs[bp_key % bp_pop_size].inherit_species_module_mapping_from_phenotype(evaluated_bp.species_module_mapping, evaluated_bp.best_evaluation_accuracy)
+
             if Config.evolve_data_augmentations and evaluated_bp.da_scheme_index != -1:
                 self.da_population[evaluated_bp.da_scheme_index].report_fitness([fitness[0]])
 
@@ -165,8 +168,11 @@ class Generation:
         if blueprint_individual.modules_used:
             raise Exception('Modules used is not empty', blueprint_individual.modules_used)
 
-        blueprint = blueprint_individual.to_blueprint()
-        module_graph = blueprint.parseto_module_graph(self)
+        if self.generation_number > 5 and random.random() < 0.1:
+            blueprint_individual.plot_tree_with_graphvis(view = True)
+
+        blueprint_graph = blueprint_individual.to_blueprint_graph()
+        module_graph = blueprint_graph.parseto_module_graph(self)
         net = src.Validation.Validation.create_nn(module_graph, inputs)
         if Config.evolve_data_augmentations:
             da_indv = blueprint_individual.pick_da_scheme(self.da_population)
@@ -178,6 +184,7 @@ class Generation:
             da_scheme = None
 
         accuracy = Validation.get_accuracy_for_network(net, da_scheme=da_scheme, batch_size=256)
+        blueprint_graph.push_species_module_mapping_to_genome(accuracy)
 
         objective_names = [Config.second_objective, Config.third_objective]
         results = [accuracy]

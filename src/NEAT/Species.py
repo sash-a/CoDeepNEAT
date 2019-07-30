@@ -104,6 +104,11 @@ class Species:
 
         # print("culing species with", len(self.members), end="; ")
         surivors = math.ceil(Props.PERCENT_TO_REPRODUCE * len(self.members))
+        for i in range(surivors,len(self.members)):
+            member = self.members[i]
+            self.members[i] = None
+            del member#TODO does this change the array length
+
         self.members = self.members[:surivors]
         # print("after culling:", len(self.members))
 

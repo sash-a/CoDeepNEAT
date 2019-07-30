@@ -26,6 +26,7 @@ class BlueprintNode(Node):
         # print("generating blueprint node from gene:",gene, "setting species number:",gene.species_number(), "from:",gene.species_number)
         self.species_number = gene.species_number()
 
+
     def get_module_individual(self, generation ,module_index_map):
         try:
             if self.species_number in module_index_map:
@@ -40,6 +41,8 @@ class BlueprintNode(Node):
                             " num species available: " + repr(len(generation.module_population.species)))
 
         return module_graph_individual, index
+
+
 
     def parseto_module_graph(self, generation, module_construct=None, species_indexes=None, module_index_map=None):
         """
@@ -108,4 +111,4 @@ class BlueprintNode(Node):
 
             module_graph = ModuleGraph(input_module_node)
             module_graph.blueprint_genome = copy.deepcopy(self.blueprint_genome)
-            return module_graph
+            return module_graph, module_index_map

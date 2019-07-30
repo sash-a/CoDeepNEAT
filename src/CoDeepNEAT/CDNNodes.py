@@ -101,7 +101,7 @@ class BlueprintNEATNode(NodeGene):
         super(BlueprintNEATNode, self).__init__(id, node_type)
 
         self.species_number = Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=0, start_range=0,
-                                      end_range=1, print_when_mutating=False, name="species number", mutation_chance=0.13)
+                                      end_range=1, print_when_mutating=True, name="species number", mutation_chance=0.13)
 
     def get_all_mutagens(self):
         # raise Exception("getting species no mutagen from blueprint neat node")
@@ -110,6 +110,9 @@ class BlueprintNEATNode(NodeGene):
     def set_species_upper_bound(self, num_species):
         self.species_number.end_range = num_species
         self.species_number.set_value(min(self.species_number(), num_species - 1))
+
+    def get_node_name(self):
+        return "Species:" + repr(self.species_number())
 
 
 class DANode(NodeGene):
