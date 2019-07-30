@@ -47,7 +47,7 @@ class Genome:
         return self.rank < other.rank
 
     def __repr__(self):
-        return repr(list(self._connections.values()))
+        return "Connections: ", repr(list(self._connections.values())), "\n", "Nodes:", repr(list(self._nodes.values()))
 
     def eq(self, other):
         if type(other) != type(self):
