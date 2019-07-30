@@ -18,6 +18,7 @@ class BlueprintGenome(Genome):
         super(BlueprintGenome, self).__init__(connections, nodes)
         self.modules_used = []  # holds ref to module individuals used - can multiple represent
         self.species_module_mapping = {}
+        self.species_module_index_mapping = {}
         self.best_evaluation_accuracy = 0
         self.modules_used_index = []  # hold tuple (species no, module index) of module used
         self.da_scheme: DAGenome = None
@@ -74,7 +75,7 @@ class BlueprintGenome(Genome):
         self.species_module_mapping = genome.species_module_mapping  # TODO look up deep/ shallow
         print("inheriting module mapping:",self.species_module_mapping)
 
-    def inherit_species_module_mapping_from_phenotype(self, species_module_mapping, accuracy):
+    def inherit_species_module_mapping_from_phenotype(self, species_module_index_mapping, accuracy, master = False, generation = None):
         if accuracy > self.best_evaluation_accuracy:
             """
             a blueprint individual can be evaluated multiple times usiing multiple blueprint graphs
@@ -83,16 +84,46 @@ class BlueprintGenome(Genome):
             the blueprint graph which performs best passes its species:module mapping to the genome to be used in the future by self/children
             """
 
-            if self.best_evaluation_accuracy >  0:
-                print(self,"updating species mapping with:", self.species_module_mapping)
             self.best_evaluation_accuracy = accuracy
-            self.species_module_mapping = species_module_mapping
+            if master:
+                self.species_module_mapping = self.get_module_refs_from_indexes(species_module_index_mapping, generation)
+                print("master genome got species module mapping:", self.species_module_mapping, "from",species_module_index_mapping)
+            else:
+                self.species_module_index_mapping = species_module_index_mapping
+                #print("clone genome got species module index mapping:", self.species_module_index_mapping)
+
+    def get_module_refs_from_indexes(self, species_module_index_mapping, generation):
+        species_module_mapping = {}
+        for species_used in species_module_index_mapping.keys():
+            module_individual = generation.module_population.species[species_used][
+                species_module_index_mapping[species_used]]
+            species_module_mapping[species_used] = module_individual
+
+        return species_module_mapping
+
+    def update_module_indexes_from_refs(self, generation):
+        self.species_module_index_mapping = {}
+
+        for species_used in self.species_module_mapping:
+            module_individual = self.species_module_mapping[species_used]
+            if module_individual in generation.module_population.species[species_used].members:
+                index = generation.module_population.species[species_used].members.index(module_individual)
+                self.species_module_index_mapping[species_used] = index
+                print("module",module_individual,"survived and stayed in species",species_used)
+            else:
+                new_species, index = generation.module_population.find_individual(module_individual)
+                if new_species == -1:
+                    print("module handle", module_individual, "died")
+                else:
+                    #self.species_number = new_species
+                    print("module handle moved species")
 
 
-    def end_step(self):
+    def end_step(self, generation = None):
         super().end_step()
         self.modules_used = []
         self.modules_used_index = []
+        self.update_module_indexes_from_refs(generation)
         # self.da_scheme_index = -1  # don't reset because bp holds onto its DA if it can
 
     def reset_number_of_module_species(self, num_module_species):
@@ -128,7 +159,7 @@ class ModuleGenome(Genome):
     def inherit(self, genome):
         pass
 
-    def end_step(self):
+    def end_step(self, generation = None):
         super().end_step()
         self.module_node = None
 

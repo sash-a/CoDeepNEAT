@@ -1,14 +1,13 @@
-from src.NEAT.Gene import NodeGene, NodeType
+import random
+
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+from src.Config import Config, NeatProperties
 from src.NEAT.Gene import NodeGene, NodeType
 from src.NEAT.Mutagen import Mutagen
 from src.NEAT.Mutagen import ValueType
-import torch.nn as nn
-import torch.nn.functional as F
-import torch
-import random
-from src.Config import Config
-
-from src.DataAugmentation.AugmentationScheme import AugmentationScheme
 
 use_convs = True
 use_linears = True
@@ -101,7 +100,7 @@ class BlueprintNEATNode(NodeGene):
         super(BlueprintNEATNode, self).__init__(id, node_type)
 
         self.species_number = Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=0, start_range=0,
-                                      end_range=1, print_when_mutating=True, name="species number", mutation_chance=0.13)
+                                      end_range=1, print_when_mutating=False, name="species number", mutation_chance=0.25)
 
     def get_all_mutagens(self):
         # raise Exception("getting species no mutagen from blueprint neat node")

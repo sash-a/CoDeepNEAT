@@ -70,7 +70,7 @@ class Generation:
             self.da_population.step()
 
         for blueprint_individual in self.blueprint_population.individuals:
-            blueprint_individual.end_step()
+            blueprint_individual.end_step(self)
 
         for module_individual in self.module_population.individuals:
             module_individual.end_step()  # this also sets fitness to zero
@@ -116,7 +116,8 @@ class Generation:
             bp_pop_indvs[bp_key % bp_pop_size].report_fitness(fitness)
 
             """passing species:module mapping to master individual"""
-            bp_pop_indvs[bp_key % bp_pop_size].inherit_species_module_mapping_from_phenotype(evaluated_bp.species_module_mapping, evaluated_bp.best_evaluation_accuracy)
+            bp_pop_indvs[bp_key % bp_pop_size].inherit_species_module_mapping_from_phenotype(
+                evaluated_bp.species_module_index_mapping, evaluated_bp.best_evaluation_accuracy,generation=self, master = True)
 
             if Config.evolve_data_augmentations and evaluated_bp.da_scheme_index != -1:
                 self.da_population[evaluated_bp.da_scheme_index].report_fitness([fitness[0]])
@@ -159,7 +160,7 @@ class Generation:
                 result_dict[curr_index] = 'defective', False, False
                 if not Config.protect_parsing_from_errors:
                     print(e)
-                    raise Exception("defective blueprint evalutaion")
+                    raise Exception("defective blueprint evaluataion")
 
     def evaluate_blueprint(self, blueprint_individual, inputs):
         # Validation
@@ -168,8 +169,8 @@ class Generation:
         if blueprint_individual.modules_used:
             raise Exception('Modules used is not empty', blueprint_individual.modules_used)
 
-        if self.generation_number > 5 and random.random() < 0.1:
-            blueprint_individual.plot_tree_with_graphvis(view = True)
+        # if self.generation_number > 5 and random.random() < 0.1:
+        #     blueprint_individual.plot_tree_with_graphvis(view = True)
 
         blueprint_graph = blueprint_individual.to_blueprint_graph()
         module_graph = blueprint_graph.parseto_module_graph(self)

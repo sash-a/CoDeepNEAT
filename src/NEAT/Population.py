@@ -89,6 +89,14 @@ class Population:
     def load_checkpoint(self):
         pass
 
+    def find_individual(self, indv):
+        for i in range(len(self.species)):
+            if indv in self.species[i].members:
+                return i, self.species[i].members.index(indv)
+
+
+        return -1,-1
+
     def speciate(self, individuals):
         for species in self.species:
             species.empty_species()
