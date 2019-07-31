@@ -25,7 +25,7 @@ class ParetoPopulation:
 
         self.candidates = []
         # self.plot_fitnesses()
-        #self.plot_all_in_pareto_front()
+        # self.plot_all_in_pareto_front()
 
     def plot_fitnesses(self):
         # print("lengths:" , repr([len(x.fitness_values) for x in self.pareto_front]))
@@ -66,5 +66,5 @@ class ParetoPopulation:
 
             return best_graph
         else:
-            raise Exception("Amount of graphs chosen is negative")
+            raise Exception("Number of graphs chosen is negative")
 

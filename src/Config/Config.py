@@ -35,7 +35,7 @@ colour_augmentations = True
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Debug and test options
-dummy_run = True
+dummy_run = False
 
 protect_parsing_from_errors = False
 test_in_run = False

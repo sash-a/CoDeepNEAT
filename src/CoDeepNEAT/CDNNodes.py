@@ -229,7 +229,7 @@ class DANode(NodeGene):
                     }
 
                 },
-                              discreet_value="Flip_lr")
+                              discreet_value="Rotate")
 
             self.enabled = Mutagen(True, False, discreet_value=True, name="da enabled")
 
@@ -314,7 +314,7 @@ class DANode(NodeGene):
                     },
 
                 },
-                              discreet_value="Flip_lr")
+                              discreet_value="Rotate")
 
             self.enabled = Mutagen(True, False, discreet_value=True, name="da enabled")
 
@@ -324,3 +324,6 @@ class DANode(NodeGene):
 
     def get_node_name(self):
         return repr(self.da())
+
+    def get_node_parameters(self):
+        return repr(self.da.get_sub_values())
