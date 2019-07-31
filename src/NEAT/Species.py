@@ -29,9 +29,6 @@ class Species:
 
     def add(self, individual):
         self.members.append(individual)
-        """removed becasue speciation redifines species borders  -so allowing more individuals in is acceptable"""
-        # if len(self.members) > self.next_species_size:
-        #     raise Exception("added too many individuals to species. max:", self.next_species_size)
 
     def step(self, mutation_record):
         if len(self.members) == 0:
@@ -55,8 +52,6 @@ class Species:
         self.age += 1
 
     def _reproduce(self, mutation_record, number_of_elite):
-        # print("reproducing species(",self.get_species_type(),") of size",len(self.members),"with target member size=", self.next_species_size,end=", ")
-        # print("number of elite:", number_of_elite, "num children to be created:",(self.next_species_size - number_of_elite))
         elite = self.members[:number_of_elite]
         children = []
         tries = 100 * (self.next_species_size - len(elite))
@@ -89,6 +84,11 @@ class Species:
                     len(self.members)))
 
         children.extend(elite)
+        for i in range(number_of_elite,len(self.members)):
+            member = self.members[i]
+            self.members[i] = None
+            del member
+
         self.members = children
 
     def _rank_species(self):
@@ -99,13 +99,15 @@ class Species:
         return sum([indv.rank for indv in self.members]) / len(self.members)
 
     def _cull_species(self):
-        if self.age < 3:
-            return
-
-        # print("culing species with", len(self.members), end="; ")
+        # if self.age < 3:
+        #     return
         surivors = math.ceil(Props.PERCENT_TO_REPRODUCE * len(self.members))
+        for i in range(surivors,len(self.members)):
+            member = self.members[i]
+            self.members[i] = None
+            del member#TODO does this change the array length
+
         self.members = self.members[:surivors]
-        # print("after culling:", len(self.members))
 
     def _select_representative(self):
         self.representative = random.choice(self.members)
