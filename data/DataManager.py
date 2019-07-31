@@ -25,21 +25,21 @@ def get_Graphs_folder(run_name=None):
 
 def get_run_folder(run_name=None):
     if run_name is None:
-        return os.path.join(get_current_folder(), "runs", Config.run_name)
+        return os.path.join(get_data_folder(), "runs", Config.run_name)
     else:
-        return os.path.join(get_current_folder(), "runs", run_name)
+        return os.path.join(get_data_folder(), "runs", run_name)
 
 def get_Datasets_folder():
     if Config.data_path == "":
-        return os.path.join(get_current_folder(), "Datasets")
+        return os.path.join(get_data_folder(), "Datasets")
     else:
         return Config.data_path
 
 def get_DataEfficiencyResults_folder():
-    return os.path.join(get_current_folder(),"DataEfficiencyResults")
+    return os.path.join(get_data_folder(), "DataEfficiencyResults")
 
 
-def get_current_folder():
+def get_data_folder():
     return os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 
 
