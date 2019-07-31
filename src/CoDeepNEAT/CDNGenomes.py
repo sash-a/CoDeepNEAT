@@ -1,7 +1,6 @@
 import copy
-import random
-
 import math
+import random
 
 from torch import nn
 
@@ -11,7 +10,6 @@ from src.NEAT.Genome import Genome
 from src.NEAT.Mutagen import Mutagen, ValueType
 from src.Phenotype.BlueprintGraph import BlueprintGraph
 from src.Phenotype.BlueprintNode import BlueprintNode
-from src.Phenotype.ModuleNode import ModuleNode
 from src.Phenotype.ModuleNode import ModuleNode
 
 
@@ -65,7 +63,7 @@ class BlueprintGenome(Genome):
                 if self.species_module_mapping[species_no] is not None:
                     self.species_module_mapping[species_no] = None
                     break
-                tries-=1
+                tries -= 1
 
         return super()._mutate(mutation_record, Props.BP_NODE_MUTATION_CHANCE, Props.BP_CONN_MUTATION_CHANCE)
 
@@ -76,9 +74,10 @@ class BlueprintGenome(Genome):
         self.beta2 = copy.deepcopy(genome.beta2)
         # print("inhereting from Blueprint genome an lr of:",self.learning_rate(), "and da sc:",self.da_scheme)
         self.species_module_mapping = genome.species_module_mapping  # TODO look up deep/ shallow
-        #print("inheriting module mapping:",self.species_module_mapping)
+        # print("inheriting module mapping:",self.species_module_mapping)
 
-    def inherit_species_module_mapping_from_phenotype(self, species_module_index_mapping, accuracy, master = False, generation = None):
+    def inherit_species_module_mapping_from_phenotype(self, species_module_index_mapping, accuracy, master=False,
+                                                      generation=None):
         if accuracy > self.best_evaluation_accuracy:
             """
             a blueprint individual can be evaluated multiple times usiing multiple blueprint graphs
@@ -89,11 +88,12 @@ class BlueprintGenome(Genome):
 
             self.best_evaluation_accuracy = accuracy
             if master:
-                self.species_module_mapping = self.get_module_refs_from_indexes(species_module_index_mapping, generation)
-                #print("master genome got species module mapping:", self.species_module_mapping, "from",species_module_index_mapping)
+                self.species_module_mapping = self.get_module_refs_from_indexes(species_module_index_mapping,
+                                                                                generation)
+                # print("master genome got species module mapping:", self.species_module_mapping, "from",species_module_index_mapping)
             else:
                 self.species_module_index_mapping = species_module_index_mapping
-                #print("clone genome got species module index mapping:", self.species_module_index_mapping)
+                # print("clone genome got species module index mapping:", self.species_module_index_mapping)
 
     def get_module_refs_from_indexes(self, species_module_index_mapping, generation):
         species_module_mapping = {}
@@ -111,23 +111,23 @@ class BlueprintGenome(Genome):
             module_individual = self.species_module_mapping[species_used]
             if module_individual is None:
                 continue
-            if species_used> len(generation.module_population.species):
+            if species_used > len(generation.module_population.species):
                 continue
             if module_individual in generation.module_population.species[species_used].members:
                 index = generation.module_population.species[species_used].members.index(module_individual)
                 self.species_module_index_mapping[species_used] = index
-                #print("module",module_individual,"survived and stayed in species",species_used)
+                # print("module",module_individual,"survived and stayed in species",species_used)
             else:
                 new_species, index = generation.module_population.find_individual(module_individual)
                 if new_species == -1:
-                    #print("module handle", module_individual, "died")
+                    # print("module handle", module_individual, "died")
                     pass
                 else:
-                    #self.species_number = new_species
-                    #print("module handle moved species")
+                    # self.species_number = new_species
+                    # print("module handle moved species")
                     pass
 
-    def end_step(self, generation = None):
+    def end_step(self, generation=None):
         super().end_step()
         self.modules_used = []
         self.modules_used_index = []
@@ -186,9 +186,13 @@ class ModuleGenome(Genome):
     def inherit(self, genome):
         pass
 
-    def end_step(self, generation = None):
+    def end_step(self, generation=None):
         super().end_step()
         self.module_node = None
+
+    def __repr__(self):
+        return '\n------------------Connections--------------\n' + repr(self._connections) + \
+               '\n---------------------Nodes-----------------\n' + repr(self._nodes)
 
 
 class DAGenome(Genome):
@@ -200,9 +204,9 @@ class DAGenome(Genome):
         for node in self._nodes.values():
             node_names.append(node.get_node_name())
 
-        toString = "\tNodes:" + repr(list(node_names)) + "\n" + "\tTraversal_Dict: " + repr(self._get_traversal_dictionary())
+        toString = "\tNodes:" + repr(list(node_names)) + "\n" + "\tTraversal_Dict: " + repr(
+            self._get_traversal_dictionary())
         return "\n" + "\tConnections: " + super().__repr__() + "\n" + toString
-
 
     def _mutate_add_connection(self, mutation_record, node1, node2):
         """Only want linear graphs for data augmentation"""
@@ -240,7 +244,7 @@ class DAGenome(Genome):
         added_an_aug = False
         for node_id in traversal_dictionary[curr_node_id]:
             if debug:
-                print("visiting node:", node_id, "da_name:",self._nodes[node_id].da())
+                print("visiting node:", node_id, "da_name:", self._nodes[node_id].da())
             da_name = self._nodes[node_id].da()
             # print("found da",da_name)
             if self._nodes[node_id].enabled():

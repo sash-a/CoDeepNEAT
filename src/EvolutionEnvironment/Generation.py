@@ -1,20 +1,21 @@
 import copy
+import math
+import multiprocessing as mp
+
+from data import DataManager
 
 import src.Config.NeatProperties as Props
 import src.Validation.DataLoader
+from src.Analysis import RuntimeAnalysis
+from src.CoDeepNEAT import PopulationInitialiser as PopInit
+from src.CoDeepNEAT.CDNGenomes import ModuleGenome, BlueprintGenome, DAGenome
+from src.CoDeepNEAT.CDNNodes import ModulenNEATNode, BlueprintNEATNode, DANode
+from src.Config import Config
 from src.NEAT.Population import Population
 from src.NEAT.PopulationRanking import single_objective_rank, cdn_rank, nsga_rank
-from src.CoDeepNEAT import PopulationInitialiser as PopInit
-from src.Analysis import RuntimeAnalysis
-from src.Config import Config
-from data import DataManager
 from src.Phenotype.ParetoPopulation import ParetoPopulation
 from src.Validation import DataLoader
 from src.Validation import Validation
-import random
-
-import multiprocessing as mp
-import math
 
 
 class Generation:
@@ -31,30 +32,33 @@ class Generation:
         rank_fn = single_objective_rank if Config.second_objective == '' else (
             cdn_rank if Config.moo_optimiser == "cdn" else nsga_rank)
 
-        self.module_population = Population(PopInit.initialise_modules(),
-                                            rank_fn,
-                                            PopInit.initialize_mutations(),
-                                            Props.MODULE_POP_SIZE,
-                                            2,
-                                            2,
-                                            Props.MODULE_TARGET_NUM_SPECIES)
+        self.module_population = Population(
+            PopInit.initialize_pop(ModulenNEATNode, ModuleGenome, Props.MODULE_POP_SIZE, True),
+            rank_fn,
+            PopInit.initialize_mutations(True),
+            Props.MODULE_POP_SIZE,
+            2,
+            2,
+            Props.MODULE_TARGET_NUM_SPECIES)
 
-        self.blueprint_population = Population(PopInit.initialise_blueprints(),
-                                               rank_fn,
-                                               PopInit.initialize_mutations(),
-                                               Props.BP_POP_SIZE,
-                                               2,
-                                               2,
-                                               Props.BP_TARGET_NUM_SPECIES)
+        self.blueprint_population = Population(
+            PopInit.initialize_pop(BlueprintNEATNode, BlueprintGenome, Props.BP_POP_SIZE, True),
+            rank_fn,
+            PopInit.initialize_mutations(True),
+            Props.BP_POP_SIZE,
+            2,
+            2,
+            Props.BP_TARGET_NUM_SPECIES)
 
         if Config.evolve_data_augmentations:
-            self.da_population = Population(PopInit.initialise_da(),
-                                            single_objective_rank,
-                                            PopInit.da_initial_mutations(),
-                                            Props.DA_POP_SIZE,
-                                            1,
-                                            1,
-                                            Props.DA_TARGET_NUM_SPECIES)
+            self.da_population = Population(
+                PopInit.initialize_pop(DANode, DAGenome, Props.DA_POP_SIZE, False),
+                single_objective_rank,
+                PopInit.initialize_mutations(False),
+                Props.DA_POP_SIZE,
+                1,
+                1,
+                Props.DA_TARGET_NUM_SPECIES)
 
     def step(self):
         """Runs CDN for one generation - must be called after fitness evaluation"""
@@ -87,7 +91,8 @@ class Generation:
         bp_index = manager.Value('i', 0)
         lock = mp.Lock()
         if Config.evolve_data_augmentations:
-            """blueprints should pick their da schemes before being evaluated. if their old DA is still alive they will reselect it"""
+            # blueprints should pick their da schemes before being evaluated. if their old DA is still alive they will
+            # reselect it
             for blueprint_individual in self.blueprint_population.individuals:
                 blueprint_individual.pick_da_scheme(self.da_population)
 
@@ -118,7 +123,8 @@ class Generation:
 
             """passing species:module mapping to master individual"""
             bp_pop_indvs[bp_key % bp_pop_size].inherit_species_module_mapping_from_phenotype(
-                evaluated_bp.species_module_index_mapping, evaluated_bp.best_evaluation_accuracy,generation=self, master = True)
+                evaluated_bp.species_module_index_mapping, evaluated_bp.best_evaluation_accuracy, generation=self,
+                master=True)
 
             if Config.evolve_data_augmentations and evaluated_bp.da_scheme_index != -1:
                 self.da_population[evaluated_bp.da_scheme_index].report_fitness([fitness[0]])

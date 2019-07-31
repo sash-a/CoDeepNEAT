@@ -1,13 +1,13 @@
+import random
+
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+from src.Config import Config, NeatProperties as Props
 from src.NEAT.Gene import NodeGene, NodeType
 from src.NEAT.Mutagen import Mutagen
 from src.NEAT.Mutagen import ValueType
-import torch.nn as nn
-import torch.nn.functional as F
-import torch
-import random
-from src.Config import Config, NeatProperties as Props
-
-from src.DataAugmentation.AugmentationScheme import AugmentationScheme
 
 use_convs = True
 use_linears = True
@@ -102,6 +102,9 @@ class ModulenNEATNode(NodeGene):
     def get_all_mutagens(self):
         return [self.activation, self.layer_type]
 
+    def __repr__(self):
+        return 'Module node:' + str(self.layer_type) + ' ' + str(self.layer_type.get_sub_value('out_features'))
+
 
 class BlueprintNEATNode(NodeGene):
     def __init__(self, id, node_type=NodeType.HIDDEN):
@@ -191,7 +194,7 @@ class DANode(NodeGene):
                         "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=20, start_range=0,
                                       end_range=40)},
 
-                     "Additive_Gaussian_Noise": {
+                    "Additive_Gaussian_Noise": {
                         "lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.05, start_range=0.0,
                                       end_range=0.10),
                         "hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.20, start_range=0.10,
