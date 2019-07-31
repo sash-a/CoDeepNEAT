@@ -1,6 +1,8 @@
 import copy
 import random
 
+import math
+
 from torch import nn
 
 from src.Config import NeatProperties as Props
@@ -9,6 +11,7 @@ from src.NEAT.Genome import Genome
 from src.NEAT.Mutagen import Mutagen, ValueType
 from src.Phenotype.BlueprintGraph import BlueprintGraph
 from src.Phenotype.BlueprintNode import BlueprintNode
+from src.Phenotype.ModuleNode import ModuleNode
 from src.Phenotype.ModuleNode import ModuleNode
 
 
@@ -158,6 +161,25 @@ class ModuleGenome(Genome):
         self.module_node = module
         return copy.deepcopy(module)
 
+    def distance_to(self, other):
+        if type(self) != type(other):
+            raise TypeError('Trying finding distance from Module genome to ' + str(type(other)))
+
+        attrib_dist = 0
+        topology_dist = super().distance_to(other)
+
+        common_nodes = self._nodes.keys() & other._nodes.keys()
+
+        for node_id in common_nodes:
+            self_node, other_node = self._nodes[node_id], other._nodes[node_id]
+            for self_mutagen, other_mutagen in zip(self_node.get_all_mutagens(), other_node.get_all_mutagens()):
+                attrib_dist += self_mutagen.distance_to(other_mutagen)
+
+        attrib_dist /= len(common_nodes)
+
+        # print(attrib_dist, topology_dist, math.sqrt(attrib_dist * attrib_dist + topology_dist * topology_dist))
+        return math.sqrt(attrib_dist * attrib_dist + topology_dist * topology_dist)
+
     def mutate(self, mutation_record):
         return super()._mutate(mutation_record, Props.MODULE_NODE_MUTATION_CHANCE, Props.MODULE_CONN_MUTATION_CHANCE)
 
@@ -170,7 +192,6 @@ class ModuleGenome(Genome):
 
 
 class DAGenome(Genome):
-
     def __init__(self, connections, nodes):
         super().__init__(connections, nodes)
 
