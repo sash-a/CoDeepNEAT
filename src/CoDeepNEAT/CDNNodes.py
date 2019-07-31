@@ -128,10 +128,7 @@ class DANode(NodeGene):
         super().__init__(id, node_type)
 
         if Config.colour_augmentations:
-            self.da = Mutagen("Flip_lr", "Flip_ud", "Rotate", "Translate_Pixels", "Scale", "Pad_Pixels", "Crop_Pixels",
-                              "Grayscale", "Custom_Canny_Edges", "Shear", "Additive_Gaussian_Noise",
-                              "Coarse_Dropout", "HSV", "Contrast_Normalisation", "Increase_Channel", "Rotate_Channel",
-                              "No_Operation", name="da type", sub_mutagens={
+            da_submutagens = {
 
                     "Rotate": {
                         "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=-45, start_range=-180,
@@ -246,16 +243,18 @@ class DANode(NodeGene):
                                       end_range=180)
                     }
 
-                },
-                              discreet_value="Rotate")
+                }
 
-            self.enabled = Mutagen(True, False, discreet_value=True, name="da enabled")
+            self.da = Mutagen("Flip_lr", "Flip_ud", "Rotate", "Translate_Pixels", "Scale", "Pad_Pixels", "Crop_Pixels",
+                              "Grayscale", "Custom_Canny_Edges", "Shear", "Additive_Gaussian_Noise",
+                              "Coarse_Dropout", "HSV", "Contrast_Normalisation", "Increase_Channel", "Rotate_Channel",
+                              "No_Operation", name="da type", sub_mutagens=da_submutagens,
+                              discreet_value=random.choice(list(da_submutagens.keys())), mutation_chance=0.2)
+
 
         else:
 
-            self.da = Mutagen("Flip_lr", "Flip_ud", "Rotate", "Translate_Pixels", "Scale", "Pad_Pixels", "Crop_Pixels",
-                              "Custom_Canny_Edges", "Shear", "Additive_Gaussian_Noise", "Coarse_Dropout",
-                              "No_Operation", name="da type", sub_mutagens={
+            da_submutagens = {
 
                     "Rotate": {
                         "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=-45, start_range=-180,
@@ -331,10 +330,14 @@ class DANode(NodeGene):
                                            end_range=0.8)
                     },
 
-                },
-                              discreet_value="Rotate")
+                }
 
-            self.enabled = Mutagen(True, False, discreet_value=True, name="da enabled")
+            self.da = Mutagen("Flip_lr", "Flip_ud", "Rotate", "Translate_Pixels", "Scale", "Pad_Pixels", "Crop_Pixels",
+                              "Custom_Canny_Edges", "Shear", "Additive_Gaussian_Noise", "Coarse_Dropout",
+                              "No_Operation", name="da type", sub_mutagens=da_submutagens,
+                              discreet_value=random.choice(list(da_submutagens.keys())), mutation_chance=0.2)
+
+        self.enabled = Mutagen(True, False, discreet_value=True, name="da enabled")
 
     def get_all_mutagens(self):
         return [self.da, self.enabled]
@@ -343,4 +346,10 @@ class DANode(NodeGene):
         return repr(self.da())
 
     def get_node_parameters(self):
-        return repr(self.da.get_sub_values())
+        parameters = []
+        if self.da.get_sub_values() is not None:
+            for key, value in self.da.get_sub_values().items():
+                v = str(value).split(" ", 1)[1]
+                parameters.append((key, v))
+
+        return repr(parameters)
