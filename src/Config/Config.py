@@ -9,7 +9,7 @@ continue_from_last_run = True
 
 # --------------------------------------------------------------------------------------------------------------------#
 # nn options
-device = 'cpu'  # gpu | cpu
+device = 'gpu'  # gpu | cpu
 num_gpus = 1
 num_workers = 0  # this doesn't work in parallel because daemonic processes cannot spawn children
 dataset = 'fashion_mnist'
