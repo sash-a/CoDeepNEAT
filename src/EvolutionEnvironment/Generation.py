@@ -178,7 +178,7 @@ class Generation:
         net = src.Validation.Validation.create_nn(module_graph, inputs)
         if Config.evolve_data_augmentations:
             da_indv = blueprint_individual.pick_da_scheme(self.da_population)
-            if random.random()<0.05:
+            # if random.random()<0.05:
                 # da_indv.plot_tree_with_graphvis(view=True)
             da_scheme = da_indv.to_phenotype()
             module_graph.data_augmentation_schemes.append(da_scheme)
