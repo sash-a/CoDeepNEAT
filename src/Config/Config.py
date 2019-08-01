@@ -4,7 +4,7 @@ import torch.multiprocessing as mp
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Run state options
-run_name = "base_before_retention"
+run_name = "base_before_retention_with_pop_init"
 continue_from_last_run = False
 
 # --------------------------------------------------------------------------------------------------------------------#

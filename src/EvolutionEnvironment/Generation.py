@@ -2,6 +2,8 @@ import copy
 
 import src.Config.NeatProperties as Props
 import src.Validation.DataLoader
+from CoDeepNEAT.CDNGenomes import ModuleGenome, BlueprintGenome, DAGenome
+from CoDeepNEAT.CDNNodes import ModulenNEATNode, BlueprintNEATNode, DANode
 from src.NEAT.Population import Population
 from src.NEAT.PopulationRanking import single_objective_rank, cdn_rank, nsga_rank
 from src.CoDeepNEAT import PopulationInitialiser as PopInit
@@ -31,30 +33,33 @@ class Generation:
         rank_fn = single_objective_rank if Config.second_objective == '' else (
             cdn_rank if Config.moo_optimiser == "cdn" else nsga_rank)
 
-        self.module_population = Population(PopInit.initialise_modules(),
-                                            rank_fn,
-                                            PopInit.initialize_mutations(),
-                                            Props.MODULE_POP_SIZE,
-                                            2,
-                                            2,
-                                            Props.MODULE_TARGET_NUM_SPECIES)
+        self.module_population = Population(
+            PopInit.initialize_pop(ModulenNEATNode, ModuleGenome, Props.MODULE_POP_SIZE, True),
+            rank_fn,
+            PopInit.initialize_mutations(True),
+            Props.MODULE_POP_SIZE,
+            2,
+            2,
+            Props.MODULE_TARGET_NUM_SPECIES)
 
-        self.blueprint_population = Population(PopInit.initialise_blueprints(),
-                                               rank_fn,
-                                               PopInit.initialize_mutations(),
-                                               Props.BP_POP_SIZE,
-                                               2,
-                                               2,
-                                               Props.BP_TARGET_NUM_SPECIES)
+        self.blueprint_population = Population(
+            PopInit.initialize_pop(BlueprintNEATNode, BlueprintGenome, Props.BP_POP_SIZE, True),
+            rank_fn,
+            PopInit.initialize_mutations(True),
+            Props.BP_POP_SIZE,
+            2,
+            2,
+            Props.BP_TARGET_NUM_SPECIES)
 
         if Config.evolve_data_augmentations:
-            self.da_population = Population(PopInit.initialise_da(),
-                                            rank_fn,
-                                            PopInit.da_initial_mutations(),
-                                            Props.DA_POP_SIZE,
-                                            1,
-                                            1,
-                                            Props.DA_TARGET_NUM_SPECIES)
+            self.da_population = Population(
+                PopInit.initialize_pop(DANode, DAGenome, Props.DA_POP_SIZE, False),
+                rank_fn,
+                PopInit.initialize_mutations(False),
+                Props.DA_POP_SIZE,
+                1,
+                0,
+                Props.DA_TARGET_NUM_SPECIES)
 
     def step(self):
         """Runs CDN for one generation - must be called after fitness evaluation"""
