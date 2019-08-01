@@ -47,7 +47,7 @@ class Population:
         self.population_size = population_size
         self.target_num_species = target_num_species
 
-        self.speciation_threshold = 2.3
+        self.speciation_threshold = 1.5
         self.current_threshold_dir = 1
 
         if target_num_species == 1:

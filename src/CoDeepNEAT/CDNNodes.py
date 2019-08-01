@@ -50,7 +50,7 @@ class ModulenNEATNode(NodeGene):
                 "out_features": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=linear_out_features,
                                         start_range=10,
                                         end_range=1024, name="num out features", mutation_chance=0.22,
-                                        distance_weighting=5)
+                                        distance_weighting=0)
             }
 
         conv_submutagens = {
@@ -78,11 +78,11 @@ class ModulenNEATNode(NodeGene):
             }, mutation_chance=0.08),
 
             "out_features": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=conv_out_features, start_range=1,
-                                    end_range=100, name="num out features", mutation_chance=0.22, distance_weighting=4)
+                                    end_range=100, name="num out features", mutation_chance=0.22, distance_weighting=0)
         }
 
         if use_linears and not use_convs:
-            self.layer_type = Mutagen(nn.Linear, discreet_value=nn.Linear, distance_weighting=6, sub_mutagens={
+            self.layer_type = Mutagen(nn.Linear, discreet_value=nn.Linear, distance_weighting=0, sub_mutagens={
                 nn.Linear: linear_submutagens
             })
         if use_convs and not use_linears:
