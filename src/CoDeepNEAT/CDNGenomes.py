@@ -109,10 +109,10 @@ class BlueprintGenome(Genome):
 
         for species_used in self.species_module_mapping:
             module_individual = self.species_module_mapping[species_used]
-            if module_individual is None:
+
+            if module_individual is None or species_used >= len(generation.module_population.species):
                 continue
-            if species_used > len(generation.module_population.species):
-                continue
+
             if module_individual in generation.module_population.species[species_used].members:
                 index = generation.module_population.species[species_used].members.index(module_individual)
                 self.species_module_index_mapping[species_used] = index
