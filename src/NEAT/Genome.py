@@ -1,18 +1,16 @@
-from src.NEAT.Gene import ConnectionGene, NodeGene, NodeType
-from typing import Iterable
 import copy
-import random
-import sys
-from src.Config import Config
 import operator
 import os
 import random
 import sys
+from networkx.algorithms.similarity import graph_edit_distance
+import networkx as nx
+
 from typing import Iterable
 
 import graphviz
-from data import DataManager
 
+from data import DataManager
 from src.Config import Config, NeatProperties as Props
 from src.NEAT.Gene import ConnectionGene, NodeGene, NodeType
 
@@ -38,6 +36,7 @@ class Genome:
         self._connections = {}
         for connection in connections:
             self.add_connection(connection, True)
+        self.netx_graph = None
 
     def has_branches(self):
         traversal_dict = self._get_traversal_dictionary(exclude_disabled_connection=True)
@@ -103,6 +102,29 @@ class Genome:
             self.fitness_values = [0 for _ in self.fitness_values]
 
     def distance_to(self, other):
+        return self.get_topological_distance(other)
+
+    def get_netx_graph_form(self):
+        if self.netx_graph is not None:
+            return self.netx_graph
+        G = nx.DiGraph()
+        node_keys = []
+        for node in self._nodes.values():
+            # G.add_node(node.id, att = {'label':repr(node.id)})
+            node_keys.append((node.id, {'label':repr(node.id)}))
+        G.add_nodes_from(node_keys)
+
+        conn_keys = []
+        for conn in self._connections.values():
+            if Config.ignore_disabled_connections_for_topological_similarity and not conn.enabled():
+                continue
+            conn_keys.append((conn.to_node, conn.from_node, {'label':repr(conn.to_node)+","+repr(conn.from_node)}))
+        G.add_edges_from(conn_keys)
+
+        self.netx_graph = G
+        return G
+
+    def get_topological_distance(self, other):
         if other == self:
             return 0
 
@@ -129,8 +151,19 @@ class Genome:
 
         # return (num_excess  + num_disjoint)
 
-        return (num_excess * Props.EXCESS_COEFFICIENT + num_disjoint * Props.DISJOINT_COEFFICIENT) / max(
+        neat_dist = (num_excess * Props.EXCESS_COEFFICIENT + num_disjoint * Props.DISJOINT_COEFFICIENT) / max(
             len(self._connections), len(other._connections))
+
+        if Config.use_graph_edit_distance:
+            match_func = lambda a,b :a['label'] == b['label']
+            ged = graph_edit_distance(self.get_netx_graph_form(), other.get_netx_graph_form(), node_match=match_func, edge_match=match_func)
+            if neat_dist > 0:
+                #print("neat dist:",neat_dist, "ged:",ged)
+                pass
+
+            return (neat_dist + 0.8*ged)/2
+
+        return neat_dist
 
     def mutate(self, mutation_record):
         raise NotImplemented('Mutation should be called not in base class')

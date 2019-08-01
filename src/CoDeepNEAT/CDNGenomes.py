@@ -171,8 +171,6 @@ class ModuleGenome(Genome):
         # print(attrib_dist, topology_dist, math.sqrt(attrib_dist * attrib_dist + topology_dist * topology_dist))
         return math.sqrt(attrib_dist * attrib_dist + topology_dist * topology_dist)
 
-    def get_topological_distance(self,other):
-        return super().distance_to(other)
 
     def get_attribute_distance(self, other):
         attrib_dist = 0

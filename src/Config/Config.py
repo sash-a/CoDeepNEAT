@@ -37,11 +37,13 @@ colour_augmentations = False
 maintain_module_handles = False
 
 # --------------------------------------------------------------------------------------------------------------------#
-speciation_overhaul = False
-ignore_disabled_connections_for_topological_similarity = False
+speciation_overhaul = True
+ignore_disabled_connections_for_topological_similarity = True
+use_graph_edit_distance = True
+
 # --------------------------------------------------------------------------------------------------------------------#
 # Debug and test options
-dummy_run = False
+dummy_run = True
 
 protect_parsing_from_errors = False
 test_in_run = False
