@@ -59,7 +59,7 @@ def plot_all_generations(aggregation_type='max', fitness_index=0, run_name='unna
     plt.title(aggregation_type + ' value of objectives ' + str(fitness_index) + ' per generation for ' + run_name)
     plt.show()
 
-def plot_all_runs(aggregation_type='max', fitness_index=0, max_gens = 100, show_data = False):
+def plot_all_runs(aggregation_type='max', fitness_index=0, max_gens = 100, show_data = True):
     runs = set()
     for subdir, dirs, files in os.walk(os.path.join(DataManager.get_data_folder(),"runs")):
         sub = subdir.split("runs")[1][1:].split("\\")[0].split("/")[0]
@@ -91,7 +91,7 @@ def plot_all_runs(aggregation_type='max', fitness_index=0, max_gens = 100, show_
     print(runs)
 
 if __name__ == "__main__":
-    run_name = 'module_retention_test'
+    #run_name = 'module_retention_test'
     #RuntimeAnalysis.load_date_from_log_file(run_name, summary=False)
     #plot_all_generations('max', 0, run_name)
     plot_all_runs(aggregation_type= "max")

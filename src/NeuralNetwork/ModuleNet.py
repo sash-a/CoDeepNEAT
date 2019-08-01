@@ -29,7 +29,7 @@ class ModuleNet(nn.Module):
             return
         if self.lr == 0:
             raise Exception('please set net learning rate before calling specify dims')
-        # print("configuring output dims with in=", input_sample.size())
+        #print("configuring output dims with in=", input_sample.size())
         # self.module_graph.add_reshape_node(list(input_sample.size()))
         output_nodes = int(list(output_dimensionality)[0])
         output = self(input_sample, configuration_run=True)
@@ -93,6 +93,9 @@ def create_nn(module_graph, sample_inputs):
         if Config.save_failed_graphs:
             module_graph.plot_tree_with_graphvis("Module graph which failed to parse to nn")
         raise Exception("Error: failed to parse module graph into nn", e)
+
+    for module_node in module_graph.module_graph_root_node.get_all_nodes_via_bottom_up(set()):
+        module_node.generate_module_node_from_gene()
 
     net.configure(blueprint_individual.learning_rate(), blueprint_individual.beta1(), blueprint_individual.beta2())
     net.specify_dimensionality(sample_inputs)

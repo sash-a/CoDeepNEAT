@@ -79,8 +79,11 @@ class Node:
 
         return False
 
-    def plot_tree_with_graphvis(self, title="", graph=None, nodes_plotted=None, file="temp"):
+    def plot_tree_with_graphvis(self, title="", graph=None, nodes_plotted=None, file="temp", view = None):
         file = os.path.join(DataManager.get_Graphs_folder(),file)
+
+        if view is None:
+            view = Config.print_best_graphs
 
         if graph is None:
             graph = graphviz.Digraph(comment=title)
@@ -104,7 +107,7 @@ class Node:
             graph.edge(self.traversal_id, child.traversal_id)
 
         if self.is_input_node():
-            graph.render(file, view=Config.print_best_graphs)
+            graph.render(file, view=view)
 
     def get_layer_type_name(self):
         raise Exception("override layer type name is super classes")

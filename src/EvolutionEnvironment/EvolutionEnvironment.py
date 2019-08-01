@@ -34,12 +34,10 @@ def main():
             continue_evolution_from_save_state(Config.run_name)
         except Exception as e:
             print(e)
-            print("could not load save state for run name:", Config.run_name, "starting from scratch instead")
             run_evolution_from_scratch()
     else:
         run_evolution_from_scratch()
 
-    # Validation.cross_validation("cifar_netsizeadj_5ep")
 
 def run_evolution_from_scratch():
     evolve_generation(Generation())
@@ -60,14 +58,17 @@ def evolve_generation(generation):
 
     start_time = time.time()
 
-    for i in range(start_gen, Config.max_num_generations):
-        print('Running gen', i)
-        gen_start_time = time.time()
-        # current_generation.evaluate(i)
-        generation.evaluate(i)
-        generation.step()
-        print('completed gen', i, "in", (time.time() - gen_start_time), "elapsed time:", (time.time() - start_time),
-              "\n\n")
+    if start_gen < Config.max_num_generations:
+        for i in range(start_gen, Config.max_num_generations):
+            print('Running gen', i)
+            gen_start_time = time.time()
+            # current_generation.evaluate(i)
+            generation.evaluate(i)
+            generation.step()
+            print('completed gen', i, "in", (time.time() - gen_start_time), "elapsed time:", (time.time() - start_time),
+                  "\n\n")
+    print("finished training",Config.max_num_generations, "genertations")
+    generation.pareto_population.get_best_network()
 
 
 def parse_args():

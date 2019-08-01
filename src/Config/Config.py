@@ -12,12 +12,12 @@ continue_from_last_run = True
 device = 'gpu'  # gpu | cpu
 num_gpus = 1
 num_workers = 0  # this doesn't work in parallel because daemonic processes cannot spawn children
-dataset = 'fashion_mnist'
+dataset = 'cifar10'
 data_path = ''
 number_of_epochs_per_evaluation = 5
 
 # --------------------------------------------------------------------------------------------------------------------#
-max_num_generations = 150
+max_num_generations = 25
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Multiobjective options
@@ -30,18 +30,18 @@ moo_optimiser = 'cdn'  # cdn | nsga
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Data augmentation options
-evolve_data_augmentations = True
+evolve_data_augmentations = False
 colour_augmentations = False
 
 # --------------------------------------------------------------------------------------------------------------------#
 maintain_module_handles = False
 
 # --------------------------------------------------------------------------------------------------------------------#
-speciation_overhaul = True
-ignore_disabled_connections_for_topological_similarity = True
+speciation_overhaul = False
+ignore_disabled_connections_for_topological_similarity = False
 # --------------------------------------------------------------------------------------------------------------------#
 # Debug and test options
-dummy_run = True
+dummy_run = False
 
 protect_parsing_from_errors = False
 test_in_run = False
