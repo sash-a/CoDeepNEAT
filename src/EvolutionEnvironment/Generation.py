@@ -65,7 +65,7 @@ class Generation:
         print('species:', self.module_population.get_num_species(), self.module_population.speciation_threshold)
         self.pareto_population.update_pareto_front()
 
-        self.module_population.step()
+        self.module_population.step(self)
         for blueprint_individual in self.blueprint_population.individuals:
             blueprint_individual.reset_number_of_module_species(self.module_population.get_num_species())
 

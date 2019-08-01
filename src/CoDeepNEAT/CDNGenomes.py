@@ -165,9 +165,17 @@ class ModuleGenome(Genome):
         if type(self) != type(other):
             raise TypeError('Trying finding distance from Module genome to ' + str(type(other)))
 
-        attrib_dist = 0
-        topology_dist = super().distance_to(other)
+        attrib_dist = self.get_attribute_distance(other)
+        topology_dist = self.get_topological_distance(other)
 
+        # print(attrib_dist, topology_dist, math.sqrt(attrib_dist * attrib_dist + topology_dist * topology_dist))
+        return math.sqrt(attrib_dist * attrib_dist + topology_dist * topology_dist)
+
+    def get_topological_distance(self,other):
+        return super().distance_to(other)
+
+    def get_attribute_distance(self, other):
+        attrib_dist = 0
         common_nodes = self._nodes.keys() & other._nodes.keys()
 
         for node_id in common_nodes:
@@ -176,9 +184,7 @@ class ModuleGenome(Genome):
                 attrib_dist += self_mutagen.distance_to(other_mutagen)
 
         attrib_dist /= len(common_nodes)
-
-        # print(attrib_dist, topology_dist, math.sqrt(attrib_dist * attrib_dist + topology_dist * topology_dist))
-        return math.sqrt(attrib_dist * attrib_dist + topology_dist * topology_dist)
+        return attrib_dist
 
     def mutate(self, mutation_record):
         return super()._mutate(mutation_record, Props.MODULE_NODE_MUTATION_CHANCE, Props.MODULE_CONN_MUTATION_CHANCE)

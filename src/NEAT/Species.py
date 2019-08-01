@@ -1,6 +1,9 @@
 import random
 import src.Config.NeatProperties as Props
 import math
+import matplotlib.pyplot as plt
+from src.Config import Config
+import sys
 
 
 class Species:
@@ -24,7 +27,7 @@ class Species:
 
     def __getitem__(self, item):
         if item >= len(self.members):
-            raise Exception("index out of bounds, ased for indv:",item, "but only",len(self.members),"members")
+            raise Exception("index out of bounds, ased for indv:", item, "but only", len(self.members), "members")
         return self.members[item]
 
     def add(self, individual):
@@ -84,7 +87,7 @@ class Species:
                     len(self.members)))
 
         children.extend(elite)
-        for i in range(number_of_elite,len(self.members)):
+        for i in range(number_of_elite, len(self.members)):
             member = self.members[i]
             self.members[i] = None
             del member
@@ -102,15 +105,33 @@ class Species:
         # if self.age < 3:
         #     return
         surivors = math.ceil(Props.PERCENT_TO_REPRODUCE * len(self.members))
-        for i in range(surivors,len(self.members)):
+        for i in range(surivors, len(self.members)):
             member = self.members[i]
             self.members[i] = None
-            del member#TODO does this change the array length
+            del member  # TODO does this change the array length
 
         self.members = self.members[:surivors]
 
     def _select_representative(self):
-        self.representative = random.choice(self.members)
+        if not Config.speciation_overhaul:
+            self.representative = random.choice(self.members)
+        else:
+            lowest_sum = sys.maxsize
+            best_candidate = None
+            for candidate in self.members:
+                sum = 0
+                for other in self.members:
+                    if candidate == other:
+                        continue
+                    dist = candidate.distance_to(other)
+                    if other.distance_to(candidate) != dist:
+                        raise Exception("distance function not symmetrical")
+                    sum += dist
+
+                if sum < lowest_sum:
+                    lowest_sum = sum
+                    best_candidate = candidate
+            self.representative = best_candidate
 
     def empty_species(self):
         self.members = []
@@ -118,7 +139,7 @@ class Species:
     def set_next_species_size(self, species_size):
         self.next_species_size = species_size
 
-    def sample_individual(self, debug = False):
+    def sample_individual(self, debug=False):
         index = random.randint(0, len(self.members) - 1)
         # if debug:
         #     print("sampling random indv:",index, "length:", len(self.members))

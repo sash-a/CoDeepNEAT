@@ -5,6 +5,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import math
 from src.Config import Config
+import copy
 
 minimum_conv_dim = 8
 
@@ -25,7 +26,6 @@ class ModuleNode(Node):
 
     def __init__(self, module_NEAT_node, module_genome):
         Node.__init__(self)
-        # self.traversed = False
 
         self.deep_layer = None  # an nn layer object such as    nn.Conv2d(3, 6, 5) or nn.Linear(84, 10)
         self.in_features = -1
@@ -38,8 +38,8 @@ class ModuleNode(Node):
 
         self.reshape = None  # reshapes the input given before passing it through this nodes deeplayer
 
-        self.module_NEAT_genome = module_genome
-        self.module_NEAT_node = module_NEAT_node
+        self.module_NEAT_genome = copy.deepcopy(module_genome)
+        self.module_NEAT_node = copy.deepcopy(module_NEAT_node)
 
         if not (module_NEAT_node is None):
             self.generate_module_node_from_gene()
@@ -55,6 +55,7 @@ class ModuleNode(Node):
 
         if not (neat_regularisation() is None):
             self.regularisation = neat_regularisation()(self.out_features)
+            #print("initialised", self.regularisation)
 
         if not (neat_reduction is None) and not (neat_reduction() is None):
             if neat_reduction() == nn.MaxPool2d or neat_reduction() == nn.MaxPool1d:
@@ -63,11 +64,13 @@ class ModuleNode(Node):
                     self.reduction = nn.MaxPool2d(pool_size, pool_size)
                 if neat_reduction() == nn.MaxPool1d:
                     self.reduction = nn.MaxPool1d(pool_size)
+                #print("initialised",self.reduction)
             else:
-                print("Error not implemented reduction ", neat_reduction())
+                raise Exception("Error not implemented reduction "+ repr(neat_reduction()))
 
         if not (neat_dropout is None) and not (neat_dropout() is None):
             self.dropout = neat_dropout()(neat_dropout.get_sub_value("dropout_factor"))
+            #print("initialised drop out")
 
     def create_layer(self, in_features):
 
@@ -80,6 +83,7 @@ class ModuleNode(Node):
                 self.deep_layer = nn.Conv2d(self.in_features, self.out_features,
                                             kernel_size=layer_type.get_sub_value("conv_window_size"),
                                             stride=layer_type.get_sub_value("conv_stride"))
+                #print("created",self.deep_layer)
                 try:
                     self.deep_layer = self.deep_layer.to(device)
                 except Exception as e:
@@ -95,6 +99,7 @@ class ModuleNode(Node):
 
         else:
             self.deep_layer = layer_type()(self.in_features, self.out_features).to(device)
+            #print("created", self.deep_layer)
 
         if not (self.reduction is None):
             self.reduction = self.reduction.to(device)

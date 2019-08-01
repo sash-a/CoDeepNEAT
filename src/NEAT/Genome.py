@@ -114,10 +114,20 @@ class Genome:
         smaller_id = min(self_max_conn_id, other_max_conn_id)
 
         for conn_id in self.get_disjoint_excess_genes(other):
+            if Config.ignore_disabled_connections_for_topological_similarity:
+                if conn_id in self._connections:
+                    if not self._connections[conn_id].enabled():
+                        continue
+                else:
+                    if not other._connections[conn_id].enabled():
+                        continue
+
             if conn_id > smaller_id:
                 num_excess += 1
             else:
                 num_disjoint += 1
+
+        # return (num_excess  + num_disjoint)
 
         return (num_excess * Props.EXCESS_COEFFICIENT + num_disjoint * Props.DISJOINT_COEFFICIENT) / max(
             len(self._connections), len(other._connections))
