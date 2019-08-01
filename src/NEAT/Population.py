@@ -1,6 +1,9 @@
+import os
+
 import math
 
 import src.Config.NeatProperties as Props
+from data import DataManager
 from src.Config import Config
 from src.NEAT.Species import Species
 import matplotlib.pyplot as plt
@@ -189,7 +192,6 @@ class Population:
         return sum([indv.rank for indv in individuals]) / len(individuals)
 
     def step(self, generation = None):
-        self.plot_species_spaces(generation)
         self.rank_population_fn(self._get_all_individuals())
         self.update_species_sizes()
 
@@ -199,6 +201,8 @@ class Population:
         self.adjust_speciation_threshold()
         individuals = self._get_all_individuals()
         self.speciate(individuals)
+        self.plot_species_spaces(generation)
+        self.plot_all_representatives()
 
 
     def plot_species_spaces(self, generation):
@@ -222,3 +226,11 @@ class Population:
         plt.ylabel("Attribute")
         plt.title("gen:" + repr(generation.generation_number))
         plt.show()
+
+    def plot_all_representatives(self):
+        graph = None
+        for spec in self.species:
+            graph = spec.representative.plot_tree_with_graphvis(graph= graph, return_graph_obj= True, view= False,
+                                                                node_prefix= repr(self.species.index(spec)) + "_")
+        file = os.path.join(DataManager.get_Graphs_folder(), "reps")
+        graph.render(file, view=True)
