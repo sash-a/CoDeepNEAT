@@ -1,9 +1,8 @@
 import random
-import src.Config.NeatProperties as Props
 import math
-import matplotlib.pyplot as plt
-from src.Config import Config
 import sys
+
+from src.Config.Config import Config
 
 
 class Species:
@@ -42,7 +41,7 @@ class Species:
             return
 
         self._rank_species()
-        elite_count = min(math.ceil(Props.ELITE_TO_KEEP * len(self.members)), self.next_species_size)
+        elite_count = min(math.ceil(Config.elite_to_keep * len(self.members)), self.next_species_size)
         self._cull_species()
 
         self._reproduce(mutation_record, elite_count)
@@ -104,7 +103,7 @@ class Species:
     def _cull_species(self):
         # if self.age < 3:
         #     return
-        surivors = math.ceil(Props.PERCENT_TO_REPRODUCE * len(self.members))
+        surivors = math.ceil(Config.percent_to_reproduce * len(self.members))
         for i in range(surivors, len(self.members)):
             member = self.members[i]
             self.members[i] = None

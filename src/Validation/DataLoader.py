@@ -2,7 +2,7 @@ from torch.utils.data import DataLoader
 from torchvision import transforms, datasets
 
 from data import DataManager
-from src.Config import Config
+from src.Config.Config import Config
 import os
 
 

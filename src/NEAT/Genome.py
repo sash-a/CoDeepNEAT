@@ -3,7 +3,6 @@ from typing import Iterable
 import copy
 import random
 import sys
-from src.Config import Config
 import operator
 import os
 import random
@@ -11,14 +10,13 @@ import sys
 from typing import Iterable
 
 import graphviz
-from data import DataManager
 
-from src.Config import Config, NeatProperties as Props
+from data import DataManager
+from src.Config.Config import Config
 from src.NEAT.Gene import ConnectionGene, NodeGene, NodeType
 
 
 class Genome:
-
     def __init__(self, connections: Iterable[ConnectionGene], nodes: Iterable[NodeGene]):
         self.rank = 0  # The order of this genome when ranked by fitness values
         self.uses = 0  # The numbers of times this genome is used
@@ -97,7 +95,7 @@ class Genome:
             self.fitness_values[i] = (self.fitness_values[i] * self.uses + fitness) / (self.uses + 1)
         self.uses += 1
 
-    def end_step(self, generation = None):
+    def end_step(self, generation=None):
         self.uses = 0
         if self.fitness_values is not None:
             self.fitness_values = [0 for _ in self.fitness_values]
@@ -129,7 +127,7 @@ class Genome:
 
         # return (num_excess  + num_disjoint)
 
-        return (num_excess * Props.EXCESS_COEFFICIENT + num_disjoint * Props.DISJOINT_COEFFICIENT) / max(
+        return (num_excess * Config.excess_coefficient + num_disjoint * Config.disjoint_coefficient) / max(
             len(self._connections), len(other._connections))
 
     def mutate(self, mutation_record):
@@ -342,7 +340,7 @@ class Genome:
         root_node.get_traversal_ids("_")
         return root_node
 
-    def plot_tree_with_graphvis(self, title="", file="temp_g", view = None):
+    def plot_tree_with_graphvis(self, title="", file="temp_g", view=None):
         if view is None:
             view = Config.print_best_graphs
 

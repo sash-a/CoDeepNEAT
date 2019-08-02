@@ -2,7 +2,7 @@ import torch
 from torch import nn, optim
 import torch.nn.functional as F
 from src.Utilities import Utils
-from src.Config import Config
+from src.Config.Config import Config
 
 
 class ModuleNet(nn.Module):

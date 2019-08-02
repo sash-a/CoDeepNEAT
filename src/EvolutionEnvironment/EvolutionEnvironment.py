@@ -9,7 +9,7 @@ sys.path.append(dir_path_1)
 sys.path.append(dir_path_2)
 
 from src.EvolutionEnvironment.Generation import Generation
-import src.Config.Config as Config
+from src.Config.Config import Config, load
 from data import DataManager
 
 import time
@@ -26,9 +26,10 @@ Acts as the driver of current generation
 
 
 def main():
-
+    load('../Config/config.ini')
     parse_args()
-    mp.set_start_method('spawn', force=True)
+
+    mp.set_start_method('fork', force=True)
     if Config.continue_from_last_run:
         try:
             continue_evolution_from_save_state(Config.run_name)
@@ -42,19 +43,19 @@ def main():
 def run_evolution_from_scratch():
     evolve_generation(Generation())
 
+
 def continue_evolution_from_save_state(run_name):
     evolve_generation(DataManager.load_generation_state(run_name))
 
+
 def evolve_generation(generation):
-    #generation.pareto_population.plot_fitnesses()
-    #generation.pareto_population.plot_all_in_pareto_front()
-    #print("highest acc so far:",generation.pareto_population.get_highest_accuracy(print=True).fitness_values[0])
     if generation.generation_number == -1:
-        print("evolving gen from scratch")
+        print('Starting run for:', Config.run_name)
         start_gen = 0
     else:
-        print("continueing evolution of generation:",generation)
-        start_gen = generation.generation_number + 1 #genertions save after completing their step. before incremeting their generation number
+        print('Continuing run:', Config.run_name, 'at generation', generation)
+        # Generations save after completing their step. before incrementing their generation number
+        start_gen = generation.generation_number + 1
 
     start_time = time.time()
 
@@ -65,9 +66,9 @@ def evolve_generation(generation):
             # current_generation.evaluate(i)
             generation.evaluate(i)
             generation.step()
-            print('completed gen', i, "in", (time.time() - gen_start_time), "elapsed time:", (time.time() - start_time),
-                  "\n\n")
-    print("finished training",Config.max_num_generations, "genertations")
+            print('Completed gen', i, '\ntotal elapsed time:', (time.time() - start_time), end="\n\n")
+
+    print('Finished training', Config.max_num_generations, 'generations')
     generation.pareto_population.get_best_network()
 
 

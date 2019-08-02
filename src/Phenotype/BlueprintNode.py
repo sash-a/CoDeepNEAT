@@ -1,7 +1,7 @@
 from src.Phenotype.Node import Node
 from src.Phenotype.ModuleGraph import ModuleGraph
 import copy
-from src.Config import Config
+from src.Config.Config import Config
 
 class BlueprintNode(Node):
     """

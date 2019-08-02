@@ -1,5 +1,5 @@
 import sys
-from src.Config import Config
+from src.Config.Config import Config
 
 
 class GenerationData:

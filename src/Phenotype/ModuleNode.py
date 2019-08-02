@@ -4,7 +4,7 @@ from src.Utilities import Utils
 import torch.nn as nn
 import torch.nn.functional as F
 import math
-from src.Config import Config
+from src.Config.Config import Config
 import copy
 
 minimum_conv_dim = 8
