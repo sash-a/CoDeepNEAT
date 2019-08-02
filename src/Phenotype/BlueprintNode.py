@@ -3,11 +3,11 @@ from src.Phenotype.ModuleGraph import ModuleGraph
 import copy
 from src.Config.Config import Config
 
+
 class BlueprintNode(Node):
     """
     Each value in a blueprint graph is a Module Species number
     """
-
     speciesIndexesUsed = []
 
     def __init__(self, blueprint_NEAT_node, blueprint_genome):
@@ -25,23 +25,26 @@ class BlueprintNode(Node):
 
     def generate_blueprint_node_from_gene(self, gene):
         """applies the properties of the blueprint gene for this node"""
-        # print("generating blueprint node from gene:",gene, "setting species number:",gene.species_number(), "from:",gene.species_number)
+        # print("generating blueprint node from gene:",gene, "setting species number:",gene.species_number(),
+        # "from:",gene.species_number)
         self.species_number = gene.species_number()
 
-    def get_module_individual(self, generation ,module_index_map):
+    def get_module_individual(self, generation, module_index_map):
         # try:
         genome_module_mapping = self.blueprint_genome.species_module_index_mapping
-        #print("BPG parsing getting indv with genome mapping:",genome_module_mapping)
-        if Config.maintain_module_handles and self.species_number in genome_module_mapping and genome_module_mapping[self.species_number] is not None:
+        # print("BPG parsing getting indv with genome mapping:",genome_module_mapping)
+        if Config.maintain_module_handles and self.species_number in genome_module_mapping and genome_module_mapping[
+            self.species_number] is not None:
             index = genome_module_mapping[self.species_number]
             module_graph_individual = generation.module_population.species[self.species_number][index]
-            print(self,"using module handle",self.species_number,index,module_graph_individual)
+            # print(self, "using module handle", self.species_number, index, module_graph_individual)
 
         elif self.species_number in module_index_map:
             index = module_index_map[self.species_number]
             module_graph_individual = generation.module_population.species[self.species_number][index]
         else:
-            module_graph_individual, index = generation.module_population.species[self.species_number].sample_individual()
+            module_graph_individual, index = generation.module_population.species[
+                self.species_number].sample_individual()
             module_index_map[self.species_number] = index
 
         # except Exception:
@@ -49,8 +52,6 @@ class BlueprintNode(Node):
         #                     " num species available: " + repr(len(generation.module_population.species)))
 
         return module_graph_individual, index
-
-
 
     def parseto_module_graph(self, generation, module_construct=None, species_indexes=None, module_index_map=None):
         """
@@ -64,7 +65,7 @@ class BlueprintNode(Node):
             # first time this blueprint node has been reached in the traversal
             # to be added as child to existing module construct
 
-            module_graph_individual, index = self.get_module_individual(generation,module_index_map)
+            module_graph_individual, index = self.get_module_individual(generation, module_index_map)
 
             # Setting the module used and its index
             self.blueprint_genome.modules_used_index.append((self.species_number, index))

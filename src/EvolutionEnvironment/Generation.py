@@ -60,7 +60,6 @@ class Generation:
 
     def step(self):
         """Runs CDN for one generation - must be called after fitness evaluation"""
-        print('species:', self.module_population.get_num_species(), self.module_population.speciation_threshold)
         self.pareto_population.update_pareto_front()
 
         self.module_population.step(self)
@@ -79,6 +78,7 @@ class Generation:
             module_individual.end_step()  # this also sets fitness to zero
 
         DataManager.save_generation_state(self)
+        print('Species distribution:', ' '.join([str(len(s)) for s in self.module_population.species]))
 
     def evaluate(self, generation_number):
         self.generation_number = generation_number
