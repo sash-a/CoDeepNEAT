@@ -1,9 +1,9 @@
-import torch
-import torch.multiprocessing as mp
-
+import json
 import operator
 from configparser import ConfigParser
-import json
+
+import torch
+import torch.multiprocessing as mp
 
 
 def load(file):
@@ -135,7 +135,7 @@ def load(file):
 class Config:
     # -----------------------------------------------------------------------------------------------------------------#
     # Run state options
-    run_name = 'test_run'
+    run_name = 'base'
     continue_from_last_run = True
     max_num_generations = 25
     # -----------------------------------------------------------------------------------------------------------------#
@@ -158,11 +158,11 @@ class Config:
     da_node_mutation_chance = 0.1
     da_target_num_species = 1
     # -----------------------------------------------------------------------------------------------------------------#
-    individuals_to_eval = 75  # Number of times to sample blueprints
+    individuals_to_eval = 88  # Number of times to sample blueprints
     mutation_tries = 100  # number of tries a mutation gets to pick acceptable individual
     # -----------------------------------------------------------------------------------------------------------------#
     # species
-    species_distance_thresh = 1
+    species_distance_thresh = 1.5
     species_distance_thresh_mod_min = 0.001
     species_distance_thresh_mod_base = 0.1
     species_distance_thresh_mod_max = 100
@@ -195,9 +195,11 @@ class Config:
     moo_optimiser = 'cdn'  # cdn | nsga
 
     maintain_module_handles = False
+    fitness_aggregation = "avg"  # max|avg
 
     speciation_overhaul = False
     ignore_disabled_connections_for_topological_similarity = False
+    use_graph_edit_distance = False
     # -----------------------------------------------------------------------------------------------------------------#
     # Debug and test options
     dummy_run = True

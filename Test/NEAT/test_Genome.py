@@ -1,7 +1,7 @@
-from src.NEAT.Genome import Genome
-from Test.TestingGenomes import nodes, connections, NEATNode, Connection
-
 import random
+
+from Test.TestingGenomes import nodes, connections, NEATNode, Connection
+from src.NEAT.Genome import Genome
 
 
 def test_init():

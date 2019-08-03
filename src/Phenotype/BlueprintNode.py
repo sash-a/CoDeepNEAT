@@ -1,7 +1,8 @@
-from src.Phenotype.Node import Node
-from src.Phenotype.ModuleGraph import ModuleGraph
 import copy
+
 from src.Config.Config import Config
+from src.Phenotype.ModuleGraph import ModuleGraph
+from src.Phenotype.Node import Node
 
 
 class BlueprintNode(Node):
@@ -35,6 +36,7 @@ class BlueprintNode(Node):
         # print("BPG parsing getting indv with genome mapping:",genome_module_mapping)
         if Config.maintain_module_handles and self.species_number in genome_module_mapping and genome_module_mapping[
             self.species_number] is not None:
+
             index = genome_module_mapping[self.species_number]
             module_graph_individual = generation.module_population.species[self.species_number][index]
             # print(self, "using module handle", self.species_number, index, module_graph_individual)

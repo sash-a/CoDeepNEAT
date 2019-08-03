@@ -1,8 +1,9 @@
-from src.NEAT.Connection import Connection
-from src.NEAT.Species import Species
-from src.NEAT.Population import Population
 from CoDeepNEAT.CDNGenomes import BlueprintGenome
+from src.NEAT.Connection import Connection
+
 from Test.TestingGenomes import moo_pop_members, initial_mutations, nodes, connections
+from src.NEAT.Population import Population
+from src.NEAT.Species import Species
 
 
 def test_init():

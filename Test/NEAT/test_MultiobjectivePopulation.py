@@ -1,5 +1,6 @@
-from Test.TestingGenomes import moo_pop_members
 from src.NEAT.MultiobjectivePopulation import MultiobjectivePopulation
+
+from Test.TestingGenomes import moo_pop_members
 
 
 def test_adjust_fitness():

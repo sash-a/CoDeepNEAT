@@ -1,8 +1,8 @@
-from src.NEAT.PopulationRanking import general_pareto_sorting
-from src.Analysis.DataPlotter import plot_acc_vs_second, plot_histogram
 import time
+
+from src.Analysis.DataPlotter import plot_acc_vs_second, plot_histogram
+from src.NEAT.PopulationRanking import general_pareto_sorting
 from src.Validation import Validation
-import numpy as np
 
 
 class ParetoPopulation:
@@ -16,9 +16,9 @@ class ParetoPopulation:
 
     def update_pareto_front(self):
         start_time = time.time()
-        print("updating pareto pop from",len(self.candidates),"candidates and",len(self.pareto_front),"in front", end = " ")
+        # print("updating pareto pop from",len(self.candidates),"candidates and",len(self.pareto_front),"in front", end = " ")
         self.pareto_front = general_pareto_sorting(self.candidates + self.pareto_front, return_pareto_front_only=True)
-        print("after:",len(self.pareto_front),"in front time:", (time.time() - start_time))
+        # print("after:",len(self.pareto_front),"in front time:", (time.time() - start_time))
         # print("candidates:",repr(self.candidates))
 
         if len(self.pareto_front) == 0:
@@ -27,13 +27,13 @@ class ParetoPopulation:
         self.candidates = []
         # self.plot_fitnesses()
         # self.plot_all_in_pareto_front()
-        #self.get_highest_accuracy(print=True)
+        # self.get_highest_accuracy(print=True)
 
-    def get_best_network(self, num_augs = 5):
+    def get_best_network(self, num_augs=5):
         best_graphs = self.get_highest_accuracy(num=num_augs)
         best = best_graphs[0]
         augs = [x.data_augmentation_schemes[0] for x in best_graphs if len(x.data_augmentation_schemes) > 0]
-        return Validation.get_fully_trained_network(best,augs)
+        return Validation.get_fully_trained_network(best, augs)
 
     def plot_fitnesses(self):
         # print("lengths:" , repr([len(x.fitness_values) for x in self.pareto_front]))
@@ -58,7 +58,7 @@ class ParetoPopulation:
         best_graph = None
 
         if num > 1:
-            acc_sorted = sorted(self.pareto_front, key=lambda x: x.fitness_values[0] )
+            acc_sorted = sorted(self.pareto_front, key=lambda x: x.fitness_values[0])
             num_best_graphs = acc_sorted[-num:]
             return num_best_graphs
 
@@ -75,4 +75,3 @@ class ParetoPopulation:
             return best_graph
         else:
             raise Exception("Number of graphs chosen is negative")
-

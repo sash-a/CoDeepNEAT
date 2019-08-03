@@ -1,9 +1,10 @@
-from src.Analysis.GenerationData import GenerationData
-import inspect, os
-import os.path
 import ast
-from data import DataManager
+import os
+import os.path
 from typing import List
+
+from data import DataManager
+from src.Analysis.GenerationData import GenerationData
 
 generations: List[GenerationData] = []
 

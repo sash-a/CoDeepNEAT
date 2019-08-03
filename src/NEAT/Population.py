@@ -1,12 +1,11 @@
 import os
 
 import math
+import matplotlib.pyplot as plt
 
+from data import DataManager
 from src.Config.Config import Config
 from src.NEAT.Species import Species
-import matplotlib.pyplot as plt
-from data import DataManager
-
 
 
 class MutationRecords:
@@ -50,7 +49,7 @@ class Population:
         self.population_size = population_size
         self.target_num_species = target_num_species
 
-        self.speciation_threshold = 2.3
+        self.speciation_threshold = Config.species_distance_thresh
         self.current_threshold_dir = 1
 
         if target_num_species == 1:
@@ -185,7 +184,7 @@ class Population:
             raise Exception("no individuals in population", self, "cannot get average rank")
         return sum([indv.rank for indv in individuals]) / len(individuals)
 
-    def step(self, generation = None):
+    def step(self, generation=None):
         self.rank_population_fn(self._get_all_individuals())
         self.update_species_sizes()
 
@@ -225,7 +224,7 @@ class Population:
     def plot_all_representatives(self):
         graph = None
         for spec in self.species:
-            graph = spec.representative.plot_tree_with_graphvis(graph= graph, return_graph_obj= True, view= False,
-                                                                node_prefix= repr(self.species.index(spec)) + "_")
+            graph = spec.representative.plot_tree_with_graphvis(graph=graph, return_graph_obj=True, view=False,
+                                                                node_prefix=repr(self.species.index(spec)) + "_")
         file = os.path.join(DataManager.get_Graphs_folder(), "reps")
         graph.render(file, view=True)

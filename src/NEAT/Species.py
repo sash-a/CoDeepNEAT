@@ -1,6 +1,7 @@
 import random
-import math
 import sys
+
+import math
 
 from src.Config.Config import Config
 
@@ -86,10 +87,11 @@ class Species:
                     len(self.members)))
 
         children.extend(elite)
-        for i in range(number_of_elite, len(self.members)):
-            member = self.members[i]
-            self.members[i] = None
-            del member
+        if Config.maintain_module_handles:
+            for i in range(number_of_elite, len(self.members)):
+                member = self.members[i]
+                self.members[i] = None
+                del member
 
         self.members = children
 
@@ -104,10 +106,11 @@ class Species:
         # if self.age < 3:
         #     return
         surivors = math.ceil(Config.percent_to_reproduce * len(self.members))
-        for i in range(surivors, len(self.members)):
-            member = self.members[i]
-            self.members[i] = None
-            del member  # TODO does this change the array length
+        if Config.maintain_module_handles:
+            for i in range(surivors, len(self.members)):
+                member = self.members[i]
+                self.members[i] = None
+                del member
 
         self.members = self.members[:surivors]
 

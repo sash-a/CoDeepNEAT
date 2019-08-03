@@ -1,6 +1,7 @@
 from src.NEAT.Crossover import crossover
-from src.NEAT.Genome import Genome
+
 from Test.TestingGenomes import nodes, connections
+from src.NEAT.Genome import Genome
 
 
 def test_crossover():

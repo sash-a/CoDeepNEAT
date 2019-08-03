@@ -1,12 +1,10 @@
 from src.Config.Config import Config
-from src.Validation import Evaluator, DataLoader
-from src.Validation.DataSet import DataSet
 from src.NeuralNetwork.ModuleNet import create_nn
-from data import DataManager
+from src.Validation import Evaluator, DataLoader
+
+
 # from sklearn.model_selection import cross_val_predict
 # from skorch import NeuralNetClassifier
-import numpy as np
-import torch
 
 
 # def cross_validation(run_name):

@@ -1,8 +1,10 @@
-import matplotlib.pyplot as plt
-from src.Analysis import RuntimeAnalysis
-from data import DataManager
-import numpy as np
 import os
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+from data import DataManager
+from src.Analysis import RuntimeAnalysis
 
 plot = None
 

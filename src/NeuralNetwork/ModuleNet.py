@@ -1,8 +1,9 @@
 import torch
-from torch import nn, optim
 import torch.nn.functional as F
-from src.Utilities import Utils
+from torch import nn, optim
+
 from src.Config.Config import Config
+from src.Utilities import Utils
 
 
 class ModuleNet(nn.Module):
@@ -29,7 +30,7 @@ class ModuleNet(nn.Module):
             return
         if self.lr == 0:
             raise Exception('please set net learning rate before calling specify dims')
-        #print("configuring output dims with in=", input_sample.size())
+        # print("configuring output dims with in=", input_sample.size())
         # self.module_graph.add_reshape_node(list(input_sample.size()))
         output_nodes = int(list(output_dimensionality)[0])
         output = self(input_sample, configuration_run=True)

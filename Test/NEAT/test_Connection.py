@@ -1,4 +1,5 @@
 from src.NEAT.Connection import Connection
+
 from Test.TestingGenomes import nodes, connections
 
 

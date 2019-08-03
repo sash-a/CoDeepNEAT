@@ -1,8 +1,9 @@
-from src.Multiobjective.ParetoFront import CDN_pareto
-from Test.TestingGenomes import moo_pop_members
-
-import random
 import copy
+import random
+
+from src.Multiobjective.ParetoFront import CDN_pareto
+
+from Test.TestingGenomes import moo_pop_members
 
 
 def init():

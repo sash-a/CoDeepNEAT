@@ -1,6 +1,7 @@
-import math
 import random
 from enum import Enum
+
+import math
 
 
 class ValueType(Enum):

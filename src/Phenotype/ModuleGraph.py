@@ -7,7 +7,7 @@ class ModuleGraph():
 
     def __init__(self, module_graph_root_node, dataset=""):
 
-        self.module_graph_root_node:ModuleNode  = module_graph_root_node
+        self.module_graph_root_node: ModuleNode = module_graph_root_node
         if dataset == "":
             self.dataset = Config.dataset
 
@@ -28,7 +28,4 @@ class ModuleGraph():
             node.delete_layer()
 
     def plot_tree_with_graphvis(self, title="", file="temp"):
-        self.module_graph_root_node.plot_tree_with_graphvis(title=title,file=file)
-
-
-
+        self.module_graph_root_node.plot_tree_with_graphvis(title=title, file=file)

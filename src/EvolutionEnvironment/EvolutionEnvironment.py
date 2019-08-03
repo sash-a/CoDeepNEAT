@@ -1,5 +1,5 @@
-import sys
 import os
+import sys
 
 # For importing project files
 dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -9,15 +9,13 @@ sys.path.append(dir_path_1)
 sys.path.append(dir_path_2)
 
 from src.EvolutionEnvironment.Generation import Generation
-from src.Config.Config import Config, load
+from src.Config.Config import Config
 from data import DataManager
 
 import time
 import argparse
 import operator
 import torch.multiprocessing as mp
-
-from src.Validation import Validation
 
 """
 Evolution Environment is static as there should only ever be one

@@ -1,9 +1,9 @@
-import torch.nn.functional as F
-import torch
-from src.Utilities import Utils
 import math
+import torch
+import torch.nn.functional as F
 
 from src.Config.Config import Config
+from src.Utilities import Utils
 
 
 def merge_linear_and_conv(linear, conv, lossy=True):
@@ -69,7 +69,8 @@ def merge_linear_outputs(previous_inputs, new_input, cat=False):
             for inp in previous_inputs:
                 new_num_features = inp.size()
                 if new_num_features != features:
-                    raise Exception("merge linear failed to homogenise list:" + repr([x.size() for x in previous_inputs]))
+                    raise Exception(
+                        "merge linear failed to homogenise list:" + repr([x.size() for x in previous_inputs]))
         return previous_inputs
 
 

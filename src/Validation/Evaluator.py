@@ -1,13 +1,12 @@
 # modified from https://github.com/pytorch/examples/blob/master/mnist/main.py
 import sys
+import time
 
 import torch
-from src.DataAugmentation import BatchAugmentor
-from src.Config.Config import Config
-
-import time
 import torch.multiprocessing as mp
 
+from src.Config.Config import Config
+from src.DataAugmentation import BatchAugmentor
 from src.Validation.DataLoader import load_data
 
 printBatchEvery = -1  # -1 to switch off batch printing

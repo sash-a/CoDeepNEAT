@@ -1,8 +1,8 @@
-from src.NEAT.Species import Species
+import copy
+
 from Test.TestingGenomes import connections, nodes, moo_pop_members
 from src.NEAT.Genome import Genome
-
-import copy
+from src.NEAT.Species import Species
 
 
 def test_add_member():

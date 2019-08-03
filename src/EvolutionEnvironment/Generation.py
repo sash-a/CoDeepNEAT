@@ -1,10 +1,10 @@
 import copy
-import math
 import multiprocessing as mp
 
-from data import DataManager
+import math
 
 import src.Validation.DataLoader
+from data import DataManager
 from src.Analysis import RuntimeAnalysis
 from src.CoDeepNEAT import PopulationInitialiser as PopInit
 from src.CoDeepNEAT.CDNGenomes import ModuleGenome, BlueprintGenome, DAGenome

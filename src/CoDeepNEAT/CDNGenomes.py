@@ -1,7 +1,7 @@
 import copy
-import math
 import random
 
+import math
 from torch import nn
 
 from src.Config.Config import Config
@@ -169,7 +169,6 @@ class ModuleGenome(Genome):
 
         # print(attrib_dist, topology_dist, math.sqrt(attrib_dist * attrib_dist + topology_dist * topology_dist))
         return math.sqrt(attrib_dist * attrib_dist + topology_dist * topology_dist)
-
 
     def get_attribute_distance(self, other):
         attrib_dist = 0

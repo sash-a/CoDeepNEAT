@@ -1,5 +1,6 @@
 from src.NEAT.Connection import Connection
 from src.NEAT.NEATNode import NEATNode, NodeType
+
 from src.CoDeepNEAT.PopulationInitialiser import initialise_blueprints, initialize_mutations
 
 nodes = [NEATNode(0, 0, NodeType.INPUT),

@@ -1,15 +1,14 @@
-import torch
-import matplotlib.pyplot as plt
-from src.DataAugmentation.AugmentationScheme import AugmentationScheme as AS
-import numpy as np
-import random
 import cv2
+import matplotlib.pyplot as plt
+import numpy as np
+import torch
 
 from src.Config.Config import Config
+from src.DataAugmentation.AugmentationScheme import AugmentationScheme as AS
+
 
 # augments batches of images
 def augment_batch(images, labels, augmentor: AS):
-
     batch_size = np.shape(images)[0]
     channels = np.shape(images)[1]
     x_Dim = np.shape(images)[2]
@@ -23,8 +22,8 @@ def augment_batch(images, labels, augmentor: AS):
 
     # Displays original image + augmented image (for testing)
     # if random.random() < 0.01:
-        # display_image(reformatted_images[0])
-        # display_image(augmented_batch[0])
+    # display_image(reformatted_images[0])
+    # display_image(augmented_batch[0])
 
     # convert augmented images back to dtype float32
     reformatted_augmented_batch = reformat_images_for_system(augmented_batch)
@@ -96,6 +95,7 @@ def reformat_images_for_system(augmented_batch):
 def norm8(img):
     img = cv2.normalize(img, None, 0, 255, cv2.NORM_MINMAX, cv2.CV_8U)
     return img
+
 
 # convert image to data type float32 (system requires image to be float32)
 def float32(img):

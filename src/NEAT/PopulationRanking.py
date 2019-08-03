@@ -1,11 +1,13 @@
-from src.Config.Config import Config
-import sys
-import math
 import operator
+import sys
+
+import math
+
+from src.Config.Config import Config
 
 
 def single_objective_rank(individuals):
-    #print("sin obj fn")
+    # print("sin obj fn")
     individuals.sort(key=lambda indv: (0 if not indv.fitness_values else indv.fitness_values[0]), reverse=True)
     for i, individual in enumerate(individuals):
         individual.rank = i + 1

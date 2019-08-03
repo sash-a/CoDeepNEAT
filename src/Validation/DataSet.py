@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class DataSet():
 
     def __init__(self, training_set, testing_set):
@@ -15,20 +16,17 @@ class DataSet():
         for i, offset in enumerate(self.offsets):
             if index < offset:
                 if i > 0:
-                    index -= self.offsets[i-1]
+                    index -= self.offsets[i - 1]
                 return self.datasets[i][index]
         raise IndexError(f'{index} exceeds {self.length}')
 
     def __len__(self):
         return self.length
 
-    def get_training_fold(self,k,i):
+    def get_training_fold(self, k, i):
         """ith fold is the testing fold"""
-        return [ self[c] for c in range(len(self)) if (c//k) !=i]
+        return [self[c] for c in range(len(self)) if (c // k) != i]
 
-    def get_testing_fold(self,k,i):
+    def get_testing_fold(self, k, i):
         """ith fold is the testing fold"""
-        return [ self[c] for c in range(len(self)) if (c//k) ==i]
-
-
-
+        return [self[c] for c in range(len(self)) if (c // k) == i]
