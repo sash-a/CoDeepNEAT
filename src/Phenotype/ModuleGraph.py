@@ -1,4 +1,4 @@
-from src.Config import Config
+from src.Config.Config import Config
 from src.NeuralNetwork.ModuleNet import ModuleNet
 from src.Phenotype.ModuleNode import ModuleNode
 

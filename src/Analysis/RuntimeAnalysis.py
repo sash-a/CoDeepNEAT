@@ -18,7 +18,7 @@ def log_new_generation(accuracies, generation_number, second_objective_values=No
     if not os.path.exists(DataManager.get_Logs_folder()):
         os.makedirs(DataManager.get_Logs_folder())
 
-    with open(os.path.join(DataManager.get_Logs_folder(), log_file), "a+") as f:
+    with open(os.path.join(DataManager.get_Logs_folder(), log_file), 'a+') as f:
         if write_summaries:
             f.write(generations[-1].get_summary() + "\n")
         else:
@@ -29,18 +29,18 @@ def load_date_from_log_file(run_name, iteration=0, summary=False):
     global generations
     generations = []
     filename = os.path.join(DataManager.get_Logs_folder(run_name),
-                            "log" + (("_" + repr(iteration)) if iteration > 0 else ""))
-    log = open(filename + ".txt")
+                            'log' + (('_' + repr(iteration)) if iteration > 0 else ''))
+    log = open(filename + '.txt')
     for gen in log:
-        gen_number = int(gen.split("{")[0].split(":")[1])
-        gen = gen.split("{")[1].split("}")[0]
-        objectives = gen.split("|")
+        gen_number = int(gen.split('{')[0].split(':')[1])
+        gen = gen.split("{")[1].split('}')[0]
+        objectives = gen.split('|')
         o = 0
         accuracies = second = third = None
         for objective in objectives:
             if summary:
-                name = objective.split("~")[0]
-                vals = objective.split("~")[1].split(";")
+                name = objective.split('~')[0]
+                vals = objective.split('~')[1].split(';')
 
                 max = None
                 av = None

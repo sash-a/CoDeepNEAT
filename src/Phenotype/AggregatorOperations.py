@@ -3,7 +3,7 @@ import torch
 from src.Utilities import Utils
 import math
 
-from src.Config import Config
+from src.Config.Config import Config
 
 
 def merge_linear_and_conv(linear, conv, lossy=True):

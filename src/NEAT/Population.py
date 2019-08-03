@@ -2,12 +2,11 @@ import os
 
 import math
 
-import src.Config.NeatProperties as Props
-from data import DataManager
-from src.Config import Config
+from src.Config.Config import Config
 from src.NEAT.Species import Species
 import matplotlib.pyplot as plt
-import random
+from data import DataManager
+
 
 
 class MutationRecords:
@@ -43,6 +42,7 @@ class MutationRecords:
         self._next_conn_id += 1
         return self._next_conn_id
 
+
 class Population:
     def __init__(self, individuals, rank_population_fn, initial_mutations, population_size, max_node_id, max_innovation,
                  target_num_species):
@@ -62,7 +62,6 @@ class Population:
 
         self.species = [Species(individuals[0])]
         self.species[0].members = individuals
-        print("target num species:", target_num_species)
 
     individuals = property(lambda self: self._get_all_individuals())
 
@@ -70,7 +69,7 @@ class Population:
         return iter(self._get_all_individuals())
 
     def __repr__(self):
-        return "population of type:" + repr(type(self.species[0].members[0]))
+        return 'population of type:' + repr(type(self.species[0].members[0]))
 
     def _get_all_individuals(self):
         individuals = []
@@ -86,12 +85,6 @@ class Population:
 
     def get_num_species(self):
         return len(self.species)
-
-    def save_checkpoint(self):
-        pass
-
-    def load_checkpoint(self):
-        pass
 
     def find_individual(self, indv):
         for i in range(len(self.species)):
@@ -128,7 +121,7 @@ class Population:
                         """there are already the maximum number of species. add individual to closest species
                             the species threshold is too low"""
                         best_fit_species.add(individual)
-                        self.speciation_threshold *=1.1
+                        self.speciation_threshold *= 1.1
             else:
                 found = False
                 for spc in self.species:
@@ -158,14 +151,15 @@ class Population:
         if Config.speciation_overhaul:
             if new_dir != self.current_threshold_dir:
                 # still not right - must have jumped over the ideal value adjust by base modification
-                self.speciation_threshold = min(max(Props.SPECIES_DISTANCE_THRESH_MOD_MIN, self.speciation_threshold + (
-                        new_dir * Props.SPECIES_DISTANCE_THRESH_MOD_BASE)), Props.SPECIES_DISTANCE_THRESH_MOD_MAX)
+                self.speciation_threshold = \
+                    min(max(Config.species_distance_thresh_mod_min, self.speciation_threshold + (
+                            new_dir * Config.species_distance_thresh_mod_base)), Config.species_distance_thresh_mod_max)
             else:
                 # still approaching the ideal value - exponentially speed up
                 self.speciation_threshold *= math.pow(2, new_dir)
         else:
-            self.speciation_threshold += max(Props.SPECIES_DISTANCE_THRESH_MOD_MIN,
-                                             Props.SPECIES_DISTANCE_THRESH_MOD_BASE * new_dir)
+            self.speciation_threshold += max(Config.species_distance_thresh_mod_min,
+                                             Config.species_distance_thresh_mod_base * new_dir)
 
         self.current_threshold_dir = new_dir
 
@@ -201,25 +195,26 @@ class Population:
         self.adjust_speciation_threshold()
         individuals = self._get_all_individuals()
         self.speciate(individuals)
-        self.plot_species_spaces(generation)
-        self.plot_all_representatives()
-
+        # self.plot_species_spaces(generation)
+        # self.plot_all_representatives()
 
     def plot_species_spaces(self, generation):
-        if self.target_num_species ==1:
+        if self.target_num_species == 1:
             return
         relative_individual = self.species[0].members[0]
 
         for spec in self.species:
             rep = spec.representative
-            tops, atts = [],[]
+            tops, atts = [], []
             for indv in spec.members:
                 if indv == rep:
                     continue
                 tops.append(relative_individual.get_topological_distance(indv))
                 atts.append(relative_individual.get_attribute_distance(indv))
-            plt.scatter(tops,atts, label = "Species:"+ repr(self.species.index(spec)))
-            plt.scatter(relative_individual.get_topological_distance(rep),relative_individual.get_attribute_distance(rep) , label ="Species:"+ repr(self.species.index(spec)) + "rep")
+            plt.scatter(tops, atts, label="Species:" + repr(self.species.index(spec)))
+            plt.scatter(relative_individual.get_topological_distance(rep),
+                        relative_individual.get_attribute_distance(rep),
+                        label="Species:" + repr(self.species.index(spec)) + "rep")
         handles, labels = plt.gca().get_legend_handles_labels()
         plt.gca().legend(handles, labels)
         plt.xlabel("Topology")

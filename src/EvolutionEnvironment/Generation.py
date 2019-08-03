@@ -4,13 +4,12 @@ import multiprocessing as mp
 
 from data import DataManager
 
-import src.Config.NeatProperties as Props
 import src.Validation.DataLoader
 from src.Analysis import RuntimeAnalysis
 from src.CoDeepNEAT import PopulationInitialiser as PopInit
 from src.CoDeepNEAT.CDNGenomes import ModuleGenome, BlueprintGenome, DAGenome
 from src.CoDeepNEAT.CDNNodes import ModulenNEATNode, BlueprintNEATNode, DANode
-from src.Config import Config
+from src.Config.Config import Config
 from src.NEAT.Population import Population
 from src.NEAT.PopulationRanking import single_objective_rank, cdn_rank, nsga_rank
 from src.Phenotype.ParetoPopulation import ParetoPopulation
@@ -19,7 +18,6 @@ from src.Validation import Validation
 
 
 class Generation:
-
     def __init__(self):
         self.speciesNumbers = []
         self.module_population, self.blueprint_population, self.da_population = None, None, None
@@ -30,39 +28,38 @@ class Generation:
     def initialise_populations(self):
         # Picking the ranking function
         rank_fn = single_objective_rank if Config.second_objective == '' else (
-            cdn_rank if Config.moo_optimiser == "cdn" else nsga_rank)
+            cdn_rank if Config.moo_optimiser == 'cdn' else nsga_rank)
 
         self.module_population = Population(
-            PopInit.initialize_pop(ModulenNEATNode, ModuleGenome, Props.MODULE_POP_SIZE, True),
+            PopInit.initialize_pop(ModulenNEATNode, ModuleGenome, Config.module_pop_size, True),
             rank_fn,
             PopInit.initialize_mutations(True),
-            Props.MODULE_POP_SIZE,
+            Config.module_pop_size,
             2,
             2,
-            Props.MODULE_TARGET_NUM_SPECIES)
+            Config.module_target_num_species)
 
         self.blueprint_population = Population(
-            PopInit.initialize_pop(BlueprintNEATNode, BlueprintGenome, Props.BP_POP_SIZE, True),
+            PopInit.initialize_pop(BlueprintNEATNode, BlueprintGenome, Config.bp_pop_size, True),
             rank_fn,
             PopInit.initialize_mutations(True),
-            Props.BP_POP_SIZE,
+            Config.bp_pop_size,
             2,
             2,
-            Props.BP_TARGET_NUM_SPECIES)
+            Config.bp_target_num_species)
 
         if Config.evolve_data_augmentations:
             self.da_population = Population(
-                PopInit.initialize_pop(DANode, DAGenome, Props.DA_POP_SIZE, False),
+                PopInit.initialize_pop(DANode, DAGenome, Config.da_pop_size, False),
                 single_objective_rank,
                 PopInit.initialize_mutations(False),
-                Props.DA_POP_SIZE,
+                Config.da_pop_size,
                 1,
                 1,
-                Props.DA_TARGET_NUM_SPECIES)
+                Config.da_target_num_species)
 
     def step(self):
         """Runs CDN for one generation - must be called after fitness evaluation"""
-        print('species:', self.module_population.get_num_species(), self.module_population.speciation_threshold)
         self.pareto_population.update_pareto_front()
 
         self.module_population.step(self)
@@ -81,6 +78,7 @@ class Generation:
             module_individual.end_step()  # this also sets fitness to zero
 
         DataManager.save_generation_state(self)
+        print('Species distribution:', ' '.join([str(len(s)) for s in self.module_population.species]))
 
     def evaluate(self, generation_number):
         self.generation_number = generation_number
@@ -112,16 +110,16 @@ class Generation:
 
             # Validation
             if evaluated_bp.eq(bp_pop_indvs[bp_key % bp_pop_size]):
-                raise Exception('Evaled bp topology not same as main one')
+                raise Exception('Evaluated blueprint topology not same as main one')
             if not evaluated_bp.modules_used_index:
-                raise Exception('Modules used index is empty in evaluated bp', evaluated_bp.modules_used_index)
+                raise Exception('Modules used index is empty in evaluated blueprint', evaluated_bp.modules_used_index)
             if not evaluated_bp.modules_used:
-                raise Exception('Modules used is empty in evaluated bp', evaluated_bp.modules_used)
+                raise Exception('Modules used is empty in evaluated blueprint', evaluated_bp.modules_used)
 
             # Fitness assignment
             bp_pop_indvs[bp_key % bp_pop_size].report_fitness(fitness)
 
-            """passing species:module mapping to master individual"""
+            # passing species:module mapping to master individual
             bp_pop_indvs[bp_key % bp_pop_size].inherit_species_module_mapping_from_phenotype(
                 evaluated_bp.species_module_index_mapping, evaluated_bp.best_evaluation_accuracy, generation=self,
                 master=True)
@@ -153,7 +151,7 @@ class Generation:
         blueprints = self.blueprint_population.individuals
         bp_pop_size = len(blueprints)
 
-        while bp_index.value < Props.INDIVIDUALS_TO_EVAL:
+        while bp_index.value < Config.individuals_to_eval:
             with lock:
                 blueprint_individual = copy.deepcopy(blueprints[bp_index.value % bp_pop_size])
                 bp_index.value += 1
@@ -185,7 +183,7 @@ class Generation:
         if Config.evolve_data_augmentations:
             da_indv = blueprint_individual.pick_da_scheme(self.da_population)
             # if random.random()<0.05:
-                # da_indv.plot_tree_with_graphvis(view=True)
+            # da_indv.plot_tree_with_graphvis(view=True)
             da_scheme = da_indv.to_phenotype()
             module_graph.data_augmentation_schemes.append(da_scheme)
         else:

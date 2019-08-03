@@ -2,7 +2,7 @@ from src.Phenotype.ModuleNode import ModuleNode as Module
 import torch
 import torch.nn as nn
 from src.Phenotype import AggregatorOperations
-from src.Config import Config
+from src.Config.Config import Config
 
 
 class AggregatorNode(Module):

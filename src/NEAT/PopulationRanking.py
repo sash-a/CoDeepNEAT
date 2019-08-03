@@ -1,4 +1,4 @@
-from src.Config import Config
+from src.Config.Config import Config
 import sys
 import math
 import operator

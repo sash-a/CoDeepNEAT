@@ -1,5 +1,5 @@
 import inspect, os
-from src.Config import Config
+from src.Config.Config import Config
 import pickle
 
 
@@ -29,11 +29,13 @@ def get_run_folder(run_name=None):
     else:
         return os.path.join(get_data_folder(), "runs", run_name)
 
+
 def get_Datasets_folder():
     if Config.data_path == "":
         return os.path.join(get_data_folder(), "Datasets")
     else:
         return Config.data_path
+
 
 def get_DataEfficiencyResults_folder():
     return os.path.join(get_data_folder(), "DataEfficiencyResults")

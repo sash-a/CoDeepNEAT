@@ -3,7 +3,7 @@ import sys
 
 import torch
 from src.DataAugmentation import BatchAugmentor
-from src.Config import Config
+from src.Config.Config import Config
 
 import time
 import torch.multiprocessing as mp
@@ -11,7 +11,7 @@ import torch.multiprocessing as mp
 from src.Validation.DataLoader import load_data
 
 printBatchEvery = -1  # -1 to switch off batch printing
-print_epoch_every = 4
+print_epoch_every = 100
 
 
 def train(model, train_loader, epoch, test_loader, device, augmentors=None, print_accuracy=False):
@@ -34,7 +34,6 @@ def train(model, train_loader, epoch, test_loader, device, augmentors=None, prin
 
     for batch_idx, (inputs, targets) in enumerate(train_loader):
         model.optimizer.zero_grad()
-
 
         if Config.interleaving_check:
             print('in train', mp.current_process().name)
@@ -140,5 +139,5 @@ def evaluate(model, epochs, device, batch_size=64, augmentors=None, train_loader
     e = time.time()
 
     test_acc = test(model, test_loader, device)
-    print('Evaluation took', e - s, 'seconds, Test acc:', test_acc)
+    print('Evaluation took', e - s, 'seconds, Test acc:', test_acc, end='\n')
     return test_acc

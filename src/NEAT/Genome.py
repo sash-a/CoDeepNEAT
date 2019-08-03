@@ -1,4 +1,6 @@
 import copy
+import random
+import sys
 import operator
 import os
 import random
@@ -11,7 +13,7 @@ from typing import Iterable
 import graphviz
 
 from data import DataManager
-from src.Config import Config, NeatProperties as Props
+from src.Config.Config import Config
 from src.NEAT.Gene import ConnectionGene, NodeGene, NodeType
 
 
@@ -21,10 +23,10 @@ class Genome:
         self.rank = 0  # The order of this genome when ranked by fitness values
         self.uses = 0  # The numbers of times this genome is used
         self.fitness_values: list = [-(sys.maxsize - 1)]
-        if Config.second_objective != "":
+        if Config.second_objective != '':
             self.fitness_values.append(
                 sys.maxsize if Config.second_objective_comparator == operator.lt else -(sys.maxsize - 1))
-        if Config.third_objective != "":
+        if Config.third_objective != '':
             self.fitness_values.append(
                 sys.maxsize if Config.third_objective_comparator == operator.lt else -(sys.maxsize - 1))
 
@@ -96,7 +98,7 @@ class Genome:
             self.fitness_values[i] = (self.fitness_values[i] * self.uses + fitness) / (self.uses + 1)
         self.uses += 1
 
-    def end_step(self, generation = None):
+    def end_step(self, generation=None):
         self.uses = 0
         if self.fitness_values is not None:
             self.fitness_values = [0 for _ in self.fitness_values]
@@ -151,7 +153,7 @@ class Genome:
 
         # return (num_excess  + num_disjoint)
 
-        neat_dist = (num_excess * Props.EXCESS_COEFFICIENT + num_disjoint * Props.DISJOINT_COEFFICIENT) / max(
+        neat_dist = (num_excess * Config.excess_coefficient + num_disjoint * Config.disjoint_coefficient) / max(
             len(self._connections), len(other._connections))
 
         if Config.use_graph_edit_distance:

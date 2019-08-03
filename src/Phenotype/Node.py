@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import math
 import graphviz
-from src.Config import Config
+from src.Config.Config import Config
 import os
 from data import DataManager
 

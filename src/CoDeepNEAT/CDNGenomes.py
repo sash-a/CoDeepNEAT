@@ -4,7 +4,7 @@ import random
 
 from torch import nn
 
-from src.Config import NeatProperties as Props
+from src.Config.Config import Config
 from src.DataAugmentation.AugmentationScheme import AugmentationScheme
 from src.NEAT.Genome import Genome
 from src.NEAT.Mutagen import Mutagen, ValueType
@@ -65,7 +65,7 @@ class BlueprintGenome(Genome):
                     break
                 tries -= 1
 
-        return super()._mutate(mutation_record, Props.BP_NODE_MUTATION_CHANCE, Props.BP_CONN_MUTATION_CHANCE)
+        return super()._mutate(mutation_record, Config.bp_node_mutation_chance, Config.bp_conn_mutation_chance)
 
     def inherit(self, genome):
         self.da_scheme = genome.da_scheme
@@ -78,14 +78,13 @@ class BlueprintGenome(Genome):
 
     def inherit_species_module_mapping_from_phenotype(self, species_module_index_mapping, accuracy, master=False,
                                                       generation=None):
+        """
+        A blueprint individual can be evaluated multiple times using multiple blueprint graphs, each will have a
+        common set of modules they have a hold on, as well as a set of nodes which do not have a module. Each
+        blueprint graph will pick different modules for their unallocated nodes. The blueprint graph which performs
+        best passes its species:module mapping to the genome to be used in the future by self/children
+        """
         if accuracy > self.best_evaluation_accuracy:
-            """
-            a blueprint individual can be evaluated multiple times usiing multiple blueprint graphs
-            each will have a common set of modules they have a hold on, as well as a set of nodes which do not have a module
-            each blueprint graph will pick different modules for their unalloted nodes
-            the blueprint graph which performs best passes its species:module mapping to the genome to be used in the future by self/children
-            """
-
             self.best_evaluation_accuracy = accuracy
             if master:
                 self.species_module_mapping = self.get_module_refs_from_indexes(species_module_index_mapping,
@@ -185,7 +184,7 @@ class ModuleGenome(Genome):
         return attrib_dist
 
     def mutate(self, mutation_record):
-        return super()._mutate(mutation_record, Props.MODULE_NODE_MUTATION_CHANCE, Props.MODULE_CONN_MUTATION_CHANCE)
+        return super()._mutate(mutation_record, Config.module_node_mutation_chance, Config.module_conn_mutation_chance)
 
     def inherit(self, genome):
         pass
@@ -218,7 +217,7 @@ class DAGenome(Genome):
 
     def mutate(self, mutation_record):
         # print("mutating DA genome")
-        return super()._mutate(mutation_record, 0.1, 0, allow_connections_to_mutate=False, debug=False)
+        return super()._mutate(mutation_record, Config.da_node_mutation_chance, 0, allow_connections_to_mutate=False)
 
     def inherit(self, genome):
         pass

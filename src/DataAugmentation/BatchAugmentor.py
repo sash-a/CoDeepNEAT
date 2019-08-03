@@ -5,7 +5,7 @@ import numpy as np
 import random
 import cv2
 
-from src.Config import Config
+from src.Config.Config import Config
 
 # augments batches of images
 def augment_batch(images, labels, augmentor: AS):
