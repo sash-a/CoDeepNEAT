@@ -21,10 +21,10 @@ class Genome:
         self.rank = 0  # The order of this genome when ranked by fitness values
         self.uses = 0  # The numbers of times this genome is used
         self.fitness_values: list = [-(sys.maxsize - 1)]
-        if Config.second_objective != "":
+        if Config.second_objective != '':
             self.fitness_values.append(
                 sys.maxsize if Config.second_objective_comparator == operator.lt else -(sys.maxsize - 1))
-        if Config.third_objective != "":
+        if Config.third_objective != '':
             self.fitness_values.append(
                 sys.maxsize if Config.third_objective_comparator == operator.lt else -(sys.maxsize - 1))
 

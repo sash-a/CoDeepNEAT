@@ -65,7 +65,7 @@ class Population:
         return iter(self._get_all_individuals())
 
     def __repr__(self):
-        return "population of type:" + repr(type(self.species[0].members[0]))
+        return 'population of type:' + repr(type(self.species[0].members[0]))
 
     def _get_all_individuals(self):
         individuals = []
@@ -81,12 +81,6 @@ class Population:
 
     def get_num_species(self):
         return len(self.species)
-
-    def save_checkpoint(self):
-        pass
-
-    def load_checkpoint(self):
-        pass
 
     def find_individual(self, indv):
         for i in range(len(self.species)):

@@ -26,10 +26,11 @@ Acts as the driver of current generation
 
 
 def main():
-    load('../Config/config.ini')
-    parse_args()
+    # TODO this doesn't work when spawning new processes
+    # load('../Config/config.ini')
+    # parse_args()
 
-    mp.set_start_method('fork', force=True)
+    mp.set_start_method('spawn', force=True)
     if Config.continue_from_last_run:
         try:
             continue_evolution_from_save_state(Config.run_name)

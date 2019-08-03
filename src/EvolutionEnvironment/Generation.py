@@ -110,16 +110,16 @@ class Generation:
 
             # Validation
             if evaluated_bp.eq(bp_pop_indvs[bp_key % bp_pop_size]):
-                raise Exception('Evaled bp topology not same as main one')
+                raise Exception('Evaluated blueprint topology not same as main one')
             if not evaluated_bp.modules_used_index:
-                raise Exception('Modules used index is empty in evaluated bp', evaluated_bp.modules_used_index)
+                raise Exception('Modules used index is empty in evaluated blueprint', evaluated_bp.modules_used_index)
             if not evaluated_bp.modules_used:
-                raise Exception('Modules used is empty in evaluated bp', evaluated_bp.modules_used)
+                raise Exception('Modules used is empty in evaluated blueprint', evaluated_bp.modules_used)
 
             # Fitness assignment
             bp_pop_indvs[bp_key % bp_pop_size].report_fitness(fitness)
 
-            """passing species:module mapping to master individual"""
+            # passing species:module mapping to master individual
             bp_pop_indvs[bp_key % bp_pop_size].inherit_species_module_mapping_from_phenotype(
                 evaluated_bp.species_module_index_mapping, evaluated_bp.best_evaluation_accuracy, generation=self,
                 master=True)

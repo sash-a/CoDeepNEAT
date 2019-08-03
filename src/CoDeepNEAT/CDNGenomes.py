@@ -77,14 +77,13 @@ class BlueprintGenome(Genome):
 
     def inherit_species_module_mapping_from_phenotype(self, species_module_index_mapping, accuracy, master=False,
                                                       generation=None):
+        """
+        A blueprint individual can be evaluated multiple times using multiple blueprint graphs, each will have a
+        common set of modules they have a hold on, as well as a set of nodes which do not have a module. Each
+        blueprint graph will pick different modules for their unallocated nodes. The blueprint graph which performs
+        best passes its species:module mapping to the genome to be used in the future by self/children
+        """
         if accuracy > self.best_evaluation_accuracy:
-            """
-            a blueprint individual can be evaluated multiple times usiing multiple blueprint graphs
-            each will have a common set of modules they have a hold on, as well as a set of nodes which do not have a module
-            each blueprint graph will pick different modules for their unalloted nodes
-            the blueprint graph which performs best passes its species:module mapping to the genome to be used in the future by self/children
-            """
-
             self.best_evaluation_accuracy = accuracy
             if master:
                 self.species_module_mapping = self.get_module_refs_from_indexes(species_module_index_mapping,
