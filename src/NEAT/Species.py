@@ -8,8 +8,6 @@ from src.Config.Config import Config
 
 class Species:
     def __init__(self, representative):
-        # Possible extra attribs:
-        # age, hasBest, noImprovement
         self.representative = representative
         self.members = [representative]
         self.next_species_size = 1000

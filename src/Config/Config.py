@@ -135,14 +135,14 @@ def load(file):
 class Config:
     # -----------------------------------------------------------------------------------------------------------------#
     # Run state options
-    run_name = 'base'
+    run_name = 'base_final'
     continue_from_last_run = True
     max_num_generations = 25
     # -----------------------------------------------------------------------------------------------------------------#
     # Modules
     module_pop_size = 56
-    module_node_mutation_chance = 0.08
-    module_conn_mutation_chance = 0.08
+    module_node_mutation_chance = 0.12  # 0.08
+    module_conn_mutation_chance = 0.12  # 0.08
     module_target_num_species = 4
     # -----------------------------------------------------------------------------------------------------------------#
     # Blueprints
@@ -173,16 +173,16 @@ class Config:
     # Crossover
     excess_coefficient = 5
     disjoint_coefficient = 3
-    layer_size_coefficient = 3
-    layer_type_coefficient = 2
+    layer_size_coefficient = 0
+    layer_type_coefficient = 0
     # -----------------------------------------------------------------------------------------------------------------#
     # nn options
     device = 'gpu'  # gpu | cpu
-    num_gpus = 1
+    num_gpus = 4
     num_workers = 0  # this doesn't work in parallel because daemonic processes cannot spawn children
     dataset = 'cifar10'
     data_path = ''
-    number_of_epochs_per_evaluation = 5
+    number_of_epochs_per_evaluation = 8
     # -----------------------------------------------------------------------------------------------------------------#
     # Objective options
     second_objective = 'network_size'  # network_size | network_size_adjusted | network_size_adjusted_2
@@ -202,14 +202,14 @@ class Config:
     use_graph_edit_distance = False
     # -----------------------------------------------------------------------------------------------------------------#
     # Debug and test options
-    dummy_run = True
+    dummy_run = False
 
     protect_parsing_from_errors = False
     test_in_run = False
     interleaving_check = False
 
-    save_best_graphs = True
-    print_best_graphs = True
+    save_best_graphs = False
+    print_best_graphs = False
     print_best_graph_every_n_generations = 5
     save_failed_graphs = False
 

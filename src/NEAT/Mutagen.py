@@ -78,7 +78,7 @@ class Mutagen:
                 self.current_value_id = new_current_value_id
 
             if self.value_type == ValueType.WHOLE_NUMBERS:
-                if random.random() < 0.2:
+                if random.random() < 0.25:
                     """random reset"""
                     new_current_value = random.randint(self.start_range, self.end_range)
                 else:
@@ -97,7 +97,7 @@ class Mutagen:
                 # print("mutating whole number from", old_value, "to",self.current_value, "range:",self.start_range,self.end_range)
 
             if self.value_type == ValueType.CONTINUOUS:
-                if random.random() < 0.1:
+                if random.random() < 0.25:
                     """random reset"""
                     new_current_value = random.uniform(self.start_range, self.end_range)
                     deviation_fraction = -1
