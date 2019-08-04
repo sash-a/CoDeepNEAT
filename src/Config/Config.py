@@ -152,8 +152,8 @@ class Config:
     bp_target_num_species = 1
     # -----------------------------------------------------------------------------------------------------------------#
     # Data augmentations
-    evolve_data_augmentations = False
-    colour_augmentations = False
+    evolve_data_augmentations = True
+    colour_augmentations = True
     da_pop_size = 20
     da_node_mutation_chance = 0.1
     da_target_num_species = 1
@@ -173,8 +173,8 @@ class Config:
     # Crossover
     excess_coefficient = 5
     disjoint_coefficient = 3
-    layer_size_coefficient = 0
-    layer_type_coefficient = 0
+    layer_size_coefficient = 0  # 3
+    layer_type_coefficient = 0  # 2
     # -----------------------------------------------------------------------------------------------------------------#
     # nn options
     device = 'gpu'  # gpu | cpu

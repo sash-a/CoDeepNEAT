@@ -38,6 +38,21 @@ def train(model, train_loader, epoch, test_loader, device, augmentors=None, prin
             print('in train', mp.current_process().name)
             sys.stdout.flush()
 
+        if augmentors is not None and len(augmentors) > 0:
+            for augmentor in augmentors:
+                if augmentor is None:
+                    continue
+
+                aug_inputs, aug_labels = BatchAugmentor.augment_batch(inputs.numpy(), targets.numpy(), augmentor)
+                aug_inputs, aug_labels = aug_inputs.to(device), aug_labels.to(device)
+                print("training on augmented images shape:", aug_inputs.size())
+                output = model(aug_inputs)
+                m_loss = model.loss_fn(output, aug_labels)
+                m_loss.backward()
+                model.optimizer.step()
+                loss += m_loss.item()
+
+        print('done aug')
         inputs, targets = inputs.to(device), targets.to(device)
         output = model(inputs)
         m_loss = model.loss_fn(output, targets)
@@ -45,22 +60,8 @@ def train(model, train_loader, epoch, test_loader, device, augmentors=None, prin
         model.optimizer.step()
         loss += m_loss.item()
 
-        del inputs
-        del targets
-
-        if augmentors is not None and len(augmentors) > 0:
-            for augmentor in augmentors:
-                if augmentor is None:
-                    continue
-                aug_inputs, aug_labels = BatchAugmentor.augment_batch(inputs.numpy(), targets.numpy(), augmentor)
-                aug_inputs, aug_labels = aug_inputs.to(device), aug_labels.to(device)
-                # print("training on augmented images shape:",augmented_inputs.size())
-                output = model(aug_inputs)
-                m_loss = model.loss_fn(output, aug_labels)
-                m_loss.backward()
-                model.optimizer.step()
-
-            # loss += m_loss.item()
+        # del inputs
+        # del targets
 
         if batch_idx % printBatchEvery == 0 and not printBatchEvery == -1:
             print("\tepoch:", epoch, "batch:", batch_idx, "loss:", m_loss.item(), "running time:", time.time() - s)
