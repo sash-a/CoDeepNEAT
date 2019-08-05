@@ -54,7 +54,7 @@ class Generation:
         if Config.evolve_data_augmentations:
             self.da_population = Population(
                 PopInit.initialize_pop(DANode, DAGenome, Props.DA_POP_SIZE, False),
-                rank_fn,
+                single_objective_rank,
                 PopInit.initialize_mutations(False),
                 Props.DA_POP_SIZE,
                 1,
@@ -94,7 +94,10 @@ class Generation:
         bp_index = manager.Value('i', 0)
         lock = mp.Lock()
 
-        # TODO DA thing was here
+        if Config.evolve_data_augmentations:
+            """blueprints should pick their da schemes before being evaluated. if their old DA is still alive they will reselect it"""
+            for blueprint_individual in self.blueprint_population.individuals:
+                blueprint_individual.pick_da_scheme(self.da_population)
 
         for i in range(Config.num_gpus):
             procs.append(mp.Process(target=self._evaluate, args=(lock, bp_index, results_dict), name=str(i)))
@@ -124,7 +127,7 @@ class Generation:
                 bp_pop_indvs[bp_key % bp_pop_size].inherit_species_module_mapping(self,evaluated_bp, fitness[0])
 
             if Config.evolve_data_augmentations and evaluated_bp.da_scheme_index != -1:
-                self.da_population[evaluated_bp.da_scheme_index].report_fitness(fitness)
+                self.da_population[evaluated_bp.da_scheme_index].report_fitness(fitness[0])
 
             # print("reporting fitnesses to: ",  evaluated_bp.modules_used_index)
             for species_index, member_index in evaluated_bp.modules_used_index:

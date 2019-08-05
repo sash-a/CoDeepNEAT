@@ -132,6 +132,8 @@ class BlueprintNEATNode(NodeGene):
         if self.species_number() >= num_species:
             self.species_number.set_value(random.randint(0, num_species))
 
+    def get_node_name(self):
+        return "Species:" + repr(self.species_number())
 
 class DANode(NodeGene):
     def __init__(self, id, node_type=NodeType.HIDDEN):

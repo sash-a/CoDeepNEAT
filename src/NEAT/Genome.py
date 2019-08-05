@@ -328,19 +328,21 @@ class Genome:
         root_node.get_traversal_ids("_")
         return root_node
 
-    def plot_tree_with_graphvis(self, title="", file="temp_g"):
-        # print("genome_graph,1,2")
+    def plot_tree_with_graphvis(self, title="", file="temp_g", view = None):
+        if view is None:
+            view = Config.print_best_graphs
+
         file = os.path.join(DataManager.get_Graphs_folder(), file)
-        print(file)
+        #print(file)
 
         graph = graphviz.Digraph(comment=title)
 
         for node in self._nodes.values():
-            graph.node(str(node.id), node.get_node_name(), style="filled", fillcolor="blue")
+            graph.node(str(node.id), node.get_node_name(),style="filled", fillcolor="white")
 
         for c in self._connections.values():
             if not c.enabled():
                 continue
             graph.edge(repr(c.from_node), repr(c.to_node))
 
-        graph.render(file, view=Config.print_best_graphs)
+        graph.render(file, view=view)

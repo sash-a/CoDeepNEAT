@@ -101,6 +101,7 @@ class Species:
 
     def _cull_species(self):
         survivors = math.ceil(Props.PERCENT_TO_REPRODUCE * len(self.members))
+
         for i in range(survivors, len(self.members)):
             mem = self.members[i]
             self.members[i] = None

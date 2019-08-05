@@ -1,8 +1,10 @@
 import copy
+import math
+import random
 
 from torch import nn
 
-from src.Config import NeatProperties as Props
+from src.Config import Config, NeatProperties as Props
 from src.DataAugmentation.AugmentationScheme import AugmentationScheme
 from src.NEAT.Genome import Genome
 from src.NEAT.Mutagen import Mutagen, ValueType
@@ -79,6 +81,17 @@ class BlueprintGenome(Genome):
             self.species_module_ref_map[spc_index] = generation.module_population.species[spc_index][module_index]
 
     def mutate(self, mutation_record):
+        if Config.module_retention and random.random() < 0.1 and self.species_module_ref_map:
+            """release a module_individual"""
+            tries = 100
+
+            while tries > 0:
+                species_no = random.choice(list(self.species_module_ref_map.keys()))
+                if self.species_module_ref_map[species_no] is not None:
+                    self.species_module_ref_map[species_no] = None
+                    break
+                tries -= 1
+
         return super()._mutate(mutation_record, Props.BP_NODE_MUTATION_CHANCE, Props.BP_CONN_MUTATION_CHANCE)
 
     def inherit(self, genome):
@@ -127,6 +140,24 @@ class ModuleGenome(Genome):
         module = super().to_phenotype(ModuleNode)
         self.module_node = module
         return copy.deepcopy(module)
+
+    def distance_to(self, other):
+        if type(self) != type(other):
+            raise TypeError('Trying finding distance from Module genome to ' + str(type(other)))
+
+        attrib_dist = 0
+        topology_dist = super().distance_to(other)
+
+        common_nodes = self._nodes.keys() & other._nodes.keys()
+
+        for node_id in common_nodes:
+            self_node, other_node = self._nodes[node_id], other._nodes[node_id]
+            for self_mutagen, other_mutagen in zip(self_node.get_all_mutagens(), other_node.get_all_mutagens()):
+                attrib_dist += self_mutagen.distance_to(other_mutagen)
+
+        attrib_dist /= len(common_nodes)
+        # print(attrib_dist, topology_dist, math.sqrt(attrib_dist * attrib_dist + topology_dist * topology_dist))
+        return math.sqrt(attrib_dist * attrib_dist + topology_dist * topology_dist)
 
     def mutate(self, mutation_record):
         return super()._mutate(mutation_record, Props.MODULE_NODE_MUTATION_CHANCE, Props.MODULE_CONN_MUTATION_CHANCE)
