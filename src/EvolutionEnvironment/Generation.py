@@ -75,7 +75,7 @@ class Generation:
             self.da_population.step()
 
         for blueprint_individual in self.blueprint_population.individuals:
-            blueprint_individual.end_step()
+            blueprint_individual.end_step(self)
 
         for module_individual in self.module_population.individuals:
             module_individual.end_step()  # this also sets fitness to zero
@@ -94,6 +94,8 @@ class Generation:
         bp_index = manager.Value('i', 0)
         lock = mp.Lock()
 
+        # TODO DA thing was here
+
         for i in range(Config.num_gpus):
             procs.append(mp.Process(target=self._evaluate, args=(lock, bp_index, results_dict), name=str(i)))
             procs[-1].start()
@@ -110,7 +112,7 @@ class Generation:
 
             # Validation
             if evaluated_bp.eq(bp_pop_indvs[bp_key % bp_pop_size]):
-                raise Exception('Evaled bp topology not same as main one')
+                raise Exception('Evaluated bp topology not same as main one')
             if not evaluated_bp.modules_used_index:
                 raise Exception('Modules used index is empty in evaluated bp', evaluated_bp.modules_used_index)
             if not evaluated_bp.modules_used:
@@ -118,6 +120,7 @@ class Generation:
 
             # Fitness assignment
             bp_pop_indvs[bp_key % bp_pop_size].report_fitness(fitness)
+            bp_pop_indvs[bp_key % bp_pop_size].inherit_species_module_mapping(evaluated_bp, fitness[0])
 
             if Config.evolve_data_augmentations and evaluated_bp.da_scheme_index != -1:
                 self.da_population[evaluated_bp.da_scheme_index].report_fitness(fitness)
@@ -169,8 +172,8 @@ class Generation:
         if blueprint_individual.modules_used:
             raise Exception('Modules used is not empty', blueprint_individual.modules_used)
 
-        blueprint = blueprint_individual.to_blueprint()
-        module_graph = blueprint.parseto_module_graph(self)
+        blueprint_graph = blueprint_individual.to_blueprint()
+        module_graph = blueprint_graph.parse_to_module_graph(self)
         net = src.Validation.Validation.create_nn(module_graph, inputs)
         if Config.evolve_data_augmentations:
             da_indv = blueprint_individual.pick_da_scheme(self.da_population)

@@ -92,7 +92,7 @@ class Genome:
             self.fitness_values[i] = (self.fitness_values[i] * self.uses + fitness) / (self.uses + 1)
         self.uses += 1
 
-    def end_step(self):
+    def end_step(self, generation=None):
         self.uses = 0
         if self.fitness_values is not None:
             self.fitness_values = [0 for _ in self.fitness_values]
@@ -220,10 +220,12 @@ class Genome:
             else:
                 new_connection = copy.deepcopy(best_conn)
 
-            child.add_connection(new_connection,
-                                 ignore_height_exception=True)  # child heights not meaningful at this stage
+            # child heights not meaningful at this stage
+            child.add_connection(new_connection, ignore_height_exception=True)
 
         child.calculate_heights()
+        child.inherit(best)
+
         return child
 
     def get_input_node(self):

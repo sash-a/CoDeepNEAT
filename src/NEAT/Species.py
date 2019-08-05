@@ -24,7 +24,7 @@ class Species:
 
     def __getitem__(self, item):
         if item >= len(self.members):
-            raise Exception("index out of bounds, ased for indv:",item, "but only",len(self.members),"members")
+            raise Exception("index out of bounds, ased for indv:", item, "but only", len(self.members), "members")
         return self.members[item]
 
     def add(self, individual):
@@ -84,6 +84,12 @@ class Species:
                     len(self.members)))
 
         children.extend(elite)
+
+        for i in range(number_of_elite, len(self.members)):
+            mem = self.members[i]
+            self.members[i] = None
+            del mem
+
         self.members = children
 
     def _rank_species(self):
@@ -94,10 +100,13 @@ class Species:
         return sum([indv.rank for indv in self.members]) / len(self.members)
 
     def _cull_species(self):
-        # if self.age < 3:
-        #     return
-        surivors = math.ceil(Props.PERCENT_TO_REPRODUCE * len(self.members))
-        self.members = self.members[:surivors]
+        survivors = math.ceil(Props.PERCENT_TO_REPRODUCE * len(self.members))
+        for i in range(survivors, len(self.members)):
+            mem = self.members[i]
+            self.members[i] = None
+            del mem
+
+        self.members = self.members[:survivors]
 
     def _select_representative(self):
         self.representative = random.choice(self.members)
