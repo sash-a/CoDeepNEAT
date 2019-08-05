@@ -33,7 +33,7 @@ def main():
             continue_evolution_from_save_state(Config.run_name)
         except Exception as e:
             print(e)
-            print("could not load save state for run name:",Config.run_name, "starting from scratch instead")
+            print("could not load save state for run name:", Config.run_name, "starting from scratch instead")
             run_evolution_from_scratch()
     else:
         run_evolution_from_scratch()
@@ -42,19 +42,22 @@ def main():
 def run_evolution_from_scratch():
     evolve_generation(Generation())
 
+
 def continue_evolution_from_save_state(run_name):
     evolve_generation(DataManager.load_generation_state(run_name))
 
+
 def evolve_generation(generation):
-    #generation.pareto_population.plot_fitnesses()
-    #generation.pareto_population.plot_all_in_pareto_front()
-    #print("highest acc so far:",generation.pareto_population.get_highest_accuracy(print=True).fitness_values[0])
+    # generation.pareto_population.plot_fitnesses()
+    # generation.pareto_population.plot_all_in_pareto_front()
+    # print("highest acc so far:",generation.pareto_population.get_highest_accuracy(print=True).fitness_values[0])
     if generation.generation_number == -1:
         print("evolving gen from scratch")
         start_gen = 0
     else:
-        print("continueing evolution of generation:",generation)
-        start_gen = generation.generation_number + 1 #genertions save after completing their step. before incremeting their generation number
+        print("continueing evolution of generation:", generation)
+        # generations save after completing their step. before incrementing their generation number
+        start_gen = generation.generation_number + 1
 
     start_time = time.time()
 
@@ -67,8 +70,10 @@ def evolve_generation(generation):
             generation.step()
             print('completed gen', i, "in", (time.time() - gen_start_time), "elapsed time:", (time.time() - start_time),
                   "\n\n")
-    print("finished training",Config.max_num_generations, "genertations")
-    generation.pareto_population.get_best_network()
+    print("finished training", Config.max_num_generations, "generations")
+
+    if Config.fully_train:
+        generation.pareto_population.get_best_network()
 
 
 def parse_args():

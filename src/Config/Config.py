@@ -6,11 +6,11 @@ import torch.multiprocessing as mp
 # Run state options
 run_name = "test"
 continue_from_last_run = False
-
+fully_train = False
 # --------------------------------------------------------------------------------------------------------------------#
 # nn options
 device = 'gpu'  # gpu | cpu
-num_gpus = 1
+num_gpus = 4
 num_workers = 0  # this doesn't work in parallel because daemonic processes cannot spawn children
 dataset = 'cifar10'
 data_path = ''
@@ -41,11 +41,11 @@ ignore_disabled_connections_for_topological_similarity = False
 # --------------------------------------------------------------------------------------------------------------------#
 use_graph_edit_distance = False
 # --------------------------------------------------------------------------------------------------------------------#
-fitness_aggregation = 'max'  # max | avg
+fitness_aggregation = 'avg'  # max | avg
 # --------------------------------------------------------------------------------------------------------------------#
 
 # Debug and test options
-dummy_run = True
+dummy_run = False
 
 protect_parsing_from_errors = False
 test_in_run = False
