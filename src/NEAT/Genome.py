@@ -92,9 +92,15 @@ class Genome:
         if self.fitness_values is None or not self.fitness_values:
             self.fitness_values = [0 for _ in fitnesses]
 
-        for i, fitness in enumerate(fitnesses):
-            self.fitness_values[i] = (self.fitness_values[i] * self.uses + fitness) / (self.uses + 1)
-        self.uses += 1
+        if Config.fitness_aggregation == "avg":
+            for i, fitness in enumerate(fitnesses):
+                self.fitness_values[i] = (self.fitness_values[i] * self.uses + fitness) / (self.uses + 1)
+            self.uses += 1
+        elif Config.fitness_aggregation == "max":
+            for i, fitness in enumerate(fitnesses):
+                self.fitness_values[i] = max(self.fitness_values[i], fitness)
+        else:
+            raise Exception("Unexpected fitness aggregation type: " + repr(Config.fitness_aggregation))
 
     def end_step(self, generation=None):
         self.uses = 0
@@ -375,7 +381,8 @@ class Genome:
         root_node.get_traversal_ids("_")
         return root_node
 
-    def plot_tree_with_graphvis(self, title="", file="temp_g", view = None, graph = None,return_graph_obj = False, node_prefix = ""):
+    def plot_tree_with_graphvis(self, title="", file="temp_g", view=None, graph=None, return_graph_obj=False,
+                                node_prefix=""):
         if view is None:
             view = Config.print_best_graphs
 
@@ -385,7 +392,7 @@ class Genome:
             graph = graphviz.Digraph(comment=title)
 
         for node in self._nodes.values():
-            graph.node( node_prefix + str(node.id), node.get_node_name() , style="filled", fillcolor="white")
+            graph.node(node_prefix + str(node.id), node.get_node_name(), style="filled", fillcolor="white")
 
         for c in self._connections.values():
             if not c.enabled():
