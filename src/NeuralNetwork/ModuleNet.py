@@ -18,6 +18,8 @@ class ModuleNet(nn.Module):
         self.outputDimensionality = None
         self.optimizer = None
 
+        self.final_layer = None
+
     def configure(self, learning_rate, beta1, beta2):
         self.lr = learning_rate
         self.beta1 = beta1
@@ -49,6 +51,7 @@ class ModuleNet(nn.Module):
         self.optimizer = optim.Adam(full_parameters, lr=self.lr, betas=(self.beta1, self.beta2))
 
         self.init_weights()
+        self.module_graph.blueprint_genome.weight_init.get_value()(self.final_layer.weight)
 
     def forward(self, x, configuration_run=False):
         if x is None:

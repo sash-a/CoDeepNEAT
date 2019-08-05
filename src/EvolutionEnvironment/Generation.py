@@ -160,7 +160,7 @@ class Generation:
                 result_dict[curr_index] = 'defective', False, False
                 if not Config.protect_parsing_from_errors:
                     print(e)
-                    raise Exception("defective blueprint evalutaion")
+                    raise Exception("defective blueprint evaluation")
 
     def evaluate_blueprint(self, blueprint_individual, inputs):
         # Validation
