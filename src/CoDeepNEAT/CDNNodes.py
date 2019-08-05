@@ -353,3 +353,6 @@ class DANode(NodeGene):
 
     def get_node_name(self):
         return repr(self.da())
+
+    def get_node_parameters(self):
+        return repr(self.da.get_sub_values())
