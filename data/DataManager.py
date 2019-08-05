@@ -49,7 +49,7 @@ def save_generation_state(generation):
 
 
 def load_generation_state(run_name):
-    generation_state_file_name = os.path.join(get_run_folder(), "GenerationState.pickle")
+    generation_state_file_name = os.path.join(get_run_folder(run_name), "GenerationState.pickle")
     pickle_in = open(generation_state_file_name, "rb")
     return pickle.load(pickle_in)
 
