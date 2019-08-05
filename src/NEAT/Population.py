@@ -1,10 +1,13 @@
+import os
+
 import math
 
 import src.Config.NeatProperties as Props
 from src.Config import Config
 from src.NEAT.Species import Species
 import matplotlib.pyplot as plt
-import random
+from data import DataManager
+
 
 
 class MutationRecords:
@@ -83,12 +86,6 @@ class Population:
 
     def get_num_species(self):
         return len(self.species)
-
-    def save_checkpoint(self):
-        pass
-
-    def load_checkpoint(self):
-        pass
 
     def speciate(self, individuals):
         for species in self.species:
@@ -215,3 +212,11 @@ class Population:
         plt.ylabel("Attribute")
         plt.title("gen:" + repr(generation.generation_number))
         plt.show()
+
+    def plot_all_representatives(self):
+        graph = None
+        for spec in self.species:
+            graph = spec.representative.plot_tree_with_graphvis(graph= graph, return_graph_obj= True, view= False,
+                                                                node_prefix= repr(self.species.index(spec)) + "_")
+        file = os.path.join(DataManager.get_Graphs_folder(), "reps")
+        graph.render(file, view=True)

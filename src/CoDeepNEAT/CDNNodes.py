@@ -105,6 +105,9 @@ class ModulenNEATNode(NodeGene):
     def __repr__(self):
         return 'Module node:' + str(self.layer_type) + ' ' + str(self.layer_type.get_sub_value('out_features'))
 
+    def get_node_name(self):
+        return repr(self.layer_type()) + "\n" + "features: " + repr(self.layer_type.get_sub_value("out_features"))
+
 
 class BlueprintNEATNode(NodeGene):
     def __init__(self, id, node_type=NodeType.HIDDEN):
@@ -359,7 +362,7 @@ class DANode(NodeGene):
         return [self.da, self.enabled]
 
     def get_node_name(self):
-        return repr(self.da())
+        return repr(self.da()) + "\n" + self.get_node_parameters()
 
     def get_node_parameters(self):
         parameters = []

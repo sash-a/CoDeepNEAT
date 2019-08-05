@@ -35,10 +35,11 @@ colour_augmentations = False
 
 # --------------------------------------------------------------------------------------------------------------------#
 module_retention = False
-
 # --------------------------------------------------------------------------------------------------------------------#
-speciation_overhaul = True
-ignore_disabled_connections_for_topological_similarity = True
+speciation_overhaul = False
+ignore_disabled_connections_for_topological_similarity = False
+# --------------------------------------------------------------------------------------------------------------------#
+use_graph_edit_distance = False
 # --------------------------------------------------------------------------------------------------------------------#
 # Debug and test options
 dummy_run = True
@@ -54,7 +55,6 @@ save_failed_graphs = False
 
 
 # --------------------------------------------------------------------------------------------------------------------#
-
 def get_device():
     """Used to obtain the correct device taking into account multiple GPUs"""
 

@@ -3,6 +3,9 @@ import operator
 import os
 import random
 import sys
+from networkx.algorithms.similarity import graph_edit_distance
+import networkx as nx
+
 from typing import Iterable
 
 import graphviz
@@ -18,10 +21,10 @@ class Genome:
         self.rank = 0  # The order of this genome when ranked by fitness values
         self.uses = 0  # The numbers of times this genome is used
         self.fitness_values: list = [-(sys.maxsize - 1)]
-        if Config.second_objective != "":
+        if Config.second_objective != '':
             self.fitness_values.append(
                 sys.maxsize if Config.second_objective_comparator == operator.lt else -(sys.maxsize - 1))
-        if Config.third_objective != "":
+        if Config.third_objective != '':
             self.fitness_values.append(
                 sys.maxsize if Config.third_objective_comparator == operator.lt else -(sys.maxsize - 1))
 
@@ -33,6 +36,7 @@ class Genome:
         self._connections = {}
         for connection in connections:
             self.add_connection(connection, True)
+        self.netx_graph = None
 
     def has_branches(self):
         traversal_dict = self._get_traversal_dictionary(exclude_disabled_connection=True)
@@ -92,12 +96,35 @@ class Genome:
             self.fitness_values[i] = (self.fitness_values[i] * self.uses + fitness) / (self.uses + 1)
         self.uses += 1
 
-    def end_step(self, generation = None):
+    def end_step(self, generation=None):
         self.uses = 0
         if self.fitness_values is not None:
             self.fitness_values = [0 for _ in self.fitness_values]
 
     def distance_to(self, other):
+        return self.get_topological_distance(other)
+
+    def get_netx_graph_form(self):
+        if self.netx_graph is not None:
+            return self.netx_graph
+        G = nx.DiGraph()
+        node_keys = []
+        for node in self._nodes.values():
+            # G.add_node(node.id, att = {'label':repr(node.id)})
+            node_keys.append((node.id, {'label':repr(node.id)}))
+        G.add_nodes_from(node_keys)
+
+        conn_keys = []
+        for conn in self._connections.values():
+            if Config.ignore_disabled_connections_for_topological_similarity and not conn.enabled():
+                continue
+            conn_keys.append((conn.to_node, conn.from_node, {'label':repr(conn.to_node)+","+repr(conn.from_node)}))
+        G.add_edges_from(conn_keys)
+
+        self.netx_graph = G
+        return G
+
+    def get_topological_distance(self, other):
         if other == self:
             return 0
 
@@ -124,8 +151,19 @@ class Genome:
 
         # return (num_excess  + num_disjoint)
 
-        return (num_excess * Props.EXCESS_COEFFICIENT + num_disjoint * Props.DISJOINT_COEFFICIENT) / max(
+        neat_dist = (num_excess * Props.EXCESS_COEFFICIENT + num_disjoint * Props.DISJOINT_COEFFICIENT) / max(
             len(self._connections), len(other._connections))
+
+        if Config.use_graph_edit_distance:
+            match_func = lambda a,b :a['label'] == b['label']
+            ged = graph_edit_distance(self.get_netx_graph_form(), other.get_netx_graph_form(), node_match=match_func, edge_match=match_func)
+            if neat_dist > 0:
+                #print("neat dist:",neat_dist, "ged:",ged)
+                pass
+
+            return (neat_dist + 0.8*ged)/2
+
+        return neat_dist
 
     def mutate(self, mutation_record):
         raise NotImplemented('Mutation should be called not in base class')
@@ -337,21 +375,23 @@ class Genome:
         root_node.get_traversal_ids("_")
         return root_node
 
-    def plot_tree_with_graphvis(self, title="", file="temp_g", view = None):
+    def plot_tree_with_graphvis(self, title="", file="temp_g", view = None, graph = None,return_graph_obj = False, node_prefix = ""):
         if view is None:
             view = Config.print_best_graphs
 
         file = os.path.join(DataManager.get_Graphs_folder(), file)
 
-        graph = graphviz.Digraph(comment=title)
+        if graph == None:
+            graph = graphviz.Digraph(comment=title)
 
         for node in self._nodes.values():
-            graph.node(str(node.id), node.get_node_name() + "\n" +
-                       node.get_node_parameters(), style="filled", fillcolor="white")
+            graph.node( node_prefix + str(node.id), node.get_node_name() , style="filled", fillcolor="white")
 
         for c in self._connections.values():
             if not c.enabled():
                 continue
-            graph.edge(repr(c.from_node), repr(c.to_node))
+            graph.edge(node_prefix + repr(c.from_node), node_prefix + repr(c.to_node))
 
         graph.render(file, view=view)
+        if return_graph_obj:
+            return graph
