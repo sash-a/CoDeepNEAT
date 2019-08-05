@@ -124,7 +124,7 @@ class Generation:
             # Fitness assignment
             bp_pop_indvs[bp_key % bp_pop_size].report_fitness(fitness)
             if Config.module_retention:
-                bp_pop_indvs[bp_key % bp_pop_size].inherit_species_module_mapping(self,evaluated_bp, fitness[0])
+                bp_pop_indvs[bp_key % bp_pop_size].inherit_species_module_mapping(self, evaluated_bp, [fitness[0]])
 
             if Config.evolve_data_augmentations and evaluated_bp.da_scheme_index != -1:
                 self.da_population[evaluated_bp.da_scheme_index].report_fitness(fitness[0])
@@ -183,6 +183,7 @@ class Generation:
             da_indv = blueprint_individual.pick_da_scheme(self.da_population)
             if da_indv.has_branches():
                 da_indv.plot_tree_with_graphvis()
+                raise Exception('Found data augmentation with branches, this shouldn not happen')
             da_scheme = da_indv.to_phenotype()
             module_graph.data_augmentation_schemes.append(da_scheme)
         else:
