@@ -50,14 +50,14 @@ class BlueprintGenome(Genome):
 
         # Assuming data augmentation only has 1 species
         # TODO make sure there is only ever 1 species - could make it random choice from individuals
-        self.da_scheme, self.da_scheme_index = da_population.species[0].sample_individual(debug=False)
+        self.da_scheme, self.da_scheme_index = da_population.species[0].sample_individual()
         # print("sampled new da scheme, index:",self.da_scheme_index)
         return self.da_scheme
 
-    def inherit_species_module_mapping(self, other, acc):
+    def inherit_species_module_mapping(self, generation,  other, acc):
         """Updates the species-module mapping if accuracy is higher than max accuracy"""
         if acc > self.max_accuracy:
-            other.update_module_refs()
+            other.update_module_refs(generation)
             self.species_module_ref_map = other.species_module_ref_map
 
             self.max_accuracy = acc
@@ -69,8 +69,9 @@ class BlueprintGenome(Genome):
                 print('Found a none node')
                 continue
 
-            if module in generation.module_population.species[spc_index]:
-                self.species_module_index_map[spc_index] = generation.module_population.species[spc_index].index(module)
+            if spc_index < len(generation.module_population.species) and\
+                    module in generation.module_population.species[spc_index]:
+                self.species_module_index_map[spc_index] = generation.module_population.species[spc_index].members.index(module)
 
     def update_module_refs(self, generation):
         self.species_module_ref_map = {}
@@ -83,6 +84,8 @@ class BlueprintGenome(Genome):
     def inherit(self, genome):
         self.da_scheme = genome.da_scheme
         self.weight_init = copy.deepcopy(genome.weight_init)
+        self.species_module_ref_map = genome.species_module_ref_map
+        print("inheriting spc ref map:",self.species_module_ref_map)
         # self.learning_rate = copy.deepcopy(genome.learning_rate)
         # self.beta1 = copy.deepcopy(genome.beta1)
         # self.beta2 = copy.deepcopy(genome.beta2)
@@ -95,11 +98,12 @@ class BlueprintGenome(Genome):
         self.max_accuracy = 0
 
         self.update_module_indexes(generation)
+        print("updating index map to:", self.species_module_index_map)
         # self.da_scheme_index = -1  # don't reset because bp holds onto its DA if it can
 
-    def reset_number_of_module_species(self, num_module_species):
+    def reset_number_of_module_species(self, num_module_species, generation_number):
         for node in self._nodes.values():
-            node.set_species_upper_bound(num_module_species)
+            node.set_species_upper_bound(num_module_species,generation_number)
 
     def get_all_mutagens(self):
         return [self.learning_rate, self.beta1, self.beta2, self.weight_init]

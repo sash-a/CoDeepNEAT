@@ -67,7 +67,7 @@ class Generation:
 
         self.module_population.step()
         for blueprint_individual in self.blueprint_population.individuals:
-            blueprint_individual.reset_number_of_module_species(self.module_population.get_num_species())
+            blueprint_individual.reset_number_of_module_species(self.module_population.get_num_species(), self.generation_number)
 
         self.blueprint_population.step()
 
@@ -120,7 +120,8 @@ class Generation:
 
             # Fitness assignment
             bp_pop_indvs[bp_key % bp_pop_size].report_fitness(fitness)
-            bp_pop_indvs[bp_key % bp_pop_size].inherit_species_module_mapping(evaluated_bp, fitness[0])
+            if Config.module_retention:
+                bp_pop_indvs[bp_key % bp_pop_size].inherit_species_module_mapping(self,evaluated_bp, fitness[0])
 
             if Config.evolve_data_augmentations and evaluated_bp.da_scheme_index != -1:
                 self.da_population[evaluated_bp.da_scheme_index].report_fitness(fitness)

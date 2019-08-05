@@ -109,15 +109,28 @@ class BlueprintNEATNode(NodeGene):
 
         self.species_number = Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=0, start_range=0,
                                       end_range=1, print_when_mutating=False, name="species number",
-                                      mutation_chance=0.13)
+                                      mutation_chance=0.5)
+        self.target_num_species_reached = False
 
     def get_all_mutagens(self):
         # raise Exception("getting species no mutagen from blueprint neat node")
         return [self.species_number]
 
-    def set_species_upper_bound(self, num_species):
+    def set_species_upper_bound(self, num_species, generation_number):
+        if not self.target_num_species_reached and num_species >= Props.MODULE_TARGET_NUM_SPECIES:
+            """species count starts low, and increases quickly. 
+            due to low species number mutation rates, nodes would largely be stuck
+            referencing species 0 for many generations before a good distribution arises
+            so we force a shuffle in the early generations, to get a good distribution early"""
+            self.target_num_species_reached = True
+            self.species_number.mutation_chance = 0.13
+            if generation_number < 3:
+                self.species_number.set_value(random.randint(0, num_species))
+                print("shuffling species num to:", self.species_number())
+
         self.species_number.end_range = num_species
-        self.species_number.set_value(min(self.species_number(), num_species - 1))
+        if self.species_number() >= num_species:
+            self.species_number.set_value(random.randint(0, num_species))
 
 
 class DANode(NodeGene):
@@ -188,7 +201,7 @@ class DANode(NodeGene):
                         "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=20, start_range=0,
                                       end_range=40)},
 
-                     "Additive_Gaussian_Noise": {
+                    "Additive_Gaussian_Noise": {
                         "lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.05, start_range=0.0,
                                       end_range=0.10),
                         "hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.20, start_range=0.10,
@@ -212,20 +225,27 @@ class DANode(NodeGene):
 
                     "HSV": {
                         "channel": Mutagen(0, 1, 2, discreet_value=0, mutation_chance=0.20),
-                        "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=20, start_range=0, end_range=30),
-                        "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=50, start_range=30, end_range=60)
+                        "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=20, start_range=0,
+                                      end_range=30),
+                        "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=50, start_range=30,
+                                      end_range=60)
                     },
 
                     "Contrast_Normalisation": {
-                        "lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.0, end_range=1.0),
-                        "hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=1.5, start_range=1.0, end_range=2.0),
-                        "percent": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.0, end_range=1.0)
+                        "lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.0,
+                                      end_range=1.0),
+                        "hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=1.5, start_range=1.0,
+                                      end_range=2.0),
+                        "percent": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.0,
+                                           end_range=1.0)
                     },
 
                     "Increase_Channel": {
                         "channel": Mutagen(0, 1, 2, discreet_value=0, mutation_chance=0.20),
-                        "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=25, start_range=0, end_range=50),
-                        "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=75, start_range=50, end_range=100)
+                        "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=25, start_range=0,
+                                      end_range=50),
+                        "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=75, start_range=50,
+                                      end_range=100)
                     },
 
                     "Rotate_Channel": {
