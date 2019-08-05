@@ -124,10 +124,10 @@ class Generation:
             # Fitness assignment
             bp_pop_indvs[bp_key % bp_pop_size].report_fitness(fitness)
             if Config.module_retention:
-                bp_pop_indvs[bp_key % bp_pop_size].inherit_species_module_mapping(self, evaluated_bp, [fitness[0]])
+                bp_pop_indvs[bp_key % bp_pop_size].inherit_species_module_mapping(self, evaluated_bp, fitness[0])
 
             if Config.evolve_data_augmentations and evaluated_bp.da_scheme_index != -1:
-                self.da_population[evaluated_bp.da_scheme_index].report_fitness(fitness[0])
+                self.da_population[evaluated_bp.da_scheme_index].report_fitness([fitness[0]])
 
             # print("reporting fitnesses to: ",  evaluated_bp.modules_used_index)
             for species_index, member_index in evaluated_bp.modules_used_index:

@@ -27,7 +27,7 @@ def log_new_generation(accuracies, generation_number, second_objective_values=No
 
 def load_date_from_log_file(run_name, iteration=0, summary=False):
     global generations
-
+    generations = []
     filename = os.path.join(DataManager.get_Logs_folder(run_name),
                             "log" + (("_" + repr(iteration)) if iteration > 0 else ""))
     log = open(filename + ".txt")

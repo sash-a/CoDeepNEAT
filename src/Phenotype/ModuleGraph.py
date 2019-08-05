@@ -1,12 +1,13 @@
 from src.Config import Config
 from src.NeuralNetwork.ModuleNet import ModuleNet
+from src.Phenotype.ModuleNode import ModuleNode
 
 
 class ModuleGraph():
 
     def __init__(self, module_graph_root_node, dataset=""):
 
-        self.module_graph_root_node = module_graph_root_node
+        self.module_graph_root_node:ModuleNode = module_graph_root_node
         if dataset == "":
             self.dataset = Config.dataset
 
