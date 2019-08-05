@@ -102,6 +102,9 @@ class ModulenNEATNode(NodeGene):
     def get_all_mutagens(self):
         return [self.activation, self.layer_type]
 
+    def __repr__(self):
+        return 'Module node:' + str(self.layer_type) + ' ' + str(self.layer_type.get_sub_value('out_features'))
+
 
 class BlueprintNEATNode(NodeGene):
     def __init__(self, id, node_type=NodeType.HIDDEN):
@@ -134,6 +137,7 @@ class BlueprintNEATNode(NodeGene):
 
     def get_node_name(self):
         return "Species:" + repr(self.species_number())
+
 
 class DANode(NodeGene):
     def __init__(self, id, node_type=NodeType.HIDDEN):

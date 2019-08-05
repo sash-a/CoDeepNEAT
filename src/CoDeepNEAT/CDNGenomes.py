@@ -169,9 +169,12 @@ class ModuleGenome(Genome):
         super().end_step()
         self.module_node = None
 
+    def __repr__(self):
+        return '\n------------------Connections--------------\n' + repr(self._connections) + \
+               '\n---------------------Nodes-----------------\n' + repr(self._nodes)
+
 
 class DAGenome(Genome):
-
     def __init__(self, connections, nodes):
         super().__init__(connections, nodes)
 
