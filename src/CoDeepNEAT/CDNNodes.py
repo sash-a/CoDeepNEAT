@@ -361,7 +361,11 @@ class DANode(NodeGene):
         parameters = []
         if self.da.get_sub_values() is not None:
             for key, value in self.da.get_sub_values().items():
-                v = str(value).split(" ", 1)[1]
+
+                if value is None:
+                    raise Exception("none value in mutagen")
+
+                v = repr(value).split(" ", 1)[1]
                 parameters.append((key, v))
 
         return repr(parameters)
