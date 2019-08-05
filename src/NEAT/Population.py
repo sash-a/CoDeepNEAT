@@ -95,29 +95,31 @@ class Population:
 
         # note original neat placed individuals in the first species they fit this places in the closest species
         for individual in individuals:
-            # best_fit_species = None
-            # best_distance = individual.distance_to(self.species[0].representative) + 1
-            #
-            # # find best species
-            # for species in self.species:
-            #     distance = individual.distance_to(species.representative)
-            #     if distance < best_distance:
-            #         best_distance = distance
-            #         best_fit_species = species
-            #
-            # if best_distance <= self.speciation_threshold:
-            #     best_fit_species.add(individual)
-            # else:
-            #     self.species.append(Species(individual))
-            found = False
-            for spc in self.species:
-                if individual.distance_to(spc.representative) <= self.speciation_threshold:
-                    spc.add(individual)
-                    found = True
-                    break
+            if Props.USE_BEST_FIT_SPECIES:
+                best_fit_species = None
+                best_distance = individual.distance_to(self.species[0].representative) + 1
 
-            if not found:
-                self.species.append(Species(individual))
+                # find best species
+                for species in self.species:
+                    distance = individual.distance_to(species.representative)
+                    if distance < best_distance:
+                        best_distance = distance
+                        best_fit_species = species
+
+                if best_distance <= self.speciation_threshold:
+                    best_fit_species.add(individual)
+                else:
+                    self.species.append(Species(individual))
+            else:
+                found = False
+                for spc in self.species:
+                    if individual.distance_to(spc.representative) <= self.speciation_threshold:
+                        spc.add(individual)
+                        found = True
+                        break
+
+                if not found:
+                    self.species.append(Species(individual))
 
         self.species = [spc for spc in self.species if spc.members]
 
@@ -134,15 +136,18 @@ class Population:
             return
 
         # threshold must be adjusted
-        # if new_dir != self.current_threshold_dir:
-        #     # still not right - must have jumped over the ideal value adjust by base modification
-        #     self.speciation_threshold = min(max(Props.SPECIES_DISTANCE_THRESH_MOD_MIN, self.speciation_threshold + (
-        #             new_dir * Props.SPECIES_DISTANCE_THRESH_MOD_BASE)), Props.SPECIES_DISTANCE_THRESH_MOD_MAX)
-        # else:
-        #     # still approaching the ideal value - exponentially speed up
-        #     self.speciation_threshold *= math.pow(2, new_dir)
+        if Props.USE_EXPONENTIAL_FITNESS_ADJUSTMENT:
+            if new_dir != self.current_threshold_dir:
+                # still not right - must have jumped over the ideal value adjust by base modification
+                self.speciation_threshold = min(max(Props.SPECIES_DISTANCE_THRESH_MOD_MIN, self.speciation_threshold + (
+                        new_dir * Props.SPECIES_DISTANCE_THRESH_MOD_BASE)), Props.SPECIES_DISTANCE_THRESH_MOD_MAX)
+            else:
+                # still approaching the ideal value - exponentially speed up
+                self.speciation_threshold *= math.pow(2, new_dir)
+        else:
+            self.speciation_threshold += max(Props.SPECIES_DISTANCE_THRESH_MOD_MIN,
+                                             Props.SPECIES_DISTANCE_THRESH_MOD_BASE * new_dir)
 
-        self.speciation_threshold += max(0.01, Props.SPECIES_DISTANCE_THRESH_MOD_BASE * new_dir)
         self.current_threshold_dir = new_dir
 
     def update_species_sizes(self):
