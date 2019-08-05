@@ -92,7 +92,7 @@ class Genome:
             self.fitness_values[i] = (self.fitness_values[i] * self.uses + fitness) / (self.uses + 1)
         self.uses += 1
 
-    def end_step(self, generation=None):
+    def end_step(self, generation = None):
         self.uses = 0
         if self.fitness_values is not None:
             self.fitness_values = [0 for _ in self.fitness_values]
@@ -109,10 +109,20 @@ class Genome:
         smaller_id = min(self_max_conn_id, other_max_conn_id)
 
         for conn_id in self.get_disjoint_excess_genes(other):
+            if Config.ignore_disabled_connections_for_topological_similarity:
+                if conn_id in self._connections:
+                    if not self._connections[conn_id].enabled():
+                        continue
+                else:
+                    if not other._connections[conn_id].enabled():
+                        continue
+
             if conn_id > smaller_id:
                 num_excess += 1
             else:
                 num_disjoint += 1
+
+        # return (num_excess  + num_disjoint)
 
         return (num_excess * Props.EXCESS_COEFFICIENT + num_disjoint * Props.DISJOINT_COEFFICIENT) / max(
             len(self._connections), len(other._connections))
@@ -220,12 +230,11 @@ class Genome:
             else:
                 new_connection = copy.deepcopy(best_conn)
 
-            # child heights not meaningful at this stage
-            child.add_connection(new_connection, ignore_height_exception=True)
+            child.add_connection(new_connection,
+                                 ignore_height_exception=True)  # child heights not meaningful at this stage
 
-        child.calculate_heights()
         child.inherit(best)
-
+        child.calculate_heights()
         return child
 
     def get_input_node(self):
@@ -328,12 +337,11 @@ class Genome:
         root_node.get_traversal_ids("_")
         return root_node
 
-    def plot_tree_with_graphvis(self, title="", file="temp_g", view=None):
+    def plot_tree_with_graphvis(self, title="", file="temp_g", view = None):
         if view is None:
             view = Config.print_best_graphs
 
         file = os.path.join(DataManager.get_Graphs_folder(), file)
-        #print(file)
 
         graph = graphviz.Digraph(comment=title)
 

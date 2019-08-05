@@ -1,9 +1,10 @@
-from src.NEAT.Species import Species
+import math
+
 import src.Config.NeatProperties as Props
 from src.Config import Config
-import math
-import operator
-import sys
+from src.NEAT.Species import Species
+import matplotlib.pyplot as plt
+import random
 
 
 class MutationRecords:
@@ -39,7 +40,6 @@ class MutationRecords:
         self._next_conn_id += 1
         return self._next_conn_id
 
-
 class Population:
     def __init__(self, individuals, rank_population_fn, initial_mutations, population_size, max_node_id, max_innovation,
                  target_num_species):
@@ -59,6 +59,7 @@ class Population:
 
         self.species = [Species(individuals[0])]
         self.species[0].members = individuals
+        print("target num species:", target_num_species)
 
     individuals = property(lambda self: self._get_all_individuals())
 
@@ -95,7 +96,7 @@ class Population:
 
         # note original neat placed individuals in the first species they fit this places in the closest species
         for individual in individuals:
-            if Props.USE_BEST_FIT_SPECIES:
+            if Config.speciation_overhaul:
                 best_fit_species = None
                 best_distance = individual.distance_to(self.species[0].representative) + 1
 
@@ -109,7 +110,15 @@ class Population:
                 if best_distance <= self.speciation_threshold:
                     best_fit_species.add(individual)
                 else:
-                    self.species.append(Species(individual))
+                    """none of the existing species were close enough for this individual"""
+                    if len(self.species) < self.target_num_species:
+                        """create a new species and add this individual to it"""
+                        self.species.append(Species(individual))
+                    else:
+                        """there are already the maximum number of species. add individual to closest species
+                            the species threshold is too low"""
+                        best_fit_species.add(individual)
+                        self.speciation_threshold *=1.1
             else:
                 found = False
                 for spc in self.species:
@@ -136,7 +145,7 @@ class Population:
             return
 
         # threshold must be adjusted
-        if Props.USE_EXPONENTIAL_FITNESS_ADJUSTMENT:
+        if Config.speciation_overhaul:
             if new_dir != self.current_threshold_dir:
                 # still not right - must have jumped over the ideal value adjust by base modification
                 self.speciation_threshold = min(max(Props.SPECIES_DISTANCE_THRESH_MOD_MIN, self.speciation_threshold + (
@@ -172,7 +181,8 @@ class Population:
             raise Exception("no individuals in population", self, "cannot get average rank")
         return sum([indv.rank for indv in individuals]) / len(individuals)
 
-    def step(self):
+    def step(self, generation = None):
+        self.plot_species_spaces(generation)
         self.rank_population_fn(self._get_all_individuals())
         self.update_species_sizes()
 
@@ -182,3 +192,26 @@ class Population:
         self.adjust_speciation_threshold()
         individuals = self._get_all_individuals()
         self.speciate(individuals)
+
+
+    def plot_species_spaces(self, generation):
+        if self.target_num_species ==1:
+            return
+        relative_individual = self.species[0].members[0]
+
+        for spec in self.species:
+            rep = spec.representative
+            tops, atts = [],[]
+            for indv in spec.members:
+                if indv == rep:
+                    continue
+                tops.append(relative_individual.get_topological_distance(indv))
+                atts.append(relative_individual.get_attribute_distance(indv))
+            plt.scatter(tops,atts, label = "Species:"+ repr(self.species.index(spec)))
+            plt.scatter(relative_individual.get_topological_distance(rep),relative_individual.get_attribute_distance(rep) , label ="Species:"+ repr(self.species.index(spec)) + "rep")
+        handles, labels = plt.gca().get_legend_handles_labels()
+        plt.gca().legend(handles, labels)
+        plt.xlabel("Topology")
+        plt.ylabel("Attribute")
+        plt.title("gen:" + repr(generation.generation_number))
+        plt.show()
