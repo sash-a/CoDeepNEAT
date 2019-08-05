@@ -1,6 +1,7 @@
 from src.NEAT.PopulationRanking import general_pareto_sorting
 from src.Analysis.DataPlotter import plot_acc_vs_second, plot_histogram
 import time
+from src.Validation import Validation
 import numpy as np
 
 
@@ -25,7 +26,14 @@ class ParetoPopulation:
 
         self.candidates = []
         # self.plot_fitnesses()
-        #self.plot_all_in_pareto_front()
+        # self.plot_all_in_pareto_front()
+        #self.get_highest_accuracy(print=True)
+
+    def get_best_network(self, num_augs = 5):
+        best_graphs = self.get_highest_accuracy(num=num_augs)
+        best = best_graphs[0]
+        augs = [x.data_augmentation_schemes[0] for x in best_graphs if len(x.data_augmentation_schemes) > 0]
+        return Validation.get_fully_trained_network(best,augs)
 
     def plot_fitnesses(self):
         # print("lengths:" , repr([len(x.fitness_values) for x in self.pareto_front]))
@@ -66,5 +74,5 @@ class ParetoPopulation:
 
             return best_graph
         else:
-            raise Exception("Amount of graphs chosen is negative")
+            raise Exception("Number of graphs chosen is negative")
 

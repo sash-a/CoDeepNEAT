@@ -20,6 +20,9 @@ class AggregatorNode(Module):
         for child in self.children:
             child.create_layer(device=device)
 
+    def generate_module_node_from_gene(self):
+        pass
+
     def delete_layer(self):
         pass
 

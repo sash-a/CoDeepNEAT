@@ -17,6 +17,8 @@ import argparse
 import operator
 import torch.multiprocessing as mp
 
+from src.Validation import Validation
+
 """
 Evolution Environment is static as there should only ever be one
 Acts as the driver of current generation
@@ -35,6 +37,7 @@ def main():
             run_evolution_from_scratch()
     else:
         run_evolution_from_scratch()
+
 
 def run_evolution_from_scratch():
     evolve_generation(Generation())
@@ -55,14 +58,17 @@ def evolve_generation(generation):
 
     start_time = time.time()
 
-    for i in range(start_gen, Config.max_num_generations):
-        print('Running gen', i)
-        gen_start_time = time.time()
-        # current_generation.evaluate(i)
-        generation.evaluate(i)
-        generation.step()
-        print('completed gen', i, "in", (time.time() - gen_start_time), "elapsed time:", (time.time() - start_time),
-              "\n\n")
+    if start_gen < Config.max_num_generations:
+        for i in range(start_gen, Config.max_num_generations):
+            print('Running gen', i)
+            gen_start_time = time.time()
+            # current_generation.evaluate(i)
+            generation.evaluate(i)
+            generation.step()
+            print('completed gen', i, "in", (time.time() - gen_start_time), "elapsed time:", (time.time() - start_time),
+                  "\n\n")
+    print("finished training",Config.max_num_generations, "genertations")
+    generation.pareto_population.get_best_network()
 
 
 def parse_args():

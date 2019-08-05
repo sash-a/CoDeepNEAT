@@ -11,10 +11,10 @@ import torch.multiprocessing as mp
 from src.Validation.DataLoader import load_data
 
 printBatchEvery = -1  # -1 to switch off batch printing
-print_epoch_every = 1
+print_epoch_every = 4
 
 
-def train(model, train_loader, epoch, test_loader, device, augmentor=None, print_accuracy=False):
+def train(model, train_loader, epoch, test_loader, device, augmentors=None, print_accuracy=False):
     """
     Run a single train epoch
 
@@ -35,12 +35,23 @@ def train(model, train_loader, epoch, test_loader, device, augmentor=None, print
     for batch_idx, (inputs, targets) in enumerate(train_loader):
         model.optimizer.zero_grad()
 
-        if augmentor is not None:
-            aug_inputs, aug_labels = BatchAugmentor.augment_batch(inputs.numpy(), targets.numpy(), augmentor)
-
         if Config.interleaving_check:
             print('in train', mp.current_process().name)
             sys.stdout.flush()
+
+        if augmentors is not None and len(augmentors) > 0:
+            for augmentor in augmentors:
+                if augmentor is None:
+                    continue
+                aug_inputs, aug_labels = BatchAugmentor.augment_batch(inputs.numpy(), targets.numpy(), augmentor)
+                aug_inputs, aug_labels = aug_inputs.to(device), aug_labels.to(device)
+                # print("training on augmented images shape:",augmented_inputs.size())
+                output = model(aug_inputs)
+                m_loss = model.loss_fn(output, aug_labels)
+                m_loss.backward()
+                model.optimizer.step()
+                model.optimizer.zero_grad()  # todo wat dis do
+
 
         inputs, targets = inputs.to(device), targets.to(device)
         output = model(inputs)
@@ -48,19 +59,6 @@ def train(model, train_loader, epoch, test_loader, device, augmentor=None, print
         m_loss.backward()
         model.optimizer.step()
         loss += m_loss.item()
-
-        del inputs
-        del targets
-
-        if augmentor is not None:
-            aug_inputs, aug_labels = aug_inputs.to(device), aug_labels.to(device)
-            # print("training on augmented images shape:",augmented_inputs.size())
-            output = model(aug_inputs)
-            m_loss = model.loss_fn(output, aug_labels)
-            m_loss.backward()
-            model.optimizer.step()
-
-            loss += m_loss.item()
 
         if batch_idx % printBatchEvery == 0 and not printBatchEvery == -1:
             print("\tepoch:", epoch, "batch:", batch_idx, "loss:", m_loss.item(), "running time:", time.time() - s)
@@ -71,7 +69,9 @@ def train(model, train_loader, epoch, test_loader, device, augmentor=None, print
     if epoch % print_epoch_every == 0:
         if print_accuracy:
             print("epoch", epoch, "average loss:", loss / batch_idx, "accuracy:",
-                  test(model, device, test_loader), "% time for epoch:", (end_time - s))
+                  test(model, test_loader, device, print_acc=False), "% time for epoch:", (end_time - s))
+            model.train()
+
         else:
             print("epoch", epoch, "average loss:", loss / batch_idx, "time for epoch:", (end_time - s))
 
@@ -112,12 +112,12 @@ def test(model, test_loader, device, print_acc=True):
     acc = 100. * correct / len(test_loader.dataset)
 
     if print_acc:
-        print('\nTest set: Accuracy: {}/{} ({:.0f}%)\n'.format(correct, len(test_loader.dataset), acc))
+        print('Test set: Accuracy: {}/{} ({:.0f}%)'.format(correct, len(test_loader.dataset), acc))
 
     return acc
 
 
-def evaluate(model, epochs, device, batch_size=64, augmentor=None, train_loader=None, test_loader=None):
+def evaluate(model, epochs, device, batch_size=64, augmentors=None, train_loader=None, test_loader=None):
     """
     Runs all epochs and tests the model after all epochs have run
 
@@ -132,7 +132,7 @@ def evaluate(model, epochs, device, batch_size=64, augmentor=None, train_loader=
 
     s = time.time()
     for epoch in range(1, epochs + 1):
-        train(model, train_loader, epoch, test_loader, device, augmentor)
+        train(model, train_loader, epoch, test_loader, device, augmentors)
     e = time.time()
 
     test_acc = test(model, test_loader, device)
