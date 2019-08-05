@@ -8,8 +8,6 @@ import sys
 
 class Species:
     def __init__(self, representative):
-        # Possible extra attribs:
-        # age, hasBest, noImprovement
         self.representative = representative
         self.members = [representative]
         self.next_species_size = 1000
@@ -102,8 +100,6 @@ class Species:
         return sum([indv.rank for indv in self.members]) / len(self.members)
 
     def _cull_species(self):
-        # if self.age < 3:
-        #     return
         surivors = math.ceil(Props.PERCENT_TO_REPRODUCE * len(self.members))
         for i in range(surivors, len(self.members)):
             member = self.members[i]
