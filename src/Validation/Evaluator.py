@@ -136,5 +136,5 @@ def evaluate(model, epochs, device, batch_size=64, augmentors=None, train_loader
     e = time.time()
 
     test_acc = test(model, test_loader, device)
-    print('Evaluation took', e - s, 'seconds, Test acc:', test_acc)
+    print('Evaluation took', e - s, 'seconds, Test acc:', test_acc, end='\n')
     return test_acc

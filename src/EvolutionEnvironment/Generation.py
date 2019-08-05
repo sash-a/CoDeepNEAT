@@ -185,7 +185,9 @@ class Generation:
                 da_indv.plot_tree_with_graphvis()
                 raise Exception('Found data augmentation with branches, this shouldn not happen')
             da_scheme = da_indv.to_phenotype()
-            module_graph.data_augmentation_schemes.append(da_scheme)
+            # module_graph.data_augmentation_schemes.append(da_scheme)
+            module_graph.data_augmentation_schemes.append(da_indv)
+            # module_graph.plot_tree_with_graphvis(view=True)
         else:
             da_scheme = None
 

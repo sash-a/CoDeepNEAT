@@ -1,13 +1,14 @@
 from src.Config import Config
 from src.NeuralNetwork.ModuleNet import ModuleNet
 from src.Phenotype.ModuleNode import ModuleNode
+import graphviz
 
 
 class ModuleGraph():
 
     def __init__(self, module_graph_root_node, dataset=""):
 
-        self.module_graph_root_node:ModuleNode = module_graph_root_node
+        self.module_graph_root_node: ModuleNode = module_graph_root_node
         if dataset == "":
             self.dataset = Config.dataset
 
@@ -27,5 +28,18 @@ class ModuleGraph():
         for node in self.module_graph_root_node.get_all_nodes_via_bottom_up(set()):
             node.delete_layer()
 
-    def plot_tree_with_graphvis(self, title="", file="temp"):
-        self.module_graph_root_node.plot_tree_with_graphvis(title=title,file=file)
+    def plot_tree_with_graphvis(self, title="", file="temp", view=None, graph=None, return_graph_obj=False):
+
+        if graph is None:
+            graph = graphviz.Digraph(comment=title)
+
+        self.module_graph_root_node.plot_tree_with_graphvis(title=title, file=file, graph=graph)
+
+        for da_scheme in self.data_augmentation_schemes:
+            da_scheme.plot_tree_with_graphvis(title=title, file=file, graph=graph)
+
+        graph.render(file, view=view)
+
+        if return_graph_obj:
+            return graph
+
