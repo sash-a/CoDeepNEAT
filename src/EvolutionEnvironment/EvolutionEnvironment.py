@@ -55,7 +55,7 @@ def evolve_generation(generation):
         print("evolving gen from scratch")
         start_gen = 0
     else:
-        print("continueing evolution of generation:", generation)
+        print("continuing evolution of generation:", generation)
         # generations save after completing their step. before incrementing their generation number
         start_gen = generation.generation_number + 1
 
