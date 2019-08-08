@@ -62,7 +62,7 @@ def plot_all_generations(aggregation_type='max', fitness_index=0, run_name='unna
 
 
 def plot_all_runs(aggregation_type='max', fitness_index=0, max_gens=1000, show_data=False, cut_at_max=False,
-                  stay_at_max=True):
+                  stay_at_max=True,line_graph = False, show_best_fit = False):
     runs = set()
     for subdir, dirs, files in os.walk(os.path.join(DataManager.get_data_folder(), "runs")):
         sub = subdir.split("runs")[1][1:].split("\\")[0].split("/")[0]
@@ -75,23 +75,30 @@ def plot_all_runs(aggregation_type='max', fitness_index=0, max_gens=1000, show_d
         try:
             RuntimeAnalysis.load_date_from_log_file(run, summary=False)
             gens, fitness = get_gens_and_fitnesses(aggregation_type, fitness_index)
+            if cut_at_max:
+                max_index = fitness.index(max(fitness))
+                print("max index:", max_index, "from", list(zip(fitness, gens)))
+                gens = gens[:max_index + 1]
+                fitness = fitness[:max_index + 1]
+            elif len(gens) > max_gens:
+                gens = gens[:max_gens]
+                fitness = fitness[:max_gens]
+
+
             if stay_at_max:
                 print("from", fitness, "to", [max(fitness[:i + 1]) for i in range(len(fitness))])
-                fitness = [max(fitness[:i + 1]) for i in range(len(fitness))]
-                plt.plot(gens, fitness, label=run)
-            else:
-                if cut_at_max:
-                    max_index = fitness.index(max(fitness))
-                    print("max index:", max_index, "from", list(zip(fitness, gens)))
-                    gens = gens[:max_index + 1]
-                    fitness = fitness[:max_index + 1]
-                elif len(gens) > max_gens:
-                    gens = gens[:max_gens]
-                    fitness = fitness[:max_gens]
+                fitness_max = [max(fitness[:i + 1]) for i in range(len(fitness))]
+                plt.plot(gens, fitness_max, label=run)
+            elif show_best_fit:
+                plt.plot(np.unique(gens), np.poly1d(np.polyfit(gens, fitness, 1))(np.unique(gens)))
 
-                plt.plot(np.unique(gens), np.poly1d(np.polyfit(gens, fitness, 1))(np.unique(gens)), label=run)
-                if show_data:
+            if show_data:
+                if line_graph:
+                    plt.plot(gens, fitness, label=run)
+                else:
                     plt.scatter(gens, fitness, label=run)
+
+
         except Exception as e:
             print(e)
             continue
@@ -109,4 +116,4 @@ if __name__ == "__main__":
     run_name = 'module_retention_test'
     # RuntimeAnalysis.load_date_from_log_file(run_name, summary=False)
     # plot_all_generations('max', 0, run_name)
-    plot_all_runs(aggregation_type="avg", show_data=True, max_gens=50, cut_at_max=False, stay_at_max=False)
+    plot_all_runs(aggregation_type="max", show_data=True, line_graph = True, show_best_fit = True, max_gens=25, cut_at_max=False, stay_at_max=False)

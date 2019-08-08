@@ -2,8 +2,8 @@ import copy
 
 import src.Config.NeatProperties as Props
 import src.Validation.DataLoader
-from CoDeepNEAT.CDNGenomes import ModuleGenome, BlueprintGenome, DAGenome
-from CoDeepNEAT.CDNNodes import ModulenNEATNode, BlueprintNEATNode, DANode
+from src.CoDeepNEAT.CDNGenomes import ModuleGenome, BlueprintGenome, DAGenome
+from src.CoDeepNEAT.CDNNodes import ModulenNEATNode, BlueprintNEATNode, DANode
 from src.NEAT.Population import Population
 from src.NEAT.PopulationRanking import single_objective_rank, cdn_rank, nsga_rank
 from src.CoDeepNEAT import PopulationInitialiser as PopInit
@@ -13,7 +13,6 @@ from data import DataManager
 from src.Phenotype.ParetoPopulation import ParetoPopulation
 from src.Validation import DataLoader
 from src.Validation import Validation
-import random
 
 import multiprocessing as mp
 import math

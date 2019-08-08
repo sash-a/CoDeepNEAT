@@ -1,5 +1,10 @@
-from src.Phenotype.BlueprintNode import BlueprintNode
+import random
+
+import math
+
 from src.Config import Config
+from src.Phenotype.BlueprintNode import BlueprintNode
+
 
 class BlueprintGraph():
 
@@ -7,8 +12,30 @@ class BlueprintGraph():
         self.root_node: BlueprintNode = root_node
 
     def parse_to_module_graph(self, generation):
+        if Config.allow_species_module_mapping_ignores and Config.fitness_aggregation == "max":
+            self.forget_mappings()
+
         if (generation.generation_number == 0 or not Config.module_retention) \
                 and self.root_node.blueprint_genome.species_module_index_map:
             raise Exception("expected empty species index map, got" +
                             repr(self.root_node.blueprint_genome.species_module_index_map))
         return self.root_node.parse_to_module_graph(generation)
+
+    def forget_mappings(self):
+        nodes = self.root_node.get_all_nodes_via_bottom_up(set())
+        species_numbers = set([node.species_number for node in nodes])
+        number_of_species = len(species_numbers)
+
+        maps = set(self.root_node.blueprint_genome.species_module_index_map.keys()).intersection(species_numbers)
+        number_of_maps = len(maps)
+
+        map_frac = number_of_maps / number_of_species
+        # print(map_frac)
+        # if map_frac == 1:
+        # print("frac:", map_frac, "species:", set([node.species_number for node in nodes]), "maps:",
+        #       self.root_node.blueprint_genome.species_module_index_map)
+        if ((1 > map_frac > 0 and random.random() < math.pow(map_frac, 1.5)) or
+                (random.random() < 0.6 and map_frac == 1)):
+            ignore_species = random.choice(list(self.root_node.blueprint_genome.species_module_index_map.keys()))
+            # print("ignoring spc", ignore_species)
+            del self.root_node.blueprint_genome.species_module_index_map[ignore_species]

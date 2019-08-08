@@ -88,7 +88,7 @@ class Genome:
         self._connections[conn.id] = conn
 
     def report_fitness(self, fitnesses):
-        # print("reporting fitness",fitnesses, "to genome:", type(self))
+        #print("reporting fitness",fitnesses, "to genome:", type(self))
         if self.fitness_values is None or not self.fitness_values:
             self.fitness_values = [0 for _ in fitnesses]
 
@@ -97,6 +97,8 @@ class Genome:
                 self.fitness_values[i] = (self.fitness_values[i] * self.uses + fitness) / (self.uses + 1)
             self.uses += 1
         elif Config.fitness_aggregation == "max":
+            # if fitnesses[0] == self.fitness_values[0]:
+            #     print("tie reported:",self.fitness_values[0])
             for i, fitness in enumerate(fitnesses):
                 self.fitness_values[i] = max(self.fitness_values[i], fitness)
         else:

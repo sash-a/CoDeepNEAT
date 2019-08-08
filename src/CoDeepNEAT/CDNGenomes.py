@@ -68,12 +68,13 @@ class BlueprintGenome(Genome):
         self.species_module_index_map = {}
         for spc_index, module in self.species_module_ref_map.items():
             if module is None:
-                print('Found a none node')
+                # print('Found a none node')
                 continue
 
             if spc_index < len(generation.module_population.species) and\
                     module in generation.module_population.species[spc_index]:
                 self.species_module_index_map[spc_index] = generation.module_population.species[spc_index].members.index(module)
+                # print("Found a live module")
 
     def update_module_refs(self, generation):
         self.species_module_ref_map = {}

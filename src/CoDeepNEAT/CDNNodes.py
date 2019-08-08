@@ -132,7 +132,7 @@ class BlueprintNEATNode(NodeGene):
             self.species_number.mutation_chance = 0.13
             if generation_number < 3:
                 self.species_number.set_value(random.randint(0, num_species - 1))
-                print("shuffling species num to:", self.species_number())
+                # print("shuffling species num to:", self.species_number())
 
         self.species_number.end_range = num_species
         if self.species_number() >= num_species:

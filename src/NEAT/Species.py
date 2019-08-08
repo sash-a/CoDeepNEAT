@@ -13,6 +13,7 @@ class Species:
         self.next_species_size = 1000
         self.fitness = -1
         self.age = 0
+        self.tie_count = 0#a count of how many ties there are for the top accuracy
 
     def __iter__(self):
         return iter(self.members)
@@ -40,9 +41,9 @@ class Species:
             return
 
         self._rank_species()
-        elite_count = min(math.ceil(Props.ELITE_TO_KEEP * len(self.members)), self.next_species_size)
-        self._cull_species()
+        elite_count = self.find_num_elite()
 
+        self._cull_species(elite_count)
         self._reproduce(mutation_record, elite_count)
 
         if len(self.members) != self.next_species_size:
@@ -51,6 +52,21 @@ class Species:
 
         self._select_representative()
         self.age += 1
+
+    def find_num_elite(self):
+        """if the top n members have the same acc - they all survive"""
+        num_elite = min(math.ceil(Props.ELITE_TO_KEEP * len(self.members)), self.next_species_size)
+        highest_acc = self.members[0].fitness_values[0]
+        i = 1
+        # print("searching for ties from:",[self.members[i].fitness_values[0] for i in range(len(self.members))])
+        while i < len(self.members) and self.members[i].fitness_values[0] == highest_acc:
+            i+=1
+        self.tie_count = i
+        if self.members[0].fitness_values[0] == self.members[-1].fitness_values[0]:
+            self.tie_count = len(self.members)
+        if self.tie_count> 1:
+            print("ties:",[self.members[i].fitness_values[0] for i in range(len(self.members)) if self.members[i].fitness_values[0] == self.members[0].fitness_values[0]])
+        return max(self.tie_count,num_elite)
 
     def _reproduce(self, mutation_record, number_of_elite):
         elite = self.members[:number_of_elite]
@@ -99,8 +115,9 @@ class Species:
     def get_average_rank(self):
         return sum([indv.rank for indv in self.members]) / len(self.members)
 
-    def _cull_species(self):
+    def _cull_species(self, num_elite):
         surivors = math.ceil(Props.PERCENT_TO_REPRODUCE * len(self.members))
+        surivors = max(surivors,num_elite)
         for i in range(surivors, len(self.members)):
             member = self.members[i]
             self.members[i] = None

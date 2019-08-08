@@ -4,8 +4,8 @@ import torch.multiprocessing as mp
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Run state options
-run_name = "base_new_new_1"
-continue_from_last_run = True
+run_name = "test"
+continue_from_last_run = False
 fully_train = False
 # --------------------------------------------------------------------------------------------------------------------#
 # nn options
@@ -21,7 +21,7 @@ max_num_generations = 50
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Multiobjective options
-second_objective = 'network_size'  # network_size | network_size_adjusted | network_size_adjusted_2
+second_objective = ''  # network_size | network_size_adjusted | network_size_adjusted_2
 second_objective_comparator = operator.lt  # lt for minimisation, gt for maximisation
 third_objective = ''
 third_objective_comparator = operator.lt
@@ -34,18 +34,22 @@ evolve_data_augmentations = False
 colour_augmentations = False
 
 # --------------------------------------------------------------------------------------------------------------------#
-module_retention = False
+module_retention = True
+fitness_aggregation = 'max'  # max | avg
+allow_species_module_mapping_ignores = True
 # --------------------------------------------------------------------------------------------------------------------#
 speciation_overhaul = False
 ignore_disabled_connections_for_topological_similarity = False
+# -----------------------------
+# --------------------------------------------------------------------------------------------------------------------#
+
 # --------------------------------------------------------------------------------------------------------------------#
 use_graph_edit_distance = False
 # --------------------------------------------------------------------------------------------------------------------#
-fitness_aggregation = 'avg'  # max | avg
-# --------------------------------------------------------------------------------------------------------------------#
+
 
 # Debug and test options
-dummy_run = False
+dummy_run = True
 
 protect_parsing_from_errors = False
 test_in_run = False
