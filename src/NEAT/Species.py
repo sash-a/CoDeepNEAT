@@ -46,9 +46,9 @@ class Species:
         self._cull_species(elite_count)
         self._reproduce(mutation_record, elite_count)
 
-        if len(self.members) != self.next_species_size:
-            raise Exception("created next generation but population size(" + repr(
-                len(self.members)) + ")is wrong should be:(" + repr(self.next_species_size) + ")")
+        # if len(self.members) != self.next_species_size:
+        #     raise Exception("created next generation but population size(" + repr(
+        #         len(self.members)) + ")is wrong should be:(" + repr(self.next_species_size) + ")")
 
         self._select_representative()
         self.age += 1
