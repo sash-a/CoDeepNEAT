@@ -35,8 +35,8 @@ colour_augmentations = False
 
 # --------------------------------------------------------------------------------------------------------------------#
 module_retention = True
-fitness_aggregation = 'max'  # max | avg
-allow_species_module_mapping_ignores = True
+fitness_aggregation = 'avg'  # max | avg
+allow_species_module_mapping_ignores = False
 # --------------------------------------------------------------------------------------------------------------------#
 speciation_overhaul = False
 ignore_disabled_connections_for_topological_similarity = False
