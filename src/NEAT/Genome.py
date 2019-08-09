@@ -173,11 +173,11 @@ class Genome:
 
         return neat_dist
 
-    def mutate(self, mutation_record):
+    def mutate(self, mutation_record, attribute_magnitude = 1, topological_magnitude = 1):
         raise NotImplemented('Mutation should be called not in base class')
 
     def _mutate(self, mutation_record, add_node_chance, add_connection_chance, allow_connections_to_mutate=True,
-                debug=False):
+                debug=False, attribute_magnitude = 1, topological_magnitude = 1):
         if debug:
             print("before mutation: ", self, "has branches;", self.has_branches())
 
@@ -204,20 +204,20 @@ class Genome:
                 print("connection change mutation")
             for connection in self._connections.values():
                 orig_conn = copy.deepcopy(connection)
-                mutated = connection.mutate()
+                mutated = connection.mutate(magnitude=topological_magnitude)
                 topology_changed = topology_changed or mutated
                 # If mutation made the genome invalid then undo it
                 if mutated and not self.validate():
                     self._connections[orig_conn.id] = orig_conn
 
         for node in self._nodes.values():
-            node.mutate()
+            node.mutate(magnitude=attribute_magnitude)
 
         if topology_changed:
             self.calculate_heights()
 
         for mutagen in self.get_all_mutagens():
-            mutagen.mutate()
+            mutagen.mutate(magnitude=attribute_magnitude)
 
         if debug:
             print("after mutation: ", self, "has branches;", self.has_branches())

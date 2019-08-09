@@ -24,10 +24,10 @@ class Gene:
     def get_all_mutagens(self):
         raise NotImplementedError("Implement get all mutagens in super classes")
 
-    def mutate(self):
+    def mutate(self, magnitude = 1):
         mutated = False
         for mutagen in self.get_all_mutagens():
-            mutated = mutagen.mutate() or mutated
+            mutated = mutagen.mutate(magnitude=magnitude) or mutated
 
         return mutated
 

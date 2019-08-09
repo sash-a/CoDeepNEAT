@@ -57,7 +57,7 @@ class Mutagen:
     def __call__(self):
         return self.get_value()
 
-    def mutate(self):
+    def mutate(self, magnitude = 1):
         """:returns whether or not this gene mutated"""
         old_value = self()
         self.mutate_sub_mutagens()
@@ -67,7 +67,7 @@ class Mutagen:
 
         self.age += 1
 
-        if random.random() < self.mutation_chance:
+        if random.random() < self.mutation_chance*magnitude:
             if self.value_type == ValueType.DISCRETE:
                 new_current_value_id = random.randint(0, len(self.possible_values) - 1)
                 if new_current_value_id == self.current_value_id:
@@ -81,7 +81,7 @@ class Mutagen:
                     """random reset"""
                     new_current_value = random.randint(self.start_range, self.end_range)
                 else:
-                    deviation_fraction = math.pow(random.random(), 4) * (1 if random.random() < 0.5 else -1)
+                    deviation_fraction = math.pow(random.random(), 4) * (1 if random.random() < 0.5 else -1)*magnitude
                     new_current_value = self.current_value + int(
                         deviation_fraction * (self.end_range - self.start_range))
                     # print("altering whole number from",old_value,"to",new_current_value,"using dev frac=",deviation_fraction,"range: [",self.start_range,",",self.end_range,")")
@@ -101,7 +101,7 @@ class Mutagen:
                     new_current_value = random.uniform(self.start_range, self.end_range)
                     deviation_fraction = -1
                 else:
-                    deviation_fraction = math.pow(random.random(), 4) * (1 if random.random() < 0.5 else -1)
+                    deviation_fraction = math.pow(random.random(), 4) * (1 if random.random() < 0.5 else -1)*magnitude
                     new_current_value = self.current_value + deviation_fraction * (self.end_range - self.start_range)
                 new_current_value = max(self.start_range, min(self.end_range, new_current_value))
                 if self.print_when_mutating:

@@ -81,8 +81,8 @@ class BlueprintGenome(Genome):
         for spc_index, module_index in self.species_module_index_map.items():
             self.species_module_ref_map[spc_index] = generation.module_population.species[spc_index][module_index]
 
-    def mutate(self, mutation_record):
-        if Config.module_retention and random.random() < 0.1 and self.species_module_ref_map:
+    def mutate(self, mutation_record,attribute_magnitude = 1, topological_magnitude = 1):
+        if Config.module_retention and random.random() < 0.1*topological_magnitude and self.species_module_ref_map:
             """release a module_individual"""
             tries = 100
 
@@ -93,7 +93,7 @@ class BlueprintGenome(Genome):
                     break
                 tries -= 1
 
-        return super()._mutate(mutation_record, Props.BP_NODE_MUTATION_CHANCE, Props.BP_CONN_MUTATION_CHANCE)
+        return super()._mutate(mutation_record, Props.BP_NODE_MUTATION_CHANCE, Props.BP_CONN_MUTATION_CHANCE, attribute_magnitude=attribute_magnitude, topological_magnitude=topological_magnitude)
 
     def inherit(self, genome):
         self.da_scheme = genome.da_scheme
@@ -165,8 +165,8 @@ class ModuleGenome(Genome):
         attrib_dist /= len(common_nodes)
         return attrib_dist
 
-    def mutate(self, mutation_record):
-        return super()._mutate(mutation_record, Props.MODULE_NODE_MUTATION_CHANCE, Props.MODULE_CONN_MUTATION_CHANCE)
+    def mutate(self, mutation_record,attribute_magnitude = 1, topological_magnitude = 1):
+        return super()._mutate(mutation_record, Props.MODULE_NODE_MUTATION_CHANCE, Props.MODULE_CONN_MUTATION_CHANCE, attribute_magnitude=attribute_magnitude, topological_magnitude=topological_magnitude)
 
     def inherit(self, genome):
         pass
@@ -197,9 +197,9 @@ class DAGenome(Genome):
         """Only want linear graphs for data augmentation"""
         return True
 
-    def mutate(self, mutation_record):
+    def mutate(self, mutation_record,attribute_magnitude = 1, topological_magnitude = 1):
         # print("mutating DA genome")
-        return super()._mutate(mutation_record, 0.1, 0, allow_connections_to_mutate=False, debug=False)
+        return super()._mutate(mutation_record, 0.1, 0, allow_connections_to_mutate=False, debug=False, attribute_magnitude=attribute_magnitude, topological_magnitude=topological_magnitude)
 
     def inherit(self, genome):
         pass
