@@ -1,6 +1,6 @@
 from src.NEAT.Mutagen import Mutagen
 from enum import Enum
-
+import copy
 
 class Gene:
 
@@ -24,12 +24,21 @@ class Gene:
     def get_all_mutagens(self):
         raise NotImplementedError("Implement get all mutagens in super classes")
 
-    def mutate(self):
+    def mutate(self, magnitude = 1):
         mutated = False
         for mutagen in self.get_all_mutagens():
-            mutated = mutagen.mutate() or mutated
+            mutated = mutagen.mutate(magnitude=magnitude) or mutated
 
         return mutated
+
+    def breed(self, other):
+        """returns chlid of self and other by cloning self and inheriting mutagen values from other to the clone"""
+        clone = copy.deepcopy(self)
+        for (best, worst) in zip(clone.get_all_mutagens(), other.get_all_mutagens()):
+            best.inherit(worst)
+
+        return clone
+
 
 
 class NodeType(Enum):

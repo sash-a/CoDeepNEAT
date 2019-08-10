@@ -91,7 +91,13 @@ class Species:
                 raise Exception("Error: cross over produced null child")
 
             if child.validate():
-                child = child.mutate(mutation_record)
+                if Config.adjust_species_mutation_magnitude_based_on_fitness:
+                    """less fit species change more rapidly"""
+                    mutation_magnitude = 1/math.pow(self.fitness,1.2)
+                else:
+                    mutation_magnitude = 1
+
+                child = child.mutate(mutation_record, attribute_magnitude=mutation_magnitude)
                 children.append(child)
 
             tries -= 1

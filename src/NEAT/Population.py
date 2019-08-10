@@ -166,6 +166,7 @@ class Population:
         for species in self.species:
             species_average_rank = species.get_average_rank()
             species.fitness = species_average_rank / population_average_rank
+            print("species", species,"fitness:",species.fitness)
             total_species_fitness += species.fitness
 
         for species in self.species:

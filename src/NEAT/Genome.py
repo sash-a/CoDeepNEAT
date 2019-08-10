@@ -28,12 +28,12 @@ class Genome:
             self.fitness_values.append(
                 sys.maxsize if Config.third_objective_comparator == operator.lt else -(sys.maxsize - 1))
 
-        self._nodes = {}
+        self._nodes = {}#maps node id to node object
         for node in nodes:
             self.add_node(node)
 
         self._connected_nodes = set()  # set of (from,to)tuples
-        self._connections = {}
+        self._connections = {}#maps connection id to connection object
         for connection in connections:
             self.add_connection(connection, True)
         self.netx_graph = None
@@ -173,11 +173,11 @@ class Genome:
 
         return neat_dist
 
-    def mutate(self, mutation_record):
+    def mutate(self, mutation_record, attribute_magnitude = 1, topological_magnitude = 1):
         raise NotImplemented('Mutation should be called not in base class')
 
     def _mutate(self, mutation_record, add_node_chance, add_connection_chance, allow_connections_to_mutate=True,
-                debug=False):
+                debug=False, attribute_magnitude = 1, topological_magnitude = 1):
         if debug:
             print("before mutation: ", self, "has branches;", self.has_branches())
 
@@ -204,20 +204,20 @@ class Genome:
                 print("connection change mutation")
             for connection in self._connections.values():
                 orig_conn = copy.deepcopy(connection)
-                mutated = connection.mutate()
+                mutated = connection.mutate(magnitude=topological_magnitude)
                 topology_changed = topology_changed or mutated
                 # If mutation made the genome invalid then undo it
                 if mutated and not self.validate():
                     self._connections[orig_conn.id] = orig_conn
 
         for node in self._nodes.values():
-            node.mutate()
+            node.mutate(magnitude=attribute_magnitude)
 
         if topology_changed:
             self.calculate_heights()
 
         for mutagen in self.get_all_mutagens():
-            mutagen.mutate()
+            mutagen.mutate(magnitude=attribute_magnitude)
 
         if debug:
             print("after mutation: ", self, "has branches;", self.has_branches())
@@ -263,9 +263,14 @@ class Genome:
 
         for best_node in best._nodes.values():
             if best_node.id in worst._nodes:
-                child.add_node(copy.deepcopy(random.choice([best_node, worst._nodes[best_node.id]])))
+                if Config.breed_mutagens and random.random() < Config.mutagen_breed_chance:
+                    child_node = best_node.breed(worst._nodes[best_node.id])
+                else:
+                    child_node = copy.deepcopy(random.choice([best_node, worst._nodes[best_node.id]]))
             else:
-                child.add_node(copy.deepcopy(best_node))
+                child_node = copy.deepcopy(best_node)
+
+            child.add_node(child_node)
 
         for best_conn in best._connections.values():
             if self._nodes[best_conn.to_node].height <= self._nodes[best_conn.from_node].height:

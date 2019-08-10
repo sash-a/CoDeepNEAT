@@ -4,13 +4,13 @@ import torch.multiprocessing as mp
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Run state options
-run_name = "mod_ret_single_max"
+run_name = "test"
 continue_from_last_run = True
 fully_train = False
 # --------------------------------------------------------------------------------------------------------------------#
 # nn options
 device = 'gpu'  # gpu | cpu
-num_gpus = 4
+num_gpus = 1
 num_workers = 0  # this doesn't work in parallel because daemonic processes cannot spawn children
 dataset = 'cifar10'
 data_path = ''
@@ -42,14 +42,18 @@ speciation_overhaul = False
 ignore_disabled_connections_for_topological_similarity = False
 # -----------------------------
 # --------------------------------------------------------------------------------------------------------------------#
-
+adjust_species_mutation_magnitude_based_on_fitness = False
 # --------------------------------------------------------------------------------------------------------------------#
+breed_mutagens = True
+mutagen_breed_chance = 0.75
+# --------------------------------------------------------------------------------------------------------------------#
+
 use_graph_edit_distance = False
 # --------------------------------------------------------------------------------------------------------------------#
 
 
 # Debug and test options
-dummy_run = False
+dummy_run = True
 
 protect_parsing_from_errors = False
 test_in_run = False
