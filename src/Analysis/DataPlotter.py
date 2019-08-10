@@ -115,4 +115,4 @@ if __name__ == "__main__":
     run_name = 'module_retention_test'
     # RuntimeAnalysis.load_date_from_log_file(run_name, summary=False)
     # plot_all_generations('max', 0, run_name)
-    plot_all_runs(aggregation_type="max", show_data=True, line_graph = True, show_best_fit = True, max_gens=29, cut_at_max=False, stay_at_max=False)
+    plot_all_runs(aggregation_type="avg", show_data=True, line_graph = True, show_best_fit = False, max_gens=50, cut_at_max=False, stay_at_max=False)
