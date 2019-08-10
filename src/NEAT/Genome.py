@@ -28,12 +28,12 @@ class Genome:
             self.fitness_values.append(
                 sys.maxsize if Config.third_objective_comparator == operator.lt else -(sys.maxsize - 1))
 
-        self._nodes = {}
+        self._nodes = {}#maps node id to node object
         for node in nodes:
             self.add_node(node)
 
         self._connected_nodes = set()  # set of (from,to)tuples
-        self._connections = {}
+        self._connections = {}#maps connection id to connection object
         for connection in connections:
             self.add_connection(connection, True)
         self.netx_graph = None
@@ -263,9 +263,14 @@ class Genome:
 
         for best_node in best._nodes.values():
             if best_node.id in worst._nodes:
-                child.add_node(copy.deepcopy(random.choice([best_node, worst._nodes[best_node.id]])))
+                if Config.breed_mutagens and random.random() < Config.mutagen_breed_chance:
+                    child_node = best_node.breed(worst._nodes[best_node.id])
+                else:
+                    child_node = copy.deepcopy(random.choice([best_node, worst._nodes[best_node.id]]))
             else:
-                child.add_node(copy.deepcopy(best_node))
+                child_node = copy.deepcopy(best_node)
+
+            child.add_node(child_node)
 
         for best_conn in best._connections.values():
             if self._nodes[best_conn.to_node].height <= self._nodes[best_conn.from_node].height:

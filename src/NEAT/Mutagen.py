@@ -54,6 +54,25 @@ class Mutagen:
         else:
             self.mutation_chance = mutation_chance
 
+    def inherit(self, other):
+        """returns """
+        if self.value_type != other.value_type:
+            raise Exception("cannot breed mutagens of differing types:",self.value_type,other.value_type)
+
+        if self.value_type == ValueType.DISCRETE:
+            """chance to take others value"""
+            if random.random() < 0.35:
+                self.set_value(other.get_value())
+        else:
+            """new value interpolated from old value - skewed slightly towards self against other"""
+            my_value = self.get_value()
+            other_value = other.get_value()
+            new_value = my_value +  0.65* (other_value - my_value)
+            self.set_value(new_value)
+
+        for sub in self.sub_values.keys():
+            self.sub_values[sub].inherit(other.sub_values[sub])
+
     def __call__(self):
         return self.get_value()
 

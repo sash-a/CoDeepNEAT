@@ -1,6 +1,6 @@
 from src.NEAT.Mutagen import Mutagen
 from enum import Enum
-
+import copy
 
 class Gene:
 
@@ -30,6 +30,15 @@ class Gene:
             mutated = mutagen.mutate(magnitude=magnitude) or mutated
 
         return mutated
+
+    def breed(self, other):
+        """returns chlid of self and other by cloning self and inheriting mutagen values from other to the clone"""
+        clone = copy.deepcopy(self)
+        for (best, worst) in zip(clone.get_all_mutagens(), other.get_all_mutagens()):
+            best.inherit(worst)
+
+        return clone
+
 
 
 class NodeType(Enum):
