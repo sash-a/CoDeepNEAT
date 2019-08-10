@@ -149,29 +149,29 @@ class DANode(NodeGene):
         da_submutagens = {
 
             "Rotate": {
-                "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=-45, start_range=-180,
+                "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=-30, start_range=-180,
                               end_range=-1),
-                "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=+45, start_range=0,
+                "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=30, start_range=0,
                               end_range=180)},
 
             "Translate_Pixels": {
-                "x_lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=-7, start_range=-15,
+                "x_lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=-4, start_range=-15,
                                 end_range=-1),
-                "x_hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=7, start_range=0,
+                "x_hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=4, start_range=0,
                                 end_range=15),
-                "y_lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=-7, start_range=-15,
+                "y_lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=-4, start_range=-15,
                                 end_range=-1),
-                "y_hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=7, start_range=0,
+                "y_hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=4, start_range=0,
                                 end_range=15)},
 
             "Scale": {
-                "x_lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.25,
+                "x_lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.75, start_range=0.25,
                                 end_range=0.99),
-                "x_hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=1.5, start_range=1.0,
+                "x_hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=1.25, start_range=1.0,
                                 end_range=2.0),
-                "y_lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.25,
+                "y_lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.75, start_range=0.25,
                                 end_range=0.99),
-                "y_hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=1.5, start_range=1.0,
+                "y_hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=1.25, start_range=1.0,
                                 end_range=2.0)},
 
             "Pad_Pixels": {
@@ -203,7 +203,7 @@ class DANode(NodeGene):
             "Additive_Gaussian_Noise": {
                 "lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.05, start_range=0.0,
                               end_range=0.09),
-                "hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.20, start_range=0.10,
+                "hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.1, start_range=0.10,
                               end_range=0.40),
                 "percent": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.6, start_range=0.2,
                                    end_range=0.8)
@@ -227,9 +227,9 @@ class DANode(NodeGene):
         if Config.colour_augmentations:
             da_submutagens["Rotate_Channel"] = {
                     "channel": Mutagen(0, 1, 2, discreet_value=0, mutation_chance=0.20),
-                    "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=-45, start_range=-180,
+                    "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=-20, start_range=-180,
                                   end_range=-1),
-                    "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=+45, start_range=0,
+                    "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=20, start_range=0,
                                   end_range=180)}
             da_submutagens["Increase_Channel"] = {
                     "channel": Mutagen(0, 1, 2, discreet_value=0, mutation_chance=0.20),

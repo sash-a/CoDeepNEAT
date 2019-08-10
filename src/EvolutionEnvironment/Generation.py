@@ -96,11 +96,11 @@ class Generation:
         lock = mp.Lock()
 
         if Config.evolve_data_augmentations:
-            das_used = []
+            # das_used = []
             """blueprints should pick their da schemes before being evaluated. if their old DA is still alive they will reselect it"""
             for blueprint_individual in self.blueprint_population.individuals:
                 blueprint_individual.pick_da_scheme(self.da_population)
-                das_used.append(blueprint_individual.da_scheme)
+                # das_used.append(blueprint_individual.da_scheme)
 
             # print("master", self.blueprint_population.individuals[5],"\n", self.blueprint_population.individuals[5].da_scheme)
 
@@ -150,11 +150,11 @@ class Generation:
 
             self.pareto_population.queue_candidate(module_graph)
 
-        i=0
-        for blueprint_individual in self.blueprint_population.individuals:
-            if blueprint_individual.da_scheme != das_used[i]:
-                print("changed da_scheme from",das_used[i],"\nto",blueprint_individual.da_scheme)
-            i+=1
+        # i=0
+        # for blueprint_individual in self.blueprint_population.individuals:
+        #     if blueprint_individual.da_scheme != das_used[i]:
+        #         print("changed da_scheme from",das_used[i],"\nto",blueprint_individual.da_scheme)
+        #     i+=1
 
         RuntimeAnalysis.log_new_generation(accuracies, generation_number,
                                            second_objective_values=(
@@ -201,7 +201,7 @@ class Generation:
                 """ignore da scheme to try different one"""
                 da_indv = random.choice(self.da_population.individuals)
                 blueprint_individual.da_scheme_index = self.da_population.individuals.index(da_indv)
-                print("overriding da_scheme from " , blueprint_individual.da_scheme, "to",da_indv )
+                # print("overriding da_scheme from " , blueprint_individual.da_scheme, "to",da_indv )
 
             else:
                 """use existing da scheme"""
