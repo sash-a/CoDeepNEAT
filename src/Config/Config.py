@@ -30,8 +30,10 @@ moo_optimiser = 'cdn'  # cdn | nsga
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Data augmentation options
-evolve_data_augmentations = False
-colour_augmentations = False
+evolve_data_augmentations = True
+colour_augmentations = True
+allow_da_scheme_ignores = False
+da_ignore_chance=0.2
 
 # --------------------------------------------------------------------------------------------------------------------#
 module_retention = True

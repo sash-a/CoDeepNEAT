@@ -336,13 +336,12 @@ class AugmentationScheme:
 
     # This function returns a new list of augmented images based on the pipeline you create
     def augment_images(self):
-        if self.augs:
 
+        if self.augs:
             seq = iaa.Sequential(self.augs)
             images_aug = seq.augment_images(self.images)
-            # print("augmenting",np.shape(self.images), "to",np.shape(images_aug))
+            # print("auging with:",seq,"\nfrom augs",self.augs)
             self.labels = self.labels  # labels should be identical
-
             return images_aug, self.labels
 
         else:

@@ -2,6 +2,7 @@ from src.Config import Config
 from src.Validation import Evaluator, DataLoader
 from src.Validation.DataSet import DataSet
 from src.NeuralNetwork.ModuleNet import create_nn
+import random
 from data import DataManager
 # from sklearn.model_selection import cross_val_predict
 # from skorch import NeuralNetClassifier
@@ -67,7 +68,7 @@ def get_fully_trained_network(module_graph, data_augs, num_epochs = 30):
 
 def get_accuracy_for_network(model, da_scheme=None, batch_size=256):
     if Config.dummy_run:
-        acc = hash(model)
+        acc = random.random()
     else:
         acc = Evaluator.evaluate(model, Config.number_of_epochs_per_evaluation, Config.get_device(), batch_size,
                                  augmentors=[da_scheme])

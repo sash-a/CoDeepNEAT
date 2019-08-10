@@ -47,8 +47,9 @@ class BlueprintGenome(Genome):
     def pick_da_scheme(self, da_population):
         if self.da_scheme is not None and self.da_scheme in da_population.species[0].members:
             self.da_scheme_index = da_population.species[0].members.index(self.da_scheme)
-            # print("keeping existing DA scheme, taking new index:",self.da_scheme_index)
+            # print("keeping existing DA scheme, taking new index:", self.da_scheme_index)
             return self.da_scheme
+
 
         # Assuming data augmentation only has 1 species
         # TODO make sure there is only ever 1 species - could make it random choice from individuals
@@ -56,13 +57,19 @@ class BlueprintGenome(Genome):
         # print("sampled new da scheme, index:",self.da_scheme_index)
         return self.da_scheme
 
-    def inherit_species_module_mapping(self, generation,  other, acc):
+    def inherit_species_module_mapping(self, generation,  other, acc, da_scheme = None, inherit_module_mapping = True):
         """Updates the species-module mapping if accuracy is higher than max accuracy"""
         if acc > self.max_accuracy:
-            other.update_module_refs(generation)
-            self.species_module_ref_map = other.species_module_ref_map
+            if inherit_module_mapping:
+                other.update_module_refs(generation)
+                self.species_module_ref_map = other.species_module_ref_map
 
             self.max_accuracy = acc
+
+            if da_scheme != None:
+                # if self.da_scheme != da_scheme:
+                #     print("changing master genome da scheme from", self.da_scheme,"to",da_scheme)
+                self.da_scheme = da_scheme
 
     def update_module_indexes(self, generation):
         self.species_module_index_map = {}
@@ -92,6 +99,8 @@ class BlueprintGenome(Genome):
                     self.species_module_ref_map[species_no] = None
                     break
                 tries -= 1
+        if Config.evolve_data_augmentations and random.random() < 0.2:
+            self.da_scheme = None
 
         return super()._mutate(mutation_record, Props.BP_NODE_MUTATION_CHANCE, Props.BP_CONN_MUTATION_CHANCE, attribute_magnitude=attribute_magnitude, topological_magnitude=topological_magnitude)
 
@@ -187,7 +196,8 @@ class DAGenome(Genome):
     def __repr__(self):
         node_names = []
         for node in self._nodes.values():
-            node_names.append(node.get_node_name())
+            if node.enabled():
+                node_names.append(node.get_node_name())
 
         toString = "\tNodes:" + repr(list(node_names)) + "\n" + "\tTraversal_Dict: " + repr(
             self._get_traversal_dictionary())
@@ -208,36 +218,50 @@ class DAGenome(Genome):
         # Construct DA scheme from nodes
         # print("parsing",self, "to da scheme")
         da_scheme = AugmentationScheme(None, None)
-        traversal = self._get_traversal_dictionary()
+        traversal = self._get_traversal_dictionary(exclude_disabled_connection=True)
         curr_node = self.get_input_node().id
 
-        if not self._to_da_scheme(da_scheme, curr_node, traversal):
+        if not self._to_da_scheme(da_scheme, curr_node, traversal, debug=True):
             # self._to_da_scheme(da_scheme, curr_node, traversal,debug= True)
             """all da's are disabled"""
+            # print("added no da's from gene. adding in NOOP")
             da_scheme.augs.append(AugmentationScheme.Augmentations["No_Operation"])
             # raise Exception("never added any augmentations to pipeline. genome:", self)
 
+        gene_augs = []
+        for node in self._nodes.values():
+            if node.enabled():
+                gene_augs.append(node.da())
+
+        if len(gene_augs) != 0 and len(gene_augs) != len(da_scheme.augs):
+            raise Exception("failed to add all augs from gene. genes:" + repr(gene_augs) + "added:" + repr(da_scheme.augs))
+
+
         return da_scheme
+
 
     def _to_da_scheme(self, da_scheme: AugmentationScheme, curr_node_id, traversal_dictionary, debug=False):
 
-        if curr_node_id not in traversal_dictionary:
-            if debug:
-                print("reached output node:", curr_node_id)
-            return False
+        this_node_added_da = False
 
-        added_an_aug = False
-        for node_id in traversal_dictionary[curr_node_id]:
-            if debug:
-                print("visiting node:", node_id, "da_name:", self._nodes[node_id].da())
-            da_name = self._nodes[node_id].da()
-            # print("found da",da_name)
-            if self._nodes[node_id].enabled():
-                added_an_aug = True
-                da_scheme.add_augmentation(self._nodes[node_id].da)
-            added_an_aug = added_an_aug or self._to_da_scheme(da_scheme, node_id, traversal_dictionary)
+        if self._nodes[curr_node_id].enabled():
+            da_scheme.add_augmentation(self._nodes[curr_node_id].da)
+            this_node_added_da = True
 
-        return added_an_aug
+        if curr_node_id in traversal_dictionary:
+            branches = 0
+
+            for node_id in traversal_dictionary[curr_node_id]:
+                branches+=1
+                child_added_da = self._to_da_scheme(da_scheme,node_id, traversal_dictionary, debug=debug)
+
+            if branches>1:
+                raise Exception("too many branches")
+
+            return this_node_added_da or child_added_da
+
+        return this_node_added_da
+
 
     def validate(self):
         return super().validate() and not self.has_branches()
