@@ -10,25 +10,19 @@ class GenerationData:
         self.third_objective_values = third_objective_values
         self.objectives = [accuracies, second_objective_values, third_objective_values]
 
-    def get_average_of_objective(self, objective=0):
-        objectives = self.objectives[objective]
-        if objectives is None or len(objectives) == 0:
-            return None
-        total = 0
-        for val in objectives:
-            total += val
-
-        return total / len(objectives)
-
-    def get_max_of_objective(self, objective=0):
-        objectives = self.objectives[objective]
-        if objectives is None or len(objectives) == 0:
+    def get_average_of_objective(self, objective_no=0):
+        objective = self.objectives[objective_no]
+        if objective is None or len(objective) == 0:
             return None
 
-        max_val = -sys.maxsize - 1
-        for val in self.accuracies:
-            max_val = max(val, max_val)
-        return max_val
+        return sum(objective) / len(objective)
+
+    def get_max_of_objective(self, objective_no=0):
+        objective = self.objectives[objective_no]
+        if objective is None or not objective:
+            return None
+
+        return max(objective)
 
     def get_summary(self):
         """

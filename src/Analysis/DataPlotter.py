@@ -3,6 +3,7 @@ from src.Analysis import RuntimeAnalysis
 from data import DataManager
 import numpy as np
 import os
+import heapq
 
 plot = None
 
@@ -45,6 +46,10 @@ def get_gens_and_fitnesses(aggregation_type='max', fitness_index=0):
         fitness = [gen.get_max_of_objective(fitness_index) for gen in RuntimeAnalysis.generations]
     elif aggregation_type == 'avg':
         fitness = [gen.get_average_of_objective(fitness_index) for gen in RuntimeAnalysis.generations]
+    elif aggregation_type == 'max5':
+        fitness = []
+        for gen in RuntimeAnalysis.generations:
+            fitness.append(sum(heapq.nlargest(5, gen.objectives[fitness_index])) / 5)
     else:
         raise ValueError('Only aggregation types allowed are avg and max, received' + str(aggregation_type))
 
@@ -94,15 +99,13 @@ def plot_all_runs(aggregation_type='max', fitness_index=0, max_gens=1000, show_d
             elif show_smoothed_data:
                 aggregated = get_rolling_averages(fitness)
 
-
-
             if show_data:
                 if line_graph:
                     p = plt.plot(gens, fitness, label=run)
                 else:
                     p = plt.scatter(gens, fitness, label=run)
                 if aggregated is not None:
-                    plt.plot(gens, aggregated, c = p[0].get_color())
+                    plt.plot(gens, aggregated, c=p[0].get_color())
 
             else:
                 if aggregated is not None:
@@ -121,16 +124,17 @@ def plot_all_runs(aggregation_type='max', fitness_index=0, max_gens=1000, show_d
 
     print(runs)
 
-def get_rolling_averages(data, alpha = 0.75):
+
+def get_rolling_averages(data, alpha=0.75):
     smoothed = []
     for point in data:
         if len(smoothed) == 0:
             smoothed.append(point)
         else:
-            smooth = smoothed[-1] * alpha + point*(1-alpha)
+            smooth = smoothed[-1] * alpha + point * (1 - alpha)
             smoothed.append(smooth)
     return smoothed
 
 
 if __name__ == "__main__":
-    plot_all_runs(aggregation_type="avg", show_data=False, show_smoothed_data=True, stay_at_max=False)
+    plot_all_runs(aggregation_type="max5", show_data=False, show_smoothed_data=False, stay_at_max=True)
