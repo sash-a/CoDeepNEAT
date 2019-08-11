@@ -4,7 +4,7 @@ import torch.multiprocessing as mp
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Run state options
-run_name = "da_single_modret"
+run_name = "single_modret_max"
 continue_from_last_run = True
 fully_train = False
 # --------------------------------------------------------------------------------------------------------------------#
@@ -30,15 +30,15 @@ moo_optimiser = 'cdn'  # cdn | nsga
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Data augmentation options
-evolve_data_augmentations = True
-colour_augmentations = True
-allow_da_scheme_ignores = True
+evolve_data_augmentations = False
+colour_augmentations = False
+allow_da_scheme_ignores = False
 da_ignore_chance=0.2
 
 # --------------------------------------------------------------------------------------------------------------------#
 module_retention = True
-fitness_aggregation = 'avg'  # max | avg
-allow_species_module_mapping_ignores = False
+fitness_aggregation = 'max'  # max | avg
+allow_species_module_mapping_ignores = True
 # --------------------------------------------------------------------------------------------------------------------#
 speciation_overhaul = False
 ignore_disabled_connections_for_topological_similarity = False
