@@ -4,7 +4,7 @@ import torch.multiprocessing as mp
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Run state options
-run_name = "single_modret_max"
+run_name = "test"
 continue_from_last_run = True
 fully_train = False
 # --------------------------------------------------------------------------------------------------------------------#

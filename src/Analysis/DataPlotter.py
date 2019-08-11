@@ -62,7 +62,7 @@ def plot_all_generations(aggregation_type='max', fitness_index=0, run_name='unna
 
 
 def plot_all_runs(aggregation_type='max', fitness_index=0, max_gens=1000, show_data=False, cut_at_max=False,
-                  stay_at_max=True, line_graph=False, show_best_fit=False):
+                  stay_at_max=True, line_graph=True, show_best_fit=False, show_smoothed_data=False):
     runs = set()
     for subdir, dirs, files in os.walk(os.path.join(DataManager.get_data_folder(), "runs")):
         sub = subdir.split("runs")[1][1:].split("\\")[0].split("/")[0]
@@ -84,18 +84,29 @@ def plot_all_runs(aggregation_type='max', fitness_index=0, max_gens=1000, show_d
                 gens = gens[:max_gens]
                 fitness = fitness[:max_gens]
 
+            aggregated = None
             if stay_at_max:
                 print("from", fitness, "to", [max(fitness[:i + 1]) for i in range(len(fitness))])
-                fitness_max = [max(fitness[:i + 1]) for i in range(len(fitness))]
-                plt.plot(gens, fitness_max, label=run)
+                aggregated = [max(fitness[:i + 1]) for i in range(len(fitness))]
             elif show_best_fit:
-                plt.plot(np.unique(gens), np.poly1d(np.polyfit(gens, fitness, 1))(np.unique(gens)))
+                gens = np.unique(gens)
+                aggregated = np.poly1d(np.polyfit(gens, fitness, 1))(np.unique(gens))
+            elif show_smoothed_data:
+                aggregated = get_rolling_averages(fitness)
+
+
 
             if show_data:
                 if line_graph:
-                    plt.plot(gens, fitness, label=run)
+                    p = plt.plot(gens, fitness, label=run)
                 else:
-                    plt.scatter(gens, fitness, label=run)
+                    p = plt.scatter(gens, fitness, label=run)
+                if aggregated is not None:
+                    plt.plot(gens, aggregated, c = p[0].get_color())
+
+            else:
+                if aggregated is not None:
+                    plt.plot(gens, aggregated, label=run)
 
         except Exception as e:
             print(e)
@@ -105,11 +116,21 @@ def plot_all_runs(aggregation_type='max', fitness_index=0, max_gens=1000, show_d
     plt.gca().legend(handles, labels)
     plt.xlabel("Generation")
     plt.ylabel("fitness " + repr(fitness_index))
+    plt.title(aggregation_type + " fitness")
     plt.show()
 
     print(runs)
 
+def get_rolling_averages(data, alpha = 0.75):
+    smoothed = []
+    for point in data:
+        if len(smoothed) == 0:
+            smoothed.append(point)
+        else:
+            smooth = smoothed[-1] * alpha + point*(1-alpha)
+            smoothed.append(smooth)
+    return smoothed
+
 
 if __name__ == "__main__":
-    plot_all_runs(aggregation_type="max", show_data=False, line_graph=False, show_best_fit=False, max_gens=50,
-                  cut_at_max=False, stay_at_max=True)
+    plot_all_runs(aggregation_type="avg", show_data=False, show_smoothed_data=True, stay_at_max=False)
