@@ -6,11 +6,11 @@ import torch.multiprocessing as mp
 # Run state options
 run_name = "single_modret_max"
 continue_from_last_run = True
-fully_train = False
+fully_train = True
 # --------------------------------------------------------------------------------------------------------------------#
 # nn options
 device = 'gpu'  # gpu | cpu
-num_gpus = 4
+num_gpus = 1
 num_workers = 0  # this doesn't work in parallel because daemonic processes cannot spawn children
 dataset = 'cifar10'
 data_path = ''

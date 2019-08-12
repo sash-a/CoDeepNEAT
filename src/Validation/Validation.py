@@ -60,7 +60,7 @@ def get_fully_trained_network(module_graph, data_augs, num_epochs = 100):
     train, test = DataLoader.load_data(dataset=module_graph.dataset)
     sample, _ = DataLoader.sample_data(Config.get_device(), dataset= module_graph.dataset)
     # module_graph.plot_tree_with_graphvis(title="before putting in model", file="before")
-    model = create_nn(module_graph,sample, feature_multiplier= 2)
+    model = create_nn(module_graph,sample, feature_multiplier= 1.5)
     module_graph.plot_tree_with_graphvis(title="after putting in model", file = "after")
     print("training nn",model)
     acc = Evaluator.evaluate(model, num_epochs, Config.get_device(), train_loader=train, test_loader=test, print_accuracy=True, batch_size=256 )
