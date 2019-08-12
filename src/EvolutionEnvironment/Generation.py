@@ -20,7 +20,6 @@ import random
 
 
 class Generation:
-
     def __init__(self):
         self.speciesNumbers = []
         self.module_population, self.blueprint_population, self.da_population = None, None, None
@@ -67,13 +66,13 @@ class Generation:
 
         self.module_population.step(self)
         for blueprint_individual in self.blueprint_population.individuals:
-            blueprint_individual.reset_number_of_module_species(self.module_population.get_num_species(), self.generation_number)
+            blueprint_individual.reset_number_of_module_species(self.module_population.get_num_species(),
+                                                                self.generation_number)
 
         self.blueprint_population.step()
 
         if Config.evolve_data_augmentations:
             self.da_population.step()
-            # print("DA pop:",[repr(da) for da in self.da_population.individuals])
 
         for blueprint_individual in self.blueprint_population.individuals:
             blueprint_individual.end_step(self)
@@ -96,13 +95,10 @@ class Generation:
         lock = mp.Lock()
 
         if Config.evolve_data_augmentations:
-            # das_used = []
-            """blueprints should pick their da schemes before being evaluated. if their old DA is still alive they will reselect it"""
+            # blueprints should pick their da schemes before being evaluated. if their old DA is still alive they
+            # will reselect it
             for blueprint_individual in self.blueprint_population.individuals:
                 blueprint_individual.pick_da_scheme(self.da_population)
-                # das_used.append(blueprint_individual.da_scheme)
-
-            # print("master", self.blueprint_population.individuals[5],"\n", self.blueprint_population.individuals[5].da_scheme)
 
         for i in range(Config.num_gpus):
             procs.append(mp.Process(target=self._evaluate, args=(lock, bp_index, results_dict), name=str(i)))
@@ -131,8 +127,12 @@ class Generation:
 
             da_scheme_inherited = None if not (Config.allow_da_scheme_ignores and Config.evolve_data_augmentations) \
                 else self.da_population[evaluated_bp.da_scheme_index]
-            bp_pop_indvs[bp_key % bp_pop_size].inherit_species_module_mapping(self, evaluated_bp, fitness[0], da_scheme=da_scheme_inherited
-                                                                              , inherit_module_mapping=Config.module_retention)
+            bp_pop_indvs[bp_key % bp_pop_size]. \
+                inherit_species_module_mapping(self,
+                                               evaluated_bp,
+                                               fitness[0],
+                                               da_scheme=da_scheme_inherited,
+                                               inherit_module_mapping=Config.module_retention)
 
             if Config.evolve_data_augmentations and evaluated_bp.da_scheme_index != -1:
                 self.da_population[evaluated_bp.da_scheme_index].report_fitness([fitness[0]])
@@ -149,12 +149,6 @@ class Generation:
                 third_objective_values.append(fitness[2])
 
             self.pareto_population.queue_candidate(module_graph)
-
-        # i=0
-        # for blueprint_individual in self.blueprint_population.individuals:
-        #     if blueprint_individual.da_scheme != das_used[i]:
-        #         print("changed da_scheme from",das_used[i],"\nto",blueprint_individual.da_scheme)
-        #     i+=1
 
         RuntimeAnalysis.log_new_generation(accuracies, generation_number,
                                            second_objective_values=(
@@ -173,9 +167,6 @@ class Generation:
                 curr_index = bp_index.value
                 bp_index.value += 1
 
-            # if curr_index % bp_pop_size == 5:
-            #     print('in eval', blueprint_individual.da_scheme)
-
             # Evaluating individual
             try:
                 module_graph, blueprint_individual, results = self.evaluate_blueprint(blueprint_individual, inputs)
@@ -183,8 +174,8 @@ class Generation:
             except Exception as e:
                 result_dict[curr_index] = 'defective', False, False
                 if not Config.protect_parsing_from_errors:
-                    print(e)
-                    raise Exception("defective blueprint evaluation")
+                    print('Defective blueprint evaluation')
+                    raise Exception(e)
 
     def evaluate_blueprint(self, blueprint_individual, inputs):
         # Validation
@@ -198,18 +189,17 @@ class Generation:
         net = src.Validation.Validation.create_nn(module_graph, inputs)
         if Config.evolve_data_augmentations:
             if Config.allow_da_scheme_ignores and random.random() < Config.da_ignore_chance:
-                """ignore da scheme to try different one"""
-                da_indv = random.choice(self.da_population.individuals)
-                blueprint_individual.da_scheme_index = self.da_population.individuals.index(da_indv)
-                # print("overriding da_scheme from " , blueprint_individual.da_scheme, "to",da_indv )
-
+                # ignore da scheme to try different one
+                blueprint_individual.da_scheme = None
+                da_indv = blueprint_individual.pick_da_scheme(self.da_population)
             else:
-                """use existing da scheme"""
+                # use existing da scheme
                 da_indv = blueprint_individual.da_scheme
 
             if da_indv.has_branches():
                 da_indv.plot_tree_with_graphvis()
                 raise Exception('Found data augmentation with branches, this should not happen')
+
             da_scheme = da_indv.to_phenotype()
             # print("indv:",da_indv,"\nscheme:",da_scheme.augs)
             # module_graph.data_augmentation_schemes.append(da_scheme)

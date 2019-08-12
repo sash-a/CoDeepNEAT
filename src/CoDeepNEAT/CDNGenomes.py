@@ -25,6 +25,8 @@ class BlueprintGenome(Genome):
         self.max_accuracy = 0  # the max accuracy of each of the samplings of this blueprint
 
         self.da_scheme: DAGenome = None
+        self.da_scheme_index = -1
+
         # TODO make this a static number
         self.learning_rate = Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.001, start_range=0.0006,
                                      end_range=0.003, print_when_mutating=False, mutation_chance=0.13)
@@ -35,7 +37,6 @@ class BlueprintGenome(Genome):
         self.weight_init = Mutagen(nn.init.kaiming_uniform_, nn.init.xavier_uniform_,
                                    discreet_value=nn.init.kaiming_uniform_, name='initialization function',
                                    mutation_chance=0.13)
-        self.da_scheme_index = -1
 
     def to_blueprint(self):
         """
@@ -50,14 +51,13 @@ class BlueprintGenome(Genome):
             # print("keeping existing DA scheme, taking new index:", self.da_scheme_index)
             return self.da_scheme
 
-
         # Assuming data augmentation only has 1 species
         # TODO make sure there is only ever 1 species - could make it random choice from individuals
         self.da_scheme, self.da_scheme_index = da_population.species[0].sample_individual()
         # print("sampled new da scheme, index:",self.da_scheme_index)
         return self.da_scheme
 
-    def inherit_species_module_mapping(self, generation,  other, acc, da_scheme = None, inherit_module_mapping = True):
+    def inherit_species_module_mapping(self, generation, other, acc, da_scheme=None, inherit_module_mapping=True):
         """Updates the species-module mapping if accuracy is higher than max accuracy"""
         if acc > self.max_accuracy:
             if inherit_module_mapping:
@@ -66,9 +66,7 @@ class BlueprintGenome(Genome):
 
             self.max_accuracy = acc
 
-            if da_scheme != None:
-                # if self.da_scheme != da_scheme:
-                #     print("changing master genome da scheme from", self.da_scheme,"to",da_scheme)
+            if da_scheme is not None:
                 self.da_scheme = da_scheme
 
     def update_module_indexes(self, generation):
@@ -78,9 +76,10 @@ class BlueprintGenome(Genome):
                 # print('Found a none node')
                 continue
 
-            if spc_index < len(generation.module_population.species) and\
+            if spc_index < len(generation.module_population.species) and \
                     module in generation.module_population.species[spc_index]:
-                self.species_module_index_map[spc_index] = generation.module_population.species[spc_index].members.index(module)
+                self.species_module_index_map[spc_index] = generation.module_population.species[
+                    spc_index].members.index(module)
                 # print("Found a live module")
 
     def update_module_refs(self, generation):
@@ -88,8 +87,8 @@ class BlueprintGenome(Genome):
         for spc_index, module_index in self.species_module_index_map.items():
             self.species_module_ref_map[spc_index] = generation.module_population.species[spc_index][module_index]
 
-    def mutate(self, mutation_record,attribute_magnitude = 1, topological_magnitude = 1):
-        if Config.module_retention and random.random() < 0.1*topological_magnitude and self.species_module_ref_map:
+    def mutate(self, mutation_record, attribute_magnitude=1, topological_magnitude=1):
+        if Config.module_retention and random.random() < 0.1 * topological_magnitude and self.species_module_ref_map:
             """release a module_individual"""
             tries = 100
 
@@ -102,7 +101,8 @@ class BlueprintGenome(Genome):
         if Config.evolve_data_augmentations and random.random() < 0.2:
             self.da_scheme = None
 
-        return super()._mutate(mutation_record, Props.BP_NODE_MUTATION_CHANCE, Props.BP_CONN_MUTATION_CHANCE, attribute_magnitude=attribute_magnitude, topological_magnitude=topological_magnitude)
+        return super()._mutate(mutation_record, Props.BP_NODE_MUTATION_CHANCE, Props.BP_CONN_MUTATION_CHANCE,
+                               attribute_magnitude=attribute_magnitude, topological_magnitude=topological_magnitude)
 
     def inherit(self, genome):
         self.da_scheme = genome.da_scheme
@@ -126,7 +126,7 @@ class BlueprintGenome(Genome):
 
     def reset_number_of_module_species(self, num_module_species, generation_number):
         for node in self._nodes.values():
-            node.set_species_upper_bound(num_module_species,generation_number)
+            node.set_species_upper_bound(num_module_species, generation_number)
 
     def get_all_mutagens(self):
         return [self.learning_rate, self.beta1, self.beta2, self.weight_init]
@@ -161,7 +161,6 @@ class ModuleGenome(Genome):
         # print(attrib_dist, topology_dist, math.sqrt(attrib_dist * attrib_dist + topology_dist * topology_dist))
         return math.sqrt(attrib_dist * attrib_dist + topology_dist * topology_dist)
 
-
     def get_attribute_distance(self, other):
         attrib_dist = 0
         common_nodes = self._nodes.keys() & other._nodes.keys()
@@ -174,8 +173,9 @@ class ModuleGenome(Genome):
         attrib_dist /= len(common_nodes)
         return attrib_dist
 
-    def mutate(self, mutation_record,attribute_magnitude = 1, topological_magnitude = 1):
-        return super()._mutate(mutation_record, Props.MODULE_NODE_MUTATION_CHANCE, Props.MODULE_CONN_MUTATION_CHANCE, attribute_magnitude=attribute_magnitude, topological_magnitude=topological_magnitude)
+    def mutate(self, mutation_record, attribute_magnitude=1, topological_magnitude=1):
+        return super()._mutate(mutation_record, Props.MODULE_NODE_MUTATION_CHANCE, Props.MODULE_CONN_MUTATION_CHANCE,
+                               attribute_magnitude=attribute_magnitude, topological_magnitude=topological_magnitude)
 
     def inherit(self, genome):
         pass
@@ -207,9 +207,10 @@ class DAGenome(Genome):
         """Only want linear graphs for data augmentation"""
         return True
 
-    def mutate(self, mutation_record,attribute_magnitude = 1, topological_magnitude = 1):
+    def mutate(self, mutation_record, attribute_magnitude=1, topological_magnitude=1):
         # print("mutating DA genome")
-        return super()._mutate(mutation_record, 0.1, 0, allow_connections_to_mutate=False, debug=False, attribute_magnitude=attribute_magnitude, topological_magnitude=topological_magnitude)
+        return super()._mutate(mutation_record, 0.1, 0, allow_connections_to_mutate=False, debug=False,
+                               attribute_magnitude=attribute_magnitude, topological_magnitude=topological_magnitude)
 
     def inherit(self, genome):
         pass
@@ -234,11 +235,10 @@ class DAGenome(Genome):
                 gene_augs.append(node.da())
 
         if len(gene_augs) != 0 and len(gene_augs) != len(da_scheme.augs):
-            raise Exception("failed to add all augs from gene. genes:" + repr(gene_augs) + "added:" + repr(da_scheme.augs))
-
+            raise Exception(
+                "failed to add all augs from gene. genes:" + repr(gene_augs) + "added:" + repr(da_scheme.augs))
 
         return da_scheme
-
 
     def _to_da_scheme(self, da_scheme: AugmentationScheme, curr_node_id, traversal_dictionary, debug=False):
 
@@ -252,16 +252,15 @@ class DAGenome(Genome):
             branches = 0
 
             for node_id in traversal_dictionary[curr_node_id]:
-                branches+=1
-                child_added_da = self._to_da_scheme(da_scheme,node_id, traversal_dictionary, debug=debug)
+                branches += 1
+                child_added_da = self._to_da_scheme(da_scheme, node_id, traversal_dictionary, debug=debug)
 
-            if branches>1:
+            if branches > 1:
                 raise Exception("too many branches")
 
             return this_node_added_da or child_added_da
 
         return this_node_added_da
-
 
     def validate(self):
         return super().validate() and not self.has_branches()
