@@ -11,7 +11,7 @@ import torch.multiprocessing as mp
 from src.Validation.DataLoader import load_data
 
 printBatchEvery = -1  # -1 to switch off batch printing
-print_epoch_every = 4
+print_epoch_every = -1 # -1 to switch off epoch printing
 
 
 def train(model, train_loader, epoch, test_loader, device, augmentors=None, print_accuracy=False):
@@ -66,7 +66,7 @@ def train(model, train_loader, epoch, test_loader, device, augmentors=None, prin
     end_time = time.time()
     # print(model)
 
-    if epoch % print_epoch_every == 0:
+    if print_epoch_every != -1 and epoch % print_epoch_every == 0:
         if print_accuracy:
             print("epoch", epoch, "average loss:", loss / batch_idx, "accuracy:",
                   test(model, test_loader, device, print_acc=False), "% time for epoch:", (end_time - s))
@@ -117,7 +117,7 @@ def test(model, test_loader, device, print_acc=True):
     return acc
 
 
-def evaluate(model, epochs, device, batch_size=64, augmentors=None, train_loader=None, test_loader=None):
+def evaluate(model, epochs, device, batch_size=64, augmentors=None, train_loader=None, test_loader=None, print_accuracy = False):
     """
     Runs all epochs and tests the model after all epochs have run
 
@@ -132,7 +132,7 @@ def evaluate(model, epochs, device, batch_size=64, augmentors=None, train_loader
 
     s = time.time()
     for epoch in range(1, epochs + 1):
-        train(model, train_loader, epoch, test_loader, device, augmentors)
+        train(model, train_loader, epoch, test_loader, device, augmentors, print_accuracy=print_accuracy)
     e = time.time()
 
     test_acc = test(model, test_loader, device)

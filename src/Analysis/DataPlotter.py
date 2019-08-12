@@ -40,16 +40,16 @@ def plot_generations():
         plot_objectives_at_gen(generation.generation_number)
 
 
-def get_gens_and_fitnesses(aggregation_type='max', fitness_index=0):
+def get_gens_and_fitnesses(aggregation_type='max', fitness_index=0, num_top = 5):
     gens = list(range(0, len(RuntimeAnalysis.generations)))
     if aggregation_type == 'max':
         fitness = [gen.get_max_of_objective(fitness_index) for gen in RuntimeAnalysis.generations]
     elif aggregation_type == 'avg':
         fitness = [gen.get_average_of_objective(fitness_index) for gen in RuntimeAnalysis.generations]
-    elif aggregation_type == 'max5':
+    elif aggregation_type == 'top':
         fitness = []
         for gen in RuntimeAnalysis.generations:
-            fitness.append(sum(heapq.nlargest(5, gen.objectives[fitness_index])) / 5)
+            fitness.append(sum(heapq.nlargest(num_top, gen.objectives[fitness_index])) / num_top)
     else:
         raise ValueError('Only aggregation types allowed are avg and max, received' + str(aggregation_type))
 
@@ -66,7 +66,7 @@ def plot_all_generations(aggregation_type='max', fitness_index=0, run_name='unna
     plt.show()
 
 
-def plot_all_runs(aggregation_type='max', fitness_index=0, max_gens=1000, show_data=False, cut_at_max=False,
+def plot_all_runs(aggregation_type='max', num_top = 5 , fitness_index=0, max_gens=1000, show_data=False, cut_at_max=False,
                   stay_at_max=True, line_graph=True, show_best_fit=False, show_smoothed_data=False):
     runs = set()
     for subdir, dirs, files in os.walk(os.path.join(DataManager.get_data_folder(), "runs")):
@@ -79,7 +79,7 @@ def plot_all_runs(aggregation_type='max', fitness_index=0, max_gens=1000, show_d
     for run in runs:
         try:
             RuntimeAnalysis.load_date_from_log_file(run, summary=False)
-            gens, fitness = get_gens_and_fitnesses(aggregation_type, fitness_index)
+            gens, fitness = get_gens_and_fitnesses(aggregation_type, fitness_index, num_top=num_top)
             if cut_at_max:
                 max_index = fitness.index(max(fitness))
                 print("max index:", max_index, "from", list(zip(fitness, gens)))
@@ -119,7 +119,8 @@ def plot_all_runs(aggregation_type='max', fitness_index=0, max_gens=1000, show_d
     plt.gca().legend(handles, labels)
     plt.xlabel("Generation")
     plt.ylabel("fitness " + repr(fitness_index))
-    plt.title(aggregation_type + " fitness")
+    title = aggregation_type +(" " + repr(num_top) if aggregation_type ==  "top" else "") + " fitness"
+    plt.title(title)
     plt.show()
 
     print(runs)
@@ -137,4 +138,4 @@ def get_rolling_averages(data, alpha=0.75):
 
 
 if __name__ == "__main__":
-    plot_all_runs(aggregation_type="max5", show_data=False, show_smoothed_data=False, stay_at_max=True)
+    plot_all_runs(aggregation_type="top", num_top=100, show_data=False, show_smoothed_data=True, stay_at_max=False)

@@ -29,11 +29,11 @@ class BlueprintGenome(Genome):
 
         # TODO make this a static number
         self.learning_rate = Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.001, start_range=0.0006,
-                                     end_range=0.003, print_when_mutating=False, mutation_chance=0.13)
+                                     end_range=0.003, print_when_mutating=False, mutation_chance=0)
         self.beta1 = Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.9, start_range=0.88, end_range=0.92,
-                             mutation_chance=0.1)
+                             mutation_chance=0)
         self.beta2 = Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.999, start_range=0.9988, end_range=0.9992,
-                             mutation_chance=0.1)
+                             mutation_chance=0)
         self.weight_init = Mutagen(nn.init.kaiming_uniform_, nn.init.xavier_uniform_,
                                    discreet_value=nn.init.kaiming_uniform_, name='initialization function',
                                    mutation_chance=0.13)

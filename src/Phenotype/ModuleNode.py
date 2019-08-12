@@ -44,9 +44,9 @@ class ModuleNode(Node):
         if not (module_NEAT_node is None):
             self.generate_module_node_from_gene()
 
-    def generate_module_node_from_gene(self):
+    def generate_module_node_from_gene(self, feature_multiplier = 1):
         # print("generating module node from gene:", self.module_NEAT_node)
-        self.out_features = self.module_NEAT_node.layer_type.get_sub_value("out_features")
+        self.out_features = round(self.module_NEAT_node.layer_type.get_sub_value("out_features") * feature_multiplier)
         self.activation = self.module_NEAT_node.activation()
 
         neat_regularisation = self.module_NEAT_node.layer_type.get_sub_value("regularisation", return_mutagen=True)

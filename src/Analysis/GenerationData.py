@@ -24,6 +24,31 @@ class GenerationData:
 
         return max(objective)
 
+    def get_top_n_average(self, n,objective = 0):
+        objectives = self.objectives[objective]
+        if objectives is None or len(objectives) == 0:
+            return None
+
+        tops = []
+
+        for score in objectives:
+            i =0
+            if len(tops) == 0:
+                tops.append(score)
+                continue
+
+            while i < len(tops) and i < n:
+                if score > tops[i]:
+                    tops.insert(i,score)
+                    break
+                i+=1
+
+        tops = tops[:n]
+
+        return sum(tops)/len(tops)
+
+
+
     def get_summary(self):
         """
             gen:num{obj~max:val;average:val,obj2..}
