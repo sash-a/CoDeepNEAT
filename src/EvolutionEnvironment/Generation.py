@@ -1,5 +1,3 @@
-import copy
-
 import src.Config.NeatProperties as Props
 import src.Validation.DataLoader
 from src.CoDeepNEAT.CDNGenomes import ModuleGenome, BlueprintGenome, DAGenome
@@ -17,6 +15,8 @@ from src.Validation import Validation
 import multiprocessing as mp
 import math
 import random
+import copy
+import cv2
 
 
 class Generation:
@@ -157,6 +157,8 @@ class Generation:
                                                third_objective_values if third_objective_values else None))
 
     def _evaluate(self, lock, bp_index, result_dict):
+        cv2.setNumThreads(0)
+
         inputs, targets = DataLoader.sample_data(Config.get_device())
         blueprints = self.blueprint_population.individuals
         bp_pop_size = len(blueprints)

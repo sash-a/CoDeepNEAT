@@ -16,8 +16,7 @@ import time
 import argparse
 import operator
 import torch.multiprocessing as mp
-
-from src.Validation import Validation
+import cv2
 
 """
 Evolution Environment is static as there should only ever be one
@@ -27,6 +26,7 @@ Acts as the driver of current generation
 
 def main():
     parse_args()
+    cv2.setNumThreads(0)
     mp.set_start_method('spawn', force=True)
     if Config.continue_from_last_run:
         try:

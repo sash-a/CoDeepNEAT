@@ -1,4 +1,6 @@
 import matplotlib.pyplot as plt
+import matplotlib.style as style
+
 from src.Analysis import RuntimeAnalysis
 from data import DataManager
 import numpy as np
@@ -40,7 +42,7 @@ def plot_generations():
         plot_objectives_at_gen(generation.generation_number)
 
 
-def get_gens_and_fitnesses(aggregation_type='max', fitness_index=0, num_top = 5):
+def get_gens_and_fitnesses(aggregation_type='max', fitness_index=0, num_top=5):
     gens = list(range(0, len(RuntimeAnalysis.generations)))
     if aggregation_type == 'max':
         fitness = [gen.get_max_of_objective(fitness_index) for gen in RuntimeAnalysis.generations]
@@ -66,7 +68,7 @@ def plot_all_generations(aggregation_type='max', fitness_index=0, run_name='unna
     plt.show()
 
 
-def plot_all_runs(aggregation_type='max', num_top = 5 , fitness_index=0, max_gens=1000, show_data=False, cut_at_max=False,
+def plot_all_runs(aggregation_type='max', num_top=5, fitness_index=0, max_gens=1000, show_data=False, cut_at_max=False,
                   stay_at_max=True, line_graph=True, show_best_fit=False, show_smoothed_data=False):
     runs = set()
     for subdir, dirs, files in os.walk(os.path.join(DataManager.get_data_folder(), "runs")):
@@ -117,13 +119,21 @@ def plot_all_runs(aggregation_type='max', num_top = 5 , fitness_index=0, max_gen
 
     handles, labels = plt.gca().get_legend_handles_labels()
     plt.gca().legend(handles, labels)
+
+    plt.set_cmap('gray')
+
     plt.xlabel("Generation")
     plt.ylabel("fitness " + repr(fitness_index))
-    title = aggregation_type +(" " + repr(num_top) if aggregation_type ==  "top" else "") + " fitness"
+    title = aggregation_type + (" " + repr(num_top) if aggregation_type == "top" else "") + " fitness"
     plt.title(title)
+
+    # Put actual titles here
+    # plt.ylabel('Average top 5 accuracy (%)')
+    # plt.title('Best top 5 accuracy so far per generation')
+
     plt.show()
 
-    print(runs)
+    # print(runs)
 
 
 def get_rolling_averages(data, alpha=0.75):
@@ -139,3 +149,4 @@ def get_rolling_averages(data, alpha=0.75):
 
 if __name__ == "__main__":
     plot_all_runs(aggregation_type="max", num_top=5, show_data=True, show_best_fit=True, show_smoothed_data=False, stay_at_max=False)
+    style.use('fivethirtyeight')
