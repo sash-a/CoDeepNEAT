@@ -184,8 +184,17 @@ class Population:
         self.rank_population_fn(self._get_all_individuals())
         self.update_species_sizes()
 
+        if Config.adjust_mutation_magnitudes_over_run:
+            topological_mutation_modifier = generation.get_topology_mutation_modifier()
+            attribute_mutation_modifier = generation.get_attribute_mutation_modifier()
+        else:
+            topological_mutation_modifier = 1
+            attribute_mutation_modifier = 1
+
+
+
         for species in self.species:
-            species.step(self.mutation_record)
+            species.step(self.mutation_record, topological_mutation_modifier=topological_mutation_modifier, attribute_mutation_modifier=attribute_mutation_modifier)
 
         self.adjust_speciation_threshold()
         individuals = self._get_all_individuals()

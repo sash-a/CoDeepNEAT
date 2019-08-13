@@ -32,7 +32,7 @@ class Species:
     def add(self, individual):
         self.members.append(individual)
 
-    def step(self, mutation_record):
+    def step(self, mutation_record, topological_mutation_modifier=1,attribute_mutation_modifier = 1):
         if len(self.members) == 0:
             raise Exception("cannot step empty species")
 
@@ -44,11 +44,9 @@ class Species:
         elite_count = self.find_num_elite()
 
         self._cull_species(elite_count)
-        self._reproduce(mutation_record, elite_count)
+        self._reproduce(mutation_record, elite_count, topological_mutation_modifier, attribute_mutation_modifier)
 
-        # if len(self.members) != self.next_species_size:
-        #     raise Exception("created next generation but population size(" + repr(
-        #         len(self.members)) + ")is wrong should be:(" + repr(self.next_species_size) + ")")
+        print("mutation modufiers~ top:",topological_mutation_modifier, "att:",attribute_mutation_modifier,"spc:",(1/math.pow(self.fitness,1.2)))
 
         self._select_representative()
         self.age += 1
@@ -68,7 +66,7 @@ class Species:
             print("ties:",[self.members[i].fitness_values[0] for i in range(len(self.members)) if self.members[i].fitness_values[0] == self.members[0].fitness_values[0]])
         return max(self.tie_count,num_elite)
 
-    def _reproduce(self, mutation_record, number_of_elite):
+    def _reproduce(self, mutation_record, number_of_elite,topological_mutation_modifier,attribute_mutation_modifier):
         elite = self.members[:number_of_elite]
         children = []
         tries = 100 * (self.next_species_size - len(elite))
@@ -93,11 +91,12 @@ class Species:
             if child.validate():
                 if Config.adjust_species_mutation_magnitude_based_on_fitness:
                     """less fit species change more rapidly"""
-                    mutation_magnitude = 1/math.pow(self.fitness,1.2)
+                    attribute_mutation_magnitude = max(1/math.pow(self.fitness,1.2), 3)
                 else:
-                    mutation_magnitude = 1
+                    attribute_mutation_magnitude = 1
 
-                child = child.mutate(mutation_record, attribute_magnitude=mutation_magnitude)
+                child = child.mutate(mutation_record, attribute_magnitude=attribute_mutation_magnitude * attribute_mutation_modifier,
+                                     topological_magnitude = topological_mutation_modifier)
                 children.append(child)
 
             tries -= 1

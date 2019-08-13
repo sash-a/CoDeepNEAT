@@ -69,10 +69,10 @@ class Generation:
             blueprint_individual.reset_number_of_module_species(self.module_population.get_num_species(),
                                                                 self.generation_number)
 
-        self.blueprint_population.step()
+        self.blueprint_population.step(self)
 
         if Config.evolve_data_augmentations:
-            self.da_population.step()
+            self.da_population.step(self)
 
         for blueprint_individual in self.blueprint_population.individuals:
             blueprint_individual.end_step(self)
@@ -230,3 +230,14 @@ class Generation:
         module_graph.fitness_values = results
 
         return module_graph, blueprint_individual, results
+
+    def get_topology_mutation_modifier(self):
+        return self._get_mutation_modifier(3, 7.5, 3.5)
+
+    def get_attribute_mutation_modifier(self):
+        return self._get_mutation_modifier(6.2, 10, 4)
+
+    def _get_mutation_modifier(self, a, b, c):
+        completion_frac = self.generation_number / Config.max_num_generations
+        return math.atan(a - b*completion_frac)/c + 0.9
+
