@@ -6,7 +6,7 @@ import torch.multiprocessing as mp
 # Run state options
 run_name = "test"
 continue_from_last_run = True
-fully_train = True
+fully_train = False
 # --------------------------------------------------------------------------------------------------------------------#
 # nn options
 device = 'gpu'  # gpu | cpu

@@ -169,7 +169,7 @@ class Genome:
                 #print("neat dist:",neat_dist, "ged:",ged)
                 pass
 
-            return (neat_dist + 0.8*ged)/2
+            return ged
 
         return neat_dist
 
