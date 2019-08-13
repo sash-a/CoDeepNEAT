@@ -4,7 +4,7 @@ import torch.multiprocessing as mp
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Run state options
-run_name = "test"
+run_name = "mutagen_breeding1"
 continue_from_last_run = True
 fully_train = False
 # --------------------------------------------------------------------------------------------------------------------#
@@ -40,14 +40,14 @@ module_retention = True
 fitness_aggregation = 'max'  # max | avg
 allow_species_module_mapping_ignores = True
 # --------------------------------------------------------------------------------------------------------------------#
-speciation_overhaul = False
+speciation_overhaul = True
 ignore_disabled_connections_for_topological_similarity = False
 # -----------------------------
 # --------------------------------------------------------------------------------------------------------------------#
 adjust_species_mutation_magnitude_based_on_fitness = False
 # --------------------------------------------------------------------------------------------------------------------#
-breed_mutagens = False
-mutagen_breed_chance = 0.75
+breed_mutagens = True
+mutagen_breed_chance = 0.7
 # --------------------------------------------------------------------------------------------------------------------#
 
 use_graph_edit_distance = False

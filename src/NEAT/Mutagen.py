@@ -67,11 +67,24 @@ class Mutagen:
             """new value interpolated from old value - skewed slightly towards self against other"""
             my_value = self.get_value()
             other_value = other.get_value()
-            new_value = my_value +  0.65* (other_value - my_value)
-            self.set_value(new_value)
+            new_value = my_value +  0.35* (other_value - my_value)
+            if self.value_type == ValueType.WHOLE_NUMBERS:
+                # print(self)
+                self.set_value(int(round(new_value)))
+            else:
+                self.set_value(new_value)
 
-        for sub in self.sub_values.keys():
-            self.sub_values[sub].inherit(other.sub_values[sub])
+        if not (self.sub_values is None):
+            # print("trying to mutate subs")
+            for val in self.sub_values.keys():
+                my_subs = self.sub_values[val]
+                # print("trying to mutate sub mut, my val=",self.get_value(), "subs key value=",val)
+                if val == self.get_value():
+                    for sub_mut_name in my_subs.keys():
+                        # print("mutating submutagen",sub_mut())
+                        if val in other.sub_values:
+                            other_subs = other.sub_values[val]
+                            my_subs[sub_mut_name].inherit(other_subs[sub_mut_name])
 
     def __call__(self):
         return self.get_value()
