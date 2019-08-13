@@ -148,5 +148,5 @@ def get_rolling_averages(data, alpha=0.75):
 
 
 if __name__ == "__main__":
-    plot_all_runs(aggregation_type="max", num_top=5, show_data=True, show_best_fit=True, show_smoothed_data=False, stay_at_max=False)
-    style.use('fivethirtyeight')
+    # style.use('fivethirtyeight')
+    plot_all_runs(aggregation_type="max", num_top=5, show_data=True, show_best_fit=False, show_smoothed_data=False, stay_at_max=False)
