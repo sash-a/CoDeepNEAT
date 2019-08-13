@@ -1,22 +1,16 @@
-// after putting in model
 digraph {
 	_ [label="INPUT
 Conv
-out features:78
-MaxPool2d
-Dropout2d" fillcolor=yellow style=filled]
+out features:97" fillcolor=red style=filled]
 	"_,0" [label="Conv
-out features:79" fillcolor=yellow style=filled]
+out features:99" fillcolor=red style=filled]
 	"_,0,0" [label="Linear
-out features:788
-BatchNorm1d" fillcolor=cyan style=filled]
+out features:985" fillcolor=red style=filled]
 	"_,0,0,0" [label="Conv
-out features:79
-MaxPool2d" fillcolor=yellow style=filled]
+out features:99" fillcolor=red style=filled]
 	"_,0,0,0,0" [label="OUTPUT
 Linear
-out features:232
-BatchNorm1d" fillcolor=cyan style=filled]
+out features:290" fillcolor=red style=filled]
 	"_,0,0,0" -> "_,0,0,0,0"
 	"_,0,0" -> "_,0,0,0"
 	"_,0" -> "_,0,0"

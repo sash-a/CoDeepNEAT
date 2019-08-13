@@ -4,13 +4,13 @@ import torch.multiprocessing as mp
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Run state options
-run_name = "single_modret_max"
+run_name = "da_single_modret1"
 continue_from_last_run = True
-fully_train = False
+fully_train = True
 # --------------------------------------------------------------------------------------------------------------------#
 # nn options
 device = 'gpu'  # gpu | cpu
-num_gpus = 4
+num_gpus = 1
 num_workers = 0  # this doesn't work in parallel because daemonic processes cannot spawn children
 dataset = 'cifar10'
 data_path = ''
@@ -31,7 +31,7 @@ moo_optimiser = 'cdn'  # cdn | nsga
 # --------------------------------------------------------------------------------------------------------------------#
 # Data augmentation options
 evolve_data_augmentations = False
-colour_augmentations = False
+colour_augmentations = True
 allow_da_scheme_ignores = False
 da_ignore_chance=0.2
 

@@ -43,7 +43,9 @@ def train(model, train_loader, epoch, test_loader, device, augmentors=None, prin
             for augmentor in augmentors:
                 if augmentor is None:
                     continue
+                # print("augmenting batch with:", augmentor)
                 aug_inputs, aug_labels = BatchAugmentor.augment_batch(inputs.numpy(), targets.numpy(), augmentor)
+                # print("augmented batch")
                 aug_inputs, aug_labels = aug_inputs.to(device), aug_labels.to(device)
                 # print("training on augmented images shape:",augmented_inputs.size())
                 output = model(aug_inputs)
@@ -127,6 +129,7 @@ def evaluate(model, epochs, device, batch_size=64, augmentors=None, train_loader
     :return: The trained model
     """
     # print('Eval received device', device, 'on processor', mp.current_process())
+    # print("got das:",augmentors)
     if train_loader is None:
         train_loader, test_loader = load_data(batch_size)
 

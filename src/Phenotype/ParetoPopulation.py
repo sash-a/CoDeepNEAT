@@ -31,6 +31,9 @@ class ParetoPopulation:
 
     def get_best_network(self, num_augs = 5):
         best_graphs = self.get_highest_accuracy(num=num_augs)
+        # print("got top", len(best_graphs), "graphs")
+        for top in best_graphs:
+            top.plot_tree_with_graphvis(file = "top"  + repr(best_graphs.index(top)))
         best = best_graphs[0]
         print("fully training",best,"reported acc:",best.fitness_values[0])
 
@@ -55,13 +58,15 @@ class ParetoPopulation:
         for graph in self.pareto_front:
             graph.module_graph_root_node.plot_tree_with_graphvis(file="fitnesses=" + repr(graph.fitness_values))
 
-    def get_highest_accuracy(self, num, print=False):
+    def get_highest_accuracy(self, num, plot_best=False):
         highest_acc = 0
         best_graph = None
 
         if num > 1:
+            # print("getting top", num, "graphs from", self.pareto_front )
             acc_sorted = sorted(self.pareto_front, key=lambda x: x.fitness_values[0] )
-            num_best_graphs = acc_sorted[-num:]
+            # print('len sorted:', len(acc_sorted))
+            num_best_graphs = acc_sorted[:num]
             return num_best_graphs
 
         elif num == 1:
@@ -71,7 +76,7 @@ class ParetoPopulation:
                     highest_acc = graph.fitness_values[0]
                     best_graph = graph
 
-            if print:
+            if plot_best:
                 best_graph.plot_tree_with_graphvis("best acc graph in pareto population - acc=" + repr(highest_acc))
 
             return best_graph

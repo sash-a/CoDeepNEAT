@@ -138,4 +138,4 @@ def get_rolling_averages(data, alpha=0.75):
 
 
 if __name__ == "__main__":
-    plot_all_runs(aggregation_type="top", num_top=100, show_data=False, show_smoothed_data=True, stay_at_max=False)
+    plot_all_runs(aggregation_type="max", num_top=5, show_data=True, show_best_fit=True, show_smoothed_data=False, stay_at_max=False)

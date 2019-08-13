@@ -14,7 +14,6 @@ def create_runs_folder():
         os.makedirs(get_Graphs_folder())
         os.makedirs(get_Logs_folder())
 
-
 def get_Logs_folder(run_name=None):
     return os.path.join(get_run_folder(run_name), "Logs")
 
@@ -55,7 +54,9 @@ def save_generation_state(generation):
 def load_generation_state(run_name):
     generation_state_file_name = os.path.join(get_run_folder(run_name), "GenerationState.pickle")
     pickle_in = open(generation_state_file_name, "rb")
-    return pickle.load(pickle_in)
+    gen =  pickle.load(pickle_in)
+    pickle_in.close()
+    return gen
 
 
 create_runs_folder()
