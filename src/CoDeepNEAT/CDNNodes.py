@@ -194,12 +194,6 @@ class DANode(NodeGene):
                 "max_val": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=200, start_range=150,
                                    end_range=250)},
 
-            "Shear": {
-                "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=-20, start_range=-40,
-                              end_range=-1),
-                "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=20, start_range=0,
-                              end_range=40)},
-
             "Additive_Gaussian_Noise": {
                 "lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.05, start_range=0.0,
                               end_range=0.09),
@@ -225,27 +219,7 @@ class DANode(NodeGene):
         }
 
         if Config.colour_augmentations:
-            da_submutagens["Rotate_Channel"] = {
-                    "channel": Mutagen(0, 1, 2, discreet_value=0, mutation_chance=0.20),
-                    "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=-20, start_range=-180,
-                                  end_range=-1),
-                    "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=20, start_range=0,
-                                  end_range=180)}
-            da_submutagens["Increase_Channel"] = {
-                    "channel": Mutagen(0, 1, 2, discreet_value=0, mutation_chance=0.20),
-                    "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=25, start_range=0,
-                                  end_range=49),
-                    "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=75, start_range=50,
-                                  end_range=100)
-                }
-            da_submutagens["Contrast_Normalisation"] = {
-                    "lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.0,
-                                  end_range=0.99),
-                    "hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=1.5, start_range=1.0,
-                                  end_range=2.0),
-                    "percent": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.0,
-                                       end_range=1.0)
-                }
+
             da_submutagens["HSV"] = {
                     "channel": Mutagen(0, 1, 2, discreet_value=0, mutation_chance=0.20),
                     "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=20, start_range=0,
@@ -254,23 +228,22 @@ class DANode(NodeGene):
                                   end_range=60)
                 }
             da_submutagens["Grayscale"] = {
-                    "alpha_lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.25, start_range=0.0,
+                    "alpha_lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.35, start_range=0.0,
                                         end_range=0.49),
                     "alpha_hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.75, start_range=0.5,
                                         end_range=1.0)}
 
-            op = random.choice(list(da_submutagens.keys())) if self.node_type != NodeType.OUTPUT else "No_Operation"#to allow da schemes to start with only 1 op
+            op = random.choice(list(da_submutagens.keys())) if self.node_type != NodeType.OUTPUT else "No_Operation" # to allow da schemes to start with only 1 op
 
-            self.da = Mutagen("Flip_lr", "Flip_ud", "Rotate", "Translate_Pixels", "Scale", "Pad_Pixels", "Crop_Pixels",
-                              "Grayscale", "Custom_Canny_Edges", "Shear", "Additive_Gaussian_Noise",
-                              "Coarse_Dropout", "HSV", "Contrast_Normalisation", "Increase_Channel", "Rotate_Channel",
-                              "No_Operation", name="da type", sub_mutagens=da_submutagens,
-                              discreet_value= op, mutation_chance=0.2)
+            self.da = Mutagen("Flip_lr", "Rotate", "Translate_Pixels", "Scale", "Pad_Pixels", "Crop_Pixels",
+                              "Grayscale", "Custom_Canny_Edges", "Additive_Gaussian_Noise", "Coarse_Dropout",
+                              "HSV", "No_Operation", name="da type", sub_mutagens=da_submutagens,
+                              discreet_value=op, mutation_chance=0.2)
         else:
-            op = random.choice(list(da_submutagens.keys())) if self.node_type != NodeType.OUTPUT else "No_Operation"#to allow da schemes to start with only 1 op
+            op = random.choice(list(da_submutagens.keys())) if self.node_type != NodeType.OUTPUT else "No_Operation" # to allow da schemes to start with only 1 op
 
-            self.da = Mutagen("Flip_lr", "Flip_ud", "Rotate", "Translate_Pixels", "Scale", "Pad_Pixels", "Crop_Pixels",
-                              "Custom_Canny_Edges", "Shear", "Additive_Gaussian_Noise", "Coarse_Dropout",
+            self.da = Mutagen("Flip_lr", "Rotate", "Translate_Pixels", "Scale", "Pad_Pixels", "Crop_Pixels",
+                              "Custom_Canny_Edges", "Additive_Gaussian_Noise", "Coarse_Dropout",
                               "No_Operation", name="da type", sub_mutagens=da_submutagens,
                               discreet_value=op, mutation_chance=0.2)
 
