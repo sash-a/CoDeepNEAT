@@ -9,6 +9,7 @@ class ParetoPopulation:
     def __init__(self):
         self.pareto_front = []
         self.candidates = []
+        self.best_members = []
 
     def queue_candidate(self, candidate):
         # print("queuing candidate:",candidate)
@@ -17,6 +18,7 @@ class ParetoPopulation:
     def update_pareto_front(self):
         start_time = time.time()
         # print("updating pareto pop from",len(self.candidates),"candidates and",len(self.pareto_front),"in front", end = " ")
+        self.best_members.append(self.get_highest_accuracy(1, check_set = self.candidates))
         self.pareto_front = general_pareto_sorting(self.candidates + self.pareto_front, return_pareto_front_only=True)
         # print("after:",len(self.pareto_front),"in front time:", (time.time() - start_time))
         # print("candidates:",repr(self.candidates))
@@ -58,20 +60,22 @@ class ParetoPopulation:
         for graph in self.pareto_front:
             graph.module_graph_root_node.plot_tree_with_graphvis(file="fitnesses=" + repr(graph.fitness_values))
 
-    def get_highest_accuracy(self, num, plot_best=False):
+    def get_highest_accuracy(self, num, plot_best=False, check_set = None):
         highest_acc = 0
         best_graph = None
+        if check_set is None:
+            check_set = self.pareto_front
 
         if num > 1:
             # print("getting top", num, "graphs from", self.pareto_front )
-            acc_sorted = sorted(self.pareto_front, key=lambda x: x.fitness_values[0] )
+            acc_sorted = sorted(check_set, key=lambda x: x.fitness_values[0] )
             # print('len sorted:', len(acc_sorted))
             num_best_graphs = acc_sorted[:num]
             return num_best_graphs
 
         elif num == 1:
 
-            for graph in self.pareto_front:
+            for graph in check_set:
                 if graph.fitness_values[0] > highest_acc:
                     highest_acc = graph.fitness_values[0]
                     best_graph = graph

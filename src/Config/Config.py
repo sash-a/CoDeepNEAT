@@ -45,9 +45,9 @@ ignore_disabled_connections_for_topological_similarity = False
 # -----------------------------
 # --------------------------------------------------------------------------------------------------------------------#
 adjust_species_mutation_magnitude_based_on_fitness = False
-adjust_mutation_magnitudes_over_run = True
+adjust_mutation_magnitudes_over_run = False
 # --------------------------------------------------------------------------------------------------------------------#
-breed_mutagens = True
+breed_mutagens = False
 mutagen_breed_chance = 0.7
 # --------------------------------------------------------------------------------------------------------------------#
 
