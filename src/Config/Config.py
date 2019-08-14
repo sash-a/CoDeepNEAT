@@ -36,18 +36,18 @@ allow_da_scheme_ignores = False
 da_ignore_chance=0.2
 
 # --------------------------------------------------------------------------------------------------------------------#
-module_retention = False
-fitness_aggregation = 'avg'  # max | avg
-allow_species_module_mapping_ignores = False
+module_retention = True
+fitness_aggregation = 'max'  # max | avg
+allow_species_module_mapping_ignores = True
 # --------------------------------------------------------------------------------------------------------------------#
-speciation_overhaul = False
+speciation_overhaul = True
 ignore_disabled_connections_for_topological_similarity = False
 # -----------------------------
 # --------------------------------------------------------------------------------------------------------------------#
-adjust_species_mutation_magnitude_based_on_fitness = False
-adjust_mutation_magnitudes_over_run = False
+adjust_species_mutation_magnitude_based_on_fitness = True
+adjust_mutation_magnitudes_over_run = True
 # --------------------------------------------------------------------------------------------------------------------#
-breed_mutagens = False
+breed_mutagens = True
 mutagen_breed_chance = 0.7
 # --------------------------------------------------------------------------------------------------------------------#
 
@@ -56,7 +56,7 @@ use_graph_edit_distance = False
 
 
 # Debug and test options
-dummy_run = False
+dummy_run = True
 
 protect_parsing_from_errors = False
 test_in_run = False
