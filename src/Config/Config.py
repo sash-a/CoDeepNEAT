@@ -7,6 +7,8 @@ import torch.multiprocessing as mp
 run_name = "test"
 continue_from_last_run = True
 fully_train = False
+dummy_run = False
+
 # --------------------------------------------------------------------------------------------------------------------#
 # nn options
 device = 'gpu'  # gpu | cpu
@@ -54,9 +56,6 @@ mutagen_breed_chance = 0.7
 use_graph_edit_distance = False
 # --------------------------------------------------------------------------------------------------------------------#
 
-
-# Debug and test options
-dummy_run = True
 
 protect_parsing_from_errors = False
 test_in_run = False
