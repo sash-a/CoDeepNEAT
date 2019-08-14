@@ -2,6 +2,7 @@ from src.NEAT.PopulationRanking import general_pareto_sorting
 from src.Analysis.DataPlotter import plot_acc_vs_second, plot_histogram
 import time
 from src.Validation import Validation
+from src.Config import Config
 import numpy as np
 
 
@@ -10,6 +11,7 @@ class ParetoPopulation:
         self.pareto_front = []
         self.candidates = []
         self.best_members = []
+        self.worst_das = []
 
     def queue_candidate(self, candidate):
         # print("queuing candidate:",candidate)
@@ -19,6 +21,10 @@ class ParetoPopulation:
         start_time = time.time()
         # print("updating pareto pop from",len(self.candidates),"candidates and",len(self.pareto_front),"in front", end = " ")
         self.best_members.append(self.get_highest_accuracy(1, check_set = self.candidates))
+        if Config.evolve_data_augmentations:
+            self.worst_das.append(self.get_worst_da_from_candidates())
+            # print("worst das:",self.worst_das)
+
         self.pareto_front = general_pareto_sorting(self.candidates + self.pareto_front, return_pareto_front_only=True)
         # print("after:",len(self.pareto_front),"in front time:", (time.time() - start_time))
         # print("candidates:",repr(self.candidates))
@@ -87,3 +93,12 @@ class ParetoPopulation:
         else:
             raise Exception("Number of graphs chosen is negative")
 
+    def get_worst_da_from_candidates(self):
+        worst = None
+        worst_acc = 9999999
+        for mod_graph in self.candidates:
+            da = mod_graph.data_augmentation_schemes[0]
+            if da.fitness_values[0] < worst_acc:
+                worst = da
+                worst_acc = da.fitness_values[0]
+        return worst

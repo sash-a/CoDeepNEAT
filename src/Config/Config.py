@@ -5,7 +5,7 @@ import torch.multiprocessing as mp
 # --------------------------------------------------------------------------------------------------------------------#
 # Run state options
 run_name = "test"
-continue_from_last_run = False
+continue_from_last_run = True
 fully_train = False
 # --------------------------------------------------------------------------------------------------------------------#
 # nn options
@@ -56,7 +56,7 @@ use_graph_edit_distance = False
 
 
 # Debug and test options
-dummy_run = True
+dummy_run = False
 
 protect_parsing_from_errors = False
 test_in_run = False

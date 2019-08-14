@@ -146,6 +146,8 @@ class DANode(NodeGene):
     def __init__(self, id, node_type=NodeType.HIDDEN):
         super().__init__(id, node_type)
 
+
+
         da_submutagens = {
 
             "Rotate": {
@@ -220,6 +222,14 @@ class DANode(NodeGene):
 
         if Config.colour_augmentations:
 
+            choice_pool = {
+                "Custom_Canny_Edges": 0.3,
+                "Pad_Pixels": 0.3,
+                "Additive_Gaussian_Noise": 0.15,
+                "Rotate": 0.15,
+                "HSV": 0.1
+            }
+
             da_submutagens["HSV"] = {
                     "channel": Mutagen(0, 1, 2, discreet_value=0, mutation_chance=0.1),
                     "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=20, start_range=0,
@@ -233,21 +243,34 @@ class DANode(NodeGene):
                     "alpha_hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.75, start_range=0.5,
                                         end_range=1.0, mutation_chance=0.3)}
 
-            op = random.choice(list(da_submutagens.keys())) if self.node_type != NodeType.OUTPUT else "No_Operation" # to allow da schemes to start with only 1 op
-
             self.da = Mutagen("Flip_lr", "Rotate", "Translate_Pixels", "Scale", "Pad_Pixels", "Crop_Pixels",
                               "Grayscale", "Custom_Canny_Edges", "Additive_Gaussian_Noise", "Coarse_Dropout",
                               "HSV", "No_Operation", name="da type", sub_mutagens=da_submutagens,
-                              discreet_value=op, mutation_chance=0.2)
+                              discreet_value=self.choose_da(choice_pool), mutation_chance=0.25)
         else:
-            op = random.choice(list(da_submutagens.keys())) if self.node_type != NodeType.OUTPUT else "No_Operation" # to allow da schemes to start with only 1 op
+            choice_pool = {
+                "Custom_Canny_Edges": 0.3,
+                "Pad_Pixels": 0.3,
+                "Additive_Gaussian_Noise": 0.2,
+                "Rotate": 0.2
+            }
 
             self.da = Mutagen("Flip_lr", "Rotate", "Translate_Pixels", "Scale", "Pad_Pixels", "Crop_Pixels",
                               "Custom_Canny_Edges", "Additive_Gaussian_Noise", "Coarse_Dropout",
                               "No_Operation", name="da type", sub_mutagens=da_submutagens,
-                              discreet_value=op, mutation_chance=0.2)
+                              discreet_value=self.choose_da(choice_pool), mutation_chance=0.25)
 
         self.enabled = Mutagen(True, False, discreet_value=True, name="da enabled")
+
+    def choose_da(self, choice_pool):
+        from_range = 0
+        rand_val = random.random()
+
+        for choice in choice_pool.keys():
+            prob = choice_pool[choice]
+            if rand_val >= from_range and rand_val <= from_range + prob:
+                return choice
+            from_range+=prob
 
     def get_all_mutagens(self):
         return [self.da, self.enabled]
