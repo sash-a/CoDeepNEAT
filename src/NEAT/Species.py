@@ -46,7 +46,7 @@ class Species:
         self._cull_species(elite_count)
         self._reproduce(mutation_record, elite_count, topological_mutation_modifier, attribute_mutation_modifier)
 
-        # print("mutation modufiers~ top:",topological_mutation_modifier, "att:",attribute_mutation_modifier,"spc:",(1/math.pow(self.fitness,1.2)), "fitness:",self.fitness)
+        print("mutation modufiers~ top:",topological_mutation_modifier, "att:",attribute_mutation_modifier,"spc:",(1/math.pow(self.fitness,1.2)), "fitness:",self.fitness)
 
         self._select_representative()
         self.age += 1

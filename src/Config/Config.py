@@ -56,7 +56,7 @@ use_graph_edit_distance = False
 
 
 # Debug and test options
-dummy_run = False
+dummy_run = True
 
 protect_parsing_from_errors = False
 test_in_run = False
