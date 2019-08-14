@@ -197,7 +197,7 @@ class DANode(NodeGene):
             "Additive_Gaussian_Noise": {
                 "lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.05, start_range=0.0,
                               end_range=0.09, mutation_chance=0.3),
-                "hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.15, start_range=0.10,
+                "hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.125, start_range=0.10,
                               end_range=0.30, mutation_chance=0.3),
                 "percent": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.6, start_range=0.2,
                                    end_range=0.8, mutation_chance=0.3)
