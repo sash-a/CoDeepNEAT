@@ -36,11 +36,11 @@ allow_da_scheme_ignores = False
 da_ignore_chance=0.2
 
 # --------------------------------------------------------------------------------------------------------------------#
-module_retention = True
-fitness_aggregation = 'max'  # max | avg
-allow_species_module_mapping_ignores = True
+module_retention = False
+fitness_aggregation = 'avg'  # max | avg
+allow_species_module_mapping_ignores = False
 # --------------------------------------------------------------------------------------------------------------------#
-speciation_overhaul = True
+speciation_overhaul = False
 ignore_disabled_connections_for_topological_similarity = False
 # -----------------------------
 # --------------------------------------------------------------------------------------------------------------------#
@@ -56,7 +56,7 @@ use_graph_edit_distance = False
 
 
 # Debug and test options
-dummy_run = True
+dummy_run = False
 
 protect_parsing_from_errors = False
 test_in_run = False
