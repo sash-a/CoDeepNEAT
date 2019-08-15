@@ -1,3 +1,4 @@
+import heapq
 import random
 
 import torch
@@ -120,6 +121,12 @@ class BlueprintNEATNode(NodeGene):
 
         if representative is not None and Config.use_representative:
             self.representative = representative
+
+    def get_similar_modules(self, modules, n):
+        if not Config.use_representative:
+            raise Exception('get_similar_modules called, but use representatives is false')
+
+        return heapq.nsmallest(n, modules, key=lambda indv: indv.distance_to(self.representative))
 
     def get_all_mutagens(self):
         # raise Exception("getting species no mutagen from blueprint neat node")
@@ -293,3 +300,11 @@ class DANode(NodeGene):
                 parameters.append((key, v))
 
         return repr(parameters)
+
+
+class Num:
+    def __init__(self):
+        self.x = random.randint(1, 100)
+
+    def __repr__(self):
+        return str(self.x)

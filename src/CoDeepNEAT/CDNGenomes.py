@@ -1,10 +1,11 @@
 import copy
 import math
 import random
-from typing import Set
+from typing import List
 
 from torch import nn
 
+from src.CoDeepNEAT.CDNNodes import BlueprintNEATNode
 from src.Config import Config, NeatProperties as Props
 from src.DataAugmentation.AugmentationScheme import AugmentationScheme
 from src.NEAT.Genome import Genome
@@ -39,15 +40,18 @@ class BlueprintGenome(Genome):
                                    mutation_chance=0.13)
 
     if Config.use_representative:
-        representatives = property(lambda self: self.get_all_reps)
+        representatives: List[BlueprintNEATNode] = property(lambda self: self.get_all_reps())
 
-    def get_all_reps(self) -> Set[BlueprintNode]:
-        reps = set()
+    def get_all_reps(self) -> List[BlueprintNEATNode]:
+        if not Config.use_representative:
+            raise Exception('Use representatives is false, but get all representatives was called')
+
+        reps = list()
         for node in self._nodes:
-            if not isinstance(node, BlueprintNode):
+            if not isinstance(node, BlueprintNEATNode):
                 raise Exception('Type: ' + str(type(node) + ' stored as blueprint node'))
 
-            reps.add(node)
+            reps.append(node)
 
         return reps
 
@@ -84,16 +88,20 @@ class BlueprintGenome(Genome):
 
     def update_module_indexes(self, generation):
         self.species_module_index_map = {}
-        for spc_index, module in self.species_module_ref_map.items():
-            if module is None:
-                # print('Found a none node')
-                continue
 
-            if spc_index < len(generation.module_population.species) and \
-                    module in generation.module_population.species[spc_index]:
-                self.species_module_index_map[spc_index] = generation.module_population.species[
-                    spc_index].members.index(module)
-                # print("Found a live module")
+        if Config.use_representative:
+            pass  # TODO
+        else:
+            for spc_index, module in self.species_module_ref_map.items():
+                if module is None:
+                    # print('Found a none node')
+                    continue
+
+                if spc_index < len(generation.module_population.species) and \
+                        module in generation.module_population.species[spc_index]:
+                    self.species_module_index_map[spc_index] = generation.module_population.species[
+                        spc_index].members.index(module)
+                    # print("Found a live module")
 
     def update_module_refs(self, generation):
         self.species_module_ref_map = {}
@@ -113,6 +121,29 @@ class BlueprintGenome(Genome):
                 tries -= 1
         if Config.evolve_data_augmentations and random.random() < 0.2:
             self.da_scheme = None
+
+        if Config.use_representative:
+            reps = self.representatives
+
+            chance = random.random()
+            for i in self._nodes:
+                if chance < 0.2:
+                    # Chance to pick random from pop
+                    new_rep = random.choice([])  # TODO module pop
+                    for rep in reps:
+                        if new_rep.eq(rep):
+                            new_rep = rep
+                            break
+
+                    self._nodes[i].representative = new_rep
+                elif chance < 0.5:
+                    # Chance to pick a similar representative
+                    self._nodes[i].representative = random.choice(
+                        self._nodes[i].representative.get_similar_modules([], 10))  # TODO modules
+                else:
+                    # Chance to pick random from reps
+                    if random.random() > 0.1:
+                        self._nodes[i].representative = random.choice(reps)
 
         return super()._mutate(mutation_record, Props.BP_NODE_MUTATION_CHANCE, Props.BP_CONN_MUTATION_CHANCE,
                                attribute_magnitude=attribute_magnitude, topological_magnitude=topological_magnitude)
@@ -276,3 +307,21 @@ class DAGenome(Genome):
 
     def validate(self):
         return super().validate() and not self.has_branches()
+
+
+class Num:
+    def __init__(self):
+        self.x = random.randint(1, 100)
+
+    def __repr__(self):
+        return str(self.x)
+
+
+l = [Num() for _ in range(10)]
+l2 = [x for x in l]
+print(l)
+for i in range(len(l2)):
+    l2[i] = Num()
+
+print(l)
+print(l2)
