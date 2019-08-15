@@ -29,7 +29,6 @@ class ModuleGraph():
             node.delete_layer()
 
     def plot_tree_with_graphvis(self, title="", file="temp", view=None, graph=None, return_graph_obj=False):
-
         if graph is None:
             graph = graphviz.Digraph(comment=title)
 

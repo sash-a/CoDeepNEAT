@@ -161,7 +161,6 @@ class BlueprintNEATNode(NodeGene):
                     break
 
             self.representative = new_rep
-
         else:
             # 0% or 20% chance to pick a similar representative
             choices = self.get_similar_modules(modules, Config.closest_reps_to_consider)

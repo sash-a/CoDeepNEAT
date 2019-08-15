@@ -124,9 +124,9 @@ class BlueprintGenome(Genome):
             for spc_index, module_index in self.species_module_index_map.items():
                 self.species_module_ref_map[spc_index] = generation.module_population.species[spc_index][module_index]
 
-    def mutate(self, mutation_record, attribute_magnitude=1, topological_magnitude=1, module_population=None):
+    def mutate(self, mutation_record, attribute_magnitude=1, topological_magnitude=1, module_population=None, gen=-1):
         if Config.module_retention and random.random() < 0.1 * topological_magnitude and self.species_module_ref_map:
-            """release a module_individual"""
+            # release a module_individual
             tries = 100
 
             while tries > 0:
@@ -142,9 +142,21 @@ class BlueprintGenome(Genome):
         if Config.use_representative:
             reps = self.representatives
             for node in self._nodes.values():
-                if random.random() > Config.rep_mutation_chance_early:  # no rep mutation
+                if gen == -1:
+                    raise Exception('Invalid generation number: -1')
+
+                chance = Config.rep_mutation_chance_early if gen <= 3 else Config.rep_mutation_chance_late
+                if random.random() > chance:  # no rep mutation
                     continue
-                node.choose_representative(module_population.individuals, reps)
+
+                old_rep = copy.deepcopy(node.representative)
+                new_rep = node.choose_representative(module_population.individuals, reps)
+
+                # Chance to mutate all nodes with the same representative
+                if random.random() < Config.similar_rep_mutation_chance:
+                    for other_node in self._nodes.values():
+                        if other_node.representative == old_rep:
+                            other_node.representative = new_rep
 
         nodes_before_mutation = set(self._nodes.keys())
         mutated = super()._mutate(mutation_record, Props.BP_NODE_MUTATION_CHANCE, Props.BP_CONN_MUTATION_CHANCE,
@@ -246,7 +258,7 @@ class ModuleGenome(Genome):
         attrib_dist /= len(common_nodes)
         return attrib_dist
 
-    def mutate(self, mutation_record, attribute_magnitude=1, topological_magnitude=1, module_population=None):
+    def mutate(self, mutation_record, attribute_magnitude=1, topological_magnitude=1, module_population=None, gen=-1):
         return super()._mutate(mutation_record, Props.MODULE_NODE_MUTATION_CHANCE, Props.MODULE_CONN_MUTATION_CHANCE,
                                attribute_magnitude=attribute_magnitude, topological_magnitude=topological_magnitude)
 
@@ -261,7 +273,7 @@ class ModuleGenome(Genome):
     #     return '\n------------------Connections--------------\n' + repr(self._connections) + \
     #            '\n---------------------Nodes-----------------\n' + repr(self._nodes)
     def __repr__(self):
-        return 'MODULE'
+        return str(hash(self))
 
 
 class DAGenome(Genome):
@@ -282,7 +294,7 @@ class DAGenome(Genome):
         """Only want linear graphs for data augmentation"""
         return True
 
-    def mutate(self, mutation_record, attribute_magnitude=1, topological_magnitude=1, module_population=None):
+    def mutate(self, mutation_record, attribute_magnitude=1, topological_magnitude=1, module_population=None, gen=-1):
         # print("mutating DA genome")
         return super()._mutate(mutation_record, 0.1, 0, allow_connections_to_mutate=False, debug=False,
                                attribute_magnitude=attribute_magnitude, topological_magnitude=topological_magnitude)

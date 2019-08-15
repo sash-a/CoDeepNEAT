@@ -32,7 +32,8 @@ class Species:
     def add(self, individual):
         self.members.append(individual)
 
-    def step(self, mutation_record, topological_mutation_modifier=1, attribute_mutation_modifier=1, module_pop=None):
+    def step(self, mutation_record, topological_mutation_modifier=1, attribute_mutation_modifier=1, module_pop=None,
+             gen=-1):
         if len(self.members) == 0:
             raise Exception("cannot step empty species")
 
@@ -45,7 +46,7 @@ class Species:
 
         self._cull_species(elite_count)
         self._reproduce(mutation_record, elite_count, topological_mutation_modifier, attribute_mutation_modifier,
-                        module_pop)
+                        module_pop, gen=gen)
 
         print("mutation modufiers~ top:", topological_mutation_modifier, "att:", attribute_mutation_modifier, "spc:",
               (1 / math.pow(self.fitness / 1.1, 0.9)), "fitness:", self.fitness)
@@ -70,7 +71,7 @@ class Species:
         return max(self.tie_count, num_elite)
 
     def _reproduce(self, mutation_record, number_of_elite, topological_mutation_modifier, attribute_mutation_modifier,
-                   module_pop=None):
+                   module_pop=None, gen=-1):
         elite = self.members[:number_of_elite]
         children = []
         tries = 100 * (self.next_species_size - len(elite))
@@ -105,7 +106,8 @@ class Species:
 
                 child = child.mutate(mutation_record,
                                      attribute_magnitude=attribute_mutation_magnitude * attribute_mutation_modifier,
-                                     topological_magnitude=topological_mutation_modifier, module_population=module_pop)
+                                     topological_magnitude=topological_mutation_modifier, module_population=module_pop,
+                                     gen=gen)
                 children.append(child)
 
             tries -= 1

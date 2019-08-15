@@ -197,7 +197,7 @@ class Population:
             module_pop = generation.module_population if Config.use_representative else None
             species.step(self.mutation_record, topological_mutation_modifier=topological_mutation_modifier,
                          attribute_mutation_modifier=attribute_mutation_modifier,
-                         module_pop=module_pop)
+                         module_pop=module_pop, gen=generation.generation_number)
 
         self.adjust_speciation_threshold()
         individuals = self._get_all_individuals()

@@ -173,7 +173,7 @@ class Genome:
 
         return neat_dist
 
-    def mutate(self, mutation_record, attribute_magnitude=1, topological_magnitude=1, module_population=None):
+    def mutate(self, mutation_record, attribute_magnitude=1, topological_magnitude=1, module_population=None, gen=-1):
         raise NotImplemented('Mutation should be called not in base class')
 
     def _mutate(self, mutation_record, add_node_chance, add_connection_chance, allow_connections_to_mutate=True,

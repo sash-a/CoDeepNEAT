@@ -44,7 +44,9 @@ allow_species_module_mapping_ignores = True
 # --------------------------------------------------------------------------------------------------------------------#
 speciation_overhaul = False
 use_representative = True
+rep_mutation_chance_early = 0.6
 rep_mutation_chance_late = 0.2
+similar_rep_mutation_chance = 0.2
 closest_reps_to_consider = 10
 
 use_graph_edit_distance = False

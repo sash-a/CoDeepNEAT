@@ -151,6 +151,10 @@ class Generation:
 
             self.pareto_population.queue_candidate(module_graph)
 
+        print(len(self.blueprint_population))
+        for bp in self.blueprint_population:
+            print(bp.species_module_index_map.values())
+
         RuntimeAnalysis.log_new_generation(accuracies, generation_number,
                                            second_objective_values=(
                                                second_objective_values if second_objective_values else None),
@@ -189,6 +193,7 @@ class Generation:
 
         blueprint_graph = blueprint_individual.to_blueprint()
         module_graph = blueprint_graph.parse_to_module_graph(self)
+
         net = src.Validation.Validation.create_nn(module_graph, inputs)
         if Config.evolve_data_augmentations:
             if Config.allow_da_scheme_ignores and random.random() < Config.da_ignore_chance:
