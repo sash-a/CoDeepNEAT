@@ -52,7 +52,7 @@ adjust_mutation_magnitudes_over_run = False
 breed_mutagens = False
 mutagen_breed_chance = 0.7
 # --------------------------------------------------------------------------------------------------------------------#
-
+use_representative = False
 use_graph_edit_distance = False
 # --------------------------------------------------------------------------------------------------------------------#
 

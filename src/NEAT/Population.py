@@ -1,13 +1,12 @@
+import math
 import os
 
-import math
+import matplotlib.pyplot as plt
+from data import DataManager
 
 import src.Config.NeatProperties as Props
 from src.Config import Config
 from src.NEAT.Species import Species
-import matplotlib.pyplot as plt
-from data import DataManager
-
 
 
 class MutationRecords:
@@ -42,6 +41,7 @@ class MutationRecords:
     def get_next_connection_id(self):
         self._next_conn_id += 1
         return self._next_conn_id
+
 
 class Population:
     def __init__(self, individuals, rank_population_fn, initial_mutations, population_size, max_node_id, max_innovation,
@@ -115,7 +115,7 @@ class Population:
                         """there are already the maximum number of species. add individual to closest species
                             the species threshold is too low"""
                         best_fit_species.add(individual)
-                        self.speciation_threshold *=1.1
+                        self.speciation_threshold *= 1.1
             else:
                 found = False
                 for spc in self.species:
@@ -166,7 +166,7 @@ class Population:
         for species in self.species:
             species_average_rank = species.get_average_rank()
             # species.fitness = species_average_rank / population_average_rank
-            species.fitness = population_average_rank / species_average_rank#the lower the species av rank the higher the species fitness
+            species.fitness = population_average_rank / species_average_rank  # the lower the species av rank the higher the species fitness
 
             # print("species", species,"fitness:",species.fitness)
             total_species_fitness += species.fitness
@@ -181,7 +181,7 @@ class Population:
             raise Exception("no individuals in population", self, "cannot get average rank")
         return sum([indv.rank for indv in individuals]) / len(individuals)
 
-    def step(self, generation = None):
+    def step(self, generation=None):
         # self.plot_species_spaces(generation)
         self.rank_population_fn(self._get_all_individuals())
         self.update_species_sizes()
@@ -193,31 +193,31 @@ class Population:
             topological_mutation_modifier = 1
             attribute_mutation_modifier = 1
 
-
-
         for species in self.species:
-            species.step(self.mutation_record, topological_mutation_modifier=topological_mutation_modifier, attribute_mutation_modifier=attribute_mutation_modifier)
+            species.step(self.mutation_record, topological_mutation_modifier=topological_mutation_modifier,
+                         attribute_mutation_modifier=attribute_mutation_modifier)
 
         self.adjust_speciation_threshold()
         individuals = self._get_all_individuals()
         self.speciate(individuals)
 
-
     def plot_species_spaces(self, generation):
-        if self.target_num_species ==1:
+        if self.target_num_species == 1:
             return
         relative_individual = self.species[0].members[0]
 
         for spec in self.species:
             rep = spec.representative
-            tops, atts = [],[]
+            tops, atts = [], []
             for indv in spec.members:
                 if indv == rep:
                     continue
                 tops.append(relative_individual.get_topological_distance(indv))
                 atts.append(relative_individual.get_attribute_distance(indv))
-            plt.scatter(tops,atts, label = "Species:"+ repr(self.species.index(spec)))
-            plt.scatter(relative_individual.get_topological_distance(rep),relative_individual.get_attribute_distance(rep) , label ="Species:"+ repr(self.species.index(spec)) + "rep")
+            plt.scatter(tops, atts, label="Species:" + repr(self.species.index(spec)))
+            plt.scatter(relative_individual.get_topological_distance(rep),
+                        relative_individual.get_attribute_distance(rep),
+                        label="Species:" + repr(self.species.index(spec)) + "rep")
         handles, labels = plt.gca().get_legend_handles_labels()
         plt.gca().legend(handles, labels)
         plt.xlabel("Topology")
@@ -228,7 +228,7 @@ class Population:
     def plot_all_representatives(self):
         graph = None
         for spec in self.species:
-            graph = spec.representative.plot_tree_with_graphvis(graph= graph, return_graph_obj= True, view= False,
-                                                                node_prefix= repr(self.species.index(spec)) + "_")
+            graph = spec.representative.plot_tree_with_graphvis(graph=graph, return_graph_obj=True, view=False,
+                                                                node_prefix=repr(self.species.index(spec)) + "_")
         file = os.path.join(DataManager.get_Graphs_folder(), "reps")
         graph.render(file, view=True)

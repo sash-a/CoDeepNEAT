@@ -110,13 +110,16 @@ class ModulenNEATNode(NodeGene):
 
 
 class BlueprintNEATNode(NodeGene):
-    def __init__(self, id, node_type=NodeType.HIDDEN):
+    def __init__(self, id, node_type=NodeType.HIDDEN, representative=None):
         super(BlueprintNEATNode, self).__init__(id, node_type)
 
         self.species_number = Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=0, start_range=0,
                                       end_range=1, print_when_mutating=False, name="species number",
                                       mutation_chance=0.5)
         self.target_num_species_reached = False
+
+        if representative is not None and Config.use_representative:
+            self.representative = representative
 
     def get_all_mutagens(self):
         # raise Exception("getting species no mutagen from blueprint neat node")
@@ -145,8 +148,6 @@ class BlueprintNEATNode(NodeGene):
 class DANode(NodeGene):
     def __init__(self, id, node_type=NodeType.HIDDEN):
         super().__init__(id, node_type)
-
-
 
         da_submutagens = {
 
@@ -231,17 +232,17 @@ class DANode(NodeGene):
             }
 
             da_submutagens["HSV"] = {
-                    "channel": Mutagen(0, 1, 2, discreet_value=0, mutation_chance=0.1),
-                    "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=20, start_range=0,
-                                  end_range=29, mutation_chance=0.2),
-                    "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=50, start_range=30,
-                                  end_range=60, mutation_chance=0.2)
-                }
+                "channel": Mutagen(0, 1, 2, discreet_value=0, mutation_chance=0.1),
+                "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=20, start_range=0,
+                              end_range=29, mutation_chance=0.2),
+                "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=50, start_range=30,
+                              end_range=60, mutation_chance=0.2)
+            }
             da_submutagens["Grayscale"] = {
-                    "alpha_lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.35, start_range=0.0,
-                                        end_range=0.49, mutation_chance=0.3),
-                    "alpha_hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.75, start_range=0.5,
-                                        end_range=1.0, mutation_chance=0.3)}
+                "alpha_lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.35, start_range=0.0,
+                                    end_range=0.49, mutation_chance=0.3),
+                "alpha_hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.75, start_range=0.5,
+                                    end_range=1.0, mutation_chance=0.3)}
 
             self.da = Mutagen("Flip_lr", "Rotate", "Translate_Pixels", "Scale", "Pad_Pixels", "Crop_Pixels",
                               "Grayscale", "Custom_Canny_Edges", "Additive_Gaussian_Noise", "Coarse_Dropout",
@@ -270,7 +271,7 @@ class DANode(NodeGene):
             prob = choice_pool[choice]
             if rand_val >= from_range and rand_val <= from_range + prob:
                 return choice
-            from_range+=prob
+            from_range += prob
 
     def get_all_mutagens(self):
         return [self.da, self.enabled]
@@ -286,7 +287,7 @@ class DANode(NodeGene):
                 if value is None:
                     raise Exception("none value in mutagen")
 
-                v= repr(value())
+                v = repr(value())
 
                 # v = repr(value).split(" ", 1)[1]
                 parameters.append((key, v))

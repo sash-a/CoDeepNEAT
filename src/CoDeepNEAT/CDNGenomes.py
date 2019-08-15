@@ -1,6 +1,7 @@
 import copy
 import math
 import random
+from typing import Set
 
 from torch import nn
 
@@ -8,13 +9,12 @@ from src.Config import Config, NeatProperties as Props
 from src.DataAugmentation.AugmentationScheme import AugmentationScheme
 from src.NEAT.Genome import Genome
 from src.NEAT.Mutagen import Mutagen, ValueType
-from src.Phenotype.BlueprintNode import BlueprintNode
 from src.Phenotype.BlueprintGraph import BlueprintGraph
+from src.Phenotype.BlueprintNode import BlueprintNode
 from src.Phenotype.ModuleNode import ModuleNode
 
 
 class BlueprintGenome(Genome):
-
     def __init__(self, connections, nodes):
         super(BlueprintGenome, self).__init__(connections, nodes)
         self.modules_used = []  # holds ref to module individuals used - can multiple represent
@@ -37,6 +37,19 @@ class BlueprintGenome(Genome):
         self.weight_init = Mutagen(nn.init.kaiming_uniform_, nn.init.xavier_uniform_,
                                    discreet_value=nn.init.kaiming_uniform_, name='initialization function',
                                    mutation_chance=0.13)
+
+    if Config.use_representative:
+        representatives = property(lambda self: self.get_all_reps)
+
+    def get_all_reps(self) -> Set[BlueprintNode]:
+        reps = set()
+        for node in self._nodes:
+            if not isinstance(node, BlueprintNode):
+                raise Exception('Type: ' + str(type(node) + ' stored as blueprint node'))
+
+            reps.add(node)
+
+        return reps
 
     def to_blueprint(self):
         """
@@ -133,7 +146,6 @@ class BlueprintGenome(Genome):
 
 
 class ModuleGenome(Genome):
-
     def __init__(self, connections, nodes):
         super(ModuleGenome, self).__init__(connections, nodes)
         self.module_node = None  # the module node created from this gene
