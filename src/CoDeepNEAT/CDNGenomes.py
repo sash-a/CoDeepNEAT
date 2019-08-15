@@ -1,8 +1,8 @@
 import copy
-import math
 import random
 from typing import List
 
+import math
 from torch import nn
 
 from src.CoDeepNEAT.CDNNodes import BlueprintNEATNode
@@ -108,7 +108,7 @@ class BlueprintGenome(Genome):
         for spc_index, module_index in self.species_module_index_map.items():
             self.species_module_ref_map[spc_index] = generation.module_population.species[spc_index][module_index]
 
-    def mutate(self, mutation_record, attribute_magnitude=1, topological_magnitude=1):
+    def mutate(self, mutation_record, attribute_magnitude=1, topological_magnitude=1, module_population=None):
         if Config.module_retention and random.random() < 0.1 * topological_magnitude and self.species_module_ref_map:
             """release a module_individual"""
             tries = 100
@@ -127,9 +127,13 @@ class BlueprintGenome(Genome):
 
             chance = random.random()
             for i in self._nodes:
+                if random.random() > Config.rep_mutation_chance:
+                    """no rep mutation"""
+                    continue
+
                 if chance < 0.2:
                     # Chance to pick random from pop
-                    new_rep = random.choice([])  # TODO module pop
+                    new_rep = copy.deepcopy(random.choice(module_population.individuals))
                     for rep in reps:
                         if new_rep.eq(rep):
                             new_rep = rep
@@ -138,12 +142,15 @@ class BlueprintGenome(Genome):
                     self._nodes[i].representative = new_rep
                 elif chance < 0.5:
                     # Chance to pick a similar representative
-                    self._nodes[i].representative = random.choice(
-                        self._nodes[i].representative.get_similar_modules([], 10))  # TODO modules
+                    choices = self._nodes[i].get_similar_modules(module_population.individuals,
+                                                                 Config.closest_reps_to_consider)
+
+                    weights = [2 - (x / Config.closest_reps_to_consider) for x in
+                               range(Config.closest_reps_to_consider)]  # closer reps have a higher chanecs
+                    self._nodes[i].representative = random.choices(choices, weights=weights, k=1)[0]
                 else:
-                    # Chance to pick random from reps
-                    if random.random() > 0.1:
-                        self._nodes[i].representative = random.choice(reps)
+                    # Chance to pick random from reps already in the blueprint to promote repeating structures
+                    self._nodes[i].representative = random.choice(reps)
 
         return super()._mutate(mutation_record, Props.BP_NODE_MUTATION_CHANCE, Props.BP_CONN_MUTATION_CHANCE,
                                attribute_magnitude=attribute_magnitude, topological_magnitude=topological_magnitude)
@@ -216,7 +223,7 @@ class ModuleGenome(Genome):
         attrib_dist /= len(common_nodes)
         return attrib_dist
 
-    def mutate(self, mutation_record, attribute_magnitude=1, topological_magnitude=1):
+    def mutate(self, mutation_record, attribute_magnitude=1, topological_magnitude=1, module_population=None):
         return super()._mutate(mutation_record, Props.MODULE_NODE_MUTATION_CHANCE, Props.MODULE_CONN_MUTATION_CHANCE,
                                attribute_magnitude=attribute_magnitude, topological_magnitude=topological_magnitude)
 
@@ -250,7 +257,7 @@ class DAGenome(Genome):
         """Only want linear graphs for data augmentation"""
         return True
 
-    def mutate(self, mutation_record, attribute_magnitude=1, topological_magnitude=1):
+    def mutate(self, mutation_record, attribute_magnitude=1, topological_magnitude=1, module_population=None):
         # print("mutating DA genome")
         return super()._mutate(mutation_record, 0.1, 0, allow_connections_to_mutate=False, debug=False,
                                attribute_magnitude=attribute_magnitude, topological_magnitude=topological_magnitude)
@@ -307,21 +314,3 @@ class DAGenome(Genome):
 
     def validate(self):
         return super().validate() and not self.has_branches()
-
-
-class Num:
-    def __init__(self):
-        self.x = random.randint(1, 100)
-
-    def __repr__(self):
-        return str(self.x)
-
-
-l = [Num() for _ in range(10)]
-l2 = [x for x in l]
-print(l)
-for i in range(len(l2)):
-    l2[i] = Num()
-
-print(l)
-print(l2)

@@ -1,3 +1,5 @@
+import random
+
 from src.Phenotype.Node import Node
 from src.Phenotype.ModuleGraph import ModuleGraph
 from src.Config import Config
@@ -21,6 +23,8 @@ class BlueprintNode(Node):
 
         if blueprint_NEAT_node is None:
             print("null neat node passed to blueprint")
+        if Config.use_representative:
+            self.blueprint_node_gene = blueprint_NEAT_node
         self.generate_blueprint_node_from_gene(blueprint_NEAT_node)
 
     def generate_blueprint_node_from_gene(self, gene):
@@ -29,15 +33,26 @@ class BlueprintNode(Node):
         self.species_number = gene.species_number()
 
     def get_module_individual(self, generation):
-        if self.species_number in self.blueprint_genome.species_module_index_map:
-            index = self.blueprint_genome.species_module_index_map[self.species_number]
-            input_module_individual = generation.module_population.species[self.species_number][index]
-            #print('Found a surviving module',input_module_individual, self.blueprint_genome.species_module_index_map)
+        if not Config.use_representative:
+            if self.species_number in self.blueprint_genome.species_module_index_map:
+                index = self.blueprint_genome.species_module_index_map[self.species_number]
+                input_module_individual = generation.module_population.species[self.species_number][index]
+                #print('Found a surviving module',input_module_individual, self.blueprint_genome.species_module_index_map)
+            else:
+                #print("sampling fresh")
+                input_module_individual, index = \
+                    generation.module_population.species[self.species_number].sample_individual()
+                self.blueprint_genome.species_module_index_map[self.species_number] = index
+
         else:
-            #print("sampling fresh")
-            input_module_individual, index = \
-                generation.module_population.species[self.species_number].sample_individual()
-            self.blueprint_genome.species_module_index_map[self.species_number] = index
+            if self.blueprint_node_gene.representative in self.blueprint_genome.species_module_index_map:
+                pass
+            else:
+                choices = self.blueprint_node_gene.get_similar_modules(generation.module_population.individuals, Config.closest_reps_to_consider)
+                weights = [2 - (x / Config.closest_reps_to_consider) for x in
+                           range(Config.closest_reps_to_consider)]  # closer reps have a higher chanecs
+                input_module_individual = random.choices(choices, weights=weights, k=1)[0]
+
 
         return input_module_individual, index
 

@@ -43,6 +43,11 @@ fitness_aggregation = 'avg'  # max | avg
 allow_species_module_mapping_ignores = False
 # --------------------------------------------------------------------------------------------------------------------#
 speciation_overhaul = False
+use_representative = False
+rep_mutation_chance = 0.15
+closest_reps_to_consider = 10
+
+use_graph_edit_distance = False
 ignore_disabled_connections_for_topological_similarity = False
 # -----------------------------
 # --------------------------------------------------------------------------------------------------------------------#
@@ -52,8 +57,6 @@ adjust_mutation_magnitudes_over_run = False
 breed_mutagens = False
 mutagen_breed_chance = 0.7
 # --------------------------------------------------------------------------------------------------------------------#
-use_representative = False
-use_graph_edit_distance = False
 # --------------------------------------------------------------------------------------------------------------------#
 
 
