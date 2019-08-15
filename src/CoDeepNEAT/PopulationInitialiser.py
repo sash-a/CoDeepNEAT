@@ -1,5 +1,5 @@
 from src.NEAT.Gene import ConnectionGene, NodeType
-
+from src.Config import Config
 
 def initialize_pop(Node, Genome, initial_individuals, create_triangles=True, modules=None):
     in_node_params = (0, NodeType.INPUT)
@@ -14,7 +14,7 @@ def initialize_pop(Node, Genome, initial_individuals, create_triangles=True, mod
         pop.append(Genome([ConnectionGene(0, 0, 1)],
                           [Node(*in_node_params), Node(*out_node_params)]))
 
-        if modules is not None:
+        if modules is not None and Config.use_representative:
             for node in pop[-1]._nodes.values():
                 reps.append(node.choose_representative(modules, reps))
 
@@ -23,7 +23,7 @@ def initialize_pop(Node, Genome, initial_individuals, create_triangles=True, mod
             pop.append(Genome([ConnectionGene(0, 0, 1), ConnectionGene(1, 0, 2), ConnectionGene(2, 2, 1)],
                               [Node(*in_node_params), Node(*tri_node_params), Node(*out_node_params)]))
 
-            if modules is not None:
+            if modules is not None and Config.use_representative:
                 for node in pop[-1]._nodes.values():
                     reps.append(node.choose_representative(modules, reps))
 
