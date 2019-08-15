@@ -1,9 +1,9 @@
 import random
-import src.Config.NeatProperties as Props
 import math
-import matplotlib.pyplot as plt
-from src.Config import Config
 import sys
+
+from src.Config import Config, NeatProperties as Props
+from src.CoDeepNEAT.CDNGenomes import BlueprintGenome
 
 
 class Species:
@@ -13,7 +13,7 @@ class Species:
         self.next_species_size = 1000
         self.fitness = -1
         self.age = 0
-        self.tie_count = 0#a count of how many ties there are for the top accuracy
+        self.tie_count = 0  # a count of how many ties there are for the top accuracy
 
     def __iter__(self):
         return iter(self.members)
@@ -32,7 +32,7 @@ class Species:
     def add(self, individual):
         self.members.append(individual)
 
-    def step(self, mutation_record, topological_mutation_modifier=1,attribute_mutation_modifier = 1):
+    def step(self, mutation_record, topological_mutation_modifier=1, attribute_mutation_modifier=1, module_pop=None):
         if len(self.members) == 0:
             raise Exception("cannot step empty species")
 
@@ -44,9 +44,11 @@ class Species:
         elite_count = self.find_num_elite()
 
         self._cull_species(elite_count)
-        self._reproduce(mutation_record, elite_count, topological_mutation_modifier, attribute_mutation_modifier)
+        self._reproduce(mutation_record, elite_count, topological_mutation_modifier, attribute_mutation_modifier,
+                        module_pop)
 
-        print("mutation modufiers~ top:",topological_mutation_modifier, "att:",attribute_mutation_modifier,"spc:",(1/math.pow(self.fitness/1.1,0.9)), "fitness:",self.fitness)
+        print("mutation modufiers~ top:", topological_mutation_modifier, "att:", attribute_mutation_modifier, "spc:",
+              (1 / math.pow(self.fitness / 1.1, 0.9)), "fitness:", self.fitness)
 
         self._select_representative()
         self.age += 1
@@ -58,15 +60,17 @@ class Species:
         i = 1
         # print("searching for ties from:",[self.members[i].fitness_values[0] for i in range(len(self.members))])
         while i < len(self.members) and self.members[i].fitness_values[0] == highest_acc:
-            i+=1
+            i += 1
         self.tie_count = i
         if self.members[0].fitness_values[0] == self.members[-1].fitness_values[0]:
             self.tie_count = len(self.members)
-        if self.tie_count> 1:
-            print("ties:",[self.members[i].fitness_values[0] for i in range(len(self.members)) if self.members[i].fitness_values[0] == self.members[0].fitness_values[0]])
-        return max(self.tie_count,num_elite)
+        if self.tie_count > 1:
+            print("ties:", [self.members[i].fitness_values[0] for i in range(len(self.members)) if
+                            self.members[i].fitness_values[0] == self.members[0].fitness_values[0]])
+        return max(self.tie_count, num_elite)
 
-    def _reproduce(self, mutation_record, number_of_elite,topological_mutation_modifier,attribute_mutation_modifier):
+    def _reproduce(self, mutation_record, number_of_elite, topological_mutation_modifier, attribute_mutation_modifier,
+                   module_pop=None):
         elite = self.members[:number_of_elite]
         children = []
         tries = 100 * (self.next_species_size - len(elite))
@@ -91,12 +95,17 @@ class Species:
             if child.validate():
                 if Config.adjust_species_mutation_magnitude_based_on_fitness:
                     """less fit species change more rapidly"""
-                    attribute_mutation_magnitude = max(1/math.pow(self.fitness,1.2), 3)
+                    attribute_mutation_magnitude = max(1 / math.pow(self.fitness, 1.2), 3)
                 else:
                     attribute_mutation_magnitude = 1
 
-                child = child.mutate(mutation_record, attribute_magnitude=attribute_mutation_magnitude * attribute_mutation_modifier,
-                                     topological_magnitude = topological_mutation_modifier)
+                if Config.use_representative and type(child) == BlueprintGenome and module_pop is None:
+                    raise Exception(
+                        'Using representative, but received a none module population when mutating a blueprint node')
+
+                child = child.mutate(mutation_record,
+                                     attribute_magnitude=attribute_mutation_magnitude * attribute_mutation_modifier,
+                                     topological_magnitude=topological_mutation_modifier, module_population=module_pop)
                 children.append(child)
 
             tries -= 1
@@ -124,11 +133,9 @@ class Species:
         else:
             return sum([indv.rank for indv in self.members]) / len(self.members)
 
-
-
     def _cull_species(self, num_elite):
         surivors = math.ceil(Props.PERCENT_TO_REPRODUCE * len(self.members))
-        surivors = max(surivors,num_elite)
+        surivors = max(surivors, num_elite)
         for i in range(surivors, len(self.members)):
             member = self.members[i]
             self.members[i] = None

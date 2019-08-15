@@ -2,6 +2,7 @@ from src.NEAT.Mutagen import Mutagen
 from enum import Enum
 import copy
 
+
 class Gene:
 
     def __init__(self, id):
@@ -24,7 +25,7 @@ class Gene:
     def get_all_mutagens(self):
         raise NotImplementedError("Implement get all mutagens in super classes")
 
-    def mutate(self, magnitude = 1):
+    def mutate(self, magnitude=1):
         mutated = False
         for mutagen in self.get_all_mutagens():
             mutated = mutagen.mutate(magnitude=magnitude) or mutated
@@ -38,7 +39,6 @@ class Gene:
             best.inherit(worst)
 
         return clone
-
 
 
 class NodeType(Enum):
@@ -105,3 +105,4 @@ class ConnectionGene(Gene):
         genome.add_connection(mutated_to_conn)
 
         self.enabled.set_value(False)
+        return mutated_node

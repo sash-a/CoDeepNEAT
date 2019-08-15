@@ -1,3 +1,4 @@
+import copy
 import heapq
 import random
 
@@ -119,7 +120,7 @@ class BlueprintNEATNode(NodeGene):
                                       mutation_chance=0.5)
         self.target_num_species_reached = False
 
-        if representative is not None and Config.use_representative:
+        if Config.use_representative:
             self.representative = representative
 
     def get_similar_modules(self, modules, n):
@@ -127,6 +128,36 @@ class BlueprintNEATNode(NodeGene):
             raise Exception('get_similar_modules called, but use representatives is false')
 
         return heapq.nsmallest(n, modules, key=lambda indv: indv.distance_to(self.representative))
+
+    def choose_representative(self, modules, all_reps):
+        chance = random.random()
+        # If rep is none ignore chance to pick similar rep
+        chance_pick_rand = 0.7
+        if self.representative is None:
+            chance_pick_rand = 1
+
+        if chance_pick_rand < 0.5 and all_reps:
+            # Chance to pick random from reps already in the blueprint to promote repeating structures
+            self.representative = random.choice(all_reps)
+        elif chance < chance_pick_rand:
+            # Chance to pick random from pop
+            new_rep = copy.deepcopy(random.choice(modules))
+
+            for rep in all_reps:
+                if new_rep.eq(rep):
+                    new_rep = rep
+                    break
+
+            self.representative = new_rep
+        elif chance < 0.5:
+            # Chance to pick a similar representative
+            choices = self.get_similar_modules(modules, Config.closest_reps_to_consider)
+
+            weights = [2 - (x / Config.closest_reps_to_consider) for x in
+                       range(Config.closest_reps_to_consider)]  # closer reps have a higher chanecs
+            self.representative = random.choices(choices, weights=weights, k=1)[0]
+
+        return self.representative
 
     def get_all_mutagens(self):
         # raise Exception("getting species no mutagen from blueprint neat node")
@@ -300,11 +331,3 @@ class DANode(NodeGene):
                 parameters.append((key, v))
 
         return repr(parameters)
-
-
-class Num:
-    def __init__(self):
-        self.x = random.randint(1, 100)
-
-    def __repr__(self):
-        return str(self.x)

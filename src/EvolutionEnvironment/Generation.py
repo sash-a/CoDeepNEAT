@@ -42,7 +42,8 @@ class Generation:
             Props.MODULE_TARGET_NUM_SPECIES)
 
         self.blueprint_population = Population(
-            PopInit.initialize_pop(BlueprintNEATNode, BlueprintGenome, Props.BP_POP_SIZE, True),
+            PopInit.initialize_pop(BlueprintNEATNode, BlueprintGenome, Props.BP_POP_SIZE, True,
+                                   self.module_population.individuals),
             rank_fn,
             PopInit.initialize_mutations(True),
             Props.BP_POP_SIZE,
@@ -239,5 +240,4 @@ class Generation:
 
     def _get_mutation_modifier(self, a, b, c):
         completion_frac = self.generation_number / Config.max_num_generations
-        return math.atan(a - b*completion_frac)/c + 0.9
-
+        return math.atan(a - b * completion_frac) / c + 0.9

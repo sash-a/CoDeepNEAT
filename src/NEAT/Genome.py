@@ -50,8 +50,8 @@ class Genome:
     def __lt__(self, other):
         return self.rank < other.rank
 
-    def __repr__(self):
-        return repr(list(self._connections.values()))
+    # def __repr__(self):
+    #     return repr(list(self._connections.values()))
 
     def eq(self, other):
         if type(other) != type(self):

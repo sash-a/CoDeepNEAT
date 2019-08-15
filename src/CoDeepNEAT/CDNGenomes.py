@@ -5,7 +5,7 @@ from typing import List
 import math
 from torch import nn
 
-from src.CoDeepNEAT.CDNNodes import BlueprintNEATNode
+from src.CoDeepNEAT.CDNNodes import ModulenNEATNode, BlueprintNEATNode
 from src.Config import Config, NeatProperties as Props
 from src.DataAugmentation.AugmentationScheme import AugmentationScheme
 from src.NEAT.Genome import Genome
@@ -40,18 +40,18 @@ class BlueprintGenome(Genome):
                                    mutation_chance=0.13)
 
     if Config.use_representative:
-        representatives: List[BlueprintNEATNode] = property(lambda self: self.get_all_reps())
+        representatives: List[ModulenNEATNode] = property(lambda self: self.get_all_reps())
 
-    def get_all_reps(self) -> List[BlueprintNEATNode]:
+    def get_all_reps(self) -> List[ModulenNEATNode]:
         if not Config.use_representative:
             raise Exception('Use representatives is false, but get all representatives was called')
 
         reps = list()
-        for node in self._nodes:
+        for node in self._nodes.values():
             if not isinstance(node, BlueprintNEATNode):
                 raise Exception('Type: ' + str(type(node) + ' stored as blueprint node'))
 
-            reps.append(node)
+            reps.append(node.representative)
 
         return reps
 
@@ -80,6 +80,7 @@ class BlueprintGenome(Genome):
             if inherit_module_mapping:
                 other.update_module_refs(generation)
                 self.species_module_ref_map = other.species_module_ref_map
+                # print('inherited mapping:', self.species_module_ref_map)
 
             self.max_accuracy = acc
 
@@ -90,23 +91,38 @@ class BlueprintGenome(Genome):
         self.species_module_index_map = {}
 
         if Config.use_representative:
-            pass  # TODO
+            for rep, module in self.species_module_ref_map.items():
+                if module is None:
+                    continue
+
+                for species_idx, species in enumerate(generation.module_population.species):
+                    if module in species:
+                        self.species_module_index_map[rep] = \
+                            (species_idx, generation.module_population.species[species_idx].members.index(module))
+                        break
         else:
             for spc_index, module in self.species_module_ref_map.items():
                 if module is None:
-                    # print('Found a none node')
                     continue
 
                 if spc_index < len(generation.module_population.species) and \
                         module in generation.module_population.species[spc_index]:
-                    self.species_module_index_map[spc_index] = generation.module_population.species[
-                        spc_index].members.index(module)
+                    self.species_module_index_map[spc_index] = \
+                        generation.module_population.species[spc_index].members.index(module)
                     # print("Found a live module")
 
     def update_module_refs(self, generation):
         self.species_module_ref_map = {}
-        for spc_index, module_index in self.species_module_index_map.items():
-            self.species_module_ref_map[spc_index] = generation.module_population.species[spc_index][module_index]
+
+        if Config.use_representative:
+            reps = self.representatives
+            for rep, (spc_index, module_index) in self.species_module_index_map.items():
+                if rep not in reps:  # removes reps that no longer exist
+                    continue
+                self.species_module_ref_map[rep] = generation.module_population.species[spc_index][module_index]
+        else:
+            for spc_index, module_index in self.species_module_index_map.items():
+                self.species_module_ref_map[spc_index] = generation.module_population.species[spc_index][module_index]
 
     def mutate(self, mutation_record, attribute_magnitude=1, topological_magnitude=1, module_population=None):
         if Config.module_retention and random.random() < 0.1 * topological_magnitude and self.species_module_ref_map:
@@ -119,51 +135,32 @@ class BlueprintGenome(Genome):
                     self.species_module_ref_map[species_no] = None
                     break
                 tries -= 1
+
         if Config.evolve_data_augmentations and random.random() < 0.2:
             self.da_scheme = None
 
         if Config.use_representative:
             reps = self.representatives
-
-            chance = random.random()
-            for i in self._nodes:
-                if random.random() > Config.rep_mutation_chance:
-                    """no rep mutation"""
+            for node in self._nodes.values():
+                if random.random() > Config.rep_mutation_chance_early:  # no rep mutation
                     continue
+                node.choose_representative(module_population.individuals, reps)
 
-                if chance < 0.2:
-                    # Chance to pick random from pop
-                    new_rep = copy.deepcopy(random.choice(module_population.individuals))
-                    for rep in reps:
-                        if new_rep.eq(rep):
-                            new_rep = rep
-                            break
+        nodes_before_mutation = set(self._nodes.keys())
+        mutated = super()._mutate(mutation_record, Props.BP_NODE_MUTATION_CHANCE, Props.BP_CONN_MUTATION_CHANCE,
+                                  attribute_magnitude=attribute_magnitude, topological_magnitude=topological_magnitude)
+        # Check if a node was added
+        if Config.use_representative:
+            for node_id in self._nodes.keys():
+                if node_id not in nodes_before_mutation:
+                    self._nodes[node_id].choose_representative(module_population.individuals, reps)
 
-                    self._nodes[i].representative = new_rep
-                elif chance < 0.5:
-                    # Chance to pick a similar representative
-                    choices = self._nodes[i].get_similar_modules(module_population.individuals,
-                                                                 Config.closest_reps_to_consider)
-
-                    weights = [2 - (x / Config.closest_reps_to_consider) for x in
-                               range(Config.closest_reps_to_consider)]  # closer reps have a higher chanecs
-                    self._nodes[i].representative = random.choices(choices, weights=weights, k=1)[0]
-                else:
-                    # Chance to pick random from reps already in the blueprint to promote repeating structures
-                    self._nodes[i].representative = random.choice(reps)
-
-        return super()._mutate(mutation_record, Props.BP_NODE_MUTATION_CHANCE, Props.BP_CONN_MUTATION_CHANCE,
-                               attribute_magnitude=attribute_magnitude, topological_magnitude=topological_magnitude)
+        return mutated
 
     def inherit(self, genome):
         self.da_scheme = genome.da_scheme
         self.weight_init = copy.deepcopy(genome.weight_init)
         self.species_module_ref_map = genome.species_module_ref_map
-        # print("inheriting spc ref map:",self.species_module_ref_map)
-        # self.learning_rate = copy.deepcopy(genome.learning_rate)
-        # self.beta1 = copy.deepcopy(genome.beta1)
-        # self.beta2 = copy.deepcopy(genome.beta2)
-        # print("inhereting from Blueprint genome an lr of:",self.learning_rate(), "and da sc:",self.da_scheme)
 
     def end_step(self, generation=None):
         super().end_step()
@@ -172,8 +169,6 @@ class BlueprintGenome(Genome):
         self.max_accuracy = 0
 
         self.update_module_indexes(generation)
-        # print("updating index map to:", self.species_module_index_map)
-        # self.da_scheme_index = -1  # don't reset because bp holds onto its DA if it can
 
     def reset_number_of_module_species(self, num_module_species, generation_number):
         for node in self._nodes.values():
@@ -187,6 +182,34 @@ class ModuleGenome(Genome):
     def __init__(self, connections, nodes):
         super(ModuleGenome, self).__init__(connections, nodes)
         self.module_node = None  # the module node created from this gene
+
+    def __eq__(self, other):
+        if not isinstance(other, ModuleGenome):
+            raise TypeError(str(type(other)) + ' cannot be equal to ModuleGenome')
+
+        self_ids = [nodeid for nodeid in self._nodes.keys()] + [connid for connid in self._connections.keys()]
+        other_ids = [nodeid for nodeid in other._nodes.keys()] + [connid for connid in other._connections.keys()]
+
+        self_attribs = []
+        for node in self._nodes.values():
+            for mutagen in node.get_all_mutagens():
+                self_attribs.extend(mutagen.get_all_sub_values())
+
+        other_attribs = []
+        for node in other._nodes.values():
+            for mutagen in node.get_all_mutagens():
+                other_attribs.extend(mutagen.get_all_sub_values())
+
+        return self_ids == other_ids and self_attribs == other_attribs
+
+    def __hash__(self):
+        self_ids = [nodeid for nodeid in self._nodes.keys()] + [connid for connid in self._connections.keys()]
+        attribs = []
+        for node in self._nodes.values():
+            for mutagen in node.get_all_mutagens():
+                attribs.extend(mutagen.get_all_sub_values())
+
+        return hash(tuple(self_ids + attribs))
 
     def to_module(self):
         """
@@ -234,9 +257,11 @@ class ModuleGenome(Genome):
         super().end_step()
         self.module_node = None
 
+    # def __repr__(self):
+    #     return '\n------------------Connections--------------\n' + repr(self._connections) + \
+    #            '\n---------------------Nodes-----------------\n' + repr(self._nodes)
     def __repr__(self):
-        return '\n------------------Connections--------------\n' + repr(self._connections) + \
-               '\n---------------------Nodes-----------------\n' + repr(self._nodes)
+        return 'MODULE'
 
 
 class DAGenome(Genome):
