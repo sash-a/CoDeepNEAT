@@ -5,8 +5,10 @@ import torch.multiprocessing as mp
 # --------------------------------------------------------------------------------------------------------------------#
 # Run state options
 run_name = "test"
-continue_from_last_run = False
+continue_from_last_run = True
 fully_train = False
+dummy_run = False
+
 # --------------------------------------------------------------------------------------------------------------------#
 # nn options
 device = 'gpu'  # gpu | cpu
@@ -17,7 +19,7 @@ data_path = ''
 number_of_epochs_per_evaluation = 5
 
 # --------------------------------------------------------------------------------------------------------------------#
-max_num_generations = 50
+max_num_generations = 30
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Multiobjective options
@@ -54,9 +56,6 @@ mutagen_breed_chance = 0.7
 use_graph_edit_distance = False
 # --------------------------------------------------------------------------------------------------------------------#
 
-
-# Debug and test options
-dummy_run = True
 
 protect_parsing_from_errors = False
 test_in_run = False
