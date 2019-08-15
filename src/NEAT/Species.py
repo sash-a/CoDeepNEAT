@@ -46,7 +46,7 @@ class Species:
         self._cull_species(elite_count)
         self._reproduce(mutation_record, elite_count, topological_mutation_modifier, attribute_mutation_modifier)
 
-        print("mutation modufiers~ top:",topological_mutation_modifier, "att:",attribute_mutation_modifier,"spc:",(1/math.pow(self.fitness/1.1,0.9)), "fitness:",self.fitness)
+        print("mutation modufiers~ top:",topological_mutation_modifier, "att:",attribute_mutation_modifier,"spc:",(1/math.pow(self.fitness/1.1,0.8)), "fitness:",self.fitness)
 
         self._select_representative()
         self.age += 1
@@ -91,7 +91,7 @@ class Species:
             if child.validate():
                 if Config.adjust_species_mutation_magnitude_based_on_fitness:
                     """less fit species change more rapidly"""
-                    attribute_mutation_magnitude = max(1/math.pow(self.fitness,1.2), 3)
+                    attribute_mutation_magnitude = max(1/math.pow(self.fitness/1.1,0.8), 3)
                 else:
                     attribute_mutation_magnitude = 1
 
@@ -120,6 +120,9 @@ class Species:
     def get_average_rank(self):
         if Config.adjust_species_mutation_magnitude_based_on_fitness:
             ranks = [indv.rank for indv in self.members if indv.fitness_values[0] != 0]
+            if len(ranks) == 0:
+                return sum([indv.rank for indv in self.members]) / len(self.members)
+
             return sum(ranks) / len(ranks)
         else:
             return sum([indv.rank for indv in self.members]) / len(self.members)

@@ -127,13 +127,7 @@ def plot_all_runs(aggregation_type='max', num_top=5, fitness_index=0, max_gens=1
     title = aggregation_type + (" " + repr(num_top) if aggregation_type == "top" else "") + " fitness"
     plt.title(title)
 
-    # Put actual titles here
-    # plt.ylabel('Average top 5 accuracy (%)')
-    # plt.title('Best top 5 accuracy so far per generation')
-
     plt.show()
-
-    # print(runs)
 
 
 def get_rolling_averages(data, alpha=0.75):
@@ -149,4 +143,4 @@ def get_rolling_averages(data, alpha=0.75):
 
 if __name__ == "__main__":
     # style.use('fivethirtyeight')
-    plot_all_runs(aggregation_type="max", num_top=5, show_data=False, show_best_fit=False, show_smoothed_data=False, stay_at_max=True)
+    plot_all_runs(aggregation_type="max", num_top=5, show_data=True, show_best_fit=False, show_smoothed_data=False, stay_at_max=False)
