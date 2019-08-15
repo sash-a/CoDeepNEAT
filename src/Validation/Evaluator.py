@@ -78,7 +78,7 @@ def train(model, train_loader, epoch, test_loader, device, augmentors=None, prin
             print("epoch", epoch, "average loss:", loss / batch_idx, "time for epoch:", (end_time - s))
 
 
-def test(model, test_loader, device, print_acc=True):
+def test(model, test_loader, device, print_acc=False):
     """
     Run through a test dataset and return the accuracy
 
@@ -139,5 +139,5 @@ def evaluate(model, epochs, device, batch_size=64, augmentors=None, train_loader
     e = time.time()
 
     test_acc = test(model, test_loader, device)
-    print('Evaluation took', e - s, 'seconds, Test acc:', test_acc, end='\n')
+    # print('Evaluation took', e - s, 'seconds, Test acc:', test_acc, end='\n')
     return test_acc
