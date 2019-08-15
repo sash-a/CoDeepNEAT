@@ -130,27 +130,40 @@ class BlueprintNEATNode(NodeGene):
         return heapq.nsmallest(n, modules, key=lambda indv: indv.distance_to(self.representative))
 
     def choose_representative(self, modules, all_reps):
+        all_reps = list(set(all_reps))  # removing duplicated to make choosing fair
         chance = random.random()
         # If rep is none ignore chance to pick similar rep
         chance_pick_rand = 0.7
         if self.representative is None:
             chance_pick_rand = 1
 
-        if chance_pick_rand < 0.5 and all_reps:
-            # Chance to pick random from reps already in the blueprint to promote repeating structures
+        if chance < 0.5 and all_reps:
+            # 50% chance to pick random from reps already in the blueprint to promote repeating structures
             self.representative = random.choice(all_reps)
         elif chance < chance_pick_rand:
-            # Chance to pick random from pop
+            # 20% or 50% chance to pick random from pop
             new_rep = copy.deepcopy(random.choice(modules))
 
             for rep in all_reps:
-                if new_rep.eq(rep):
+                if new_rep == rep:
                     new_rep = rep
                     break
 
             self.representative = new_rep
-        elif chance < 0.5:
-            # Chance to pick a similar representative
+        elif chance < 0.75:
+            # 0% or 5% chance to pick a very different representative
+            new_rep = copy.deepcopy(
+                random.choice(heapq.nlargest(10, modules, key=lambda indv: indv.distance_to(self.representative))))
+
+            for rep in all_reps:
+                if new_rep == rep:
+                    new_rep = rep
+                    break
+
+            self.representative = new_rep
+
+        else:
+            # 0% or 20% chance to pick a similar representative
             choices = self.get_similar_modules(modules, Config.closest_reps_to_consider)
 
             weights = [2 - (x / Config.closest_reps_to_consider) for x in
