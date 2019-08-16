@@ -1,3 +1,5 @@
+import random
+
 from src.Phenotype.Node import Node
 from src.Phenotype.ModuleGraph import ModuleGraph
 from src.Config import Config
@@ -21,25 +23,50 @@ class BlueprintNode(Node):
 
         if blueprint_NEAT_node is None:
             print("null neat node passed to blueprint")
+        if Config.use_representative:
+            self.blueprint_node_gene = blueprint_NEAT_node
         self.generate_blueprint_node_from_gene(blueprint_NEAT_node)
 
     def generate_blueprint_node_from_gene(self, gene):
         """applies the properties of the blueprint gene for this node"""
-        # print("generating blueprint node from gene:",gene, "setting species number:",gene.species_number(), "from:",gene.species_number)
-        self.species_number = gene.species_number()
+        if Config.use_representative:
+            self.species_number = None
+        else:
+            self.species_number = gene.species_number()
 
     def get_module_individual(self, generation):
-        if self.species_number in self.blueprint_genome.species_module_index_map:
-            index = self.blueprint_genome.species_module_index_map[self.species_number]
-            input_module_individual = generation.module_population.species[self.species_number][index]
-            #print('Found a surviving module',input_module_individual, self.blueprint_genome.species_module_index_map)
+        if not Config.use_representative:
+            if self.species_number in self.blueprint_genome.species_module_index_map:
+                mod_idx = self.blueprint_genome.species_module_index_map[self.species_number]
+                input_module_individual = generation.module_population.species[self.species_number][mod_idx]
+                # print('Found a surviving module',input_module_individual, self.blueprint_genome.species_module_index_map)
+            else:
+                # print("sampling fresh")
+                input_module_individual, mod_idx = \
+                    generation.module_population.species[self.species_number].sample_individual()
+                self.blueprint_genome.species_module_index_map[self.species_number] = mod_idx
         else:
-            #print("sampling fresh")
-            input_module_individual, index = \
-                generation.module_population.species[self.species_number].sample_individual()
-            self.blueprint_genome.species_module_index_map[self.species_number] = index
+            if self.blueprint_node_gene.representative in self.blueprint_genome.species_module_index_map:
+                spc_idx, mod_idx = self.blueprint_genome.species_module_index_map[self.blueprint_node_gene.representative]
+                input_module_individual = generation.module_population.species[spc_idx][mod_idx]
+                self.species_number = spc_idx
+            else:
+                choices = self.blueprint_node_gene.get_similar_modules(generation.module_population.individuals,
+                                                                       Config.closest_reps_to_consider)
+                # closer modules have a higher chances
+                weights = [2 - (x / Config.closest_reps_to_consider) for x in range(Config.closest_reps_to_consider)]
+                input_module_individual = random.choices(choices, weights=weights, k=1)[0]
+                spc_idx = 0
+                for spc_idx, species in enumerate(generation.module_population.species, 0):
+                    if input_module_individual in species.members:
+                        mod_idx = species.members.index(input_module_individual)
+                        break
 
-        return input_module_individual, index
+                self.blueprint_genome.species_module_index_map[self.blueprint_node_gene.representative] = \
+                    (spc_idx, mod_idx)
+                self.species_number = spc_idx
+
+        return input_module_individual, mod_idx
 
     def parse_to_module_graph(self, generation, module_construct=None, species_indexes=None):
         """
@@ -56,7 +83,11 @@ class BlueprintNode(Node):
             self.blueprint_genome.modules_used_index.append((self.species_number, index))
             self.blueprint_genome.modules_used.append(input_module_individual)
 
-            self.blueprint_genome.species_module_index_map[self.species_number] = index
+            if Config.use_representative:
+                self.blueprint_genome.species_module_index_map[self.blueprint_node_gene.representative] = \
+                    (self.species_number, index)
+            else:
+                self.blueprint_genome.species_module_index_map[self.species_number] = index
 
             input_module_node = input_module_individual.to_module()
             if not input_module_node.is_input_node():
@@ -93,8 +124,7 @@ class BlueprintNode(Node):
                 input_module_node.insert_aggregator_nodes()
                 input_module_node.clear()
                 input_module_node.get_traversal_ids("_")
-
-            except:
+            except Exception:
                 print('BP conns', self.blueprint_genome.connections)
                 print('BP nodes', self.blueprint_genome.nodes)
 

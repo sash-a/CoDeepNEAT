@@ -3,14 +3,13 @@ import operator
 import os
 import random
 import sys
-from networkx.algorithms.similarity import graph_edit_distance
-import networkx as nx
-
 from typing import Iterable
 
 import graphviz
-from data import DataManager
+import networkx as nx
+from networkx.algorithms.similarity import graph_edit_distance
 
+from data import DataManager
 from src.Config import Config, NeatProperties as Props
 from src.NEAT.Gene import ConnectionGene, NodeGene, NodeType
 
@@ -28,12 +27,12 @@ class Genome:
             self.fitness_values.append(
                 sys.maxsize if Config.third_objective_comparator == operator.lt else -(sys.maxsize - 1))
 
-        self._nodes = {}#maps node id to node object
+        self._nodes = {}  # maps node id to node object
         for node in nodes:
             self.add_node(node)
 
         self._connected_nodes = set()  # set of (from,to)tuples
-        self._connections = {}#maps connection id to connection object
+        self._connections = {}  # maps connection id to connection object
         for connection in connections:
             self.add_connection(connection, True)
         self.netx_graph = None
@@ -51,8 +50,8 @@ class Genome:
     def __lt__(self, other):
         return self.rank < other.rank
 
-    def __repr__(self):
-        return repr(list(self._connections.values()))
+    # def __repr__(self):
+    #     return repr(list(self._connections.values()))
 
     def eq(self, other):
         if type(other) != type(self):
@@ -88,7 +87,7 @@ class Genome:
         self._connections[conn.id] = conn
 
     def report_fitness(self, fitnesses):
-        #print("reporting fitness",fitnesses, "to genome:", type(self))
+        # print("reporting fitness",fitnesses, "to genome:", type(self))
         if self.fitness_values is None or not self.fitness_values:
             self.fitness_values = [0 for _ in fitnesses]
 
@@ -119,14 +118,14 @@ class Genome:
         node_keys = []
         for node in self._nodes.values():
             # G.add_node(node.id, att = {'label':repr(node.id)})
-            node_keys.append((node.id, {'label':repr(node.id)}))
+            node_keys.append((node.id, {'label': repr(node.id)}))
         G.add_nodes_from(node_keys)
 
         conn_keys = []
         for conn in self._connections.values():
             if Config.ignore_disabled_connections_for_topological_similarity and not conn.enabled():
                 continue
-            conn_keys.append((conn.to_node, conn.from_node, {'label':repr(conn.to_node)+","+repr(conn.from_node)}))
+            conn_keys.append((conn.to_node, conn.from_node, {'label': repr(conn.to_node) + "," + repr(conn.from_node)}))
         G.add_edges_from(conn_keys)
 
         self.netx_graph = G
@@ -163,21 +162,22 @@ class Genome:
             len(self._connections), len(other._connections))
 
         if Config.use_graph_edit_distance:
-            match_func = lambda a,b :a['label'] == b['label']
-            ged = graph_edit_distance(self.get_netx_graph_form(), other.get_netx_graph_form(), node_match=match_func, edge_match=match_func)
+            match_func = lambda a, b: a['label'] == b['label']
+            ged = graph_edit_distance(self.get_netx_graph_form(), other.get_netx_graph_form(), node_match=match_func,
+                                      edge_match=match_func)
             if neat_dist > 0:
-                #print("neat dist:",neat_dist, "ged:",ged)
+                # print("neat dist:",neat_dist, "ged:",ged)
                 pass
 
             return ged
 
         return neat_dist
 
-    def mutate(self, mutation_record, attribute_magnitude = 1, topological_magnitude = 1):
+    def mutate(self, mutation_record, attribute_magnitude=1, topological_magnitude=1, module_population=None, gen=-1):
         raise NotImplemented('Mutation should be called not in base class')
 
     def _mutate(self, mutation_record, add_node_chance, add_connection_chance, allow_connections_to_mutate=True,
-                debug=False, attribute_magnitude = 1, topological_magnitude = 1):
+                debug=False, attribute_magnitude=1, topological_magnitude=1):
         if debug:
             print("before mutation: ", self, "has branches;", self.has_branches())
 

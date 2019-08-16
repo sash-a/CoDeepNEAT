@@ -42,7 +42,8 @@ class Generation:
             Props.MODULE_TARGET_NUM_SPECIES)
 
         self.blueprint_population = Population(
-            PopInit.initialize_pop(BlueprintNEATNode, BlueprintGenome, Props.BP_POP_SIZE, True),
+            PopInit.initialize_pop(BlueprintNEATNode, BlueprintGenome, Props.BP_POP_SIZE, True,
+                                   self.module_population.individuals),
             rank_fn,
             PopInit.initialize_mutations(True),
             Props.BP_POP_SIZE,
@@ -150,6 +151,10 @@ class Generation:
 
             self.pareto_population.queue_candidate(module_graph)
 
+        print(len(self.blueprint_population))
+        for bp in self.blueprint_population:
+            print(bp.species_module_index_map.values())
+
         RuntimeAnalysis.log_new_generation(accuracies, generation_number,
                                            second_objective_values=(
                                                second_objective_values if second_objective_values else None),
@@ -188,6 +193,7 @@ class Generation:
 
         blueprint_graph = blueprint_individual.to_blueprint()
         module_graph = blueprint_graph.parse_to_module_graph(self)
+
         net = src.Validation.Validation.create_nn(module_graph, inputs)
         # if random.random()< 0.05:
         #     module_graph.plot_tree_with_graphvis(view=True)
@@ -241,5 +247,4 @@ class Generation:
 
     def _get_mutation_modifier(self, a, b, c):
         completion_frac = self.generation_number / Config.max_num_generations
-        return math.atan(a - b*completion_frac)/c + 0.9
-
+        return math.atan(a - b * completion_frac) / c + 0.9

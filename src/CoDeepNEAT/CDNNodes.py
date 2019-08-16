@@ -1,3 +1,5 @@
+import copy
+import heapq
 import random
 
 import torch
@@ -110,13 +112,64 @@ class ModulenNEATNode(NodeGene):
 
 
 class BlueprintNEATNode(NodeGene):
-    def __init__(self, id, node_type=NodeType.HIDDEN):
+    def __init__(self, id, node_type=NodeType.HIDDEN, representative=None):
         super(BlueprintNEATNode, self).__init__(id, node_type)
 
         self.species_number = Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=0, start_range=0,
                                       end_range=1, print_when_mutating=False, name="species number",
                                       mutation_chance=0.5)
         self.target_num_species_reached = False
+
+        if Config.use_representative:
+            self.representative = representative
+
+    def get_similar_modules(self, modules, n):
+        if not Config.use_representative:
+            raise Exception('get_similar_modules called, but use representatives is false')
+
+        return heapq.nsmallest(n, modules, key=lambda indv: indv.distance_to(self.representative))
+
+    def choose_representative(self, modules, all_reps):
+        all_reps = list(set(all_reps))  # removing duplicated to make choosing fair
+        chance = random.random()
+        # If rep is none ignore chance to pick similar rep
+        chance_pick_rand = 0.7
+        if self.representative is None:
+            chance_pick_rand = 1
+
+        if chance < 0.5 and all_reps:
+            # 50% chance to pick random from reps already in the blueprint to promote repeating structures
+            self.representative = random.choice(all_reps)
+        elif chance < chance_pick_rand:
+            # 20% or 50% chance to pick random from pop
+            new_rep = copy.deepcopy(random.choice(modules))
+
+            for rep in all_reps:
+                if new_rep == rep:
+                    new_rep = rep
+                    break
+
+            self.representative = new_rep
+        elif chance < 0.75:
+            # 0% or 5% chance to pick a very different representative
+            new_rep = copy.deepcopy(
+                random.choice(heapq.nlargest(10, modules, key=lambda indv: indv.distance_to(self.representative))))
+
+            for rep in all_reps:
+                if new_rep == rep:
+                    new_rep = rep
+                    break
+
+            self.representative = new_rep
+        else:
+            # 0% or 20% chance to pick a similar representative
+            choices = self.get_similar_modules(modules, Config.closest_reps_to_consider)
+
+            weights = [2 - (x / Config.closest_reps_to_consider) for x in
+                       range(Config.closest_reps_to_consider)]  # closer reps have a higher chanecs
+            self.representative = random.choices(choices, weights=weights, k=1)[0]
+
+        return self.representative
 
     def get_all_mutagens(self):
         # raise Exception("getting species no mutagen from blueprint neat node")
@@ -145,8 +198,6 @@ class BlueprintNEATNode(NodeGene):
 class DANode(NodeGene):
     def __init__(self, id, node_type=NodeType.HIDDEN):
         super().__init__(id, node_type)
-
-
 
         da_submutagens = {
 
@@ -231,17 +282,17 @@ class DANode(NodeGene):
             }
 
             da_submutagens["HSV"] = {
-                    "channel": Mutagen(0, 1, 2, discreet_value=0, mutation_chance=0.1),
-                    "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=20, start_range=0,
-                                  end_range=29, mutation_chance=0.2),
-                    "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=50, start_range=30,
-                                  end_range=60, mutation_chance=0.2)
-                }
+                "channel": Mutagen(0, 1, 2, discreet_value=0, mutation_chance=0.1),
+                "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=20, start_range=0,
+                              end_range=29, mutation_chance=0.2),
+                "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=50, start_range=30,
+                              end_range=60, mutation_chance=0.2)
+            }
             da_submutagens["Grayscale"] = {
-                    "alpha_lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.35, start_range=0.0,
-                                        end_range=0.49, mutation_chance=0.3),
-                    "alpha_hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.75, start_range=0.5,
-                                        end_range=1.0, mutation_chance=0.3)}
+                "alpha_lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.35, start_range=0.0,
+                                    end_range=0.49, mutation_chance=0.3),
+                "alpha_hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.75, start_range=0.5,
+                                    end_range=1.0, mutation_chance=0.3)}
 
             self.da = Mutagen("Flip_lr", "Rotate", "Translate_Pixels", "Scale", "Pad_Pixels", "Crop_Pixels",
                               "Grayscale", "Custom_Canny_Edges", "Additive_Gaussian_Noise", "Coarse_Dropout",
@@ -270,7 +321,7 @@ class DANode(NodeGene):
             prob = choice_pool[choice]
             if rand_val >= from_range and rand_val <= from_range + prob:
                 return choice
-            from_range+=prob
+            from_range += prob
 
     def get_all_mutagens(self):
         return [self.da, self.enabled]
@@ -286,7 +337,7 @@ class DANode(NodeGene):
                 if value is None:
                     raise Exception("none value in mutagen")
 
-                v= repr(value())
+                v = repr(value())
 
                 # v = repr(value).split(" ", 1)[1]
                 parameters.append((key, v))

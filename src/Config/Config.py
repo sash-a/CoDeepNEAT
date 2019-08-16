@@ -5,9 +5,9 @@ import torch.multiprocessing as mp
 # --------------------------------------------------------------------------------------------------------------------#
 # Run state options
 run_name = "test"
-continue_from_last_run = True
+continue_from_last_run = False
 fully_train = False
-dummy_run = False
+dummy_run = True
 
 # --------------------------------------------------------------------------------------------------------------------#
 # nn options
@@ -35,14 +35,21 @@ moo_optimiser = 'cdn'  # cdn | nsga
 evolve_data_augmentations = False
 colour_augmentations = True
 allow_da_scheme_ignores = False
-da_ignore_chance=0.2
+da_ignore_chance = 0.2
 
 # --------------------------------------------------------------------------------------------------------------------#
-module_retention = False
-fitness_aggregation = 'avg'  # max | avg
-allow_species_module_mapping_ignores = False
+module_retention = True
+fitness_aggregation = 'max'  # max | avg
+allow_species_module_mapping_ignores = True
 # --------------------------------------------------------------------------------------------------------------------#
 speciation_overhaul = False
+use_representative = False
+rep_mutation_chance_early = 0.6
+rep_mutation_chance_late = 0.2
+similar_rep_mutation_chance = 0.2
+closest_reps_to_consider = 10
+
+use_graph_edit_distance = False
 ignore_disabled_connections_for_topological_similarity = False
 # -----------------------------
 # --------------------------------------------------------------------------------------------------------------------#
@@ -52,8 +59,6 @@ adjust_mutation_magnitudes_over_run = False
 breed_mutagens = False
 mutagen_breed_chance = 0.7
 # --------------------------------------------------------------------------------------------------------------------#
-
-use_graph_edit_distance = False
 # --------------------------------------------------------------------------------------------------------------------#
 
 
