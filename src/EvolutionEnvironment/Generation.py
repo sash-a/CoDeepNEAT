@@ -151,10 +151,6 @@ class Generation:
 
             self.pareto_population.queue_candidate(module_graph)
 
-        print(len(self.blueprint_population))
-        for bp in self.blueprint_population:
-            print(bp.species_module_index_map.values())
-
         RuntimeAnalysis.log_new_generation(accuracies, generation_number,
                                            second_objective_values=(
                                                second_objective_values if second_objective_values else None),
