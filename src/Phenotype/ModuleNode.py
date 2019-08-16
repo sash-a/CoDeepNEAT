@@ -299,8 +299,10 @@ class ModuleNode(Node):
 
     def get_layer_type_name(self):
         layer_type = self.module_NEAT_node.layer_type
-
-        extras = "\nout features:" + repr(self.out_features)
+        extras = ""
+        if layer_type() == nn.Conv2d:
+            extras += "\nwidow size:" + repr(layer_type.get_sub_value("conv_window_size"))
+        extras += "\nout features:" + repr(self.out_features)
         extras += "\n" + repr(self.regularisation).split("(")[0] if not (self.regularisation is None) else ""
         extras += "\n" + repr(self.reduction).split("(")[0] if not (self.reduction is None) else ""
         extras += "\n" + repr(self.dropout).split("(")[0] if not (self.dropout is None) else ""

@@ -189,6 +189,8 @@ class Generation:
         blueprint_graph = blueprint_individual.to_blueprint()
         module_graph = blueprint_graph.parse_to_module_graph(self)
         net = src.Validation.Validation.create_nn(module_graph, inputs)
+        if random.random()< 0.05:
+            module_graph.plot_tree_with_graphvis(view=True)
         if Config.evolve_data_augmentations:
             if Config.allow_da_scheme_ignores and random.random() < Config.da_ignore_chance:
                 # ignore da scheme to try different one
