@@ -275,6 +275,12 @@ class ModuleGenome(Genome):
     def __repr__(self):
         return str(hash(self))
 
+    def get_comlexity(self):
+        complexity = 0
+        for node in self._nodes.values():
+            complexity += node.get_complexity()
+        return complexity
+
 
 class DAGenome(Genome):
     def __init__(self, connections, nodes):

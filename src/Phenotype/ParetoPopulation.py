@@ -4,6 +4,7 @@ import time
 from src.Validation import Validation
 from src.Config import Config
 import numpy as np
+import copy
 
 
 class ParetoPopulation:
@@ -15,7 +16,7 @@ class ParetoPopulation:
 
     def queue_candidate(self, candidate):
         # print("queuing candidate:",candidate)
-        self.candidates.append(candidate)
+        self.candidates.append(copy.deepcopy(candidate))
 
     def update_pareto_front(self):
         start_time = time.time()

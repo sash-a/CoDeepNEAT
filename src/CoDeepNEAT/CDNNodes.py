@@ -110,6 +110,14 @@ class ModulenNEATNode(NodeGene):
     def get_node_name(self):
         return repr(self.layer_type()) + "\n" + "features: " + repr(self.layer_type.get_sub_value("out_features"))
 
+    def get_complexity(self):
+        if self.layer_type() == nn.Conv2d:
+            return pow(self.layer_type.get_sub_value("conv_window_size"),2) * self.layer_type.get_sub_value("out_features")
+        elif self.layer_type() == nn.Linear:
+            return self.layer_type.get_sub_value("out_features")
+        else:
+            raise Exception()
+
 
 class BlueprintNEATNode(NodeGene):
     def __init__(self, id, node_type=NodeType.HIDDEN, representative=None):

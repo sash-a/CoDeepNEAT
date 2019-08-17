@@ -52,7 +52,7 @@ def train(model, train_loader, epoch, test_loader, device, augmentors=None, prin
                 m_loss = model.loss_fn(output, aug_labels)
                 m_loss.backward()
                 model.optimizer.step()
-                model.optimizer.zero_grad()  # todo wat dis do
+                model.optimizer.zero_grad()
 
 
         inputs, targets = inputs.to(device), targets.to(device)

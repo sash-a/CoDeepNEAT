@@ -140,7 +140,21 @@ class Generation:
 
             # print("reporting fitnesses to: ",  evaluated_bp.modules_used_index)
             for species_index, member_index in evaluated_bp.modules_used_index:
-                self.module_population.species[species_index][member_index].report_fitness(fitness)
+                if Config.second_objective == "":
+                    self.module_population.species[species_index][member_index].report_fitness(fitness)
+                else:
+                    module_indv = self.module_population.species[species_index][member_index]
+                    acc = fitness[0]
+
+                    if Config.second_objective == 'network_size':
+                        comp = module_indv.get_comlexity()
+                    elif Config.second_objective == 'network_size_adjusted':
+                        comp = module_indv.get_comlexity()/ pow(acc,2)
+                    elif Config.second_objective == 'network_size_adjusted_2':
+                        comp = pow(module_indv.get_comlexity(), 0.5) / pow(acc,2)
+                    else:
+                        raise Exception()
+                    self.module_population.species[species_index][member_index].report_fitness(acc, comp)
 
             # Gathering results for analysis
             accuracies.append(fitness[0])
