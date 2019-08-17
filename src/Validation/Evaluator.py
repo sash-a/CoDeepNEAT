@@ -49,7 +49,8 @@ def train(model, train_loader, epoch, test_loader, device, augmentors=None, prin
                 # print("augmented batch")
                 # print("targets:",targets,"\naug_targets:",aug_labels)
                 # print("inputs:",inputs,"aug_inputs:", aug_inputs)
-                print("vector")
+                print("shape origonal:",inputs.size(), "aug:",aug_inputs.size())
+                print("range of augs~",torch.min(aug_inputs),":",torch.max(aug_inputs))
                 print("Vectors", inputs-aug_inputs)
                 aug_inputs, aug_labels = aug_inputs.to(device), aug_labels.to(device)
                 # print("training on augmented images shape:",augmented_inputs.size())
@@ -59,7 +60,6 @@ def train(model, train_loader, epoch, test_loader, device, augmentors=None, prin
                 model.optimizer.step()
 
             if i == 0:
-                # continue
                 inputs, targets = inputs.to(device), targets.to(device)
                 output = model(inputs)
                 m_loss = model.loss_fn(output, targets)

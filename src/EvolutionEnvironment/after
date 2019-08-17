@@ -3,53 +3,66 @@ digraph {
 	_ [label="INPUT
 Conv
 widow size:3
-out features:63
+out features:59
 BatchNorm2d" fillcolor=yellow style=filled]
-	"_,0" [label="Conv
+	"_,0" [label=Aggregator fillcolor=violet style=filled]
+	"_,0,0" [label="Conv
 widow size:3
+out features:79" fillcolor=yellow style=filled]
+	"_,0,0,0" [label=Aggregator fillcolor=violet style=filled]
+	"_,0,0,0,0" [label="Conv
+widow size:3
+out features:59
+BatchNorm2d" fillcolor=yellow style=filled]
+	"_,0,0,0,0,0" [label=Aggregator fillcolor=violet style=filled]
+	"_,0,0,0,0,0,0" [label="Conv
+widow size:3
+out features:79" fillcolor=yellow style=filled]
+	"_,0,0,0,0,0,0,0" [label=Aggregator fillcolor=violet style=filled]
+	"_,0,0,0,0,0,0,0,0" [label="Conv
+widow size:7
 out features:79
+BatchNorm2d
 MaxPool2d
 Dropout2d" fillcolor=yellow style=filled]
-	"_,0,0" [label=Aggregator fillcolor=violet style=filled]
-	"_,0,0,0" [label="Conv
-widow size:3
-out features:79
-BatchNorm2d" fillcolor=yellow style=filled]
-	"_,0,0,0,0" [label="OUTPUT
+	"_,0,0,0,0,0,0,0,0,0" [label="OUTPUT
 Conv
-widow size:7
-out features:23
+widow size:3
+out features:4
 BatchNorm2d" fillcolor=yellow style=filled]
+	"_,0,0,0,0,0,0,0,0" -> "_,0,0,0,0,0,0,0,0,0"
+	"_,0,0,0,0,0,0,0" -> "_,0,0,0,0,0,0,0,0"
+	"_,0,0,0,0,0,0" -> "_,0,0,0,0,0,0,0"
+	"_,0,0,0,0,0" -> "_,0,0,0,0,0,0"
+	"_,0,0,0,0" -> "_,0,0,0,0,0"
+	"_,0,0,0,0,1" [label="Conv
+widow size:5
+out features:34
+BatchNorm2d" fillcolor=yellow style=filled]
+	"_,0,0,0,0,1" -> "_,0,0,0,0,0"
+	"_,0,0,0,0" -> "_,0,0,0,0,1"
 	"_,0,0,0" -> "_,0,0,0,0"
 	"_,0,0" -> "_,0,0,0"
-	"_,0" -> "_,0,0"
-	"_,0,1" [label="Conv
-widow size:3
-out features:79
-BatchNorm2d" fillcolor=yellow style=filled]
-	"_,0,1,0" [label="Conv
+	"_,0,0,1" [label="Conv
 widow size:7
-out features:23
-BatchNorm2d" fillcolor=yellow style=filled]
-	"_,0,1,0" -> "_,0,0"
-	"_,0,1" -> "_,0,1,0"
-	"_,0" -> "_,0,1"
-	"_,0,2" [label="Conv
-widow size:3
-out features:63
-BatchNorm2d" fillcolor=yellow style=filled]
-	"_,0,2,0" [label="Conv
-widow size:3
 out features:79
+BatchNorm2d
 MaxPool2d
 Dropout2d" fillcolor=yellow style=filled]
-	"_,0,2,0" -> "_,0,0"
-	"_,0,2" -> "_,0,2,0"
-	"_,0" -> "_,0,2"
+	"_,0,0,1,0" [label="Conv
+widow size:3
+out features:4
+BatchNorm2d" fillcolor=yellow style=filled]
+	"_,0,0,1,0" -> "_,0,0,0"
+	"_,0,0,1,0" -> "_,0,0,0,0,0,0,0"
+	"_,0,0,1" -> "_,0,0,1,0"
+	"_,0,0" -> "_,0,0,1"
+	"_,0" -> "_,0,0"
 	_ -> "_,0"
-	0 [label="'Rotate'
-[('lo', '-164'), ('hi', '168')]" fillcolor=white style=filled]
-	1 [label="'Custom_Canny_Edges'
-[('min_val', '100'), ('max_val', '200')]" fillcolor=white style=filled]
-	0 -> 1
+	"_,1" [label="Conv
+widow size:5
+out features:34
+BatchNorm2d" fillcolor=yellow style=filled]
+	"_,1" -> "_,0"
+	_ -> "_,1"
 }

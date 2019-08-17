@@ -12,7 +12,7 @@ def augment_batch(images, labels, augmentor: AS):
 
     batch_size = np.shape(images)[0]
     channels = np.shape(images)[1]
-    x_Dim = np.shape(images)[2]
+    x_dim = np.shape(images)[2]
     y_dim = np.shape(images)[3]
 
     reformatted_images = reformat_images_for_DA(images)
@@ -28,18 +28,21 @@ def augment_batch(images, labels, augmentor: AS):
     #     display_image(augmented_batch[0])
 
     # convert augmented images back to dtype float32
-    reformatted_augmented_batch = reformat_images_for_system(augmented_batch)
+    reformatted_augmented_batch = reformat_images_for_system(augmented_batch,-1, 1)
 
     # Reformat augmented batch into the shape that the rest of the code wants
-    reformatted_augmented_batch = reformatted_augmented_batch.reshape(batch_size, channels, x_Dim, y_dim)
+    # reformatted_augmented_batch = reformatted_augmented_batch.reshape(batch_size, channels, x_dim, y_dim)
 
     # Convert images stored in numpy arrays to tensors
     t_augmented_images = torch.from_numpy(reformatted_augmented_batch)
+    t_augmented_images = np.transpose(t_augmented_images, (0,3,1,2))
+    print("formated shape:",t_augmented_images.size())
+
     t_labels = torch.from_numpy(labels)
 
-    norm_t_augmented_images = (t_augmented_images/255)*2-1
+    # norm_t_augmented_images = (t_augmented_images/255)*2-1
 
-    return norm_t_augmented_images, t_labels
+    return t_augmented_images, t_labels
 
 
 def display_image(image):
@@ -79,17 +82,17 @@ def reformat_images_for_DA(images):
         return reformatted_images
 
 
-def reformat_images_for_system(augmented_batch):
+def reformat_images_for_system(augmented_batch,  start_range, end_range):
     reformatted_augmented_batch_list = []
     if Config.colour_augmentations:
         for img in augmented_batch:
-            reformatted_augmented_batch_list.append(float32(img))
+            reformatted_augmented_batch_list.append(float32(img, start_range, end_range))
         reformatted_augmented_batch = np.asarray(reformatted_augmented_batch_list)
     else:
         for img in augmented_batch:
             # convert 3 channel image to 1 channel image
             gray_img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-            reformatted_augmented_batch_list.append(float32(gray_img))
+            reformatted_augmented_batch_list.append(float32(gray_img, start_range, end_range))
         reformatted_augmented_batch = np.asarray(reformatted_augmented_batch_list)
 
     return reformatted_augmented_batch
@@ -101,6 +104,6 @@ def norm8(img):
     return img
 
 # convert image to data type float32 (system requires image to be float32)
-def float32(img):
-    img = cv2.normalize(img, None, 0, 255, cv2.NORM_MINMAX, cv2.CV_32F)
+def float32(img, start_range, end_range):
+    img = cv2.normalize(img, None,  start_range, end_range, cv2.NORM_MINMAX, cv2.CV_32F)
     return img
