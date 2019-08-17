@@ -4,22 +4,22 @@ import torch.multiprocessing as mp
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Run state options
-run_name = "test"
+run_name = "modmax_spc_da"
 continue_from_last_run = True
-fully_train = False
+fully_train = True
 dummy_run = False
 
 # --------------------------------------------------------------------------------------------------------------------#
 # nn options
 device = 'gpu'  # gpu | cpu
-num_gpus = 4
+num_gpus = 1
 num_workers = 0  # this doesn't work in parallel because daemonic processes cannot spawn children
 dataset = 'cifar10'
 data_path = ''
 number_of_epochs_per_evaluation = 5
 
 # --------------------------------------------------------------------------------------------------------------------#
-max_num_generations = 30
+max_num_generations = 50
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Multiobjective options
@@ -32,17 +32,17 @@ moo_optimiser = 'cdn'  # cdn | nsga
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Data augmentation options
-evolve_data_augmentations = False
+evolve_data_augmentations = True
 colour_augmentations = True
-allow_da_scheme_ignores = False
+allow_da_scheme_ignores = True
 da_ignore_chance = 0.2
 
 # --------------------------------------------------------------------------------------------------------------------#
-module_retention = False
-fitness_aggregation = 'avg'  # max | avg
-allow_species_module_mapping_ignores = False
+module_retention = True
+fitness_aggregation = 'max'  # max | avg
+allow_species_module_mapping_ignores = True
 # --------------------------------------------------------------------------------------------------------------------#
-speciation_overhaul = False
+speciation_overhaul = True
 use_representative = False
 rep_mutation_chance_early = 0.6
 rep_mutation_chance_late = 0.2

@@ -35,13 +35,18 @@ class ParetoPopulation:
         self.candidates = []
         # self.plot_fitnesses()
         # self.plot_all_in_pareto_front()
-        #self.get_highest_accuracy(print=True)
+        # self.get_highest_accuracy(print=True)
 
     def get_best_network(self, num_augs = 5):
         best_graphs = self.get_highest_accuracy(num=num_augs)
         # print("got top", len(best_graphs), "graphs")
+
         for top in best_graphs:
             top.plot_tree_with_graphvis(file = "top"  + repr(best_graphs.index(top)))
+
+        for bm in self.best_members:
+            bm.plot_tree_with_graphvis(file="best"+ repr(self.best_members.index(bm)))
+
         best = best_graphs[0]
         print("fully training",best,"reported acc:",best.fitness_values[0])
 

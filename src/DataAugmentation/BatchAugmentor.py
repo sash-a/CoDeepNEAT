@@ -23,9 +23,9 @@ def augment_batch(images, labels, augmentor: AS):
 
     # Displays original image + augmented image (for testing)
     # if random.random() < 1:
-        # print("DA's:",augmentor.augs)
-        # display_image(reformatted_images[0])
-        # display_image(augmented_batch[0])
+    #     print("DA's:",augmentor.augs)
+    #     display_image(reformatted_images[0])
+    #     display_image(augmented_batch[0])
 
     # convert augmented images back to dtype float32
     reformatted_augmented_batch = reformat_images_for_system(augmented_batch)
@@ -37,7 +37,9 @@ def augment_batch(images, labels, augmentor: AS):
     t_augmented_images = torch.from_numpy(reformatted_augmented_batch)
     t_labels = torch.from_numpy(labels)
 
-    return t_augmented_images, t_labels
+    norm_t_augmented_images = (t_augmented_images/255)*2-1
+
+    return norm_t_augmented_images, t_labels
 
 
 def display_image(image):
