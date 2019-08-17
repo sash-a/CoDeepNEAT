@@ -1,0 +1,44 @@
+digraph {
+	_ [label="INPUT
+Conv
+widow size:3
+out features:99" fillcolor=red style=filled]
+	"_,0" [label="Conv
+widow size:3
+out features:99" fillcolor=red style=filled]
+	"_,0,0" [label=Aggregator fillcolor=violet style=filled]
+	"_,0,0,0" [label="Conv
+widow size:3
+out features:99" fillcolor=red style=filled]
+	"_,0,0,0,0" [label="OUTPUT
+Conv
+widow size:7
+out features:25" fillcolor=red style=filled]
+	"_,0,0,0" -> "_,0,0,0,0"
+	"_,0,0" -> "_,0,0,0"
+	"_,0" -> "_,0,0"
+	"_,0,1" [label="Conv
+widow size:3
+out features:99" fillcolor=red style=filled]
+	"_,0,1,0" [label="Conv
+widow size:7
+out features:25" fillcolor=red style=filled]
+	"_,0,1,0" -> "_,0,0"
+	"_,0,1" -> "_,0,1,0"
+	"_,0" -> "_,0,1"
+	"_,0,2" [label="Conv
+widow size:3
+out features:99" fillcolor=red style=filled]
+	"_,0,2,0" [label="Conv
+widow size:3
+out features:99" fillcolor=red style=filled]
+	"_,0,2,0" -> "_,0,0"
+	"_,0,2" -> "_,0,2,0"
+	"_,0" -> "_,0,2"
+	_ -> "_,0"
+	0 [label="'Rotate'
+[('lo', '-164'), ('hi', '168')]" fillcolor=white style=filled]
+	1 [label="'Custom_Canny_Edges'
+[('min_val', '99'), ('max_val', '219')]" fillcolor=white style=filled]
+	0 -> 1
+}

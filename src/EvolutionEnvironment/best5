@@ -1,0 +1,56 @@
+digraph {
+	_ [label="INPUT
+Conv
+widow size:3
+out features:99" fillcolor=red style=filled]
+	"_,0" [label=Aggregator fillcolor=violet style=filled]
+	"_,0,0" [label="Conv
+widow size:7
+out features:33" fillcolor=red style=filled]
+	"_,0,0,0" [label=Aggregator fillcolor=violet style=filled]
+	"_,0,0,0,0" [label="Conv
+widow size:3
+out features:99" fillcolor=red style=filled]
+	"_,0,0,0,0,0" [label=Aggregator fillcolor=violet style=filled]
+	"_,0,0,0,0,0,0" [label="OUTPUT
+Conv
+widow size:7
+out features:33" fillcolor=red style=filled]
+	"_,0,0,0,0,0" -> "_,0,0,0,0,0,0"
+	"_,0,0,0,0" -> "_,0,0,0,0,0"
+	"_,0,0,0,0,1" [label="Conv
+widow size:7
+out features:33" fillcolor=red style=filled]
+	"_,0,0,0,0,1" -> "_,0,0,0,0,0"
+	"_,0,0,0,0" -> "_,0,0,0,0,1"
+	"_,0,0,0" -> "_,0,0,0,0"
+	"_,0,0" -> "_,0,0,0"
+	"_,0,0,1" [label="Conv
+widow size:3
+out features:99" fillcolor=red style=filled]
+	"_,0,0,1,0" [label=Aggregator fillcolor=violet style=filled]
+	"_,0,0,1,0,0" [label="Conv
+widow size:7
+out features:33" fillcolor=red style=filled]
+	"_,0,0,1,0,0" -> "_,0,0,0"
+	"_,0,0,1,0" -> "_,0,0,1,0,0"
+	"_,0,0,1" -> "_,0,0,1,0"
+	"_,0,0,1,1" [label="Conv
+widow size:7
+out features:33" fillcolor=red style=filled]
+	"_,0,0,1,1" -> "_,0,0,1,0"
+	"_,0,0,1" -> "_,0,0,1,1"
+	"_,0,0" -> "_,0,0,1"
+	"_,0" -> "_,0,0"
+	_ -> "_,0"
+	"_,1" [label="Conv
+widow size:7
+out features:33" fillcolor=red style=filled]
+	"_,1" -> "_,0"
+	_ -> "_,1"
+	0 [label="'Rotate'
+[('lo', '-30'), ('hi', '30')]" fillcolor=white style=filled]
+	1 [label="'Coarse_Dropout'
+[('d_lo', '0.05'), ('d_hi', '0.2'), ('s_lo', '0.025'), ('s_hi', '0.5'), ('percent', '0.6')]" fillcolor=white style=filled]
+	0 -> 1
+}
