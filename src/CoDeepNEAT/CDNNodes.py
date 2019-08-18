@@ -236,17 +236,17 @@ class DANode(NodeGene):
                                 end_range=2.0, mutation_chance=0.3)},
 
             "Pad_Pixels": {
-                "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=2, start_range=0,
+                "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=1, start_range=0,
                               end_range=3, mutation_chance=0.2),
                 "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=4, start_range=4,
-                              end_range=8, mutation_chance=0.2),
+                              end_range=6, mutation_chance=0.2),
                 "s_i": Mutagen(True, False, discreet_value=False, mutation_chance=0.2)},
 
             "Crop_Pixels": {
-                "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=2, start_range=0,
+                "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=1, start_range=0,
                               end_range=3, mutation_chance=0.2),
                 "hi": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=4, start_range=4,
-                              end_range=8, mutation_chance=0.2),
+                              end_range=6, mutation_chance=0.2),
                 "s_i": Mutagen(True, False, discreet_value=False, mutation_chance=0.2)},
 
             "Custom_Canny_Edges": {
@@ -265,13 +265,13 @@ class DANode(NodeGene):
             },
 
             "Coarse_Dropout": {
-                "d_lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.05, start_range=0.0,
+                "d_lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.03, start_range=0.0,
                                 end_range=0.09, mutation_chance=0.3),
-                "d_hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.2, start_range=0.1,
+                "d_hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.15, start_range=0.1,
                                 end_range=0.3, mutation_chance=0.3),
                 "s_lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.025, start_range=0.0,
                                 end_range=0.09, mutation_chance=0.3),
-                "s_hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.5, start_range=0.1,
+                "s_hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.3, start_range=0.1,
                                 end_range=1.0, mutation_chance=0.3),
                 "percent": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.6, start_range=0.2,
                                    end_range=0.8, mutation_chance=0.3)

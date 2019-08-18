@@ -59,7 +59,7 @@ def reformat_images_for_DA(images, augmentor):
         reformatted_images_list = []
         for i in images:
 
-            if "Grayscale" in augmentor.augs_names or "HSV" in augmentor.augs_names:
+            if "Grayscale" in augmentor.augs_names or "HSV" in augmentor.augs_names or "Custom_Canny_Edges" in augmentor.augs_names:
                 # convert image to uint8 (NB for certain DAs)
                 img = norm8(i)
             else:
@@ -77,7 +77,7 @@ def reformat_images_for_DA(images, augmentor):
         for i in images:
             # convert 1 channel image to 3 channel image
             rgb = cv2.cvtColor(i[0], cv2.COLOR_GRAY2RGB)
-            if "Grayscale" in augmentor.augs_names or "HSV" in augmentor.augs_names:
+            if "Grayscale" in augmentor.augs_names or "HSV" in augmentor.augs_names or "Custom_Canny_Edges" in augmentor.augs_names:
                 # convert image to uint8 (NB for certain DAs)
                 img = norm8(rgb)
             else:
@@ -92,7 +92,7 @@ def reformat_images_for_system(augmented_batch,  start_range, end_range, augment
     reformatted_augmented_batch_list = []
     if Config.colour_augmentations:
         for img in augmented_batch:
-            if "Grayscale" in augmentor.augs_names or "HSV" in augmentor.augs_names:
+            if "Grayscale" in augmentor.augs_names or "HSV" in augmentor.augs_names or "Custom_Canny_Edges" in augmentor.augs_names:
                 reformatted_augmented_batch_list.append(float32(img, start_range, end_range))
             else:
                 reformatted_augmented_batch_list.append(img)
@@ -101,7 +101,7 @@ def reformat_images_for_system(augmented_batch,  start_range, end_range, augment
         for img in augmented_batch:
             # convert 3 channel image to 1 channel image
             gray_img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-            if "Grayscale" in augmentor.augs_names or "HSV" in augmentor.augs_names:
+            if "Grayscale" in augmentor.augs_names or "HSV" in augmentor.augs_names or "Custom_Canny_Edges" in augmentor.augs_names:
                 reformatted_augmented_batch_list.append(float32(gray_img, start_range, end_range))
             else:
                 reformatted_augmented_batch_list.append(gray_img)

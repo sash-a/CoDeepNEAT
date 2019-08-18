@@ -119,7 +119,7 @@ class AugmentationScheme:
         # images (sampled once for all channels) and sampled three (RGB) times (channel-wise)
         # for the rest from the same normal distribution:
         "Additive_Gaussian_Noise": lambda lo, hi, percent:
-        iaa.AdditiveGaussianNoise(scale=(lo, hi * 255), per_channel=percent),
+        iaa.AdditiveGaussianNoise(scale=(lo, hi), per_channel=percent),
 
         # Multiply in percent of all images each pixel with random values between lo and hi and multiply
         # the pixels in the rest of the images channel-wise,
@@ -202,7 +202,7 @@ class AugmentationScheme:
         # percent of all images (sampled once for all channels) and sampled three (RGB) times (channel-wise)
         # for the rest from the same laplace distribution:
         "Additive_Laplace_Noise": lambda lo, hi, percent:
-        iaa.AdditiveLaplaceNoise(scale=(lo, hi * 255), per_channel=percent),
+        iaa.AdditiveLaplaceNoise(scale=(lo, hi), per_channel=percent),
 
         # Adds poisson noise (similar to gaussian but different distribution) to an image, sampled once per pixel from
         # a poisson distribution Poisson(s), where s is sampled per image and varies between lo and hi for percent of
