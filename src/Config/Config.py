@@ -4,9 +4,9 @@ import torch.multiprocessing as mp
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Run state options
-run_name = "test"
+run_name = "modmax_spc_da"
 continue_from_last_run = True
-fully_train = False
+fully_train = True
 dummy_run = False
 
 # --------------------------------------------------------------------------------------------------------------------#
