@@ -4,6 +4,7 @@ from src.DataAugmentation.AugmentationScheme import AugmentationScheme as AS
 import numpy as np
 import random
 import cv2
+import sys
 
 from src.Config import Config
 
@@ -39,6 +40,10 @@ def augment_batch(images, labels, augmentor: AS):
     t_augmented_images = np.transpose(t_augmented_images, (0, 3, 1, 2))
 
     t_labels = torch.from_numpy(labels)
+
+    print("Current DA scheme: ", augmentor.augs_names, "\n")
+    sys.stdout.flush()
+
 
     return t_augmented_images, t_labels
 
