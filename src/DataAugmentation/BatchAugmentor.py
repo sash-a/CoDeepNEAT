@@ -15,39 +15,36 @@ def augment_batch(images, labels, augmentor: AS):
     x_dim = np.shape(images)[2]
     y_dim = np.shape(images)[3]
 
-    reformatted_images = reformat_images_for_DA(images)
+    reformatted_images = reformat_images_for_DA(images, augmentor)
 
     augmentor.images = reformatted_images
     augmentor.labels = labels
     augmented_batch, aug_labels = augmentor.augment_images()
 
+
     # Displays original image + augmented image (for testing)
     # if random.random() < 1:
-    #     print("DA's:",augmentor.augs)
-    #     display_image(reformatted_images[0])
-    #     display_image(augmented_batch[0])
+    # print("DA's:",augmentor.augs)
+    # display_image(reformatted_images[0])
+    # display_image(augmented_batch[0])
 
     # convert augmented images back to dtype float32
-    reformatted_augmented_batch = reformat_images_for_system(augmented_batch,-1, 1)
+    reformatted_augmented_batch = reformat_images_for_system(augmented_batch, -1, 1, augmentor)
 
     # Reformat augmented batch into the shape that the rest of the code wants
     # reformatted_augmented_batch = reformatted_augmented_batch.reshape(batch_size, channels, x_dim, y_dim)
 
     # Convert images stored in numpy arrays to tensors
     t_augmented_images = torch.from_numpy(reformatted_augmented_batch)
-    t_augmented_images = np.transpose(t_augmented_images, (0,3,1,2))
-    print("formated shape:",t_augmented_images.size())
+    t_augmented_images = np.transpose(t_augmented_images, (0, 3, 1, 2))
 
     t_labels = torch.from_numpy(labels)
-
-    # norm_t_augmented_images = (t_augmented_images/255)*2-1
 
     return t_augmented_images, t_labels
 
 
 def display_image(image):
     if Config.colour_augmentations:
-        # image = image / 2 + 0.5   # un-normalize
         plt.imshow(image)
     else:
         plt.imshow(image, cmap='gray')
@@ -56,13 +53,18 @@ def display_image(image):
 
 
 # Creates a new array that contains the batch of images that have been reformatted to accommodate the aug lib
-def reformat_images_for_DA(images):
+def reformat_images_for_DA(images, augmentor):
     # different reformatting required based on if images are 1 channel or RGB
     if Config.colour_augmentations:
         reformatted_images_list = []
         for i in images:
-            # convert image to uint8 (NB for certain DAs)
-            img = norm8(i)
+
+            if "Grayscale" in augmentor.augs_names or "HSV" in augmentor.augs_names:
+                # convert image to uint8 (NB for certain DAs)
+                img = norm8(i)
+            else:
+                img = i
+
             # reshuffles dimensions of image to accommodate the library
             img = np.transpose(img, (1, 2, 0))
             # adds image to list
@@ -75,24 +77,35 @@ def reformat_images_for_DA(images):
         for i in images:
             # convert 1 channel image to 3 channel image
             rgb = cv2.cvtColor(i[0], cv2.COLOR_GRAY2RGB)
-            # convert image to uint8 (NB for certain DAs)
-            img = norm8(rgb)
+            if "Grayscale" in augmentor.augs_names or "HSV" in augmentor.augs_names:
+                # convert image to uint8 (NB for certain DAs)
+                img = norm8(rgb)
+            else:
+                img = rgb
+
             reformatted_images_list.append(img)
         reformatted_images = np.asarray(reformatted_images_list)
         return reformatted_images
 
 
-def reformat_images_for_system(augmented_batch,  start_range, end_range):
+def reformat_images_for_system(augmented_batch,  start_range, end_range, augmentor):
     reformatted_augmented_batch_list = []
     if Config.colour_augmentations:
         for img in augmented_batch:
-            reformatted_augmented_batch_list.append(float32(img, start_range, end_range))
+            if "Grayscale" in augmentor.augs_names or "HSV" in augmentor.augs_names:
+                reformatted_augmented_batch_list.append(float32(img, start_range, end_range))
+            else:
+                reformatted_augmented_batch_list.append(img)
         reformatted_augmented_batch = np.asarray(reformatted_augmented_batch_list)
     else:
         for img in augmented_batch:
             # convert 3 channel image to 1 channel image
             gray_img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-            reformatted_augmented_batch_list.append(float32(gray_img, start_range, end_range))
+            if "Grayscale" in augmentor.augs_names or "HSV" in augmentor.augs_names:
+                reformatted_augmented_batch_list.append(float32(gray_img, start_range, end_range))
+            else:
+                reformatted_augmented_batch_list.append(gray_img)
+
         reformatted_augmented_batch = np.asarray(reformatted_augmented_batch_list)
 
     return reformatted_augmented_batch
@@ -102,6 +115,7 @@ def reformat_images_for_system(augmented_batch,  start_range, end_range):
 def norm8(img):
     img = cv2.normalize(img, None, 0, 255, cv2.NORM_MINMAX, cv2.CV_8U)
     return img
+
 
 # convert image to data type float32 (system requires image to be float32)
 def float32(img, start_range, end_range):

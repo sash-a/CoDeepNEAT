@@ -310,6 +310,7 @@ class AugmentationScheme:
         self.images = images
         self.labels = labels
         self.augs = []
+        self.augs_names = []
 
     def __repr__(self):
         return "Aug Scheme:" + repr([type(x) for x in self.augs])
@@ -319,6 +320,7 @@ class AugmentationScheme:
     # augmentations is a list of numbers that should correspond to the augmentations you want to combine
     def add_augmentation(self, augmentation_mutagen):
         augmentation_name = augmentation_mutagen()
+        self.augs_names.append(augmentation_name)
         sub_values = augmentation_mutagen.get_sub_values()
         if sub_values is None:
             self.augs.append(AugmentationScheme.Augmentations[augmentation_name])
