@@ -9,7 +9,6 @@ import time
 import torch.multiprocessing as mp
 
 from src.Validation.DataLoader import load_data
-import cv2
 printBatchEvery = -1  # -1 to switch off batch printing
 print_epoch_every = -1  # -1 to switch off epoch printing
 
@@ -29,7 +28,7 @@ def train(model, train_loader, epoch, test_loader, device, augmentors=None, prin
 
     loss = 0
     batch_idx = 0
-    loops = 1 if not Config.evolve_data_augmentations else 1 + len(augmentors)
+    loops = 1  if not Config.evolve_data_augmentations else 1 + len(augmentors)
 
     s = time.time()
     for i in range(loops):
@@ -42,19 +41,15 @@ def train(model, train_loader, epoch, test_loader, device, augmentors=None, prin
 
             if augmentors is not None and len(augmentors) > 0 and i >= 1:
                 augmentor = augmentors[i-1]
-
                 if augmentor is None:
                     continue
-
                 # print("augmenting batch with:", augmentor)
                 aug_inputs, aug_labels = BatchAugmentor.augment_batch(inputs.numpy(), targets.numpy(), augmentor)
                 # print("augmented batch")
                 # print("targets:",targets,"\naug_targets:",aug_labels)
                 # print("inputs:",inputs,"aug_inputs:", aug_inputs)
-                # print("shape origonal:",inputs.size(), "aug:",aug_inputs.size())
-                # print("range of augs~",torch.min(aug_inputs),":",torch.max(aug_inputs))
+                # print("vector")
                 # print("Vectors", inputs-aug_inputs)
-
                 aug_inputs, aug_labels = aug_inputs.to(device), aug_labels.to(device)
                 # print("training on augmented images shape:",augmented_inputs.size())
                 output = model(aug_inputs)
@@ -63,6 +58,7 @@ def train(model, train_loader, epoch, test_loader, device, augmentors=None, prin
                 model.optimizer.step()
 
             if i == 0:
+                # continue
                 inputs, targets = inputs.to(device), targets.to(device)
                 output = model(inputs)
                 m_loss = model.loss_fn(output, targets)
@@ -84,8 +80,6 @@ def train(model, train_loader, epoch, test_loader, device, augmentors=None, prin
 
     end_time = time.time()
     # print(model)
-
-
 
 
 def test(model, test_loader, device, print_acc=False):
