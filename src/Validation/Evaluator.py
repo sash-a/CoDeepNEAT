@@ -9,7 +9,7 @@ import time
 import torch.multiprocessing as mp
 
 from src.Validation.DataLoader import load_data
-
+import cv2
 printBatchEvery = -1  # -1 to switch off batch printing
 print_epoch_every = -1  # -1 to switch off epoch printing
 
@@ -29,7 +29,7 @@ def train(model, train_loader, epoch, test_loader, device, augmentors=None, prin
 
     loss = 0
     batch_idx = 0
-    loops = 1  if not Config.evolve_data_augmentations else 1 + len(augmentors)
+    loops = 1 if not Config.evolve_data_augmentations else 1 + len(augmentors)
 
     s = time.time()
     for i in range(loops):
@@ -42,8 +42,10 @@ def train(model, train_loader, epoch, test_loader, device, augmentors=None, prin
 
             if augmentors is not None and len(augmentors) > 0 and i >= 1:
                 augmentor = augmentors[i-1]
+
                 if augmentor is None:
                     continue
+
                 # print("augmenting batch with:", augmentor)
                 aug_inputs, aug_labels = BatchAugmentor.augment_batch(inputs.numpy(), targets.numpy(), augmentor)
                 # print("augmented batch")
