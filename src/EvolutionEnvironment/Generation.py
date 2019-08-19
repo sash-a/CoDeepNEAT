@@ -32,6 +32,9 @@ class Generation:
         rank_fn = single_objective_rank if Config.second_objective == '' else (
             cdn_rank if Config.moo_optimiser == "cdn" else nsga_rank)
 
+        if Config.deterministic_pop_init:
+            random.seed(1)
+
         self.module_population = Population(
             PopInit.initialize_pop(ModulenNEATNode, ModuleGenome, Props.MODULE_POP_SIZE, True),
             rank_fn,
@@ -60,6 +63,9 @@ class Generation:
                 1,
                 0,
                 Props.DA_TARGET_NUM_SPECIES)
+
+        if Config.deterministic_pop_init:
+            random.seed()
 
     def step(self):
         """Runs CDN for one generation - must be called after fitness evaluation"""
@@ -141,7 +147,11 @@ class Generation:
             # print("reporting fitnesses to: ",  evaluated_bp.modules_used_index)
             for species_index, member_index in evaluated_bp.modules_used_index:
                 if Config.second_objective == "":
-                    self.module_population.species[species_index][member_index].report_fitness(fitness)
+                    if isinstance(member_index,tuple):
+                        spc, mod = member_index
+                        self.module_population.species[spc][mod].report_fitness(fitness)
+                    else:
+                        self.module_population.species[species_index][member_index].report_fitness(fitness)
                 else:
                     module_indv = self.module_population.species[species_index][member_index]
                     acc = fitness[0]

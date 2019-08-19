@@ -5,10 +5,10 @@ import torch.multiprocessing as mp
 # --------------------------------------------------------------------------------------------------------------------#
 # Run state options
 run_name = "test"
-continue_from_last_run = True
+continue_from_last_run = False
 fully_train = False
 dummy_run = True
-
+deterministic_pop_init = False
 # --------------------------------------------------------------------------------------------------------------------#
 # nn options
 device = 'gpu'  # gpu | cpu
@@ -41,6 +41,7 @@ da_ignore_chance = 0.2
 module_retention = True
 fitness_aggregation = 'max'  # max | avg
 allow_species_module_mapping_ignores = True
+allow_cross_species_mappings = False
 # --------------------------------------------------------------------------------------------------------------------#
 speciation_overhaul = False
 use_representative = False

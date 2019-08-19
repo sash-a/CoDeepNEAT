@@ -30,10 +30,8 @@ class BlueprintGraph():
         number_of_maps = len(maps)
 
         map_frac = number_of_maps / number_of_species
-        # print(map_frac)
-        # if map_frac == 1:
-        # print("frac:", map_frac, "species:", set([node.species_number for node in nodes]), "maps:",
-        #       self.root_node.blueprint_genome.species_module_index_map)
+        print("map frac:",map_frac,"p:", math.pow(map_frac, 1.5))
+
         if (1 > map_frac > 0 and random.random() < math.pow(map_frac, 1.5)) or map_frac == 1:
             ignore_species = random.choice(list(self.root_node.blueprint_genome.species_module_index_map.keys()))
             # print("ignoring spc", ignore_species)

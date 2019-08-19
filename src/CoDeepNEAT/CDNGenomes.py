@@ -95,10 +95,10 @@ class BlueprintGenome(Genome):
                 if module is None:
                     continue
 
-                for species_idx, species in enumerate(generation.module_population.species):
+                for species_index, species in enumerate(generation.module_population.species):
                     if module in species:
                         self.species_module_index_map[rep] = \
-                            (species_idx, generation.module_population.species[species_idx].members.index(module))
+                            (species_index, generation.module_population.species[species_index].members.index(module))
                         break
         else:
             for spc_index, module in self.species_module_ref_map.items():
@@ -107,9 +107,19 @@ class BlueprintGenome(Genome):
 
                 if spc_index < len(generation.module_population.species) and \
                         module in generation.module_population.species[spc_index]:
+
                     self.species_module_index_map[spc_index] = \
                         generation.module_population.species[spc_index].members.index(module)
                     # print("Found a live module")
+
+                elif Config.allow_cross_species_mappings:
+                    for new_species_index, species in enumerate(generation.module_population.species):
+                        if module in species:
+                            """found module in new species"""
+                            # print("making overide mapping from",spc_index,"to",new_species_index,generation.module_population.species[new_species_index].members.index(module))
+                            self.species_module_index_map[spc_index] = \
+                                (new_species_index, generation.module_population.species[new_species_index].members.index(module))
+                            break
 
     def update_module_refs(self, generation):
         self.species_module_ref_map = {}
@@ -122,7 +132,15 @@ class BlueprintGenome(Genome):
                 self.species_module_ref_map[rep] = generation.module_population.species[spc_index][module_index]
         else:
             for spc_index, module_index in self.species_module_index_map.items():
-                self.species_module_ref_map[spc_index] = generation.module_population.species[spc_index][module_index]
+                if isinstance(module_index, tuple):
+                    """this is an override index. this module is found in a different species"""
+                    if not Config.allow_cross_species_mappings:
+                        raise Exception()
+                    spc,mod = module_index
+                    self.species_module_ref_map[spc_index] = generation.module_population.species[spc][mod]
+                    # print("using override mapping from:",spc_index,"to",spc,mod,"to update refs")
+                else:
+                    self.species_module_ref_map[spc_index] = generation.module_population.species[spc_index][module_index]
 
     def mutate(self, mutation_record, attribute_magnitude=1, topological_magnitude=1, module_population=None, gen=-1):
         if Config.module_retention and random.random() < 0.1 * topological_magnitude and self.species_module_ref_map:

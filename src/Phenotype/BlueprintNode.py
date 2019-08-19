@@ -38,7 +38,12 @@ class BlueprintNode(Node):
         if not Config.use_representative:
             if self.species_number in self.blueprint_genome.species_module_index_map:
                 mod_idx = self.blueprint_genome.species_module_index_map[self.species_number]
-                input_module_individual = generation.module_population.species[self.species_number][mod_idx]
+                if isinstance(mod_idx, tuple):
+                    spc, mod = mod_idx
+                    input_module_individual = generation.module_population.species[spc][mod]
+                    # print("phenotype using override mapping from:",self.species_number,"to",spc, mod)
+                else:
+                    input_module_individual = generation.module_population.species[self.species_number][mod_idx]
                 # print('Found a surviving module',input_module_individual, self.blueprint_genome.species_module_index_map)
             else:
                 # print("sampling fresh")
