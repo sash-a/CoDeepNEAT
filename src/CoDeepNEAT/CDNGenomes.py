@@ -135,7 +135,7 @@ class BlueprintGenome(Genome):
                 if isinstance(module_index, tuple):
                     """this is an override index. this module is found in a different species"""
                     if not Config.allow_cross_species_mappings:
-                        raise Exception()
+                        raise Exception('Cross species mapping disabled, but received tuple as value in map')
                     spc,mod = module_index
                     self.species_module_ref_map[spc_index] = generation.module_population.species[spc][mod]
                     # print("using override mapping from:",spc_index,"to",spc,mod,"to update refs")

@@ -5,21 +5,21 @@ import torch.multiprocessing as mp
 # --------------------------------------------------------------------------------------------------------------------#
 # Run state options
 run_name = "test"
-continue_from_last_run = False
+continue_from_last_run = True
 fully_train = False
-dummy_run = True
-deterministic_pop_init = False
+dummy_run = False
+deterministic_pop_init = True
 # --------------------------------------------------------------------------------------------------------------------#
 # nn options
 device = 'gpu'  # gpu | cpu
-num_gpus = 1
+num_gpus = 4
 num_workers = 0  # this doesn't work in parallel because daemonic processes cannot spawn children
 dataset = 'cifar10'
 data_path = ''
 number_of_epochs_per_evaluation = 5
 
 # --------------------------------------------------------------------------------------------------------------------#
-max_num_generations = 50
+max_num_generations = 30
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Multiobjective options
@@ -38,10 +38,10 @@ allow_da_scheme_ignores = False
 da_ignore_chance = 0.2
 
 # --------------------------------------------------------------------------------------------------------------------#
-module_retention = True
-fitness_aggregation = 'max'  # max | avg
+module_retention = False
+fitness_aggregation = 'avg'  # max | avg
 allow_species_module_mapping_ignores = True
-allow_cross_species_mappings = False
+allow_cross_species_mappings = True
 # --------------------------------------------------------------------------------------------------------------------#
 speciation_overhaul = False
 use_representative = False
@@ -52,7 +52,8 @@ closest_reps_to_consider = 10
 
 use_graph_edit_distance = False
 ignore_disabled_connections_for_topological_similarity = False
-# -----------------------------
+
+allow_attribute_distance = False
 # --------------------------------------------------------------------------------------------------------------------#
 adjust_species_mutation_magnitude_based_on_fitness = False
 adjust_mutation_magnitudes_over_run = False
@@ -60,8 +61,6 @@ adjust_mutation_magnitudes_over_run = False
 breed_mutagens = False
 mutagen_breed_chance = 0.25
 # --------------------------------------------------------------------------------------------------------------------#
-# --------------------------------------------------------------------------------------------------------------------#
-
 
 protect_parsing_from_errors = False
 test_in_run = False

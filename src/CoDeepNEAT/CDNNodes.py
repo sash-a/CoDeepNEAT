@@ -52,7 +52,7 @@ class ModulenNEATNode(NodeGene):
                 "out_features": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=linear_out_features,
                                         start_range=10,
                                         end_range=1024, name="num out features", mutation_chance=0.22,
-                                        distance_weighting=Props.LAYER_SIZE_COEFFICIENT)
+                                        distance_weighting=Props.LAYER_SIZE_COEFFICIENT if Config.allow_attribute_distance else 0)
             }
 
         conv_submutagens = {
@@ -81,21 +81,21 @@ class ModulenNEATNode(NodeGene):
 
             "out_features": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=conv_out_features, start_range=1,
                                     end_range=100, name="num out features", mutation_chance=0.22,
-                                    distance_weighting=Props.LAYER_SIZE_COEFFICIENT)
+                                    distance_weighting=Props.LAYER_SIZE_COEFFICIENT if Config.allow_attribute_distance else 0)
         }
 
         if use_linears and not use_convs:
             self.layer_type = Mutagen(nn.Linear, discreet_value=nn.Linear,
-                                      distance_weighting=Props.LAYER_TYPE_COEFFICIENT,
+                                      distance_weighting=Props.LAYER_TYPE_COEFFICIENT if Config.allow_attribute_distance else 0,
                                       sub_mutagens={nn.Linear: linear_submutagens}
                                       )
         if use_convs and not use_linears:
             self.layer_type = Mutagen(nn.Conv2d, discreet_value=nn.Conv2d,
-                                      distance_weighting=Props.LAYER_TYPE_COEFFICIENT,
+                                      distance_weighting=Props.LAYER_TYPE_COEFFICIENT if Config.allow_attribute_distance else 0,
                                       sub_mutagens={nn.Conv2d: conv_submutagens})
         if use_convs and use_linears:
             self.layer_type = Mutagen(nn.Conv2d, nn.Linear, discreet_value=layer_type,
-                                      distance_weighting=Props.LAYER_TYPE_COEFFICIENT,
+                                      distance_weighting=Props.LAYER_TYPE_COEFFICIENT if Config.allow_attribute_distance else 0,
                                       sub_mutagens={
                                           nn.Conv2d: conv_submutagens,
                                           nn.Linear: linear_submutagens
@@ -112,7 +112,8 @@ class ModulenNEATNode(NodeGene):
 
     def get_complexity(self):
         if self.layer_type() == nn.Conv2d:
-            return pow(self.layer_type.get_sub_value("conv_window_size"),2) * self.layer_type.get_sub_value("out_features")
+            return pow(self.layer_type.get_sub_value("conv_window_size"), 2) * self.layer_type.get_sub_value(
+                "out_features")
         elif self.layer_type() == nn.Linear:
             return self.layer_type.get_sub_value("out_features")
         else:
