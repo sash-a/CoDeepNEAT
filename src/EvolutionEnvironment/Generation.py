@@ -186,7 +186,7 @@ class Generation:
 
             # Evaluating individual
             try:
-                module_graph, blueprint_individual, results = self.evaluate_blueprint(blueprint_individual, inputs)
+                module_graph, blueprint_individual, results = self.evaluate_blueprint(blueprint_individual, inputs,curr_index)
                 result_dict[curr_index] = results, blueprint_individual, module_graph
             except Exception as e:
                 result_dict[curr_index] = 'defective', False, False
@@ -194,7 +194,7 @@ class Generation:
                     print('Defective blueprint evaluation')
                     raise Exception(e)
 
-    def evaluate_blueprint(self, blueprint_individual, inputs):
+    def evaluate_blueprint(self, blueprint_individual, inputs, index):
         # Validation
         if blueprint_individual.modules_used_index:
             raise Exception('Modules used index is not empty', blueprint_individual.modules_used_index)
@@ -202,7 +202,7 @@ class Generation:
             raise Exception('Modules used is not empty', blueprint_individual.modules_used)
 
         blueprint_graph = blueprint_individual.to_blueprint()
-        module_graph = blueprint_graph.parse_to_module_graph(self)
+        module_graph = blueprint_graph.parse_to_module_graph(self, allow_ignores= True if index >= Props.BP_POP_SIZE else False)
 
         net = src.Validation.Validation.create_nn(module_graph, inputs)
         # if random.random()< 0.05:

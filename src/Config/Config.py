@@ -7,7 +7,7 @@ import torch.multiprocessing as mp
 run_name = "test"
 continue_from_last_run = True
 fully_train = False
-dummy_run = False
+dummy_run = True
 
 # --------------------------------------------------------------------------------------------------------------------#
 # nn options
@@ -38,9 +38,9 @@ allow_da_scheme_ignores = False
 da_ignore_chance = 0.2
 
 # --------------------------------------------------------------------------------------------------------------------#
-module_retention = False
-fitness_aggregation = 'avg'  # max | avg
-allow_species_module_mapping_ignores = False
+module_retention = True
+fitness_aggregation = 'max'  # max | avg
+allow_species_module_mapping_ignores = True
 # --------------------------------------------------------------------------------------------------------------------#
 speciation_overhaul = False
 use_representative = False

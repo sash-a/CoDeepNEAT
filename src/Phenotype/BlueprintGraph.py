@@ -11,8 +11,8 @@ class BlueprintGraph():
     def __init__(self, root_node):
         self.root_node: BlueprintNode = root_node
 
-    def parse_to_module_graph(self, generation):
-        if Config.allow_species_module_mapping_ignores and Config.fitness_aggregation == "max":
+    def parse_to_module_graph(self, generation, allow_ignores):
+        if Config.allow_species_module_mapping_ignores and Config.fitness_aggregation == "max" and allow_ignores:
             self.forget_mappings()
 
         if (generation.generation_number == 0 or not Config.module_retention) \
@@ -34,8 +34,7 @@ class BlueprintGraph():
         # if map_frac == 1:
         # print("frac:", map_frac, "species:", set([node.species_number for node in nodes]), "maps:",
         #       self.root_node.blueprint_genome.species_module_index_map)
-        if ((1 > map_frac > 0 and random.random() < math.pow(map_frac, 1.5)) or
-                (random.random() < 0.6 and map_frac == 1)):
+        if (1 > map_frac > 0 and random.random() < math.pow(map_frac, 1.5)) or map_frac == 1:
             ignore_species = random.choice(list(self.root_node.blueprint_genome.species_module_index_map.keys()))
             # print("ignoring spc", ignore_species)
             del self.root_node.blueprint_genome.species_module_index_map[ignore_species]
