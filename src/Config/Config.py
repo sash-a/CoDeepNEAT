@@ -5,7 +5,7 @@ import torch.multiprocessing as mp
 # --------------------------------------------------------------------------------------------------------------------#
 # Run state options
 run_name = "test"
-continue_from_last_run = False
+continue_from_last_run = True
 fully_train = False
 dummy_run = False
 
@@ -32,17 +32,17 @@ moo_optimiser = 'cdn'  # cdn | nsga
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Data augmentation options
-evolve_data_augmentations = True
+evolve_data_augmentations = False
 colour_augmentations = True
-allow_da_scheme_ignores = True
+allow_da_scheme_ignores = False
 da_ignore_chance = 0.2
 
 # --------------------------------------------------------------------------------------------------------------------#
-module_retention = True
-fitness_aggregation = 'max'  # max | avg
-allow_species_module_mapping_ignores = True
+module_retention = False
+fitness_aggregation = 'avg'  # max | avg
+allow_species_module_mapping_ignores = False
 # --------------------------------------------------------------------------------------------------------------------#
-speciation_overhaul = True
+speciation_overhaul = False
 use_representative = False
 rep_mutation_chance_early = 0.6
 rep_mutation_chance_late = 0.2
