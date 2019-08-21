@@ -42,12 +42,12 @@ class ParetoPopulation:
         best_graphs = self.get_highest_accuracy(num=num_augs)
         # print("got top", len(best_graphs), "graphs")
 
-        for top in best_graphs:
-            top.plot_tree_with_graphvis(file = "top"  + repr(best_graphs.index(top)))
+        # for top in best_graphs:
+        #    top.plot_tree_with_graphvis(file = "top"  + repr(best_graphs.index(top)))
 
         # for bm in self.best_members:
         #     bm.plot_tree_with_graphvis(file="best" + repr(self.best_members.index(bm)))
-        #
+
         # for wm in self.worst_das:
         #     wm.plot_tree_with_graphvis(file="worst" + repr(self.worst_das.index(wm)))
 
