@@ -8,7 +8,7 @@ run_name = "test"
 continue_from_last_run = True
 fully_train = False
 dummy_run = False
-deterministic_pop_init = True
+deterministic_pop_init = False
 # --------------------------------------------------------------------------------------------------------------------#
 # nn options
 device = 'gpu'  # gpu | cpu
@@ -19,7 +19,7 @@ data_path = ''
 number_of_epochs_per_evaluation = 5
 
 # --------------------------------------------------------------------------------------------------------------------#
-max_num_generations = 30
+max_num_generations = 50
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Multiobjective options
@@ -33,15 +33,15 @@ moo_optimiser = 'cdn'  # cdn | nsga
 # --------------------------------------------------------------------------------------------------------------------#
 # Data augmentation options
 evolve_data_augmentations = False
-colour_augmentations = True
+colour_augmentations = False
 allow_da_scheme_ignores = False
 da_ignore_chance = 0.2
 
 # --------------------------------------------------------------------------------------------------------------------#
 module_retention = False
 fitness_aggregation = 'avg'  # max | avg
-allow_species_module_mapping_ignores = True
-allow_cross_species_mappings = True
+allow_species_module_mapping_ignores = False
+allow_cross_species_mappings = False
 # --------------------------------------------------------------------------------------------------------------------#
 speciation_overhaul = False
 use_representative = False

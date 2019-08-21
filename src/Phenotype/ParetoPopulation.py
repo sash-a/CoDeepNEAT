@@ -46,7 +46,10 @@ class ParetoPopulation:
             top.plot_tree_with_graphvis(file = "top"  + repr(best_graphs.index(top)))
 
         # for bm in self.best_members:
-            # bm.plot_tree_with_graphvis(file="best"+ repr(self.best_members.index(bm)))
+        #     bm.plot_tree_with_graphvis(file="best" + repr(self.best_members.index(bm)))
+        #
+        # for wm in self.worst_das:
+        #     wm.plot_tree_with_graphvis(file="worst" + repr(self.worst_das.index(wm)))
 
         best = best_graphs[0]
         print("fully training",best,"reported acc:",best.fitness_values[0])
