@@ -4,11 +4,11 @@ import torch.multiprocessing as mp
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Run state options
-run_name = "modmax_spc_da"
+run_name = "test"
 continue_from_last_run = True
-fully_train = True
+fully_train = False
 dummy_run = False
-deterministic_pop_init = False
+deterministic_pop_init = True
 # --------------------------------------------------------------------------------------------------------------------#
 # nn options
 device = 'gpu'  # gpu | cpu
@@ -19,7 +19,7 @@ data_path = ''
 number_of_epochs_per_evaluation = 5
 
 # --------------------------------------------------------------------------------------------------------------------#
-max_num_generations = 50
+max_num_generations = 30
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Multiobjective options
@@ -32,18 +32,19 @@ moo_optimiser = 'cdn'  # cdn | nsga
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Data augmentation options
-evolve_data_augmentations = True
+evolve_data_augmentations = False
 colour_augmentations = True
 allow_da_scheme_ignores = True
 da_ignore_chance = 0.2
 
 # --------------------------------------------------------------------------------------------------------------------#
-module_retention = True
-fitness_aggregation = 'max'  # max | avg
+module_retention = False
+fitness_aggregation = 'avg'  # max | avg
 allow_species_module_mapping_ignores = True
-allow_cross_species_mappings = False
+allow_cross_species_mappings = True
 # --------------------------------------------------------------------------------------------------------------------#
-speciation_overhaul = True
+speciation_overhaul = False
+
 use_representative = False
 rep_mutation_chance_early = 0.6
 rep_mutation_chance_late = 0.2
