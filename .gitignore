@@ -6,9 +6,8 @@
 **/Datasets/*
 **/runs/*
 **/results/*
-**/learner/*
 **/Graphs/*
-
+**/clusterbackup*/*
 
 __pycache__/
 *.py[cod]
