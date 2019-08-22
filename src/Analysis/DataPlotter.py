@@ -67,9 +67,7 @@ def plot_all_generations(aggregation_type='max', fitness_index=0, run_name='unna
     plt.title(aggregation_type + ' value of objectives ' + str(fitness_index) + ' per generation for ' + run_name)
     plt.show()
 
-
-def plot_all_runs(aggregation_type='max', num_top=5, fitness_index=0, max_gens=1000, show_data=False, cut_at_max=False,
-                  stay_at_max=True, line_graph=True, show_best_fit=False, show_smoothed_data=False):
+def get_all_runs(aggregation_type='max', num_top=5, fitness_index=0, max_gens = 1000):
     runs = set()
     for subdir, dirs, files in os.walk(os.path.join(DataManager.get_data_folder(), "runs")):
         sub = subdir.split("runs")[1][1:].split("\\")[0].split("/")[0]
@@ -78,44 +76,104 @@ def plot_all_runs(aggregation_type='max', num_top=5, fitness_index=0, max_gens=1
             continue
         runs.add(sub)
 
+    runs_data = {}
+
     for run in runs:
         try:
             RuntimeAnalysis.load_date_from_log_file(run, summary=False)
             gens, fitness = get_gens_and_fitnesses(aggregation_type, fitness_index, num_top=num_top)
-            if cut_at_max:
-                max_index = fitness.index(max(fitness))
-                print("max index:", max_index, "from", list(zip(fitness, gens)))
-                gens = gens[:max_index + 1]
-                fitness = fitness[:max_index + 1]
-            elif len(gens) > max_gens:
+            if len(gens) > max_gens:
                 gens = gens[:max_gens]
                 fitness = fitness[:max_gens]
 
-            aggregated = None
-            if stay_at_max:
-                print("from", fitness, "to", [max(fitness[:i + 1]) for i in range(len(fitness))])
-                aggregated = [max(fitness[:i + 1]) for i in range(len(fitness))]
-            elif show_best_fit:
-                gens = np.unique(gens)
-                aggregated = np.poly1d(np.polyfit(gens, fitness, 1))(np.unique(gens))
-            elif show_smoothed_data:
-                aggregated = get_rolling_averages(fitness)
+            runs_data[run] = (gens,fitness)
+        except:
+            pass
 
-            if show_data:
-                if line_graph:
-                    p = plt.plot(gens, fitness, label=run)
-                else:
-                    p = plt.scatter(gens, fitness, label=run)
-                if aggregated is not None:
-                    plt.plot(gens, aggregated, c=p[0].get_color())
+    return runs_data
 
-            else:
-                if aggregated is not None:
-                    plt.plot(gens, aggregated, label=run)
+def get_run_groups(aggregation_type='max', num_top=5, fitness_index=0, max_gens = 1000, include_deterministic_runs = True, include_cross_species_runs = True):
+    runs = get_all_runs(aggregation_type=aggregation_type,num_top=num_top,fitness_index=fitness_index, max_gens= max_gens)
+    groups = {}
+    for run in runs.keys():
+        group_run_name = run.replace("_d","") if include_deterministic_runs else run
+        group_run_name = group_run_name.replace("_c","") if include_cross_species_runs else run
+        if group_run_name[-1].isdigit():
+            group_run_name = group_run_name[:-1]
+        if group_run_name not in groups:
+            groups[group_run_name]=[]
+        groups[group_run_name].append(runs[run])
 
-        except Exception as e:
-            print(e)
+    return groups
+
+def get_run_boundries(aggregation_type='max', num_top=5, fitness_index=0, max_gens = 1000, include_deterministic_runs = True, smooth_boundries = True):
+    run_groups = get_run_groups(aggregation_type=aggregation_type,num_top=num_top,fitness_index=fitness_index, max_gens= max_gens, include_deterministic_runs= include_deterministic_runs)
+    boundires = {}
+
+    for group_name in run_groups.keys():
+        group = run_groups[group_name]
+        fitnesses = [f for (g,f) in group]
+
+        if len(fitnesses) < 2:
+            """need at least 2 runs to get boundires"""
             continue
+        """can get a boundry up till the second longest run, need 2 for a boundry"""
+        max_num_gens = len(sorted(fitnesses, key= lambda x: len(x))[-2])
+        mins = []
+        maxes = []
+        # print("group:\n",group)
+        # print("fitnesses:\n",fitnesses)
+        # print("max gens:", max_num_gens, )
+        for i in range(max_num_gens):
+            elements = [x[i] for x in fitnesses if len(x) > i]
+            # print("elements:\n",elements)
+            mins.append(min(elements))
+            maxes.append(max(elements))
+
+        if smooth_boundries:
+            mins = get_rolling_averages(mins)
+            maxes = get_rolling_averages(maxes)
+
+        boundires[group_name] = (mins,maxes)
+    return boundires
+
+
+def plot_all_runs(aggregation_type='max', num_top=5, fitness_index=0, max_gens=1000, show_data=False,
+                  stay_at_max=True, line_graph=True, show_best_fit=False, show_smoothed_data=False, show_boundires = True, smooth_boundries = True):
+
+    if show_boundires:
+        boundires = get_run_boundries(aggregation_type=aggregation_type,num_top=num_top,fitness_index=fitness_index, max_gens= max_gens, smooth_boundries=smooth_boundries)
+        for group_name in boundires.keys():
+            mins,maxs = boundires[group_name]
+            gens = [x for x in range(len(mins))]
+
+            plt.fill_between(gens,mins,maxs, alpha = 0.4, label = group_name)
+
+    runs = get_all_runs(aggregation_type=aggregation_type,num_top=num_top,fitness_index=fitness_index, max_gens= max_gens)
+    for run in runs.keys():
+        gens, fitness = runs[run]
+
+        aggregated = None
+        if stay_at_max:
+            # print("from", fitness, "to", [max(fitness[:i + 1]) for i in range(len(fitness))])
+            aggregated = [max(fitness[:i + 1]) for i in range(len(fitness))]
+        elif show_best_fit:
+            gens = np.unique(gens)
+            aggregated = np.poly1d(np.polyfit(gens, fitness, 1))(np.unique(gens))
+        elif show_smoothed_data:
+            aggregated = get_rolling_averages(fitness)
+
+        if show_data:
+            if line_graph:
+                p = plt.plot(gens, fitness, label=run)
+            else:
+                p = plt.scatter(gens, fitness, label=run)
+            if aggregated is not None:
+                plt.plot(gens, aggregated, c=p[0].get_color())
+
+        else:
+            if aggregated is not None:
+                plt.plot(gens, aggregated, label=run)
 
     handles, labels = plt.gca().get_legend_handles_labels()
     plt.gca().legend(handles, labels)
@@ -130,17 +188,19 @@ def plot_all_runs(aggregation_type='max', num_top=5, fitness_index=0, max_gens=1
     plt.show()
 
 
-def get_rolling_averages(data, alpha=0.75):
+def get_rolling_averages(data, alpha=0.65):
     smoothed = []
     for point in data:
         if len(smoothed) == 0:
             smoothed.append(point)
         else:
-            smooth = smoothed[-1] * alpha + point * (1 - alpha)
+            a = alpha if len(smoothed) > 10 else pow(alpha,1.5)
+            smooth = smoothed[-1] * a + point * (1 - a)
             smoothed.append(smooth)
     return smoothed
 
 
 if __name__ == "__main__":
     # style.use('fivethirtyeight')
-    plot_all_runs(aggregation_type="top", num_top=5, show_data=True, show_best_fit=False, show_smoothed_data=False, stay_at_max=False)
+    plot_all_runs(aggregation_type="top", num_top=5, show_data=True, show_best_fit=False, show_smoothed_data=False,
+                  stay_at_max=False, show_boundires=True)
