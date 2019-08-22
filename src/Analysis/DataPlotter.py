@@ -96,15 +96,20 @@ def get_run_groups(aggregation_type='max', num_top=5, fitness_index=0, max_gens 
     runs = get_all_runs(aggregation_type=aggregation_type,num_top=num_top,fitness_index=fitness_index, max_gens= max_gens)
     groups = {}
     for run in runs.keys():
-        group_run_name = run.replace("_d","") if include_deterministic_runs else run
-        group_run_name = group_run_name.replace("_c","") if include_cross_species_runs else run
-        if group_run_name[-1].isdigit():
-            group_run_name = group_run_name[:-1]
+        group_run_name = get_run_group_name(run,include_deterministic_runs,include_cross_species_runs)
         if group_run_name not in groups:
             groups[group_run_name]=[]
         groups[group_run_name].append(runs[run])
 
     return groups
+
+def get_run_group_name(run_name, include_deterministic_runs = True, include_cross_species_runs = True):
+    group_run_name = run_name.replace("_d", "") if include_deterministic_runs else run_name
+    group_run_name = group_run_name.replace("_c", "") if include_cross_species_runs else group_run_name
+    if group_run_name[-1].isdigit():
+        group_run_name = group_run_name[:-1]
+
+    return group_run_name
 
 def get_run_boundries(aggregation_type='max', num_top=5, fitness_index=0, max_gens = 1000, include_deterministic_runs = True, smooth_boundries = True):
     run_groups = get_run_groups(aggregation_type=aggregation_type,num_top=num_top,fitness_index=fitness_index, max_gens= max_gens, include_deterministic_runs= include_deterministic_runs)
@@ -139,7 +144,7 @@ def get_run_boundries(aggregation_type='max', num_top=5, fitness_index=0, max_ge
 
 
 def plot_all_runs(aggregation_type='max', num_top=5, fitness_index=0, max_gens=1000, show_data=False,
-                  stay_at_max=True, line_graph=True, show_best_fit=False, show_smoothed_data=False, show_boundires = True, smooth_boundries = True):
+                  stay_at_max=True, line_graph=True, show_best_fit=False, show_smoothed_data=False, show_boundires = True, smooth_boundries = True, show_data_in_boundries = True):
 
     if show_boundires:
         boundires = get_run_boundries(aggregation_type=aggregation_type,num_top=num_top,fitness_index=fitness_index, max_gens= max_gens, smooth_boundries=smooth_boundries)
@@ -151,6 +156,10 @@ def plot_all_runs(aggregation_type='max', num_top=5, fitness_index=0, max_gens=1
 
     runs = get_all_runs(aggregation_type=aggregation_type,num_top=num_top,fitness_index=fitness_index, max_gens= max_gens)
     for run in runs.keys():
+        if show_boundires and not show_data_in_boundries:
+            group_name = get_run_group_name(run)
+            if group_name in boundires:
+                continue
         gens, fitness = runs[run]
 
         aggregated = None
@@ -203,4 +212,4 @@ def get_rolling_averages(data, alpha=0.65):
 if __name__ == "__main__":
     # style.use('fivethirtyeight')
     plot_all_runs(aggregation_type="top", num_top=5, show_data=True, show_best_fit=False, show_smoothed_data=False,
-                  stay_at_max=False, show_boundires=True)
+                  stay_at_max=False, show_boundires=True, smooth_boundries=False, show_data_in_boundries=False)
