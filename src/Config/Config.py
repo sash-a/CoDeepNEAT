@@ -58,6 +58,7 @@ allow_attribute_distance = False
 # --------------------------------------------------------------------------------------------------------------------#
 adjust_species_mutation_magnitude_based_on_fitness = False
 adjust_mutation_magnitudes_over_run = False
+allow_elite_cloning = False
 # --------------------------------------------------------------------------------------------------------------------#
 breed_mutagens = False
 mutagen_breed_chance = 0.25
