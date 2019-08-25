@@ -4,7 +4,7 @@ import sys
 
 from src.Config import Config, NeatProperties as Props
 from src.CoDeepNEAT.CDNGenomes import BlueprintGenome
-
+import copy
 
 class Species:
     def __init__(self, representative):
@@ -48,7 +48,7 @@ class Species:
         self._reproduce(mutation_record, elite_count, topological_mutation_modifier, attribute_mutation_modifier,
                         module_pop, gen=gen)
 
-        print("mutation modufiers~ top:",topological_mutation_modifier, "att:",attribute_mutation_modifier,"spc:",(1/math.pow(self.fitness/1.1,0.8)), "fitness:",self.fitness)
+        # print("mutation modufiers~ top:",topological_mutation_modifier, "att:",attribute_mutation_modifier,"spc:",(1/math.pow(self.fitness/1.1,0.8)), "fitness:",self.fitness)
         self._select_representative()
         self.age += 1
 
@@ -72,7 +72,40 @@ class Species:
                    module_pop=None, gen=-1):
         elite = self.members[:number_of_elite]
         children = []
-        tries = 100 * (self.next_species_size - len(elite))
+        num_children = self.next_species_size - len(elite)
+        tries = 100 * num_children
+
+        if Config.adjust_species_mutation_magnitude_based_on_fitness:
+            """less fit species change more rapidly"""
+            attribute_mutation_magnitude = max(1 / math.pow(self.fitness / 1.1, 0.8), 3)
+        else:
+            attribute_mutation_magnitude = 1
+
+        if Config.allow_elite_cloning and len(elite) >=1:
+            clone_factor = 1/pow(4*topological_mutation_modifier,1.3)
+            number_of_clones = round(num_children*clone_factor)
+            print("num clones:",number_of_clones,"num children:",(num_children - number_of_clones),"clone factor:",clone_factor)
+
+            for i in range(number_of_clones):
+                """most likely to clone the best solution, with smaller chances to clone the runners up"""
+                elite_number = min(0 if random.random()<0.7 else 1 if random.random()<0.7 else 2,len(elite)-1)
+                mother = elite[elite_number]
+                daughter = copy.deepcopy(mother)
+                daughter.inherit(mother)#some attributes like module ref map need to be shallow copied
+                daughter.calculate_heights()
+
+                """small chance to be an attribute only variant, to further allow stablised topologies.
+                    for modules this means fine tuning layer params. for blueprints this means reselecting modules
+                """
+                top_mutation_chance = topological_mutation_modifier if random.random()<0.85 else 0
+                if top_mutation_chance ==0:
+                    print("creating att only variant")
+                daughter = daughter.mutate(mutation_record,
+                                     attribute_magnitude=attribute_mutation_magnitude * attribute_mutation_modifier,
+                                     topological_magnitude=top_mutation_chance, module_population=module_pop,
+                                     gen=gen)
+
+                children.append(daughter)
 
         while len(children) + len(elite) < self.next_species_size:
             parent1 = random.choice(self.members)
@@ -92,12 +125,6 @@ class Species:
                 raise Exception("Error: cross over produced null child")
 
             if child.validate():
-                if Config.adjust_species_mutation_magnitude_based_on_fitness:
-                    """less fit species change more rapidly"""
-                    attribute_mutation_magnitude = max(1/math.pow(self.fitness/1.1,0.8), 3)
-                else:
-                    attribute_mutation_magnitude = 1
-
                 if Config.use_representative and type(child) == BlueprintGenome and module_pop is None:
                     raise Exception(
                         'Using representative, but received a none module population when mutating a blueprint node')

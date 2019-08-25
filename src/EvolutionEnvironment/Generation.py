@@ -89,7 +89,7 @@ class Generation:
 
         DataManager.save_generation_state(self)
 
-        print('Species count:', self.module_population.get_num_species(), self.module_population.speciation_threshold)
+        # print('Species count:', self.module_population.get_num_species(), self.module_population.speciation_threshold)
         print('Module species distribution:', ', '.join([str(len(spc)) for spc in self.module_population.species]))
 
     def evaluate(self, generation_number):
