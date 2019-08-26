@@ -39,7 +39,7 @@ class ParetoPopulation:
         # self.get_highest_accuracy(print=True)
 
     def get_best_network(self, num_augs = 5):
-        best_graphs = self.get_highest_accuracy(num=num_augs)
+        best_graphs = self.get_highest_accuracy(num=20, check_set= self.best_members)
         # print("got top", len(best_graphs), "graphs")
 
         # for top in best_graphs:
@@ -55,6 +55,12 @@ class ParetoPopulation:
         print("fully training",best,"reported acc:",best.fitness_values[0])
 
         augs = [x.data_augmentation_schemes[0] for x in best_graphs if len(x.data_augmentation_schemes) > 0]
+        unique_augs = {}#maps aug tostring to the aug object
+        for aug in augs:
+            name = repr(aug).split("Nodes:")[1]
+            if name not in unique_augs:
+                unique_augs[name] = aug
+        augs = list(unique_augs.values())[:num_augs]
         return Validation.get_fully_trained_network(best,augs)
 
     def plot_fitnesses(self):
