@@ -22,17 +22,8 @@ def get_fully_trained_network(module_graph, data_augs, num_epochs = 15):
 
     da_phenotypes = [dagenome.to_phenotype() for dagenome in data_augs]
 
-    # augSc = AS(None, None)
-    # da_submutagens = {
-    #     "Grayscale": {
-    #         "alpha_lo": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.35, start_range=0.0,
-    #                             end_range=0.49, mutation_chance=0.3),
-    #         "alpha_hi": Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.75, start_range=0.5,
-    #                             end_range=1.0, mutation_chance=0.3)}
-    # }
-    # augSc.add_augmentation(Mutagen("Grayscale", sub_mutagens=da_submutagens))
-    # augSc.add_augmentation(Mutagen("Flip_lr"))
-    # da_phenotypes = [augSc]
+
+    print("fully training using augs:", data_augs)
 
     acc = Evaluator.evaluate(model, num_epochs, Config.get_device(), train_loader=train, test_loader=test,
                              print_accuracy=True, batch_size=256, augmentors= da_phenotypes )

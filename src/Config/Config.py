@@ -4,9 +4,9 @@ import torch.multiprocessing as mp
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Run state options
-run_name = "test"
+run_name = "mms10E_d_da"
 continue_from_last_run = True
-fully_train = False
+fully_train = True
 dummy_run = False
 deterministic_pop_init = True
 # --------------------------------------------------------------------------------------------------------------------#
@@ -32,7 +32,7 @@ moo_optimiser = 'cdn'  # cdn | nsga
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Data augmentation options
-evolve_data_augmentations = False
+evolve_data_augmentations = True
 colour_augmentations = True
 allow_da_scheme_ignores = True
 da_ignore_chance = 0.2
