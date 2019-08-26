@@ -13,7 +13,7 @@ class Mutagen:
 
     def __init__(self, *discreet_options, name="", current_value=-1, start_range=None, end_range=None,
                  value_type=ValueType.DISCRETE, sub_mutagens: dict = None, discreet_value=None, mutation_chance=None,
-                 print_when_mutating=False, distance_weighting=0):
+                 print_when_mutating=False, distance_weighting=0, inherit_as_discrete = False):
         """defaults to discrete values. can hold whole numbers/ real numbers in a range"""
 
         self.value_type = value_type
@@ -23,6 +23,7 @@ class Mutagen:
         self.name = name
         self.age = 0
         self.distance_weighting = distance_weighting
+        self.inherit_as_discrete = inherit_as_discrete#some whole number values such as species number should not be interpolated during inheritance, as this does not make sense
 
         if len(discreet_options) > 0:
             self.possible_values = discreet_options
@@ -59,10 +60,12 @@ class Mutagen:
         if self.value_type != other.value_type:
             raise Exception("cannot breed mutagens of differing types:", self.value_type, other.value_type)
 
-        if self.value_type == ValueType.DISCRETE:
+        if self.value_type == ValueType.DISCRETE or self.inherit_as_discrete:
             """chance to take others value"""
             if random.random() < 0.35:
                 self.set_value(other.get_value())
+                # print(self.name, "inheritting discrete value",other.get_value())
+
         else:
             """new value interpolated from old value - skewed slightly towards self against other"""
             my_value = self.get_value()

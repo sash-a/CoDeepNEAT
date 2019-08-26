@@ -7,7 +7,7 @@ import torch.multiprocessing as mp
 run_name = "test"
 continue_from_last_run = True
 fully_train = False
-dummy_run = False
+dummy_run = True
 deterministic_pop_init = True
 # --------------------------------------------------------------------------------------------------------------------#
 # nn options
@@ -60,8 +60,8 @@ adjust_species_mutation_magnitude_based_on_fitness = False
 adjust_mutation_magnitudes_over_run = False
 allow_elite_cloning = False
 # --------------------------------------------------------------------------------------------------------------------#
-breed_mutagens = False
-mutagen_breed_chance = 0.25
+breed_mutagens = True
+mutagen_breed_chance = 0.75
 # --------------------------------------------------------------------------------------------------------------------#
 
 protect_parsing_from_errors = False
