@@ -9,7 +9,7 @@ from src.NEAT.Mutagen import Mutagen
 from src.NEAT.Mutagen import ValueType
 
 
-def get_fully_trained_network(module_graph, data_augs, num_epochs = 15):
+def get_fully_trained_network(module_graph, data_augs, num_epochs = 30):
     train, test = DataLoader.load_data(dataset=module_graph.dataset)
     sample, _ = DataLoader.sample_data(Config.get_device(), dataset= module_graph.dataset)
     # module_graph.plot_tree_with_graphvis(title="before putting in model", file="before")
