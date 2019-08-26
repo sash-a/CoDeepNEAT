@@ -7,7 +7,7 @@ import torch.multiprocessing as mp
 run_name = "test"
 continue_from_last_run = True
 fully_train = False
-dummy_run = True
+dummy_run = False
 deterministic_pop_init = True
 # --------------------------------------------------------------------------------------------------------------------#
 # nn options
