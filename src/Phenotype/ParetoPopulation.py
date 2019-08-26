@@ -40,6 +40,7 @@ class ParetoPopulation:
 
     def get_best_network(self, num_augs = 5):
         best_graphs = self.get_highest_accuracy(num=20, check_set= self.best_members)
+        #best_graphs = self.get_highest_accuracy(num=20)
         # print("got top", len(best_graphs), "graphs")
 
         # for top in best_graphs:
@@ -55,13 +56,15 @@ class ParetoPopulation:
         print("fully training",best,"reported acc:",best.fitness_values[0])
 
         augs = [x.data_augmentation_schemes[0] for x in best_graphs if len(x.data_augmentation_schemes) > 0]
-        unique_augs = {}#maps aug tostring to the aug object
+        aug_names = set()
+        unique_augs = []
         for aug in augs:
             name = repr(aug).split("Nodes:")[1]
-            if name not in unique_augs:
-                unique_augs[name] = aug
-        augs = list(unique_augs.values())[:num_augs]
-        return Validation.get_fully_trained_network(best,augs)
+            if name not in aug_names:
+                aug_names.add(name)
+                unique_augs.append(aug)
+        unique_augs = unique_augs[:num_augs]
+        return Validation.get_fully_trained_network(best,unique_augs)
 
     def plot_fitnesses(self):
         # print("lengths:" , repr([len(x.fitness_values) for x in self.pareto_front]))
@@ -89,7 +92,7 @@ class ParetoPopulation:
 
         if num > 1:
             # print("getting top", num, "graphs from", self.pareto_front )
-            acc_sorted = sorted(check_set, key=lambda x: x.fitness_values[0] )
+            acc_sorted = sorted(check_set, key=lambda x: x.fitness_values[0] , reverse=True)
             # print('len sorted:', len(acc_sorted))
             num_best_graphs = acc_sorted[:num]
             return num_best_graphs
