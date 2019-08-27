@@ -114,6 +114,7 @@ def get_run_group_name(run_name, include_deterministic_runs = True, include_cros
 def get_run_boundries(aggregation_type='max', num_top=5, fitness_index=0, max_gens = 1000, include_deterministic_runs = True, smooth_boundries = True):
     run_groups = get_run_groups(aggregation_type=aggregation_type,num_top=num_top,fitness_index=fitness_index, max_gens= max_gens, include_deterministic_runs= include_deterministic_runs)
     boundires = {}
+    counts = {}
 
     for group_name in run_groups.keys():
         group = run_groups[group_name]
@@ -140,21 +141,27 @@ def get_run_boundries(aggregation_type='max', num_top=5, fitness_index=0, max_ge
             maxes = get_rolling_averages(maxes)
 
         boundires[group_name] = (mins,maxes)
-    return boundires
+        counts[group_name] = len(group)
+    return boundires, counts
 
 
 def plot_all_runs(aggregation_type='max', num_top=5, fitness_index=0, max_gens=1000, show_data=False,
                   stay_at_max=True, line_graph=True, show_best_fit=False, show_smoothed_data=False, show_boundires = True, smooth_boundries = True, show_data_in_boundries = True):
 
+    colours = {}
     if show_boundires:
-        boundires = get_run_boundries(aggregation_type=aggregation_type,num_top=num_top,fitness_index=fitness_index, max_gens= max_gens, smooth_boundries=smooth_boundries)
+        boundires, counts = get_run_boundries(aggregation_type=aggregation_type,num_top=num_top,fitness_index=fitness_index, max_gens= max_gens, smooth_boundries=smooth_boundries)
         for group_name in boundires.keys():
             mins,maxs = boundires[group_name]
             gens = [x for x in range(len(mins))]
 
-            plt.fill_between(gens,mins,maxs, alpha = 0.4, label = group_name)
+            plot = plt.fill_between(gens,mins,maxs, alpha = 0.4, label = group_name + ", n=" + repr(counts[group_name]))
+            colours[group_name] = [max(min(x*1.5,1),0) for x  in plot.get_facecolor()[0]]
+            # print("colour:",colours[group_name])
+
 
     runs = get_all_runs(aggregation_type=aggregation_type,num_top=num_top,fitness_index=fitness_index, max_gens= max_gens)
+    labels_used = set()
     for run in runs.keys():
         if show_boundires and not show_data_in_boundries:
             group_name = get_run_group_name(run)
@@ -173,10 +180,20 @@ def plot_all_runs(aggregation_type='max', num_top=5, fitness_index=0, max_gens=1
             aggregated = get_rolling_averages(fitness)
 
         if show_data:
+            group_name = get_run_group_name(run)
+            colour = None
+            if show_boundires and show_data_in_boundries:
+                if group_name in colours:
+                    colour = colours[group_name]
+                # print("using col",colour,"for run",run,"group:",group_name)
+
+            label = group_name if group_name not in labels_used else None
+            labels_used.add(label)
+
             if line_graph:
-                p = plt.plot(gens, fitness, label=run)
+                p = plt.plot(gens, fitness, label=label, c = colour)
             else:
-                p = plt.scatter(gens, fitness, label=run)
+                p = plt.scatter(gens, fitness, label=label, c = colour)
             if aggregated is not None:
                 plt.plot(gens, aggregated, c=p[0].get_color())
 
@@ -211,5 +228,5 @@ def get_rolling_averages(data, alpha=0.65):
 
 if __name__ == "__main__":
     # style.use('fivethirtyeight')
-    plot_all_runs(aggregation_type="top", num_top=5, show_data=True, show_best_fit=False, show_smoothed_data=False,
-                  stay_at_max=False, show_boundires=True, smooth_boundries=False, show_data_in_boundries=False)
+    plot_all_runs(aggregation_type="max", num_top=5, show_data=True, show_best_fit=False, show_smoothed_data=False,
+                  stay_at_max=False, show_boundires=True, smooth_boundries=False, show_data_in_boundries=True)
