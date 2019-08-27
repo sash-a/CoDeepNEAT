@@ -104,10 +104,18 @@ def get_run_groups(aggregation_type='max', num_top=5, fitness_index=0, max_gens 
     return groups
 
 def get_run_group_name(run_name, include_deterministic_runs = True, include_cross_species_runs = True):
+    run_name = run_name.replace("da", "$")
+
     group_run_name = run_name.replace("_d", "") if include_deterministic_runs else run_name
     group_run_name = group_run_name.replace("_c", "") if include_cross_species_runs else group_run_name
+
+    group_run_name = group_run_name.replace("$", "da")
+
     if group_run_name[-1].isdigit():
         group_run_name = group_run_name[:-1]
+
+    if group_run_name in name_overrides:
+        return name_overrides[group_run_name]
 
     return group_run_name
 
@@ -225,8 +233,12 @@ def get_rolling_averages(data, alpha=0.65):
             smoothed.append(smooth)
     return smoothed
 
+name_overrides = {"mm": "Modmax", "mms": "Elite CDN", "base": "CDN", "spc": "SPCDN", "base_da": "DACDN",
+                  "mms_da": "Elite DACDN"}
+
 
 if __name__ == "__main__":
     # style.use('fivethirtyeight')
-    plot_all_runs(aggregation_type="max", num_top=5, show_data=True, show_best_fit=False, show_smoothed_data=False,
+    plot_all_runs(aggregation_type="top", num_top=5, show_data=True, show_best_fit=False, show_smoothed_data=False,
                   stay_at_max=False, show_boundires=True, smooth_boundries=False, show_data_in_boundries=True)
+
