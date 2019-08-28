@@ -32,6 +32,9 @@ def train(model, train_loader, epoch, test_loader, device, augmentors=None, prin
 
     s = time.time()
     for i in range(loops):
+        if i == 0 and not Config.train_on_origonal_data:
+            pass
+
         for batch_idx, (inputs, targets) in enumerate(train_loader):
             model.optimizer.zero_grad()
 

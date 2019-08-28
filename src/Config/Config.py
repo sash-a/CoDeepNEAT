@@ -36,6 +36,7 @@ evolve_data_augmentations = False
 colour_augmentations = True
 allow_da_scheme_ignores = True
 da_ignore_chance = 0.2
+train_on_origonal_data = True
 
 # --------------------------------------------------------------------------------------------------------------------#
 module_retention = False
