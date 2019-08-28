@@ -10,10 +10,10 @@ import torch.multiprocessing as mp
 
 from src.Validation.DataLoader import load_data
 printBatchEvery = -1  # -1 to switch off batch printing
-print_epoch_every = -1  # -1 to switch off epoch printing
+print_epoch_every = 1  # -1 to switch off epoch printing
 
 
-def train(model, train_loader, epoch, test_loader, device, augmentors=None, print_accuracy=False):
+def train_epoch(model, train_loader, epoch, test_loader, device, augmentors=None, print_accuracy=False):
     """
     Run a single train epoch
 
@@ -28,62 +28,71 @@ def train(model, train_loader, epoch, test_loader, device, augmentors=None, prin
 
     loss = 0
     batch_idx = 0
-    loops = 1  if not Config.evolve_data_augmentations else 1 + len(augmentors)
+    loops = 1 if not Config.evolve_data_augmentations else 1 + len(augmentors)
+    loops = 1 if Config.batch_by_batch else loops
 
     s = time.time()
     for i in range(loops):
-        if i == 0 and not Config.train_on_origonal_data:
+        if i == 0 and not Config.train_on_origonal_data  and not Config.batch_by_batch:
+            """skip origonal data in epoch splicing"""
             continue
 
         for batch_idx, (inputs, targets) in enumerate(train_loader):
+            """batch loop"""
+
             model.optimizer.zero_grad()
 
             if Config.interleaving_check:
                 print('in train', mp.current_process().name)
                 sys.stdout.flush()
 
-            if augmentors is not None and len(augmentors) > 0 and i >= 1:
-                augmentor = augmentors[i-1]
-                if augmentor is None:
-                    continue
-                # print("augmenting batch with:", augmentor)
-                aug_inputs, aug_labels = BatchAugmentor.augment_batch(inputs.numpy(), targets.numpy(), augmentor)
-                # print("augmented batch")
-                # print("targets:",targets,"\naug_targets:",aug_labels)
-                # print("inputs:",inputs,"aug_inputs:", aug_inputs)
-                # print("vector")
-                # print("Vectors", inputs-aug_inputs)
-                aug_inputs, aug_labels = aug_inputs.to(device), aug_labels.to(device)
-                # print("training on augmented images shape:",augmented_inputs.size())
-                output = model(aug_inputs)
-                m_loss = model.loss_fn(output, aug_labels)
-                m_loss.backward()
-                model.optimizer.step()
+            has_augs = augmentors is not None and len(augmentors) > 0
 
-            if i == 0:
-                # continue
-                inputs, targets = inputs.to(device), targets.to(device)
-                output = model(inputs)
-                m_loss = model.loss_fn(output, targets)
-                m_loss.backward()
-                model.optimizer.step()
-                loss += m_loss.item()
+            train_on_aug = has_augs and i >= 1
+            train_on_aug = train_on_aug or (Config.batch_by_batch and has_augs)
+            if train_on_aug:
+                if not Config.batch_by_batch:
+                    augmentor = augmentors[i-1]
+                    if augmentor is None:
+                        continue
+                    loss += train_batch(model, inputs, targets, device, augmentor=augmentor)
+                else:
+                    for augmentor in augmentors:
+                        loss += train_batch(model, inputs, targets, device, augmentor=augmentor)
+                        model.optimizer.zero_grad()
 
-            if batch_idx % printBatchEvery == 0 and not printBatchEvery == -1:
-                print("\tepoch:", epoch, "batch:", batch_idx, "loss:", m_loss.item(), "running time:", time.time() - s,"i=",i)
+            train_on_original = i == 0
+            train_on_original = train_on_original or Config.batch_by_batch
 
-        if print_epoch_every != -1 and epoch % print_epoch_every == 0:
-            if print_accuracy:
-                print("epoch", epoch, "average loss:", loss / batch_idx, "accuracy:",
-                      test(model, test_loader, device, print_acc=False), "i = ", i )
-                model.train()
+            if train_on_original:
+                loss += train_batch(model, inputs, targets, device)
 
-            else:
-                print("epoch", epoch, "average loss:", loss / batch_idx, "i=",i)
+
+    if print_epoch_every != -1 and epoch % print_epoch_every == 0:
+        if print_accuracy:
+            print("epoch", epoch, "average loss:", loss / batch_idx, "accuracy:",
+                  test(model, test_loader, device, print_acc=False), "i = ", i )
+            model.train()
+
+        else:
+            print("epoch", epoch, "average loss:", loss / batch_idx, "i=",i)
 
     end_time = time.time()
     # print(model)
 
+def train_batch(model, inputs, targets, device,augmentor = None):
+    if augmentor is not None:
+        train_inputs, train_labels = BatchAugmentor.augment_batch(inputs.numpy(), targets.numpy(), augmentor)
+        train_inputs, train_labels = train_inputs.to(device), train_labels.to(device)
+    else:
+        train_inputs, train_labels = inputs.to(device), targets.to(device)
+
+    output = model(train_inputs)
+    m_loss = model.loss_fn(output, train_labels)
+    m_loss.backward()
+    model.optimizer.step()
+
+    return m_loss.item()
 
 def test(model, test_loader, device, print_acc=False):
     """
@@ -143,7 +152,7 @@ def evaluate(model, epochs, device, batch_size=64, augmentors=None, train_loader
 
     s = time.time()
     for epoch in range(1, epochs + 1):
-        train(model, train_loader, epoch, test_loader, device, augmentors, print_accuracy=print_accuracy)
+        train_epoch(model, train_loader, epoch, test_loader, device, augmentors, print_accuracy=print_accuracy)
     e = time.time()
 
     test_acc = test(model, test_loader, device)

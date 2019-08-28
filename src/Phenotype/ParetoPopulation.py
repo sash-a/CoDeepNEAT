@@ -38,9 +38,9 @@ class ParetoPopulation:
         # self.plot_all_in_pareto_front()
         # self.get_highest_accuracy(print=True)
 
-    def get_best_network(self, num_augs=1):
+    def get_best_network(self, num_augs=3):
         best_graphs = self.get_highest_accuracy(num=20, check_set= self.best_members)
-        #best_graphs = self.get_highest_accuracy(num=20)
+        # best_graphs = self.get_highest_accuracy(num=20)
         # print("got top", len(best_graphs), "graphs")
 
         # for top in best_graphs:
