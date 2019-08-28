@@ -73,6 +73,7 @@ class Mutagen:
             new_value = my_value + 0.35 * (other_value - my_value)
             if self.value_type == ValueType.WHOLE_NUMBERS:
                 # print(self)
+                new_value += random.random()*0.2 - 0.1 #to make it equally likely to round up/down from  x.5
                 self.set_value(int(round(new_value)))
             else:
                 self.set_value(new_value)
