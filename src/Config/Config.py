@@ -4,7 +4,7 @@ import torch.multiprocessing as mp
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Run state options
-run_name = "mms10E_da_d"
+run_name = "test"
 continue_from_last_run = True
 fully_train = False
 dummy_run = False
