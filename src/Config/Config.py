@@ -36,6 +36,8 @@ evolve_data_augmentations = False
 colour_augmentations = True
 allow_da_scheme_ignores = True
 da_ignore_chance = 0.2
+train_on_origonal_data = True
+batch_by_batch = False
 
 # --------------------------------------------------------------------------------------------------------------------#
 module_retention = False
@@ -61,7 +63,7 @@ adjust_mutation_magnitudes_over_run = False
 allow_elite_cloning = False
 # --------------------------------------------------------------------------------------------------------------------#
 breed_mutagens = False
-mutagen_breed_chance = 0.25
+mutagen_breed_chance = 0.75
 # --------------------------------------------------------------------------------------------------------------------#
 
 protect_parsing_from_errors = False

@@ -126,7 +126,7 @@ class BlueprintNEATNode(NodeGene):
 
         self.species_number = Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=0, start_range=0,
                                       end_range=1, print_when_mutating=False, name="species number",
-                                      mutation_chance=0.5)
+                                      mutation_chance=0.5, inherit_as_discrete=True)
         self.target_num_species_reached = False
 
         if Config.use_representative:
