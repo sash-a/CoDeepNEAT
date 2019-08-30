@@ -9,15 +9,16 @@ from src.NEAT.Mutagen import Mutagen
 from src.NEAT.Mutagen import ValueType
 
 
-def get_fully_trained_network(module_graph, data_augs, num_epochs = 300):
+def get_fully_trained_network(module_graph, data_augs, num_epochs = 100, plot_best_graph = False):
     train, test = DataLoader.load_data(dataset=module_graph.dataset)
     sample, _ = DataLoader.sample_data(Config.get_device(), dataset= module_graph.dataset)
-    # module_graph.plot_tree_with_graphvis(title="before putting in model", file="before")
 
-    module_graph_clone = copy.deepcopy(module_graph)
-    model = create_nn(module_graph,sample, feature_multiplier= 1)
-    # module_graph.plot_tree_with_graphvis(title="after putting in model", file = "after")
+    model = create_nn(module_graph,sample, feature_multiplier= Config.feature_multiplier_for_fully_train)
+    if plot_best_graph:
+        module_graph.plot_tree_with_graphvis(title="after putting in model", file = "after")
+
     print("training nn", model)
+    print("num epochs:",num_epochs,"num augs:",len(data_augs), "feature multiplier:",Config.feature_multiplier_for_fully_train)
     Evaluator.print_epoch_every = 1
 
     da_phenotypes = [dagenome.to_phenotype() for dagenome in data_augs]

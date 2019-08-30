@@ -38,20 +38,8 @@ class ParetoPopulation:
         # self.plot_all_in_pareto_front()
         # self.get_highest_accuracy(print=True)
 
-    def get_best_network(self, num_augs=3):
+    def get_best_network(self, num_augs=1):
         best_graphs = self.get_highest_accuracy(num=20, check_set= self.best_members)
-        # best_graphs = self.get_highest_accuracy(num=20)
-        # print("got top", len(best_graphs), "graphs")
-
-        # for top in best_graphs:
-        #    top.plot_tree_with_graphvis(file = "top"  + repr(best_graphs.index(top)))
-
-        # for bm in self.best_members:
-        #     bm.plot_tree_with_graphvis(file="best" + repr(self.best_members.index(bm)))
-
-        # for wm in self.worst_das:
-        #     wm.plot_tree_with_graphvis(file="worst" + repr(self.worst_das.index(wm)))
-
         best = best_graphs[0]
         print("fully training",best,"reported acc:",best.fitness_values[0])
 
@@ -64,7 +52,7 @@ class ParetoPopulation:
                 aug_names.add(name)
                 unique_augs.append(aug)
         unique_augs = unique_augs[:num_augs]
-        return Validation.get_fully_trained_network(best, unique_augs)
+        return Validation.get_fully_trained_network(best, unique_augs, num_epochs=Config.num_epochs_in_full_train)
 
     def plot_fitnesses(self):
         # print("lengths:" , repr([len(x.fitness_values) for x in self.pareto_front]))

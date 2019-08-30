@@ -73,7 +73,7 @@ def evolve_generation(generation):
     print("finished training", Config.max_num_generations, "generations")
 
     if Config.fully_train:
-        generation.pareto_population.get_best_network()
+        generation.pareto_population.get_best_network(num_augs= Config.num_augs_in_full_train)
 
 
 def parse_args():
