@@ -226,7 +226,8 @@ def plot_all_runs(aggregation_type='max', num_top=5, fitness_index=0, max_gens=1
     plt.set_cmap('gray')
 
     plt.xlabel("Generation")
-    plt.ylabel("fitness " + repr(fitness_index))
+    ylabel = "fitness " + repr(fitness_index) if fitness_index >0 else "accuracy%"
+    plt.ylabel(ylabel)
     title = aggregation_type + (" " + repr(num_top) if aggregation_type == "top" else "") + " fitness"
     plt.title(title)
 
@@ -247,7 +248,8 @@ def get_rolling_averages(data, alpha=0.65):
 
 name_overrides = {"mm": "Modmax CDN", "mms": "Elite CDN", "mms_10E": "Elite CDN 10E", "base": "CDN",
                   "base_10E": "CDN 10E", "spc": "SPCDN", "base_da": "DACDN", "mms_da": "Elite DACDN",
-                  "max": "max fitness aggregation CDN", "modret": "module retention CDN", "mm_globmut":"ModMax with Global Mutation Adjustment"}
+                  "max": "max fitness aggregation CDN", "modret": "module retention CDN",
+                  "mm_globmut":"ModMax with Global Mutation Adjustment", "mms_globmut":"Elite CDN with Global Mutation Adjustment"}
 
 
 if __name__ == "__main__":
