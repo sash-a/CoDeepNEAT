@@ -10,7 +10,7 @@ import torch.multiprocessing as mp
 
 from src.Validation.DataLoader import load_data
 printBatchEvery = -1  # -1 to switch off batch printing
-print_epoch_every = 1  # -1 to switch off epoch printing
+print_epoch_every = -1  # -1 to switch off epoch printing
 
 
 def train_epoch(model, train_loader, epoch, test_loader, device, augmentors=None, print_accuracy=False):

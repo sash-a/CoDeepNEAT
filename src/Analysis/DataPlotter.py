@@ -67,7 +67,7 @@ def plot_all_generations(aggregation_type='max', fitness_index=0, run_name='unna
     plt.title(aggregation_type + ' value of objectives ' + str(fitness_index) + ' per generation for ' + run_name)
     plt.show()
 
-def get_all_runs(aggregation_type='max', num_top=5, fitness_index=0, max_gens = 1000):
+def get_all_run_names():
     runs = set()
     for subdir, dirs, files in os.walk(os.path.join(DataManager.get_data_folder(), "runs")):
         sub = subdir.split("runs")[1][1:].split("\\")[0].split("/")[0]
@@ -75,6 +75,11 @@ def get_all_runs(aggregation_type='max', num_top=5, fitness_index=0, max_gens = 
         if sub == "":
             continue
         runs.add(sub)
+
+    return runs
+
+def get_all_runs(aggregation_type='max', num_top=5, fitness_index=0, max_gens = 1000):
+    runs = get_all_run_names()
 
     runs_data = {}
 
@@ -154,7 +159,9 @@ def get_run_boundries(aggregation_type='max', num_top=5, fitness_index=0, max_ge
 
 
 def plot_all_runs(aggregation_type='max', num_top=5, fitness_index=0, max_gens=1000, show_data=False,
-                  stay_at_max=True, line_graph=True, show_best_fit=False, show_smoothed_data=False, show_boundires = True, smooth_boundries = True, show_data_in_boundries = True):
+                  stay_at_max=True, line_graph=True, show_best_fit=False, show_smoothed_data=False,
+                  show_boundires = True, smooth_boundries = True, show_data_in_boundries = True,
+                  colour_group_run_lines_same = True):
 
     colours = {}
     if show_boundires:
@@ -190,13 +197,17 @@ def plot_all_runs(aggregation_type='max', num_top=5, fitness_index=0, max_gens=1
         if show_data:
             group_name = get_run_group_name(run)
             colour = None
-            if show_boundires and show_data_in_boundries:
-                if group_name in colours:
-                    colour = colours[group_name]
-                # print("using col",colour,"for run",run,"group:",group_name)
+            if colour_group_run_lines_same:
+                if show_boundires and show_data_in_boundries:
+                    if group_name in colours:
+                        colour = colours[group_name]
+                    # print("using col",colour,"for run",run,"group:",group_name)
 
-            label = group_name if group_name not in labels_used else None
-            labels_used.add(label)
+            if colour_group_run_lines_same:
+                label = group_name if group_name not in labels_used else None
+                labels_used.add(label)
+            else:
+                label = run
 
             if line_graph:
                 p = plt.plot(gens, fitness, label=label, c = colour)
@@ -240,5 +251,6 @@ name_overrides = {"mm": "Modmax CDN", "mms": "Elite CDN", "base": "CDN", "spc": 
 if __name__ == "__main__":
     # style.use('fivethirtyeight')
     plot_all_runs(aggregation_type="top", num_top=5, show_data=True, show_best_fit=False, show_smoothed_data=False,
-                  stay_at_max=False, show_boundires=True, smooth_boundries=False, show_data_in_boundries=True)
+                  stay_at_max=False, show_boundires=True, smooth_boundries=False, show_data_in_boundries=True, max_gens=30,
+                  colour_group_run_lines_same=False)
 
