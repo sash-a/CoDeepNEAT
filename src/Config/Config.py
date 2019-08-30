@@ -4,7 +4,7 @@ import torch.multiprocessing as mp
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Run state options
-run_name = "test"
+run_name = "mms10E_da_d"
 continue_from_last_run = True
 deterministic_pop_init = True
 dummy_run = False
@@ -20,11 +20,11 @@ number_of_epochs_per_evaluation = 5
 
 # --------------------------------------------------------------------------------------------------------------------#
 max_num_generations = 30
-fully_train = False
+fully_train = True
 
 num_epochs_in_full_train = 150
-num_augs_in_full_train = 1
-feature_multiplier_for_fully_train = 1  #multiplies feature count of every layer by this number to increase or decrease bandwidth
+num_augs_in_full_train = 3
+feature_multiplier_for_fully_train = 1.5  #multiplies feature count of every layer by this number to increase or decrease bandwidth
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Multiobjective options
