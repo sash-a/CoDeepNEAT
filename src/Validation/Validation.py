@@ -15,7 +15,7 @@ def get_fully_trained_network(module_graph, data_augs, num_epochs = 30):
     # module_graph.plot_tree_with_graphvis(title="before putting in model", file="before")
 
     module_graph_clone = copy.deepcopy(module_graph)
-    model = create_nn(module_graph,sample, feature_multiplier= 0.8)
+    model = create_nn(module_graph,sample, feature_multiplier= 1)
     # module_graph.plot_tree_with_graphvis(title="after putting in model", file = "after")
     print("training nn", model)
     Evaluator.print_epoch_every = 1
