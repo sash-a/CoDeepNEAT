@@ -4,7 +4,7 @@ import torch.multiprocessing as mp
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Run state options
-run_name = "mms10E_da_d"
+run_name = "test"
 continue_from_last_run = True
 deterministic_pop_init = True
 dummy_run = False
@@ -20,7 +20,7 @@ number_of_epochs_per_evaluation = 5
 
 # --------------------------------------------------------------------------------------------------------------------#
 max_num_generations = 30
-fully_train = True
+fully_train = False
 
 num_epochs_in_full_train = 150
 num_augs_in_full_train = 3
