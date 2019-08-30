@@ -17,14 +17,13 @@ def get_fully_trained_network(module_graph, data_augs, num_epochs = 100, plot_be
     if plot_best_graph:
         module_graph.plot_tree_with_graphvis(title="after putting in model", file = "after")
 
-    print("training nn", model)
-    print("num epochs:",num_epochs,"num augs:",len(data_augs), "feature multiplier:",Config.feature_multiplier_for_fully_train)
+    print("fully training ~ num epochs:",num_epochs,"num augs:",len(data_augs), "feature multiplier:",Config.feature_multiplier_for_fully_train)
     Evaluator.print_epoch_every = 1
 
     da_phenotypes = [dagenome.to_phenotype() for dagenome in data_augs]
 
-
-    print("fully training using augs:", data_augs)
+    if len(data_augs) > 0:
+        print("fully training using augs:", data_augs)
 
     acc = Evaluator.evaluate(model, num_epochs, Config.get_device(), train_loader=train, test_loader=test,
                              print_accuracy=True, batch_size=256, augmentors= da_phenotypes )

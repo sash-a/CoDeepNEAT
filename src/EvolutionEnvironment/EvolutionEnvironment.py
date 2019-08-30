@@ -55,13 +55,13 @@ def evolve_generation(generation):
         print("evolving gen from scratch")
         start_gen = 0
     else:
-        print("continuing evolution of generation:", generation)
+        print("loading generation:", generation)
         # generations save after completing their step. before incrementing their generation number
         start_gen = generation.generation_number + 1
 
     start_time = time.time()
 
-    if start_gen < Config.max_num_generations:
+    if start_gen < Config.max_num_generations and not Config.fully_train:
         for i in range(start_gen, Config.max_num_generations):
             print('Running gen', i)
             gen_start_time = time.time()
@@ -70,7 +70,7 @@ def evolve_generation(generation):
             generation.step()
             print('completed gen', i, "in", (time.time() - gen_start_time), "elapsed time:", (time.time() - start_time),
                   "\n\n")
-    print("finished training", Config.max_num_generations, "generations")
+        print("finished evolving", Config.max_num_generations, "generations")
 
     if Config.fully_train:
         generation.pareto_population.get_best_network(num_augs= Config.num_augs_in_full_train)

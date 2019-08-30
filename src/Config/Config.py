@@ -4,7 +4,7 @@ import torch.multiprocessing as mp
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Run state options
-run_name = "mm_breed_d3"
+run_name = "test"
 continue_from_last_run = True
 deterministic_pop_init = True
 dummy_run = False
@@ -21,9 +21,11 @@ number_of_epochs_per_evaluation = 5
 # --------------------------------------------------------------------------------------------------------------------#
 max_num_generations = 30
 fully_train = False
+
 num_epochs_in_full_train = 150
 num_augs_in_full_train = 1
 feature_multiplier_for_fully_train = 1  #multiplies feature count of every layer by this number to increase or decrease bandwidth
+
 # --------------------------------------------------------------------------------------------------------------------#
 # Multiobjective options
 second_objective = ''  # network_size | network_size_adjusted | network_size_adjusted_2
