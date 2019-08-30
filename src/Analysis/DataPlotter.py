@@ -244,13 +244,15 @@ def get_rolling_averages(data, alpha=0.65):
             smoothed.append(smooth)
     return smoothed
 
-name_overrides = {"mm": "Modmax CDN", "mms": "Elite CDN", "base": "CDN", "spc": "SPCDN", "base_da": "DACDN",
-                  "mms_da": "Elite DACDN", "max": "max fitness aggregation CDN", "modret":"module retention CDN" }
+
+name_overrides = {"mm": "Modmax CDN", "mms": "Elite CDN", "mms_10E": "Elite CDN 10E", "base": "CDN",
+                  "base_10E": "CDN 10E", "spc": "SPCDN", "base_da": "DACDN", "mms_da": "Elite DACDN",
+                  "max": "max fitness aggregation CDN", "modret": "module retention CDN"}
 
 
 if __name__ == "__main__":
     # style.use('fivethirtyeight')
     plot_all_runs(aggregation_type="top", num_top=5, show_data=True, show_best_fit=False, show_smoothed_data=False,
-                  stay_at_max=False, show_boundires=True, smooth_boundries=False, show_data_in_boundries=True, max_gens=30,
+                  stay_at_max=False, show_boundires=True, smooth_boundries=False, show_data_in_boundries=True, max_gens=300,
                   colour_group_run_lines_same=False)
 
