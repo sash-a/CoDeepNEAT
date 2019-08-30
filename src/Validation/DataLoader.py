@@ -70,6 +70,7 @@ def load_data(batch_size=64, dataset=""):
                              transform=colour_image_transform),
             batch_size=batch_size, shuffle=True, **data_loader_args
         )
+
     else:
         raise Exception('Invalid dataset name, options are fashion_mnist, mnist or cifar10 you provided:' + dataset)
 
