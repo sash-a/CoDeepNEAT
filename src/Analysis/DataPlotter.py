@@ -244,8 +244,10 @@ def get_rolling_averages(data, alpha=0.65):
             smoothed.append(smooth)
     return smoothed
 
-name_overrides = {"mm": "Modmax CDN", "mms": "Elite CDN", "base": "CDN", "spc": "SPCDN", "base_da": "DACDN",
-                  "mms_da": "Elite DACDN", "max": "max fitness aggregation CDN", "modret":"module retention CDN" }
+
+name_overrides = {"mm": "Modmax CDN", "mms": "Elite CDN", "mms_10E": "Elite CDN 10E", "base": "CDN",
+                  "base_10E": "CDN 10E", "spc": "SPCDN", "base_da": "DACDN", "mms_da": "Elite DACDN",
+                  "max": "max fitness aggregation CDN", "modret": "module retention CDN"}
 
 
 if __name__ == "__main__":
