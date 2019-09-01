@@ -1,15 +1,15 @@
 # modified from https://github.com/pytorch/examples/blob/master/mnist/main.py
-import sys
-
 import math
-import torch
-from src.DataAugmentation import BatchAugmentor
-from src.Config import Config
-
+import sys
 import time
+
+import torch
 import torch.multiprocessing as mp
 
+from src.Config import Config
+from src.DataAugmentation import BatchAugmentor
 from src.Validation.DataLoader import load_data
+
 printBatchEvery = -1  # -1 to switch off batch printing
 print_epoch_every = -1  # -1 to switch off epoch printing
 
@@ -34,17 +34,21 @@ def train_epoch(model, train_loader, epoch, test_loader, device, augmentors=None
     # print("num loops:", loops)
     s = time.time()
 
-    learning_rate_coefficient = 1/pow(2,math.floor(epoch/50))
+    learning_rate_coefficient = 1 / pow(2, math.floor(epoch / 50))
     if Config.drop_learning_rate:
-        new_lr = model.lr*learning_rate_coefficient
+        new_lr = model.lr * learning_rate_coefficient
         for param_group in model.optimizer.param_groups:
             if new_lr != param_group['lr']:
-                print("updating lr from",param_group['lr'],"to",model.lr*learning_rate_coefficient)
-                param_group['lr'] = model.lr*learning_rate_coefficient
+                updated_lr = "updating lr from " + repr(param_group['lr']) + " to " + repr(model.lr * learning_rate_coefficient)
+                print(updated_lr)
+                with open(Config.run_name, 'a+') as f:
+                    f.write(updated_lr)
+                    f.write('\n')
 
+                param_group['lr'] = model.lr * learning_rate_coefficient
 
     for i in range(loops):
-        if i == 0 and not Config.train_on_origonal_data  and not Config.batch_by_batch:
+        if i == 0 and not Config.train_on_origonal_data and not Config.batch_by_batch:
             """skip origonal data in epoch splicing"""
             continue
 
@@ -63,7 +67,7 @@ def train_epoch(model, train_loader, epoch, test_loader, device, augmentors=None
             train_on_aug = train_on_aug or (Config.batch_by_batch and has_augs)
             if train_on_aug:
                 if not Config.batch_by_batch:
-                    augmentor = augmentors[i-1]
+                    augmentor = augmentors[i - 1]
                     if augmentor is None:
                         continue
                     # print("training on aug:",augmentor)
@@ -83,22 +87,25 @@ def train_epoch(model, train_loader, epoch, test_loader, device, augmentors=None
             if batch_idx >= 2:
                 break
 
-
     if print_epoch_every != -1 and epoch % print_epoch_every == 0:
         if print_accuracy:
             test_acc = test(model, test_loader, device, print_acc=False)
-            print("epoch", epoch, "average loss:", loss / batch_idx, "accuracy:",
-                  test_acc, "i = ", i )
+            print("epoch", epoch, "average loss:", loss / batch_idx, "accuracy:",test_acc, "i = ", i)
+            with open(Config.run_name, 'a+') as f:
+                f.write(repr(epoch) + ': ' + repr(test_acc) + ', loss: ' + repr(loss/batch_idx))
+                f.write('\n')
+
             model.train()
             return test_acc
 
         else:
-            print("epoch", epoch, "average loss:", loss / batch_idx, "i=",i)
+            print("epoch", epoch, "average loss:", loss / batch_idx, "i=", i)
 
     end_time = time.time()
     # print(model)
 
-def train_batch(model, inputs, targets, device,augmentor = None):
+
+def train_batch(model, inputs, targets, device, augmentor=None):
     if augmentor is not None:
         train_inputs, train_labels = BatchAugmentor.augment_batch(inputs.numpy(), targets.numpy(), augmentor)
         train_inputs, train_labels = train_inputs.to(device), train_labels.to(device)
@@ -111,6 +118,7 @@ def train_batch(model, inputs, targets, device,augmentor = None):
     model.optimizer.step()
 
     return m_loss.item()
+
 
 def test(model, test_loader, device, print_acc=False):
     """
@@ -154,7 +162,7 @@ def test(model, test_loader, device, print_acc=False):
 
 
 def evaluate(model, epochs, device, batch_size=64, augmentors=None, train_loader=None, test_loader=None,
-             print_accuracy=False, training_target = -1):
+             print_accuracy=False, training_target=-1):
     """
     Runs all epochs and tests the model after all epochs have run
 
@@ -171,7 +179,8 @@ def evaluate(model, epochs, device, batch_size=64, augmentors=None, train_loader
     s = time.time()
     max_acc = 0
     for epoch in range(1, epochs + 1):
-        response = train_epoch(model, train_loader, epoch, test_loader, device, augmentors, print_accuracy=print_accuracy)
+        response = train_epoch(model, train_loader, epoch, test_loader, device, augmentors,
+                               print_accuracy=print_accuracy)
 
         if Config.toss_bad_runs and training_target != -1:
             """by epoch 5, run must be at 50% of target
@@ -179,12 +188,12 @@ def evaluate(model, epochs, device, batch_size=64, augmentors=None, train_loader
                 by epoch 25 run must be at 90% of target
                 by epoch 50 run must be at target
             """
-            max_acc = max(max_acc,response*2)
-            targets = {5:0.5,10:0.75,25:0.9,50:1}
+            max_acc = max(max_acc, response * 2)
+            targets = {5: 0.5, 10: 0.75, 25: 0.9, 50: 1}
             target = targets[epoch] if epoch in targets else 0
-            target*= training_target
+            target *= training_target
             if response is not None and max_acc < target:
-                print("target",target,"missed(",max_acc,"), tossing train")
+                print("target", target, "missed(", max_acc, "), tossing train")
                 return "toss"
     e = time.time()
 
