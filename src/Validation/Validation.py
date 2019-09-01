@@ -13,8 +13,7 @@ def get_fully_trained_network(module_graph, data_augs, num_epochs = 100, plot_be
     train, test = DataLoader.load_data(dataset=module_graph.dataset)
     sample, _ = DataLoader.sample_data(Config.get_device(), dataset= module_graph.dataset)
 
-    module_graph_backup = module_graph
-    module_graph = copy.deepcopy(module_graph)
+    module_graph_backup = copy.deepcopy(module_graph)
 
     model = create_nn(module_graph,sample, feature_multiplier= Config.feature_multiplier_for_fully_train)
     if plot_best_graph:
