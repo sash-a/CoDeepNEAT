@@ -1,6 +1,7 @@
 # modified from https://github.com/pytorch/examples/blob/master/mnist/main.py
 import sys
 
+import math
 import torch
 from src.DataAugmentation import BatchAugmentor
 from src.Config import Config
@@ -32,6 +33,16 @@ def train_epoch(model, train_loader, epoch, test_loader, device, augmentors=None
     loops = 1 if Config.batch_by_batch else loops
     # print("num loops:", loops)
     s = time.time()
+
+    learning_rate_coefficient = 1/pow(2,math.floor(epoch/50))
+    if Config.drop_learning_rate:
+        new_lr = model.lr*learning_rate_coefficient
+        for param_group in model.optimizer.param_groups:
+            if new_lr != param_group['lr']:
+                print("updating lr from",param_group['lr'],"to",model.lr*learning_rate_coefficient)
+                param_group['lr'] = model.lr*learning_rate_coefficient
+
+
     for i in range(loops):
         if i == 0 and not Config.train_on_origonal_data  and not Config.batch_by_batch:
             """skip origonal data in epoch splicing"""
