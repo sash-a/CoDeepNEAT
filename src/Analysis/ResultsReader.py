@@ -37,9 +37,9 @@ def get_all_results_files_in_folder(folder):
 
     return files
 
-def get_max_accuracies():
+def print_max_accuracies():
     for run in get_all_results_folders():
-        # print(run)
+        print(run)
         for result_file in get_all_results_files_in_folder(run):
             file_path = os.path.join(DataManager.get_results_folder(), run, result_file)
             # print(result_file,file_path)
@@ -48,7 +48,7 @@ def get_max_accuracies():
                 accuracies = get_accuracies(lines)
                 # print(accuracies)
                 max_acc = max(accuracies)
-                print(run,result_file.replace(".txt",""),"max acc:",max_acc)
+                print("\t",result_file.replace(".txt",""),"max acc:",max_acc)
 
 def get_fm_acc_tuples():
 
@@ -98,5 +98,5 @@ def plot_fm_acc_tuples():
     plt.show()
 
 if __name__ == "__main__":
-    get_max_accuracies()
+    print_max_accuracies()
     # plot_fm_acc_tuples()

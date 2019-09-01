@@ -75,9 +75,11 @@ def train_epoch(model, train_loader, epoch, test_loader, device, augmentors=None
 
     if print_epoch_every != -1 and epoch % print_epoch_every == 0:
         if print_accuracy:
+            test_acc = test(model, test_loader, device, print_acc=False)
             print("epoch", epoch, "average loss:", loss / batch_idx, "accuracy:",
-                  test(model, test_loader, device, print_acc=False), "i = ", i )
+                  test_acc, "i = ", i )
             model.train()
+            return test_acc
 
         else:
             print("epoch", epoch, "average loss:", loss / batch_idx, "i=",i)
@@ -141,7 +143,7 @@ def test(model, test_loader, device, print_acc=False):
 
 
 def evaluate(model, epochs, device, batch_size=64, augmentors=None, train_loader=None, test_loader=None,
-             print_accuracy=False):
+             print_accuracy=False, training_target = -1):
     """
     Runs all epochs and tests the model after all epochs have run
 
@@ -156,8 +158,22 @@ def evaluate(model, epochs, device, batch_size=64, augmentors=None, train_loader
         train_loader, test_loader = load_data(batch_size)
 
     s = time.time()
+    max_acc = 0
     for epoch in range(1, epochs + 1):
-        train_epoch(model, train_loader, epoch, test_loader, device, augmentors, print_accuracy=print_accuracy)
+        response = train_epoch(model, train_loader, epoch, test_loader, device, augmentors, print_accuracy=print_accuracy)
+
+        if Config.toss_bad_runs and training_target != -1:
+            """by epoch 5, run must be at 50% of target
+                by epoch 10, run must be at 75% of target
+                by epoch 25 run must be at 90% of target
+                by epoch 50 run must be at target
+            """
+            targets = {5:0.5,10:0.75,25:0.9,50:1}
+            target = targets[epoch] if epoch in targets else 0
+            target*= training_target
+            if response is not None and response < target:
+                print("target missed, tossing train")
+                return "toss"
     e = time.time()
 
     test_acc = test(model, test_loader, device)
