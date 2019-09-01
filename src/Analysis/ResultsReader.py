@@ -58,7 +58,7 @@ def get_fm_acc_tuples():
         # print(run)
         for result_file in get_all_results_files_in_folder(run):
             file_path = os.path.join(DataManager.get_results_folder(), run, result_file)
-            train_config = result_file.split("_fm")[0]
+            train_config = result_file.split("fm")[0].replace("_"," ")
             train_config = "NONE" if len(train_config) == 0 else train_config
 
             fm = result_file.split("fm")[1].replace(".txt","").replace(",",".")
@@ -84,6 +84,9 @@ def plot_fm_acc_tuples():
     for run in data.keys():
         for config in data[run].keys():
             tuples = data[run][config]
+            if len(tuples)< 2:
+                continue
+
             tuples = sorted(tuples, key=lambda x: x[0])
             fms = [fm for (fm,y) in tuples]
             accs = [acc for (x,acc) in tuples]
