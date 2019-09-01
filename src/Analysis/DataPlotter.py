@@ -254,6 +254,6 @@ name_overrides = {"mm": "Modmax CDN", "mms": "Elite CDN", "mms_10E": "Elite CDN 
 if __name__ == "__main__":
     # style.use('fivethirtyeight')
     plot_all_runs(aggregation_type="top", num_top=5, show_data=True, show_best_fit=False, show_smoothed_data=False,
-                  stay_at_max=False, show_boundires=True, smooth_boundries=False, show_data_in_boundries=True, max_gens=30,
+                  stay_at_max=False, show_boundires=True, smooth_boundries=False, show_data_in_boundries=True, max_gens=50,
                   colour_group_run_lines_same=True)
 
