@@ -42,7 +42,7 @@ class ParetoPopulation:
         best_graphs = self.get_highest_accuracy(num=(len(self.best_members) - 8), check_set= self.best_members)
         best = best_graphs[0]
         # print("num:",(len(self.best_members) - 8))
-        print("fully training",best,"reported acc:",best.fitness_values[0])
+        print("fully training",Config.run_name,"reported acc:",best.fitness_values[0])
 
         augs = [x.data_augmentation_schemes[0] for x in best_graphs if len(x.data_augmentation_schemes) > 0]
         aug_names = set()

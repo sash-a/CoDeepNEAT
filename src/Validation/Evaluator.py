@@ -69,8 +69,8 @@ def train_epoch(model, train_loader, epoch, test_loader, device, augmentors=None
                 # print("training on orig")
                 loss += train_batch(model, inputs, targets, device)
 
-            # if batch_idx >= 2:
-            #     break
+            if batch_idx >= 2:
+                break
 
 
     if print_epoch_every != -1 and epoch % print_epoch_every == 0:
@@ -168,11 +168,12 @@ def evaluate(model, epochs, device, batch_size=64, augmentors=None, train_loader
                 by epoch 25 run must be at 90% of target
                 by epoch 50 run must be at target
             """
+            max_acc = max(max_acc,response*2)
             targets = {5:0.5,10:0.75,25:0.9,50:1}
             target = targets[epoch] if epoch in targets else 0
             target*= training_target
-            if response is not None and response < target:
-                print("target missed, tossing train")
+            if response is not None and max_acc < target:
+                print("target",target,"missed(",max_acc,"), tossing train")
                 return "toss"
     e = time.time()
 
