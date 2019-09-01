@@ -21,7 +21,8 @@ def plot_best_graphs(run_name, top_num = 1):
         return
 
     best_graphs = generation.pareto_population.get_highest_accuracy(num=top_num,check_set=generation.pareto_population.best_members)
-
+    if top_num ==1:
+        best_graphs = [best_graphs]
     for graph in best_graphs:
         sample, _ = DataLoader.sample_data(Config.get_device(), dataset=graph.dataset)
         model = create_nn(graph, sample, feature_multiplier=1)
@@ -30,4 +31,4 @@ def plot_best_graphs(run_name, top_num = 1):
 
 
 if __name__ == "__main__":
-    plot_all_graphs(top_num = 2)
+    plot_all_graphs(top_num = 1)

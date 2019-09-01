@@ -48,7 +48,7 @@ def get_max_accuracies():
                 accuracies = get_accuracies(lines)
                 # print(accuracies)
                 max_acc = max(accuracies)
-                print(run,result_file,"max acc:",max_acc)
+                print(run,result_file.replace(".txt",""),"max acc:",max_acc)
 
 def get_fm_acc_tuples():
 
