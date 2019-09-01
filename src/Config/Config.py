@@ -24,8 +24,9 @@ fully_train = False
 
 num_epochs_in_full_train = 150
 num_augs_in_full_train = 1
-feature_multiplier_for_fully_train = 1.5 #multiplies feature count of every layer by this number to increase or decrease bandwidth
+feature_multiplier_for_fully_train = 1 #multiplies feature count of every layer by this number to increase or decrease bandwidth
 toss_bad_runs = True
+drop_learning_rate = True
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Multiobjective options
