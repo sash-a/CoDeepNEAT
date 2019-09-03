@@ -95,8 +95,7 @@ class ModuleNet(nn.Module):
             if new_lr != param_group['lr'] or Config.use_adaptive_learning_rate_adjustment:
                 updated_lr = "updating lr from " + repr(param_group['lr']) + " to " + (param_group['lr']*factor if Config.use_adaptive_learning_rate_adjustment else repr(self.lr * factor))
                 print(updated_lr)
-                file = os.path.join(DataManager.get_run_folder(),"fully train_" + Config.run_name + ".txt")
-                with open(file, 'a+') as f:
+                with open(DataManager.get_results_file(), 'a+') as f:
                     f.write(updated_lr)
                     f.write('\n')
 
