@@ -80,8 +80,8 @@ def train_epoch(model, train_loader, epoch, test_loader, device, augmentors=None
                 # print("training on orig")
                 loss += train_batch(model, inputs, targets, device)
 
-            # if batch_idx >= 2:
-            #     break
+            if batch_idx >= 2:
+                break
 
     if print_epoch_every != -1 and epoch % print_epoch_every == 0:
         if print_accuracy:

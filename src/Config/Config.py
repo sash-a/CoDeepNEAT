@@ -4,7 +4,7 @@ import torch.multiprocessing as mp
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Run state options
-run_name = "mms_20e_da_breed"
+run_name = "mms20E_da_breed"
 continue_from_last_run = True
 deterministic_pop_init = True
 dummy_run = False
