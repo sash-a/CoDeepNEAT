@@ -62,7 +62,7 @@ def get_fm_acc_tuples():
             train_config = "NONE" if len(train_config) == 0 else train_config
 
             fm = result_file.split("fm")[1].replace(".txt","").replace(",",".")
-            print(train_config,fm)
+            # print(train_config,fm)
 
             with open(file_path) as file:
                 lines = file.readlines()
@@ -102,4 +102,4 @@ def plot_fm_acc_tuples():
 
 if __name__ == "__main__":
     print_max_accuracies()
-    # plot_fm_acc_tuples()
+    plot_fm_acc_tuples()

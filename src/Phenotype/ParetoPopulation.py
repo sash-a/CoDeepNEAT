@@ -39,7 +39,7 @@ class ParetoPopulation:
         # self.get_highest_accuracy(print=True)
 
     def get_best_network(self, num_augs=1):
-        best_graphs = self.get_highest_accuracy(num=(len(self.best_members) - 8), check_set= self.best_members)
+        best_graphs = self.get_highest_accuracy(num=max(len(self.best_members) - 8,1), check_set= self.best_members)
         best = best_graphs[0]
         # print("num:",(len(self.best_members) - 8))
         print("fully training",Config.run_name,"reported acc:",best.fitness_values[0])

@@ -1,6 +1,10 @@
+import os
+
 import torch
 from torch import nn, optim
 import torch.nn.functional as F
+
+from data import DataManager
 from src.Utilities import Utils
 from src.Config import Config
 
@@ -12,6 +16,7 @@ class ModuleNet(nn.Module):
         self.module_graph = module_graph
         self.loss_fn = loss_fn
         self.lr = 0
+        self.effective_lr = 0
         self.beta1 = -1
         self.beta2 = -1
         self.dimensionality_configured = False
@@ -22,6 +27,7 @@ class ModuleNet(nn.Module):
 
     def configure(self, learning_rate, beta1, beta2):
         self.lr = learning_rate
+        self.effective_lr = learning_rate
         self.beta1 = beta1
         self.beta2 = beta2
 
@@ -81,6 +87,24 @@ class ModuleNet(nn.Module):
             self.module_graph.blueprint_genome.weight_init.get_value()(child.deep_layer.weight)
             self._init_weights(child)
 
+    def multiply_learning_rate(self,factor ):
+
+        new_lr = self.lr * factor
+
+        for param_group in self.optimizer.param_groups:
+            if new_lr != param_group['lr'] or Config.use_adaptive_learning_rate_adjustment:
+                updated_lr = "updating lr from " + repr(param_group['lr']) + " to " + (param_group['lr']*factor if Config.use_adaptive_learning_rate_adjustment else repr(self.lr * factor))
+                print(updated_lr)
+                file = os.path.join(DataManager.get_run_folder(),"fully train_" + Config.run_name + ".txt")
+                with open(file, 'a+') as f:
+                    f.write(updated_lr)
+                    f.write('\n')
+
+                if Config.use_adaptive_learning_rate_adjustment:
+                    param_group['lr']*= factor
+                else:
+                    param_group['lr'] = new_lr
+
 
 def create_nn(module_graph, sample_inputs, feature_multiplier = 1):
     blueprint_individual = module_graph.blueprint_genome
@@ -105,3 +129,5 @@ def create_nn(module_graph, sample_inputs, feature_multiplier = 1):
     # module_graph.plot_tree_with_graphvis("test")
 
     return net
+
+

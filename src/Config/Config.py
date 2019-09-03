@@ -4,7 +4,7 @@ import torch.multiprocessing as mp
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Run state options
-run_name = "test"
+run_name = "mms_20e_da_breed"
 continue_from_last_run = True
 deterministic_pop_init = True
 dummy_run = False
@@ -20,14 +20,16 @@ number_of_epochs_per_evaluation = 5
 
 # --------------------------------------------------------------------------------------------------------------------#
 max_num_generations = 30
-fully_train = False
+fully_train = True
 
-num_epochs_in_full_train = 150
+num_epochs_in_full_train = 300
 num_augs_in_full_train = 1
 feature_multiplier_for_fully_train = 1 #multiplies feature count of every layer by this number to increase or decrease bandwidth
-toss_bad_runs = True
+toss_bad_runs = False
 drop_learning_rate = True
-
+drop_period = 30
+drop_factor = 1.2
+use_adaptive_learning_rate_adjustment = True
 # --------------------------------------------------------------------------------------------------------------------#
 # Multiobjective options
 second_objective = ''  # network_size | network_size_adjusted | network_size_adjusted_2
