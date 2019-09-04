@@ -13,7 +13,7 @@ class Mutagen:
 
     def __init__(self, *discreet_options, name="", current_value=-1, start_range=None, end_range=None,
                  value_type=ValueType.DISCRETE, sub_mutagens: dict = None, discreet_value=None, mutation_chance=None,
-                 print_when_mutating=False, distance_weighting=0, inherit_as_discrete = False):
+                 print_when_mutating=False, distance_weighting=0, inherit_as_discrete=False):
         """defaults to discrete values. can hold whole numbers/ real numbers in a range"""
 
         self.value_type = value_type
@@ -23,7 +23,7 @@ class Mutagen:
         self.name = name
         self.age = 0
         self.distance_weighting = distance_weighting
-        self.inherit_as_discrete = inherit_as_discrete#some whole number values such as species number should not be interpolated during inheritance, as this does not make sense
+        self.inherit_as_discrete = inherit_as_discrete  # some whole number values such as species number should not be interpolated during inheritance, as this does not make sense
 
         if len(discreet_options) > 0:
             self.possible_values = discreet_options
@@ -73,7 +73,7 @@ class Mutagen:
             new_value = my_value + 0.35 * (other_value - my_value)
             if self.value_type == ValueType.WHOLE_NUMBERS:
                 # print(self)
-                new_value += random.random()*0.2 - 0.1 #to make it equally likely to round up/down from  x.5
+                new_value += random.random() * 0.2 - 0.1  # to make it equally likely to round up/down from  x.5
                 self.set_value(int(round(new_value)))
             else:
                 self.set_value(new_value)

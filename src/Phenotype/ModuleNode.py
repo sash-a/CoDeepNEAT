@@ -1,11 +1,13 @@
+import copy
+import math
+
+import torch.nn as nn
+import torch.nn.functional as F
+
+from src.Config import Config
 from src.Phenotype.Node import Node
 from src.Phenotype.ReshapeNode import ReshapeNode
 from src.Utilities import Utils
-import torch.nn as nn
-import torch.nn.functional as F
-import math
-from src.Config import Config
-import copy
 
 minimum_conv_dim = 8
 
@@ -44,7 +46,7 @@ class ModuleNode(Node):
         if not (module_NEAT_node is None):
             self.generate_module_node_from_gene()
 
-    def generate_module_node_from_gene(self, feature_multiplier = 1):
+    def generate_module_node_from_gene(self, feature_multiplier=1):
         # print("generating module node from gene:", self.module_NEAT_node)
         self.out_features = round(self.module_NEAT_node.layer_type.get_sub_value("out_features") * feature_multiplier)
         self.activation = self.module_NEAT_node.activation()
@@ -55,7 +57,7 @@ class ModuleNode(Node):
 
         if not (neat_regularisation() is None):
             self.regularisation = neat_regularisation()(self.out_features)
-            #print("initialised", self.regularisation)
+            # print("initialised", self.regularisation)
 
         if not (neat_reduction is None) and not (neat_reduction() is None):
             if neat_reduction() == nn.MaxPool2d or neat_reduction() == nn.MaxPool1d:
@@ -64,13 +66,13 @@ class ModuleNode(Node):
                     self.reduction = nn.MaxPool2d(pool_size, pool_size)
                 if neat_reduction() == nn.MaxPool1d:
                     self.reduction = nn.MaxPool1d(pool_size)
-                #print("initialised",self.reduction)
+                # print("initialised",self.reduction)
             else:
-                raise Exception("Error not implemented reduction "+ repr(neat_reduction()))
+                raise Exception("Error not implemented reduction " + repr(neat_reduction()))
 
         if not (neat_dropout is None) and not (neat_dropout() is None):
             self.dropout = neat_dropout()(neat_dropout.get_sub_value("dropout_factor"))
-            #print("initialised drop out")
+            # print("initialised drop out")
 
     def create_layer(self, in_features):
 
@@ -83,7 +85,7 @@ class ModuleNode(Node):
                 self.deep_layer = nn.Conv2d(self.in_features, self.out_features,
                                             kernel_size=layer_type.get_sub_value("conv_window_size"),
                                             stride=layer_type.get_sub_value("conv_stride"))
-                #print("created",self.deep_layer)
+                # print("created",self.deep_layer)
                 try:
                     self.deep_layer = self.deep_layer.to(device)
                 except Exception as e:
@@ -99,7 +101,7 @@ class ModuleNode(Node):
 
         else:
             self.deep_layer = layer_type()(self.in_features, self.out_features).to(device)
-            #print("created", self.deep_layer)
+            # print("created", self.deep_layer)
 
         if not (self.reduction is None):
             self.reduction = self.reduction.to(device)
@@ -306,7 +308,6 @@ class ModuleNode(Node):
         extras += "\n" + repr(self.regularisation).split("(")[0] if not (self.regularisation is None) else ""
         extras += "\n" + repr(self.reduction).split("(")[0] if not (self.reduction is None) else ""
         extras += "\n" + repr(self.dropout).split("(")[0] if not (self.dropout is None) else ""
-
 
         if layer_type() == nn.Conv2d:
             return "Conv" + extras

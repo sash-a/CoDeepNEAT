@@ -1,10 +1,9 @@
-import numpy as np
 import cv2
+import numpy as np
 
 
 # Any and all custom augmentation operations are defined in this class
 class CustomOperation:
-
     # Any edges with intensity gradient more than maxVal are sure to be edges and those below minVal
     # are sure to be non-edges, so discarded. Those who lie between these two thresholds are classified edges or
     # non-edges based on their connectivity. If they are connected to “sure-edge” pixels,

@@ -1,8 +1,8 @@
-import src.Config.Config as Config
 from data import DataManager
-from src.NeuralNetwork.ModuleNet import create_nn
-from src.Analysis.DataPlotter import get_all_run_names
 
+import src.Config.Config as Config
+from src.Analysis.DataPlotter import get_all_run_names
+from src.NeuralNetwork.ModuleNet import create_nn
 # generation = DataManager.load_generation_state(Config.run_name)
 from src.Validation import DataLoader
 
@@ -14,14 +14,15 @@ def plot_all_graphs(top_num=1):
         plot_best_graphs(run, top_num=top_num)
 
 
-def plot_best_graphs(run_name, top_num = 1):
+def plot_best_graphs(run_name, top_num=1):
     try:
         generation = DataManager.load_generation_state(run_name)
     except:
         return
 
-    best_graphs = generation.pareto_population.get_highest_accuracy(num=top_num,check_set=generation.pareto_population.best_members)
-    if top_num ==1:
+    best_graphs = generation.pareto_population.get_highest_accuracy(num=top_num,
+                                                                    check_set=generation.pareto_population.best_members)
+    if top_num == 1:
         best_graphs = [best_graphs]
     for graph in best_graphs:
         sample, _ = DataLoader.sample_data(Config.get_device(), dataset=graph.dataset)
@@ -31,4 +32,4 @@ def plot_best_graphs(run_name, top_num = 1):
 
 
 if __name__ == "__main__":
-    plot_all_graphs(top_num = 1)
+    plot_all_graphs(top_num=1)

@@ -1,7 +1,8 @@
-from src.Config import Config
-import sys
 import math
 import operator
+import sys
+
+from src.Config import Config
 
 
 def single_objective_rank(individuals):

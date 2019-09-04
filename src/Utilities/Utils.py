@@ -1,4 +1,4 @@
-def get_flat_number(tensor = None, sizes = None, start_dim=1):
+def get_flat_number(tensor=None, sizes=None, start_dim=1):
     """
     :param tensor: the tensor to get flat size from
     :param start_dim: which dim to flatten from (defaulted to 1 so as to not flatten batch dim) set to 0 to flatten whole tensor
@@ -7,7 +7,7 @@ def get_flat_number(tensor = None, sizes = None, start_dim=1):
     prod = 1
     if not (tensor is None):
         items = list(tensor.size())
-    elif not (sizes is None ):
+    elif not (sizes is None):
         items = sizes
     else:
         raise Exception("Error using get flat number - both tensor and sizes arg is none")

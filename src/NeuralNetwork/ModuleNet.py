@@ -1,12 +1,10 @@
-import os
-
 import torch
-from torch import nn, optim
 import torch.nn.functional as F
-
 from data import DataManager
-from src.Utilities import Utils
+from torch import nn, optim
+
 from src.Config import Config
+from src.Utilities import Utils
 
 
 class ModuleNet(nn.Module):
@@ -87,25 +85,27 @@ class ModuleNet(nn.Module):
             self.module_graph.blueprint_genome.weight_init.get_value()(child.deep_layer.weight)
             self._init_weights(child)
 
-    def multiply_learning_rate(self,factor ):
+    def multiply_learning_rate(self, factor):
 
         new_lr = self.lr * factor
 
         for param_group in self.optimizer.param_groups:
             if new_lr != param_group['lr'] or Config.use_adaptive_learning_rate_adjustment:
-                updated_lr = "updating lr from " + repr(param_group['lr']) + " to " + (param_group['lr']*factor if Config.use_adaptive_learning_rate_adjustment else repr(self.lr * factor))
+                updated_lr = "updating lr from " + repr(param_group['lr']) + " to " + (
+                    param_group['lr'] * factor if Config.use_adaptive_learning_rate_adjustment else repr(
+                        self.lr * factor))
                 print(updated_lr)
                 with open(DataManager.get_results_file(), 'a+') as f:
                     f.write(updated_lr)
                     f.write('\n')
 
                 if Config.use_adaptive_learning_rate_adjustment:
-                    param_group['lr']*= factor
+                    param_group['lr'] *= factor
                 else:
                     param_group['lr'] = new_lr
 
 
-def create_nn(module_graph, sample_inputs, feature_multiplier = 1):
+def create_nn(module_graph, sample_inputs, feature_multiplier=1):
     blueprint_individual = module_graph.blueprint_genome
 
     if module_graph is None:
@@ -121,12 +121,10 @@ def create_nn(module_graph, sample_inputs, feature_multiplier = 1):
         raise Exception("Error: failed to parse module graph into nn", e)
 
     for module_node in module_graph.module_graph_root_node.get_all_nodes_via_bottom_up(set()):
-        module_node.generate_module_node_from_gene(feature_multiplier = feature_multiplier)
+        module_node.generate_module_node_from_gene(feature_multiplier=feature_multiplier)
 
     net.configure(blueprint_individual.learning_rate(), blueprint_individual.beta1(), blueprint_individual.beta2())
     net.specify_dimensionality(sample_inputs)
     # module_graph.plot_tree_with_graphvis("test")
 
     return net
-
-

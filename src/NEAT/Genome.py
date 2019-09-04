@@ -7,9 +7,9 @@ from typing import Iterable
 
 import graphviz
 import networkx as nx
+from data import DataManager
 from networkx.algorithms.similarity import graph_edit_distance
 
-from data import DataManager
 from src.Config import Config, NeatProperties as Props
 from src.NEAT.Gene import ConnectionGene, NodeGene, NodeType
 

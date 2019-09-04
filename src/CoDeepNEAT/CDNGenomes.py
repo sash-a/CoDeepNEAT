@@ -1,8 +1,8 @@
 import copy
+import math
 import random
 from typing import List
 
-import math
 from torch import nn
 
 from src.CoDeepNEAT.CDNNodes import ModulenNEATNode, BlueprintNEATNode
@@ -118,7 +118,8 @@ class BlueprintGenome(Genome):
                             """found module in new species"""
                             # print("making overide mapping from",spc_index,"to",new_species_index,generation.module_population.species[new_species_index].members.index(module))
                             self.species_module_index_map[spc_index] = \
-                                (new_species_index, generation.module_population.species[new_species_index].members.index(module))
+                                (new_species_index,
+                                 generation.module_population.species[new_species_index].members.index(module))
                             break
 
     def update_module_refs(self, generation):
@@ -136,11 +137,12 @@ class BlueprintGenome(Genome):
                     """this is an override index. this module is found in a different species"""
                     if not Config.allow_cross_species_mappings:
                         raise Exception('Cross species mapping disabled, but received tuple as value in map')
-                    spc,mod = module_index
+                    spc, mod = module_index
                     self.species_module_ref_map[spc_index] = generation.module_population.species[spc][mod]
                     # print("using override mapping from:",spc_index,"to",spc,mod,"to update refs")
                 else:
-                    self.species_module_ref_map[spc_index] = generation.module_population.species[spc_index][module_index]
+                    self.species_module_ref_map[spc_index] = generation.module_population.species[spc_index][
+                        module_index]
 
     def mutate(self, mutation_record, attribute_magnitude=1, topological_magnitude=1, module_population=None, gen=-1):
         if Config.module_retention and random.random() < 0.1 * topological_magnitude and self.species_module_ref_map:

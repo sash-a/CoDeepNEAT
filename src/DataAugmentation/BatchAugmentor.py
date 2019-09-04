@@ -1,15 +1,14 @@
-import torch
-import matplotlib.pyplot as plt
-from src.DataAugmentation.AugmentationScheme import AugmentationScheme as AS
-import numpy as np
-import random
 import cv2
+import matplotlib.pyplot as plt
+import numpy as np
+import torch
 
 from src.Config import Config
+from src.DataAugmentation.AugmentationScheme import AugmentationScheme as AS
+
 
 # augments batches of images
 def augment_batch(images, labels, augmentor: AS):
-
     batch_size = np.shape(images)[0]
     channels = np.shape(images)[1]
     x_Dim = np.shape(images)[2]
@@ -51,7 +50,6 @@ def display_image(image):
 
 # Creates a new array that contains the batch of images that have been reformatted to accommodate the aug lib
 def reformat_images_for_DA(images, augmentor):
-
     reformatted_images_list = []
     # different reformatting required based on if images are 1 channel or RGB
     if Config.colour_augmentations:
@@ -87,7 +85,7 @@ def reformat_images_for_DA(images, augmentor):
         return reformatted_images
 
 
-def convert_images_for_system(augmented_batch,  start_range, end_range, augmentor):
+def convert_images_for_system(augmented_batch, start_range, end_range, augmentor):
     reformatted_augmented_batch_list = []
     if Config.colour_augmentations:
         for img in augmented_batch:
@@ -112,11 +110,12 @@ def convert_images_for_system(augmented_batch,  start_range, end_range, augmento
 
 
 def reformat_images_for_system(augmented_batch):
-    reformatted_aug_images=[]
+    reformatted_aug_images = []
     for img in augmented_batch:
         reformatted_aug_images.append(np.transpose(img, (2, 0, 1)))
 
     return np.asarray(reformatted_aug_images)
+
 
 # convert image to data type uint8 (grayscale, HSV and Caany_Edges require images to be uint8)
 def norm8(img):
@@ -126,5 +125,5 @@ def norm8(img):
 
 # convert image to data type float32 (system requires image to be float32)
 def float32(img, start_range, end_range):
-    img = cv2.normalize(img, None,  start_range, end_range, cv2.NORM_MINMAX, cv2.CV_32F)
+    img = cv2.normalize(img, None, start_range, end_range, cv2.NORM_MINMAX, cv2.CV_32F)
     return img

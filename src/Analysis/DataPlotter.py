@@ -1,11 +1,11 @@
+import heapq
+import os
+
 import matplotlib.pyplot as plt
-import matplotlib.style as style
+import numpy as np
+from data import DataManager
 
 from src.Analysis import RuntimeAnalysis
-from data import DataManager
-import numpy as np
-import os
-import heapq
 
 plot = None
 
@@ -67,6 +67,7 @@ def plot_all_generations(aggregation_type='max', fitness_index=0, run_name='unna
     plt.title(aggregation_type + ' value of objectives ' + str(fitness_index) + ' per generation for ' + run_name)
     plt.show()
 
+
 def get_all_run_names():
     runs = set()
     for subdir, dirs, files in os.walk(os.path.join(DataManager.get_data_folder(), "runs")):
@@ -78,7 +79,8 @@ def get_all_run_names():
 
     return runs
 
-def get_all_runs(aggregation_type='max', num_top=5, fitness_index=0, max_gens = 1000):
+
+def get_all_runs(aggregation_type='max', num_top=5, fitness_index=0, max_gens=1000):
     runs = get_all_run_names()
 
     runs_data = {}
@@ -91,24 +93,28 @@ def get_all_runs(aggregation_type='max', num_top=5, fitness_index=0, max_gens = 
                 gens = gens[:max_gens]
                 fitness = fitness[:max_gens]
 
-            runs_data[run] = (gens,fitness)
+            runs_data[run] = (gens, fitness)
         except:
             pass
 
     return runs_data
 
-def get_run_groups(aggregation_type='max', num_top=5, fitness_index=0, max_gens = 1000, include_deterministic_runs = True, include_cross_species_runs = True):
-    runs = get_all_runs(aggregation_type=aggregation_type,num_top=num_top,fitness_index=fitness_index, max_gens= max_gens)
+
+def get_run_groups(aggregation_type='max', num_top=5, fitness_index=0, max_gens=1000, include_deterministic_runs=True,
+                   include_cross_species_runs=True):
+    runs = get_all_runs(aggregation_type=aggregation_type, num_top=num_top, fitness_index=fitness_index,
+                        max_gens=max_gens)
     groups = {}
     for run in runs.keys():
-        group_run_name = get_run_group_name(run,include_deterministic_runs,include_cross_species_runs)
+        group_run_name = get_run_group_name(run, include_deterministic_runs, include_cross_species_runs)
         if group_run_name not in groups:
-            groups[group_run_name]=[]
+            groups[group_run_name] = []
         groups[group_run_name].append(runs[run])
 
     return groups
 
-def get_run_group_name(run_name, include_deterministic_runs = True, include_cross_species_runs = True):
+
+def get_run_group_name(run_name, include_deterministic_runs=True, include_cross_species_runs=True):
     run_name = run_name.replace("da", "$")
 
     group_run_name = run_name.replace("_d", "") if include_deterministic_runs else run_name
@@ -124,20 +130,23 @@ def get_run_group_name(run_name, include_deterministic_runs = True, include_cros
 
     return group_run_name
 
-def get_run_boundries(aggregation_type='max', num_top=5, fitness_index=0, max_gens = 1000, include_deterministic_runs = True, smooth_boundries = True):
-    run_groups = get_run_groups(aggregation_type=aggregation_type,num_top=num_top,fitness_index=fitness_index, max_gens= max_gens, include_deterministic_runs= include_deterministic_runs)
+
+def get_run_boundries(aggregation_type='max', num_top=5, fitness_index=0, max_gens=1000,
+                      include_deterministic_runs=True, smooth_boundries=True):
+    run_groups = get_run_groups(aggregation_type=aggregation_type, num_top=num_top, fitness_index=fitness_index,
+                                max_gens=max_gens, include_deterministic_runs=include_deterministic_runs)
     boundires = {}
     counts = {}
 
     for group_name in run_groups.keys():
         group = run_groups[group_name]
-        fitnesses = [f for (g,f) in group]
+        fitnesses = [f for (g, f) in group]
 
         if len(fitnesses) < 2:
             """need at least 2 runs to get boundires"""
             continue
         """can get a boundry up till the second longest run, need 2 for a boundry"""
-        max_num_gens = len(sorted(fitnesses, key= lambda x: len(x))[-2])
+        max_num_gens = len(sorted(fitnesses, key=lambda x: len(x))[-2])
         mins = []
         maxes = []
         # print("group:\n",group)
@@ -153,29 +162,30 @@ def get_run_boundries(aggregation_type='max', num_top=5, fitness_index=0, max_ge
             mins = get_rolling_averages(mins)
             maxes = get_rolling_averages(maxes)
 
-        boundires[group_name] = (mins,maxes)
+        boundires[group_name] = (mins, maxes)
         counts[group_name] = len(group)
     return boundires, counts
 
 
 def plot_all_runs(aggregation_type='max', num_top=5, fitness_index=0, max_gens=1000, show_data=False,
                   stay_at_max=True, line_graph=True, show_best_fit=False, show_smoothed_data=False,
-                  show_boundires = True, smooth_boundries = True, show_data_in_boundries = True,
-                  colour_group_run_lines_same = True):
-
+                  show_boundires=True, smooth_boundries=True, show_data_in_boundries=True,
+                  colour_group_run_lines_same=True):
     colours = {}
     if show_boundires:
-        boundires, counts = get_run_boundries(aggregation_type=aggregation_type,num_top=num_top,fitness_index=fitness_index, max_gens= max_gens, smooth_boundries=smooth_boundries)
+        boundires, counts = get_run_boundries(aggregation_type=aggregation_type, num_top=num_top,
+                                              fitness_index=fitness_index, max_gens=max_gens,
+                                              smooth_boundries=smooth_boundries)
         for group_name in boundires.keys():
-            mins,maxs = boundires[group_name]
+            mins, maxs = boundires[group_name]
             gens = [x for x in range(len(mins))]
 
-            plot = plt.fill_between(gens,mins,maxs, alpha = 0.4, label = group_name + ", n=" + repr(counts[group_name]))
-            colours[group_name] = [max(min(x*1.5,1),0) for x  in plot.get_facecolor()[0]]
+            plot = plt.fill_between(gens, mins, maxs, alpha=0.4, label=group_name + ", n=" + repr(counts[group_name]))
+            colours[group_name] = [max(min(x * 1.5, 1), 0) for x in plot.get_facecolor()[0]]
             # print("colour:",colours[group_name])
 
-
-    runs = get_all_runs(aggregation_type=aggregation_type,num_top=num_top,fitness_index=fitness_index, max_gens= max_gens)
+    runs = get_all_runs(aggregation_type=aggregation_type, num_top=num_top, fitness_index=fitness_index,
+                        max_gens=max_gens)
     labels_used = set()
     for run in runs.keys():
         if show_boundires and not show_data_in_boundries:
@@ -207,15 +217,15 @@ def plot_all_runs(aggregation_type='max', num_top=5, fitness_index=0, max_gens=1
                 label = run
 
             if line_graph:
-                p = plt.plot(gens, fitness, label=label, c = colour)
+                p = plt.plot(gens, fitness, label=label, c=colour)
             else:
-                p = plt.scatter(gens, fitness, label=label, c = colour)
+                p = plt.scatter(gens, fitness, label=label, c=colour)
             if aggregated is not None:
                 plt.plot(gens, aggregated, c=p[0].get_color())
 
         else:
             if aggregated is not None:
-                plt.plot(gens, aggregated, label=run, c = colour)
+                plt.plot(gens, aggregated, label=run, c=colour)
 
     handles, labels = plt.gca().get_legend_handles_labels()
     plt.gca().legend(handles, labels)
@@ -223,7 +233,7 @@ def plot_all_runs(aggregation_type='max', num_top=5, fitness_index=0, max_gens=1
     plt.set_cmap('gray')
 
     plt.xlabel("Generation")
-    ylabel = "fitness " + repr(fitness_index) if fitness_index >0 else "accuracy%"
+    ylabel = "fitness " + repr(fitness_index) if fitness_index > 0 else "accuracy%"
     plt.ylabel(ylabel)
     title = aggregation_type + (" " + repr(num_top) if aggregation_type == "top" else "") + " fitness"
     plt.title(title)
@@ -237,7 +247,7 @@ def get_rolling_averages(data, alpha=0.65):
         if len(smoothed) == 0:
             smoothed.append(point)
         else:
-            a = alpha if len(smoothed) > 10 else pow(alpha,1.5)
+            a = alpha if len(smoothed) > 10 else pow(alpha, 1.5)
             smooth = smoothed[-1] * a + point * (1 - a)
             smoothed.append(smooth)
     return smoothed
@@ -246,13 +256,13 @@ def get_rolling_averages(data, alpha=0.65):
 name_overrides = {"mm": "Modmax CDN", "mms": "Elite CDN", "mms_10E": "Elite CDN 10E", "base": "CDN",
                   "base_10E": "CDN 10E", "spc": "SPCDN", "base_da": "DACDN", "mms_da": "Elite DACDN",
                   "max": "max fitness aggregation CDN", "modret": "module retention CDN",
-                  "mm_globmut":"ModMax with Global Mutation Adjustment", "mms_globmut":"Elite CDN with Global Mutation Adjustment",
-                  "mm_breed":"ModMax CDN with Node Breeding", "mms_breed":"Elite CDN with Node Breeding" }
-
+                  "mm_globmut": "ModMax with Global Mutation Adjustment",
+                  "mms_globmut": "Elite CDN with Global Mutation Adjustment",
+                  "mm_breed": "ModMax CDN with Node Breeding", "mms_breed": "Elite CDN with Node Breeding"}
 
 if __name__ == "__main__":
     # style.use('fivethirtyeight')
     plot_all_runs(aggregation_type="top", num_top=5, show_data=True, show_best_fit=False, show_smoothed_data=False,
-                  stay_at_max=False, show_boundires=True, smooth_boundries=False, show_data_in_boundries=True, max_gens=30,
+                  stay_at_max=False, show_boundires=True, smooth_boundries=False, show_data_in_boundries=True,
+                  max_gens=30,
                   colour_group_run_lines_same=True)
-

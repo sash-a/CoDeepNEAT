@@ -1,5 +1,6 @@
 # The imgaug library is integral to this class (must cite)
 import imgaug.augmenters as iaa
+
 from src.DataAugmentation.CustomOperations import CustomOperation as CO
 
 
@@ -9,7 +10,6 @@ from src.DataAugmentation.CustomOperations import CustomOperation as CO
 
 
 class AugmentationScheme:
-
     # Dictionary containing all possible augmentation functions
     Augmentations = {
 
@@ -297,11 +297,12 @@ class AugmentationScheme:
         # For percent of all images values are sampled independently per channel:
         "Sigmoid_Contrast": lambda lo, hi, c_lo, c_hi, percent:
         iaa.SigmoidContrast((lo, hi), (c_lo, c_hi), per_channel=percent),
-        
+
         # Augmenter that calls a custom (lambda) function for each batch of input image.
         # Extracts Canny Edges from images (refer to description in CO)
         # Good default values for min and max are 100 and 200
-        'Custom_Canny_Edges': lambda min_val, max_val: iaa.Lambda(func_images=CO.Edges(min_value=min_val, max_value=max_val)),
+        'Custom_Canny_Edges': lambda min_val, max_val: iaa.Lambda(
+            func_images=CO.Edges(min_value=min_val, max_value=max_val)),
 
     }
 

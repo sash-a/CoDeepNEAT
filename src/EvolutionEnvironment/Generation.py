@@ -1,22 +1,23 @@
+import copy
+import math
+import multiprocessing as mp
+import random
+
+import cv2
+from data import DataManager
+
 import src.Config.NeatProperties as Props
 import src.Validation.DataLoader
+from src.Analysis import RuntimeAnalysis
+from src.CoDeepNEAT import PopulationInitialiser as PopInit
 from src.CoDeepNEAT.CDNGenomes import ModuleGenome, BlueprintGenome, DAGenome
 from src.CoDeepNEAT.CDNNodes import ModulenNEATNode, BlueprintNEATNode, DANode
+from src.Config import Config
 from src.NEAT.Population import Population
 from src.NEAT.PopulationRanking import single_objective_rank, cdn_rank, nsga_rank
-from src.CoDeepNEAT import PopulationInitialiser as PopInit
-from src.Analysis import RuntimeAnalysis
-from src.Config import Config
-from data import DataManager
 from src.Phenotype.ParetoPopulation import ParetoPopulation
 from src.Validation import DataLoader
 from src.Validation import Validation
-
-import multiprocessing as mp
-import math
-import random
-import copy
-import cv2
 
 
 class Generation:
@@ -147,7 +148,7 @@ class Generation:
             # print("reporting fitnesses to: ",  evaluated_bp.modules_used_index)
             for species_index, member_index in evaluated_bp.modules_used_index:
                 if Config.second_objective == "":
-                    if isinstance(member_index,tuple):
+                    if isinstance(member_index, tuple):
                         spc, mod = member_index
                         self.module_population.species[spc][mod].report_fitness(fitness)
                     else:
@@ -159,9 +160,9 @@ class Generation:
                     if Config.second_objective == 'network_size':
                         comp = module_indv.get_comlexity()
                     elif Config.second_objective == 'network_size_adjusted':
-                        comp = module_indv.get_comlexity()/ pow(acc,2)
+                        comp = module_indv.get_comlexity() / pow(acc, 2)
                     elif Config.second_objective == 'network_size_adjusted_2':
-                        comp = pow(module_indv.get_comlexity(), 0.5) / pow(acc,2)
+                        comp = pow(module_indv.get_comlexity(), 0.5) / pow(acc, 2)
                     else:
                         raise Exception()
                     self.module_population.species[species_index][member_index].report_fitness(acc, comp)
@@ -196,7 +197,8 @@ class Generation:
 
             # Evaluating individual
             try:
-                module_graph, blueprint_individual, results = self.evaluate_blueprint(blueprint_individual, inputs,curr_index)
+                module_graph, blueprint_individual, results = self.evaluate_blueprint(blueprint_individual, inputs,
+                                                                                      curr_index)
                 result_dict[curr_index] = results, blueprint_individual, module_graph
             except Exception as e:
                 result_dict[curr_index] = 'defective', False, False
@@ -212,7 +214,8 @@ class Generation:
             raise Exception('Modules used is not empty', blueprint_individual.modules_used)
 
         blueprint_graph = blueprint_individual.to_blueprint()
-        module_graph = blueprint_graph.parse_to_module_graph(self, allow_ignores= True if index >= Props.BP_POP_SIZE else False)
+        module_graph = blueprint_graph.parse_to_module_graph(self,
+                                                             allow_ignores=True if index >= Props.BP_POP_SIZE else False)
 
         net = src.Validation.Validation.create_nn(module_graph, inputs)
         # if random.random()< 0.05:

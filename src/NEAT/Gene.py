@@ -1,6 +1,7 @@
-from src.NEAT.Mutagen import Mutagen
-from enum import Enum
 import copy
+from enum import Enum
+
+from src.NEAT.Mutagen import Mutagen
 
 
 class Gene:

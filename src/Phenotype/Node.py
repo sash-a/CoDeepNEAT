@@ -1,9 +1,12 @@
-import matplotlib.pyplot as plt
 import math
-import graphviz
-from src.Config import Config
 import os
+
+import graphviz
+import matplotlib.pyplot as plt
 from data import DataManager
+
+from src.Config import Config
+
 
 class Node:
     """
@@ -49,7 +52,6 @@ class Node:
 
         return self.parents[0].get_input_node()
 
-
     def get_traversal_ids(self, current_id=""):
         """should be called on root node
             calculates all nodes traversal ID
@@ -79,8 +81,8 @@ class Node:
 
         return False
 
-    def plot_tree_with_graphvis(self, title="", graph=None, nodes_plotted=None, file="temp", view = None):
-        file = os.path.join(DataManager.get_Graphs_folder(),file)
+    def plot_tree_with_graphvis(self, title="", graph=None, nodes_plotted=None, file="temp", view=None):
+        file = os.path.join(DataManager.get_Graphs_folder(), file)
 
         if view is None:
             view = Config.print_best_graphs

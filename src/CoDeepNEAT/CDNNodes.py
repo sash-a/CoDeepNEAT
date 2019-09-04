@@ -191,7 +191,7 @@ class BlueprintNEATNode(NodeGene):
             referencing species 0 for many generations before a good distribution arises
             so we force a shuffle in the early generations, to get a good distribution early"""
             self.target_num_species_reached = True
-            self.species_number.mutation_chance = 0.13#the desired stable mutation rate
+            self.species_number.mutation_chance = 0.13  # the desired stable mutation rate
             if generation_number < 3:
                 """by now, the target species numbers have been reached, but the high mutation rate \
                 has not had enough time to create a good distribution. so we shuffle species numbers"""

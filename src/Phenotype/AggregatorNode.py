@@ -1,8 +1,9 @@
-from src.Phenotype.ModuleNode import ModuleNode as Module
 import torch
 import torch.nn as nn
-from src.Phenotype import AggregatorOperations
+
 from src.Config import Config
+from src.Phenotype import AggregatorOperations
+from src.Phenotype.ModuleNode import ModuleNode as Module
 
 
 class AggregatorNode(Module):
@@ -20,7 +21,7 @@ class AggregatorNode(Module):
         for child in self.children:
             child.create_layer(device=device)
 
-    def generate_module_node_from_gene(self, feature_multiplier = 1):
+    def generate_module_node_from_gene(self, feature_multiplier=1):
         pass
 
     def delete_layer(self):

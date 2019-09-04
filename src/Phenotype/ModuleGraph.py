@@ -1,7 +1,8 @@
+import graphviz
+
 from src.Config import Config
 from src.NeuralNetwork.ModuleNet import ModuleNet
 from src.Phenotype.ModuleNode import ModuleNode
-import graphviz
 
 
 class ModuleGraph():
@@ -41,4 +42,3 @@ class ModuleGraph():
 
         if return_graph_obj:
             return graph
-

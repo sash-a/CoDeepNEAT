@@ -5,8 +5,8 @@ import time
 
 import torch
 import torch.multiprocessing as mp
-
 from data import DataManager
+
 from src.Config import Config
 from src.DataAugmentation import BatchAugmentor
 from src.Validation.DataLoader import load_data
@@ -15,7 +15,8 @@ printBatchEvery = -1  # -1 to switch off batch printing
 print_epoch_every = -1  # -1 to switch off epoch printing
 
 
-def train_epoch(model, train_loader, epoch, test_loader, device, augmentors=None, print_accuracy=False, drop_adaptive_learning_rate = False):
+def train_epoch(model, train_loader, epoch, test_loader, device, augmentors=None, print_accuracy=False,
+                drop_adaptive_learning_rate=False):
     """
     Run a single train epoch
 
@@ -40,8 +41,7 @@ def train_epoch(model, train_loader, epoch, test_loader, device, augmentors=None
             learning_rate_coefficient = 1 / pow(Config.drop_factor, math.floor(epoch / Config.drop_period))
             model.multiply_learning_rate(learning_rate_coefficient)
         elif drop_adaptive_learning_rate:
-            model.multiply_learning_rate(1/Config.drop_factor)
-
+            model.multiply_learning_rate(1 / Config.drop_factor)
 
     for i in range(loops):
         if i == 0 and not Config.train_on_origonal_data and not Config.batch_by_batch:
@@ -86,9 +86,9 @@ def train_epoch(model, train_loader, epoch, test_loader, device, augmentors=None
     if print_epoch_every != -1 and epoch % print_epoch_every == 0:
         if print_accuracy:
             test_acc = test(model, test_loader, device, print_acc=False)
-            print("epoch", epoch, "average loss:", loss / batch_idx, "accuracy:",test_acc, "i = ", i)
+            print("epoch", epoch, "average loss:", loss / batch_idx, "accuracy:", test_acc, "i = ", i)
             with open(DataManager.get_results_file(), 'a+') as f:
-                f.write(repr(epoch) + ': ' + repr(test_acc) + ', loss: ' + repr(loss/batch_idx))
+                f.write(repr(epoch) + ': ' + repr(test_acc) + ', loss: ' + repr(loss / batch_idx))
                 f.write('\n')
 
             model.train()
@@ -187,7 +187,7 @@ def evaluate(model, epochs, device, batch_size=64, augmentors=None, train_loader
             time_with_max_acc = 0
             max_acc = response
         else:
-            time_with_max_acc+=1
+            time_with_max_acc += 1
 
         if Config.toss_bad_runs and training_target != -1:
             """by epoch 5, run must be at 50% of target
@@ -201,9 +201,6 @@ def evaluate(model, epochs, device, batch_size=64, augmentors=None, train_loader
             if response is not None and max_acc < target:
                 print("target", target, "missed(", max_acc, "), tossing train")
                 return "toss"
-
-
-
 
     e = time.time()
 

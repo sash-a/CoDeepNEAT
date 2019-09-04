@@ -1,9 +1,8 @@
+from data import DataManager
 from torch.utils.data import DataLoader
 from torchvision import transforms, datasets
 
-from data import DataManager
 from src.Config import Config
-import os
 
 
 def load_data(batch_size=64, dataset=""):

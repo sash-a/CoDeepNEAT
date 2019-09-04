@@ -1,4 +1,3 @@
-import sys
 from src.Config import Config
 
 
@@ -24,7 +23,7 @@ class GenerationData:
 
         return max(objective)
 
-    def get_top_n_average(self, n,objective = 0):
+    def get_top_n_average(self, n, objective=0):
         objectives = self.objectives[objective]
         if objectives is None or len(objectives) == 0:
             return None
@@ -32,22 +31,20 @@ class GenerationData:
         tops = []
 
         for score in objectives:
-            i =0
+            i = 0
             if len(tops) == 0:
                 tops.append(score)
                 continue
 
             while i < len(tops) and i < n:
                 if score > tops[i]:
-                    tops.insert(i,score)
+                    tops.insert(i, score)
                     break
-                i+=1
+                i += 1
 
         tops = tops[:n]
 
-        return sum(tops)/len(tops)
-
-
+        return sum(tops) / len(tops)
 
     def get_summary(self):
         """

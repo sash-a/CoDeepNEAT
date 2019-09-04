@@ -1,5 +1,6 @@
-from src.NEAT.Gene import ConnectionGene, NodeType
 from src.Config import Config
+from src.NEAT.Gene import ConnectionGene, NodeType
+
 
 def initialize_pop(Node, Genome, initial_individuals, create_triangles=True, modules=None):
     in_node_params = (0, NodeType.INPUT)

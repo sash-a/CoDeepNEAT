@@ -1,9 +1,9 @@
+import copy
 import random
 
-from src.Phenotype.Node import Node
-from src.Phenotype.ModuleGraph import ModuleGraph
 from src.Config import Config
-import copy
+from src.Phenotype.ModuleGraph import ModuleGraph
+from src.Phenotype.Node import Node
 
 
 class BlueprintNode(Node):
@@ -52,7 +52,8 @@ class BlueprintNode(Node):
                 self.blueprint_genome.species_module_index_map[self.species_number] = mod_idx
         else:
             if self.blueprint_node_gene.representative in self.blueprint_genome.species_module_index_map:
-                spc_idx, mod_idx = self.blueprint_genome.species_module_index_map[self.blueprint_node_gene.representative]
+                spc_idx, mod_idx = self.blueprint_genome.species_module_index_map[
+                    self.blueprint_node_gene.representative]
                 input_module_individual = generation.module_population.species[spc_idx][mod_idx]
                 self.species_number = spc_idx
             else:

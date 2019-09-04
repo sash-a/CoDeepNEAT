@@ -1,6 +1,5 @@
-import random
-
 import math
+import random
 
 from src.Config import Config
 from src.Phenotype.BlueprintNode import BlueprintNode

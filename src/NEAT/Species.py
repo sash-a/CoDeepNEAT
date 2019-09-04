@@ -1,10 +1,11 @@
-import random
+import copy
 import math
+import random
 import sys
 
-from src.Config import Config, NeatProperties as Props
 from src.CoDeepNEAT.CDNGenomes import BlueprintGenome
-import copy
+from src.Config import Config, NeatProperties as Props
+
 
 class Species:
     def __init__(self, representative):
@@ -81,29 +82,30 @@ class Species:
         else:
             attribute_mutation_magnitude = 1
 
-        if Config.allow_elite_cloning and len(elite) >=1:
-            clone_factor = 1/pow(4*topological_mutation_modifier,1.3)
-            number_of_clones = round(num_children*clone_factor)
-            print("num clones:",number_of_clones,"num children:",(num_children - number_of_clones),"clone factor:",clone_factor)
+        if Config.allow_elite_cloning and len(elite) >= 1:
+            clone_factor = 1 / pow(4 * topological_mutation_modifier, 1.3)
+            number_of_clones = round(num_children * clone_factor)
+            print("num clones:", number_of_clones, "num children:", (num_children - number_of_clones), "clone factor:",
+                  clone_factor)
 
             for i in range(number_of_clones):
                 """most likely to clone the best solution, with smaller chances to clone the runners up"""
-                elite_number = min(0 if random.random()<0.7 else 1 if random.random()<0.7 else 2,len(elite)-1)
+                elite_number = min(0 if random.random() < 0.7 else 1 if random.random() < 0.7 else 2, len(elite) - 1)
                 mother = elite[elite_number]
                 daughter = copy.deepcopy(mother)
-                daughter.inherit(mother)#some attributes like module ref map need to be shallow copied
+                daughter.inherit(mother)  # some attributes like module ref map need to be shallow copied
                 daughter.calculate_heights()
 
                 """small chance to be an attribute only variant, to further allow stablised topologies.
                     for modules this means fine tuning layer params. for blueprints this means reselecting modules
                 """
-                top_mutation_chance = topological_mutation_modifier if random.random()<0.85 else 0
-                if top_mutation_chance ==0:
+                top_mutation_chance = topological_mutation_modifier if random.random() < 0.85 else 0
+                if top_mutation_chance == 0:
                     print("creating att only variant")
                 daughter = daughter.mutate(mutation_record,
-                                     attribute_magnitude=attribute_mutation_magnitude * attribute_mutation_modifier,
-                                     topological_magnitude=top_mutation_chance, module_population=module_pop,
-                                     gen=gen)
+                                           attribute_magnitude=attribute_mutation_magnitude * attribute_mutation_modifier,
+                                           topological_magnitude=top_mutation_chance, module_population=module_pop,
+                                           gen=gen)
 
                 children.append(daughter)
 
