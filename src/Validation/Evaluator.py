@@ -74,9 +74,6 @@ def train_epoch(model, train_loader, epoch, test_loader, device, augmentors=None
             if train_on_original:
                 loss += train_batch(model, inputs, targets, device)
 
-            # if batch_idx >= 1:
-            #     break
-
     if print_epoch_every != -1 and epoch % print_epoch_every == 0:
         if print_accuracy:
             test_acc = test(model, test_loader, device, print_acc=False)
@@ -92,7 +89,6 @@ def train_epoch(model, train_loader, epoch, test_loader, device, augmentors=None
             print("epoch", epoch, "average loss:", loss / batch_idx, "i=", i)
 
     end_time = time.time()
-    # print(model)
 
 
 def train_batch(model, inputs, targets, device, augmentor=None):
@@ -196,5 +192,4 @@ def evaluate(model, epochs, device, batch_size=64, augmentors=None, train_loader
     e = time.time()
 
     test_acc = test(model, test_loader, device)
-    # print('Evaluation took', e - s, 'seconds, Test acc:', test_acc, end='\n')
     return test_acc

@@ -60,19 +60,16 @@ def get_fm_acc_tuples():
     data = {}  # dict from run: {config:(fm,acc)}
 
     for run in get_all_results_folders():
-        # print(run)
         for result_file in get_all_results_files_in_folder(run):
             file_path = os.path.join(DataManager.get_results_file(), run, result_file)
             train_config = result_file.split("fm")[0].replace("_", " ")
             train_config = "NONE" if len(train_config) == 0 else train_config
 
             fm = result_file.split("fm")[1].replace(".txt", "").replace(",", ".")
-            # print(train_config,fm)
 
             with open(file_path) as file:
                 lines = file.readlines()
                 accuracies = get_accuracies(lines)
-                # print(accuracies)
                 max_acc = max(accuracies)
 
                 if run not in data:

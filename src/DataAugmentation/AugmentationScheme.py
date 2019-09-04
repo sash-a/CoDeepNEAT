@@ -1,19 +1,16 @@
-# The imgaug library is integral to this class (must cite)
 import imgaug.augmenters as iaa
-
 from src.DataAugmentation.CustomOperations import CustomOperation as CO
 
 
-# The AugmenationScheme class allows for the creation of a pipeline consiting of different augmentations.
-# Once all the desired augmentations are chosen for the pipeline.
-# The pipeline can be used to create a DA scheme for a given image set
+# The AugmenationScheme class allows for the creation of a augmentation schemes.
+# Augmentation schemes consist of data augmentations that are chosen from the
+# dictionary below and applied in a linear order.
 
 
 class AugmentationScheme:
+
     # Dictionary containing all possible augmentation functions
     Augmentations = {
-
-        # WithColorspace: Apply child augmenters within a specific color space:
 
         # Convert images to HSV, then increase each pixel's Hue (H), Saturation (S) or Value/lightness (V) [0, 1, 2]
         # value by an amount in between lo and hi:
@@ -24,8 +21,6 @@ class AugmentationScheme:
         # to the H and S channels and afterwards converts back to RGB.
         # (independently per channel and the same value for all pixels within that channel)
         "Add_To_Hue_And_Saturation": lambda lo, hi: iaa.AddToHueAndSaturation((lo, hi), per_channel=True),
-
-        # WithChannels: Apply child augmenters to specific channels:
 
         # Increase each pixel’s channel-value (redness/greenness/blueness) [0, 1, 2] by value in between lo and hi:
         "Increase_Channel": lambda channel, lo, hi: iaa.WithChannels(channel, iaa.Add((lo, hi))),
@@ -306,7 +301,8 @@ class AugmentationScheme:
 
     }
 
-    # Upon initialisation we create our pipeline which will eventually become our DA scheme
+    # AugmentationScheme objects require images and labels.
+    # 'augs' is a list that contains all data augmentations in the scheme
     def __init__(self, images, labels):
         self.images = images
         self.labels = labels
@@ -316,30 +312,31 @@ class AugmentationScheme:
     def __repr__(self):
         return "Aug Scheme:" + repr([type(x) for x in self.augs])
 
-    # This function is used to add a single augmentation to the pipeline
-    # The augmentation added is a combination of the ones found in augmentations
-    # augmentations is a list of numbers that should correspond to the augmentations you want to combine
     def add_augmentation(self, augmentation_mutagen):
+        """Used to add a single augmentation to the pipeline"""
         augmentation_name = augmentation_mutagen()
         self.augs_names.append(augmentation_name)
         sub_values = augmentation_mutagen.get_sub_values()
+
         if sub_values is None:
             self.augs.append(AugmentationScheme.Augmentations[augmentation_name])
         else:
             args = [sub_values[x]() for x in sub_values]
+
             try:
                 self.augs.append(AugmentationScheme.Augmentations[augmentation_name](*args))
             except Exception as e:
-                print(e)
                 raise Exception(augmentation_name + " failed to initialise with parameters" + repr(args))
 
-    # This function returns a new list of augmented images based on the pipeline you create
+    # This function
     def augment_images(self):
+        """Returns a new list of augmented images based on the augmentation scheme you create"""
         if self.augs:
             seq = iaa.Sequential(self.augs)
             images_aug = seq.augment_images(self.images)
-            self.labels = self.labels  # labels should be identical
+            # labels should be identical (augmented dataset is in the same order as old one)
+            self.labels = self.labels
             return images_aug, self.labels
 
         else:
-            raise TypeError("Augmentation pipe is currently empty")
+            raise TypeError("Augmentation scheme is currently empty")

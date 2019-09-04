@@ -181,7 +181,6 @@ class BlueprintNEATNode(NodeGene):
         return self.representative
 
     def get_all_mutagens(self):
-        # raise Exception("getting species no mutagen from blueprint neat node")
         return [self.species_number]
 
     def set_species_upper_bound(self, num_species, generation_number):
@@ -283,14 +282,6 @@ class DANode(NodeGene):
 
         if Config.colour_augmentations:
 
-            # choice_pool = {
-            #     "Custom_Canny_Edges": 0.3,
-            #     "Pad_Pixels": 0.3,
-            #     "Additive_Gaussian_Noise": 0.15,
-            #     "Rotate": 0.15,
-            #     "HSV": 0.1
-            # }
-
             da_submutagens["HSV"] = {
                 "channel": Mutagen(0, 1, 2, discreet_value=0, mutation_chance=0.1),
                 "lo": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=20, start_range=0,
@@ -310,29 +301,12 @@ class DANode(NodeGene):
                               discreet_value=random.choice(list(da_submutagens.keys())), mutation_chance=0.25)
         else:
 
-            # choice_pool = {
-            #     "Custom_Canny_Edges": 0.3,
-            #     "Pad_Pixels": 0.3,
-            #     "Additive_Gaussian_Noise": 0.2,
-            #     "Rotate": 0.2
-            # }
-
             self.da = Mutagen("Flip_lr", "Rotate", "Translate_Pixels", "Scale", "Pad_Pixels", "Crop_Pixels",
                               "Custom_Canny_Edges", "Additive_Gaussian_Noise", "Coarse_Dropout",
                               "No_Operation", name="da type", sub_mutagens=da_submutagens,
                               discreet_value=random.choice(list(da_submutagens.keys())), mutation_chance=0.25)
 
         self.enabled = Mutagen(True, False, discreet_value=True, name="da enabled")
-
-    def choose_da(self, choice_pool):
-        from_range = 0
-        rand_val = random.random()
-
-        for choice in choice_pool.keys():
-            prob = choice_pool[choice]
-            if from_range <= rand_val <= from_range + prob:
-                return choice
-            from_range += prob
 
     def get_all_mutagens(self):
         return [self.da, self.enabled]
@@ -350,7 +324,6 @@ class DANode(NodeGene):
 
                 v = repr(value())
 
-                # v = repr(value).split(" ", 1)[1]
                 parameters.append((key, v))
 
         return repr(parameters)

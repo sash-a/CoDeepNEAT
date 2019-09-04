@@ -40,7 +40,6 @@ def merge_linear_and_conv(linear, conv, lossy=True):
         feature_diff = linear_features - conv_features
 
         conv = F.pad(input=conv, pad=(feature_diff // 2, feature_diff - feature_diff // 2))
-        # print("summing",conv.size(), "and",linear.size(),"to",torch.sum(torch.stack([conv, linear],dim=0), dim = 0))
         try:
             return torch.sum(torch.stack([conv, linear], dim=0), dim=0)
         except Exception as e:

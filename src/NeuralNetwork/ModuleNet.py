@@ -35,7 +35,6 @@ class ModuleNet(nn.Module):
             return
         if self.lr == 0:
             raise Exception('please set net learning rate before calling specify dims')
-        # self.module_graph.add_reshape_node(list(input_sample.size()))
         output_nodes = int(list(output_dimensionality)[0])
         output = self(input_sample, configuration_run=True)
         if output is None:
@@ -121,6 +120,5 @@ def create_nn(module_graph, sample_inputs, feature_multiplier=1):
 
     net.configure(blueprint_individual.learning_rate(), blueprint_individual.beta1(), blueprint_individual.beta2())
     net.specify_dimensionality(sample_inputs)
-    # module_graph.plot_tree_with_graphvis("test")
 
     return net

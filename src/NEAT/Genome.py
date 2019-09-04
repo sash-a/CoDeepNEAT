@@ -43,9 +43,6 @@ class Genome:
     def __lt__(self, other):
         return self.rank < other.rank
 
-    # def __repr__(self):
-    #     return repr(list(self._connections.values()))
-
     def eq(self, other):
         if not isinstance(other, Genome):
             return False
@@ -159,8 +156,6 @@ class Genome:
             else:
                 num_disjoint += 1
 
-        # return (num_excess  + num_disjoint)
-
         neat_dist = (num_excess * Props.EXCESS_COEFFICIENT + num_disjoint * Props.DISJOINT_COEFFICIENT) / max(
             len(self._connections), len(other._connections))
 
@@ -169,7 +164,6 @@ class Genome:
             ged = graph_edit_distance(self.get_netx_graph_form(), other.get_netx_graph_form(), node_match=match_func,
                                       edge_match=match_func)
             if neat_dist > 0:
-                # print("neat dist:",neat_dist, "ged:",ged)
                 pass
 
             return ged

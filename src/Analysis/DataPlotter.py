@@ -151,7 +151,6 @@ def get_run_boundries(aggregation_type='max', num_top=5, fitness_index=0, max_ge
 
         for i in range(max_num_gens):
             elements = [x[i] for x in fitnesses if len(x) > i]
-            # print("elements:\n",elements)
             mins.append(min(elements))
             maxes.append(max(elements))
 
@@ -192,7 +191,6 @@ def plot_all_runs(aggregation_type='max', num_top=5, fitness_index=0, max_gens=1
 
         aggregated = None
         if stay_at_max:
-            # print("from", fitness, "to", [max(fitness[:i + 1]) for i in range(len(fitness))])
             aggregated = [max(fitness[:i + 1]) for i in range(len(fitness))]
         elif show_best_fit:
             gens = np.unique(gens)

@@ -63,7 +63,6 @@ class Node:
         self.traversal_id = current_id
         for childNo in range(len(self.children)):
             new_id = current_id + (',' if not current_id == "" else "") + repr(childNo)
-            # print(newID)
             self.children[childNo].get_traversal_ids(new_id)
 
     def is_input_node(self):
@@ -127,8 +126,6 @@ class Node:
 
         for i in range(4):
             x += self.traversal_id.count(repr(i)) * i
-
-        # x +=y*0.05
 
         x = x * math.cos(rot_degree) - y * math.sin(rot_degree)
         y = y * math.cos(rot_degree) + x * math.sin(rot_degree)

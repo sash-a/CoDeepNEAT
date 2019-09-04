@@ -29,12 +29,7 @@ def main():
     cv2.setNumThreads(0)
     mp.set_start_method('spawn', force=True)
     if Config.continue_from_last_run:
-        # try:
         continue_evolution_from_save_state(Config.run_name)
-        # except Exception as e:
-        #     print(e)
-        #     print("could not load save state for run name:", Config.run_name, "starting from scratch instead")
-        #     run_evolution_from_scratch()
     else:
         run_evolution_from_scratch()
 
@@ -50,8 +45,6 @@ def continue_evolution_from_save_state(run_name):
 
 
 def evolve_generation(generation):
-    # generation.pareto_population.plot_fitnesses()
-    # generation.pareto_population.plot_all_in_pareto_front()
     if generation.generation_number == -1:
         print("evolving gen from scratch")
         start_gen = 0
@@ -66,7 +59,6 @@ def evolve_generation(generation):
         for i in range(start_gen, Config.max_num_generations):
             print('Running gen', i)
             gen_start_time = time.time()
-            # current_generation.evaluate(i)
             generation.evaluate(i)
             generation.step()
             print('completed gen', i, "in", (time.time() - gen_start_time), "elapsed time:", (time.time() - start_time),

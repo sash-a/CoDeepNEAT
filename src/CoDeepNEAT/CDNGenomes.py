@@ -65,13 +65,11 @@ class BlueprintGenome(Genome):
     def pick_da_scheme(self, da_population):
         if self.da_scheme is not None and self.da_scheme in da_population.species[0].members:
             self.da_scheme_index = da_population.species[0].members.index(self.da_scheme)
-            # print("keeping existing DA scheme, taking new index:", self.da_scheme_index)
             return self.da_scheme
 
         # Assuming data augmentation only has 1 species
         # TODO make sure there is only ever 1 species - could make it random choice from individuals
         self.da_scheme, self.da_scheme_index = da_population.species[0].sample_individual()
-        # print("sampled new da scheme, index:",self.da_scheme_index)
         return self.da_scheme
 
     def inherit_species_module_mapping(self, generation, other, acc, da_scheme=None, inherit_module_mapping=True):
@@ -80,7 +78,6 @@ class BlueprintGenome(Genome):
             if inherit_module_mapping:
                 other.update_module_refs(generation)
                 self.species_module_ref_map = other.species_module_ref_map
-                # print('inherited mapping:', self.species_module_ref_map)
 
             self.max_accuracy = acc
 
@@ -110,13 +107,11 @@ class BlueprintGenome(Genome):
 
                     self.species_module_index_map[spc_index] = \
                         generation.module_population.species[spc_index].members.index(module)
-                    # print("Found a live module")
 
                 elif Config.allow_cross_species_mappings:
                     for new_species_index, species in enumerate(generation.module_population.species):
                         if module in species:
                             """found module in new species"""
-                            # print("making overide mapping from",spc_index,"to",new_species_index,generation.module_population.species[new_species_index].members.index(module))
                             self.species_module_index_map[spc_index] = \
                                 (new_species_index,
                                  generation.module_population.species[new_species_index].members.index(module))
@@ -139,7 +134,6 @@ class BlueprintGenome(Genome):
                         raise Exception('Cross species mapping disabled, but received tuple as value in map')
                     spc, mod = module_index
                     self.species_module_ref_map[spc_index] = generation.module_population.species[spc][mod]
-                    # print("using override mapping from:",spc_index,"to",spc,mod,"to update refs")
                 else:
                     self.species_module_ref_map[spc_index] = generation.module_population.species[spc_index][
                         module_index]
@@ -249,7 +243,6 @@ class ModuleGenome(Genome):
         :return: the module graph this individual represents
         """
         if self.module_node is not None:
-            # print("module genome already has module - returning a copy")
             return copy.deepcopy(self.module_node)
 
         module = super().to_phenotype(ModuleNode)
@@ -263,7 +256,6 @@ class ModuleGenome(Genome):
         attrib_dist = self.get_attribute_distance(other)
         topology_dist = self.get_topological_distance(other)
 
-        # print(attrib_dist, topology_dist, math.sqrt(attrib_dist * attrib_dist + topology_dist * topology_dist))
         return math.sqrt(attrib_dist * attrib_dist + topology_dist * topology_dist)
 
     def get_attribute_distance(self, other):
@@ -292,9 +284,6 @@ class ModuleGenome(Genome):
         super().end_step()
         self.module_node = None
 
-    # def __repr__(self):
-    #     return '\n------------------Connections--------------\n' + repr(self._connections) + \
-    #            '\n---------------------Nodes-----------------\n' + repr(self._nodes)
     def __repr__(self):
         return str(hash(self))
 
@@ -324,7 +313,6 @@ class DAGenome(Genome):
         return True
 
     def mutate(self, mutation_record, attribute_magnitude=1, topological_magnitude=1, module_population=None, gen=-1):
-        # print("mutating DA genome")
         return super()._mutate(mutation_record, 0.1, 0, allow_connections_to_mutate=False, debug=False,
                                attribute_magnitude=attribute_magnitude, topological_magnitude=topological_magnitude)
 
@@ -332,18 +320,15 @@ class DAGenome(Genome):
         pass
 
     def to_phenotype(self, Phenotype=None):
-        # Construct DA scheme from nodes
-        # print("parsing",self, "to da scheme")
+        """Construct a data augmentation scheme from its genome"""
+
         da_scheme = AugmentationScheme(None, None)
         traversal = self._get_traversal_dictionary(exclude_disabled_connection=True)
         curr_node = self.get_input_node().id
 
         if not self._to_da_scheme(da_scheme, curr_node, traversal, debug=True):
-            # self._to_da_scheme(da_scheme, curr_node, traversal,debug= True)
             """all da's are disabled"""
-            # print("added no da's from gene. adding in NOOP")
             da_scheme.augs.append(AugmentationScheme.Augmentations["No_Operation"])
-            # raise Exception("never added any augmentations to pipeline. genome:", self)
 
         gene_augs = []
         for node in self._nodes.values():
@@ -352,7 +337,7 @@ class DAGenome(Genome):
 
         if len(gene_augs) != 0 and len(gene_augs) != len(da_scheme.augs):
             raise Exception(
-                "failed to add all augs from gene. genes:" + repr(gene_augs) + "added:" + repr(da_scheme.augs))
+                "failed to add all augmentations from gene. genes:" + repr(gene_augs) + "added:" + repr(da_scheme.augs))
 
         return da_scheme
 

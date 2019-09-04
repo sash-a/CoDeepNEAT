@@ -81,7 +81,7 @@ class ModuleNode(Node):
                 self.deep_layer = nn.Conv2d(self.in_features, self.out_features,
                                             kernel_size=layer_type.get_sub_value("conv_window_size"),
                                             stride=layer_type.get_sub_value("conv_stride"))
-                # print("created",self.deep_layer)
+
                 try:
                     self.deep_layer = self.deep_layer.to(device)
                 except Exception as e:
@@ -136,7 +136,6 @@ class ModuleNode(Node):
                                    parent.children]  # replaces self as a child with the new aggregator node
 
             self.parents = []  # none of the parents are now a parent to this node - instead only the aggregator is
-            # self.parents.append(aggregator)
             aggregator.add_child(self)
 
             for previousParent in aggregator.parents:
@@ -169,9 +168,6 @@ class ModuleNode(Node):
             co = child.pass_ann_input_up_graph(output, self.traversal_id, configuration_run=configuration_run)
             if co is not None:
                 child_out = co
-
-        # if child_out is not None:
-        #     return child_out
 
         if self.is_output_node():
             if output is None:
@@ -211,7 +207,6 @@ class ModuleNode(Node):
         if self.dropout is not None:
             output = self.dropout(output)
 
-        # print("conv dim size of output:",list(output.size())[2])
         if self.is_linear() or (self.is_conv2d() and list(output.size())[2] > minimum_conv_dim):
             return self.activation(output)
         else:
@@ -265,7 +260,6 @@ class ModuleNode(Node):
                 child.get_parameters(parametersDict, top=False)
 
             if self.is_input_node():
-                # print("input node returned to from get parameters")
                 params = None
                 for param in parametersDict.values():
                     if params is None:
@@ -364,10 +358,3 @@ class ModuleNode(Node):
             return Utils.get_flat_number(input)
         else:
             print("layer type", layer_type(), "not implemented")
-
-    # def report_fitness(self,fitnesses):
-    #     if self.fitness_values is None or not self.fitness_values:
-    #         self.fitness_values = [0 for _ in fitnesses]
-    #
-    #     for i, fitness in enumerate(fitnesses):
-    #         self.fitness_values[i] = fitness
