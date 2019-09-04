@@ -8,7 +8,7 @@ import torch.multiprocessing as mp
 run_name = "mms20E_da_breed"
 continue_from_last_run = True
 deterministic_pop_init = True
-dummy_run = True
+dummy_run = False
 
 # --------------------------------------------------------------------------------------------------------------------#
 # nn options
