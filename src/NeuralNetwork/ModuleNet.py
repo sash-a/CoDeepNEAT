@@ -89,7 +89,7 @@ class ModuleNet(nn.Module):
 
         for param_group in self.optimizer.param_groups:
             if new_lr != param_group['lr'] or Config.use_adaptive_learning_rate_adjustment:
-                updated_lr = "updating lr from " + repr(param_group['lr']) + " to " + (repr(param_group['lr'])*factor if Config.use_adaptive_learning_rate_adjustment else repr(self.lr * factor))
+                updated_lr = "updating lr from " + repr(param_group['lr']) + " to " + (repr(param_group['lr']*factor) if Config.use_adaptive_learning_rate_adjustment else repr(self.lr * factor))
                 print(updated_lr)
                 with open(DataManager.get_results_file(), 'a+') as f:
                     f.write(updated_lr)
