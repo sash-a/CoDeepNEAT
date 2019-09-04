@@ -18,6 +18,18 @@ All config options are in src/Config/ directory
 
 ### Data augmentations
 
+See Liron's paper
+
+#### Config options
+
 ### Elitism improvements
 
+See Shane's paper
+
+#### Config options
+
 ### Speciation improvements
+
+See Sasha's paper
+
+#### Config options
