@@ -37,13 +37,6 @@ class Genome:
             self.add_connection(connection, True)
         self.netx_graph = None
 
-    def has_branches(self):
-        traversal_dict = self._get_traversal_dictionary(exclude_disabled_connection=True)
-        for children in traversal_dict.values():
-            if len(children) > 1:
-                return True
-        return False
-
     def __gt__(self, other):
         return self.rank > other.rank
 
@@ -107,14 +100,17 @@ class Genome:
             raise Exception("Unexpected fitness aggregation type: " + repr(Config.fitness_aggregation))
 
     def end_step(self, generation=None):
+        """Resets all necessary values for next the generation"""
         self.uses = 0
         if self.fitness_values is not None:
             self.fitness_values = [0 for _ in self.fitness_values]
 
     def distance_to(self, other):
+        """:returns distance from self to other"""
         return self.get_topological_distance(other)
 
     def get_netx_graph_form(self):
+        """generates the netx graph used for graph edit distance"""
         if self.netx_graph is not None:
             return self.netx_graph
         G = nx.DiGraph()
@@ -134,6 +130,7 @@ class Genome:
         return G
 
     def get_topological_distance(self, other):
+        """:returns either NEAT distance of graph edit distance from self to other (depending on Config option)"""
         if other == self:
             return 0
 
@@ -181,7 +178,7 @@ class Genome:
     def _mutate(self, mutation_record, add_node_chance, add_connection_chance, allow_connections_to_mutate=True,
                 debug=False, attribute_magnitude=1, topological_magnitude=1):
         if debug:
-            print("before mutation: ", self, "has branches;", self.has_branches())
+            print("Before mutation: ", self, "has branches;", self.has_branches())
 
         topology_changed = False
         if random.random() < add_node_chance:
@@ -230,6 +227,7 @@ class Genome:
         return []
 
     def _mutate_add_connection(self, mutation_record, node1, node2):
+        """Adds a connection between to nodes if possible"""
         # Validation
         if node1.id == node2.id or node1.height == node2.height:
             return False
@@ -298,7 +296,7 @@ class Genome:
         raise Exception('Genome:', self, 'could not find an output node')
 
     def _get_traversal_dictionary(self, exclude_disabled_connection=False):
-        """:returns a mapping of from node id to a list of to node ids"""
+        """:returns a mapping of from node id to a list of to node ids for easy traversal"""
         dictionary = {}
 
         for conn in self._connections.values():
@@ -310,6 +308,14 @@ class Genome:
             dictionary[conn.from_node].append(conn.to_node)
         return dictionary
 
+    def has_branches(self):
+        """Checks if there are any paths that don't reach the output node that do not contain disabled connections"""
+        traversal_dict = self._get_traversal_dictionary(exclude_disabled_connection=True)
+        for children in traversal_dict.values():
+            if len(children) > 1:
+                return True
+        return False
+
     def calculate_heights(self):
         for node in self._nodes.values():
             node.height = 0
@@ -317,6 +323,7 @@ class Genome:
         self._calculate_heights(self.get_input_node().id, 0, self._get_traversal_dictionary())
 
     def _calculate_heights(self, current_node_id, height, traversal_dictionary):
+        """Calculates the heights of each node so that no cycles can occur in the graph"""
         self._nodes[current_node_id].height = max(height, self._nodes[current_node_id].height)
 
         if self._nodes[current_node_id].is_output_node():
@@ -330,6 +337,7 @@ class Genome:
         return self._validate_traversal(self.get_input_node().id, self._get_traversal_dictionary(True), set())
 
     def _validate_traversal(self, current_node_id, traversal_dictionary, nodes_visited):
+        """Confirms that there is a path from input to output"""
         if self._nodes[current_node_id].is_output_node():
             return True
         if current_node_id in nodes_visited:
@@ -345,6 +353,7 @@ class Genome:
         return found_output
 
     def to_phenotype(self, Phenotype):
+        """Converts self to a neural network"""
         phenotyes = {}
 
         root_node = None

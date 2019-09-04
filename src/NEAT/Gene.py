@@ -81,6 +81,7 @@ class ConnectionGene(Gene):
         return [self.enabled]
 
     def mutate_add_node(self, mutation_record, genome):
+        """Adds a node on a connection and updates the relevant genome"""
         mutation = self.id
         if mutation_record.exists(mutation):
             mutated_node_id = mutation_record.mutations[mutation]

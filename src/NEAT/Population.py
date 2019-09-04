@@ -11,6 +11,7 @@ from src.NEAT.Species import Species
 
 class MutationRecords:
     def __init__(self, initial_mutations, current_max_node_id, current_max_conn_id):
+        """Records all mutation in a single run so that no innovation is misused"""
         self.mutations = initial_mutations
         self._next_node_id = current_max_node_id
         self._next_conn_id = current_max_conn_id
@@ -62,7 +63,6 @@ class Population:
 
         self.species = [Species(individuals[0])]
         self.species[0].members = individuals
-        print("target num species:", target_num_species)
 
     individuals = property(lambda self: self._get_all_individuals())
 
@@ -157,7 +157,7 @@ class Population:
         self.current_threshold_dir = new_dir
 
     def update_species_sizes(self):
-        """should be called before species.step()"""
+        """Should be called before species.step(). Assigns the desired size of all species."""
         population_average_rank = self.get_average_rank()
         if population_average_rank == 0:
             raise Exception("population", self, "has an average rank of 0")
@@ -181,6 +181,7 @@ class Population:
         return sum([indv.rank for indv in individuals]) / len(individuals)
 
     def step(self, generation=None):
+        """Runs a single generation of NEAT - expects individuals to have been assigned their fitnesses"""
         # self.plot_species_spaces(generation)
         self.rank_population_fn(self._get_all_individuals())
         self.update_species_sizes()

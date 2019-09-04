@@ -27,7 +27,7 @@ class Species:
 
     def __getitem__(self, item):
         if item >= len(self.members):
-            raise Exception("index out of bounds, ased for indv:", item, "but only", len(self.members), "members")
+            raise IndexError('Index out of bounds: ' + str(item) + ' max: ' + str(len(self.members)))
         return self.members[item]
 
     def add(self, individual):
@@ -111,11 +111,10 @@ class Species:
             parent1 = random.choice(self.members)
             parent2 = random.choice(self.members)
 
-            if parent1 == parent2:
-                if not parent1.validate():
-                    print("invalid parent trav dict:",
-                          parent1._get_traversal_dictionary(exclude_disabled_connection=True))
-                    raise Exception("invalid parent in species members list", parent1)
+            if parent1 == parent2 and not parent1.validate():
+                print("invalid parent traversal dict:",
+                      parent1._get_traversal_dictionary(exclude_disabled_connection=True))
+                raise Exception("invalid parent in species members list", parent1)
 
             best = parent1 if parent1 < parent2 else parent2
             worst = parent1 if parent1 > parent2 else parent2
@@ -201,9 +200,8 @@ class Species:
         self.next_species_size = species_size
 
     def sample_individual(self, debug=False):
+        """:return a random individual from the species"""
         index = random.randint(0, len(self.members) - 1)
-        # if debug:
-        #     print("sampling random indv:",index, "length:", len(self.members))
         return self.members[index], index
 
     def get_species_type(self):
