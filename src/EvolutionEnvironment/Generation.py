@@ -1,4 +1,6 @@
 import copy
+import sys
+
 import math
 import multiprocessing as mp
 import random
@@ -28,17 +30,14 @@ class Generation:
         self.generation_number = -1
         self.pareto_population = ParetoPopulation()
 
-    def initialise_populations(self):
-        # Picking the ranking function
-        rank_fn = single_objective_rank if Config.second_objective == '' else (
-            cdn_rank if Config.moo_optimiser == "cdn" else nsga_rank)
 
+    def initialise_populations(self):
         if Config.deterministic_pop_init:
             random.seed(1)
 
         self.module_population = Population(
             PopInit.initialize_pop(ModulenNEATNode, ModuleGenome, Props.MODULE_POP_SIZE, True),
-            rank_fn,
+            None,
             PopInit.initialize_mutations(True),
             Props.MODULE_POP_SIZE,
             2,
@@ -48,7 +47,7 @@ class Generation:
         self.blueprint_population = Population(
             PopInit.initialize_pop(BlueprintNEATNode, BlueprintGenome, Props.BP_POP_SIZE, True,
                                    self.module_population.individuals),
-            rank_fn,
+            None,
             PopInit.initialize_mutations(True),
             Props.BP_POP_SIZE,
             2,
@@ -67,6 +66,34 @@ class Generation:
 
         if Config.deterministic_pop_init:
             random.seed()
+
+        self.update_rank_function()
+
+
+    def update_rank_function(self):
+        rank_fn = single_objective_rank if Config.second_objective == '' else (
+            cdn_rank if Config.moo_optimiser == "cdn" else nsga_rank)
+
+        self.blueprint_population.rank_population_fn = rank_fn
+        self.module_population.rank_population_fn = rank_fn
+
+        num_objectives = (1 if Config.second_objective == '' else 2)
+
+        all_indvs = self.blueprint_population.individuals
+        all_indvs.extend(self.module_population.individuals)
+
+        bad_init = sys.maxsize
+
+        for indv in all_indvs:
+            if len(indv.fitness_values) > num_objectives:
+                """must drop a value, ie go from storing acc,complexity to just acc"""
+                indv.fitness_values = indv.fitness_values[:num_objectives]
+
+            while len(indv.fitness_values) < num_objectives:
+                """must prepare for a new fitness score: complexity"""
+                indv.fitness_values.append(bad_init)
+
+
 
     def step(self):
         """Runs CDN for one generation - must be called after fitness evaluation"""
@@ -152,7 +179,12 @@ class Generation:
                     else:
                         self.module_population.species[species_index][member_index].report_fitness(fitness)
                 else:
-                    module_indv = self.module_population.species[species_index][member_index]
+                    if isinstance(member_index, tuple):
+                        spc, mod = member_index
+                        module_indv =self.module_population.species[spc][mod]
+                    else:
+                        module_indv =self.module_population.species[species_index][member_index]
+
                     acc = fitness[0]
 
                     if Config.second_objective == 'network_size':
@@ -163,7 +195,7 @@ class Generation:
                         comp = pow(module_indv.get_comlexity(), 0.5) / pow(acc, 2)
                     else:
                         raise Exception()
-                    self.module_population.species[species_index][member_index].report_fitness(acc, comp)
+                    module_indv.report_fitness([acc, comp])
 
             # Gathering results for analysis
             accuracies.append(fitness[0])

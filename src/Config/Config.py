@@ -8,7 +8,7 @@ import torch.multiprocessing as mp
 run_name = "mms20E_da_breed"
 continue_from_last_run = True
 deterministic_pop_init = True
-dummy_run = False
+dummy_run = True
 
 # --------------------------------------------------------------------------------------------------------------------#
 # nn options
@@ -21,7 +21,7 @@ number_of_epochs_per_evaluation = 5
 
 # --------------------------------------------------------------------------------------------------------------------#
 max_num_generations = 30
-fully_train = True
+fully_train = False
 
 num_epochs_in_full_train = 300
 num_augs_in_full_train = 1
@@ -33,7 +33,7 @@ drop_factor = 1.2
 use_adaptive_learning_rate_adjustment = True
 # --------------------------------------------------------------------------------------------------------------------#
 # Multiobjective options
-second_objective = ''  # network_size | network_size_adjusted | network_size_adjusted_2
+second_objective = 'network_size_adjusted'  # network_size | network_size_adjusted | network_size_adjusted_2
 second_objective_comparator = operator.lt  # lt for minimisation, gt for maximisation
 third_objective = ''
 third_objective_comparator = operator.lt
@@ -51,7 +51,7 @@ train_on_origonal_data = True
 batch_by_batch = False
 
 # --------------------------------------------------------------------------------------------------------------------#
-module_retention = False
+module_retention = True
 fitness_aggregation = 'avg'  # max | avg
 
 allow_species_module_mapping_ignores = True

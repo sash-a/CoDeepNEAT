@@ -28,7 +28,7 @@ def get_run_folder(run_name=None):
     else:
         return os.path.join(get_data_folder(), "runs", run_name)
 
-def get_results_folder(run_name=None):
+def get_results_file(run_name=None):
     return os.path.join(get_run_folder(run_name=run_name),"fully train_" + Config.run_name + ".txt")
 
 
@@ -38,8 +38,8 @@ def get_Datasets_folder():
     else:
         return Config.data_path
 
-def get_results_file():
-    return os.path.join(get_data_folder(), "results.txt")
+def get_results_folder():
+    return os.path.join(get_data_folder(), "results")
 
 def get_DataEfficiencyResults_folder():
     return os.path.join(get_data_folder(), "DataEfficiencyResults")

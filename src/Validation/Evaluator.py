@@ -74,8 +74,8 @@ def train_epoch(model, train_loader, epoch, test_loader, device, augmentors=None
             if train_on_original:
                 loss += train_batch(model, inputs, targets, device)
 
-            if batch_idx >= 2:
-                break
+            # if batch_idx >= 1:
+            #     break
 
     if print_epoch_every != -1 and epoch % print_epoch_every == 0:
         if print_accuracy:
@@ -167,7 +167,7 @@ def evaluate(model, epochs, device, batch_size=64, augmentors=None, train_loader
     max_acc = 0
     time_with_max_acc = 0
     for epoch in range(1, epochs + 1):
-        adapt_learning_rate = Config.use_adaptive_learning_rate_adjustment and time_with_max_acc >= 5
+        adapt_learning_rate = Config.use_adaptive_learning_rate_adjustment and time_with_max_acc >= 2
 
         response = train_epoch(model, train_loader, epoch, test_loader, device, augmentors,
                                print_accuracy=print_accuracy, drop_adaptive_learning_rate=adapt_learning_rate)

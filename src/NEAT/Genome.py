@@ -91,10 +91,14 @@ class Genome:
 
         if Config.fitness_aggregation == "avg":
             for i, fitness in enumerate(fitnesses):
+                if self.fitness_values[i] is None:
+                    self.fitness_values[i] = 0
                 self.fitness_values[i] = (self.fitness_values[i] * self.uses + fitness) / (self.uses + 1)
             self.uses += 1
         elif Config.fitness_aggregation == "max":
             for i, fitness in enumerate(fitnesses):
+                if self.fitness_values[i] is None:
+                    self.fitness_values[i] = 0
                 self.fitness_values[i] = max(self.fitness_values[i], fitness)
         else:
             raise Exception("Unexpected fitness aggregation type: " + repr(Config.fitness_aggregation))

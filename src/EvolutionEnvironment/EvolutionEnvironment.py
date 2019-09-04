@@ -29,12 +29,12 @@ def main():
     cv2.setNumThreads(0)
     mp.set_start_method('spawn', force=True)
     if Config.continue_from_last_run:
-        try:
-            continue_evolution_from_save_state(Config.run_name)
-        except Exception as e:
-            print(e)
-            print("could not load save state for run name:", Config.run_name, "starting from scratch instead")
-            run_evolution_from_scratch()
+        # try:
+        continue_evolution_from_save_state(Config.run_name)
+        # except Exception as e:
+        #     print(e)
+        #     print("could not load save state for run name:", Config.run_name, "starting from scratch instead")
+        #     run_evolution_from_scratch()
     else:
         run_evolution_from_scratch()
 
@@ -44,7 +44,9 @@ def run_evolution_from_scratch():
 
 
 def continue_evolution_from_save_state(run_name):
-    evolve_generation(DataManager.load_generation_state(run_name))
+    generation = DataManager.load_generation_state(run_name)
+    generation.update_rank_function()
+    evolve_generation(generation)
 
 
 def evolve_generation(generation):
