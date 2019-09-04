@@ -267,6 +267,9 @@ class ModuleGenome(Genome):
         return math.sqrt(attrib_dist * attrib_dist + topology_dist * topology_dist)
 
     def get_attribute_distance(self, other):
+        if not isinstance(other, ModuleGenome):
+            raise TypeError('Expected type of ModuleGenome, received type: ' + str(type(other)))
+
         attrib_dist = 0
         common_nodes = self._nodes.keys() & other._nodes.keys()
 

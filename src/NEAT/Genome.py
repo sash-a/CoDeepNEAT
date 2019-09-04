@@ -54,15 +54,21 @@ class Genome:
     #     return repr(list(self._connections.values()))
 
     def eq(self, other):
-        if type(other) != type(self):
+        if not isinstance(other, Genome):
             return False
 
         return self._nodes.keys() == other._nodes.keys() and self._connections.values() == other._connections.values()
 
     def get_unique_genes(self, other):
+        if not isinstance(other, Genome):
+            raise TypeError('Expected type Genome, received type: ' + str(type(other)))
+
         return self._connections.keys() - other._connections.keys()
 
     def get_disjoint_excess_genes(self, other):
+        if not isinstance(other, Genome):
+            raise TypeError('Expected type Genome, received type: ' + str(type(other)))
+
         return self._connections.keys() ^ other._connections.keys()
 
     def add_node(self, node):
@@ -87,7 +93,6 @@ class Genome:
         self._connections[conn.id] = conn
 
     def report_fitness(self, fitnesses):
-        # print("reporting fitness",fitnesses, "to genome:", type(self))
         if self.fitness_values is None or not self.fitness_values:
             self.fitness_values = [0 for _ in fitnesses]
 
@@ -96,8 +101,6 @@ class Genome:
                 self.fitness_values[i] = (self.fitness_values[i] * self.uses + fitness) / (self.uses + 1)
             self.uses += 1
         elif Config.fitness_aggregation == "max":
-            # if fitnesses[0] == self.fitness_values[0]:
-            #     print("tie reported:",self.fitness_values[0])
             for i, fitness in enumerate(fitnesses):
                 self.fitness_values[i] = max(self.fitness_values[i], fitness)
         else:
@@ -117,7 +120,6 @@ class Genome:
         G = nx.DiGraph()
         node_keys = []
         for node in self._nodes.values():
-            # G.add_node(node.id, att = {'label':repr(node.id)})
             node_keys.append((node.id, {'label': repr(node.id)}))
         G.add_nodes_from(node_keys)
 
@@ -395,7 +397,7 @@ class Genome:
 
         file = os.path.join(DataManager.get_Graphs_folder(), file)
 
-        if graph == None:
+        if graph is None:
             graph = graphviz.Digraph(comment=title)
 
         for node in self._nodes.values():

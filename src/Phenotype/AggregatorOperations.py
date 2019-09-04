@@ -11,29 +11,26 @@ def merge_linear_and_conv(linear, conv, lossy=True):
     """takes in a single linear shaped tensor and a single conv2d shaped tensor and merges them"""
     if list(conv.size())[2] != list(conv.size())[3]:
         print("conv has non square dimensions:", conv.size())
-    # print("merging linear",linear.size(), "and conv",conv.size())
-    if (lossy):
+    if lossy:
         """reduce conv features until it can be reshaped to match dimensionality of linear - then sum"""
         conv_features = Utils.get_flat_number(conv)
         conv_channels = list(conv.size())[1]
         linear_features = list(linear.size())[1]
         if conv_channels > linear_features:
             """pad linear"""
-            # print("conv has more channels(",conv_channels,")","than linear has features(",linear_features,") - must pad linear")
             left_pad = round((conv_channels - linear_features) / 2)
             right_pad = (conv_channels - linear_features) - left_pad
             linear = F.pad(input=linear, pad=(left_pad, right_pad))
             linear_features = list(linear.size())[1]
 
-        # print("merging conv",conv.size(),"and linear",linear.size())
-        if (conv_features > linear_features):
+        if conv_features > linear_features:
             "reduce conv"
             reduction_factor = math.ceil(
                 math.pow(conv_features / linear_features, 0.5))  # square root because max pool reduces on two dims x*y
             conv = F.max_pool2d(conv, kernel_size=(reduction_factor, reduction_factor))
             conv_features = Utils.get_flat_number(conv)
 
-            if (conv_features > linear_features):
+            if conv_features > linear_features:
                 raise Exception("error: reduced conv (factor=", reduction_factor,
                                 ") in lossy merge with linear. but conv still has more features.\n"
                                 "conv:", conv.size(), conv_features, "linear:", linear.size(), linear_features)
@@ -46,9 +43,9 @@ def merge_linear_and_conv(linear, conv, lossy=True):
         # print("summing",conv.size(), "and",linear.size(),"to",torch.sum(torch.stack([conv, linear],dim=0), dim = 0))
         try:
             return torch.sum(torch.stack([conv, linear], dim=0), dim=0)
-        except:
+        except Exception as e:
             raise Exception(
-                "failed to merge conv(" + repr(conv.size()) + ") and linear(" + repr(linear.size()) + ") inputs:")
+                "Failed to merge conv(" + repr(conv.size()) + ") and linear(" + repr(linear.size()) + ") inputs:")
 
     else:
         # use an additional linear layer to map the conv features to a linear the same shape as the given linear
@@ -56,12 +53,10 @@ def merge_linear_and_conv(linear, conv, lossy=True):
 
 
 def merge_linear_outputs(previous_inputs, new_input, cat=False):
-    # print("merging linear layers with different feature counts")
-    if (cat):
+    if cat:
         previous = torch.sum(torch.stack(previous_inputs), dim=0)
         return [torch.cat([previous, new_input], dim=0)]
     else:
-        # print("padding linear outputs to merge")
         new_input, previous_inputs = pad_linear_outputs(previous_inputs, new_input)
         previous_inputs.append(new_input)
 
@@ -79,7 +74,7 @@ def pad_linear_outputs(previous_inputs, new_input):
     size_diff = list(previous_inputs[0].size())[1] - list(new_input.size())[1]
     left_pad = round(abs(size_diff) / 2)
     right_pad = abs(size_diff) - left_pad
-    if (size_diff > 0):
+    if size_diff > 0:
         # previous is larger
         new_input = F.pad(input=new_input, pad=(left_pad, right_pad))
     else:
@@ -96,7 +91,6 @@ def pad_linear_outputs(previous_inputs, new_input):
 
 
 def merge_conv_outputs(previous_inputs, new_input):
-    # print("merging conv tensors",len(previous_inputs), previous_inputs[0].size(),new_input.size())
     # conv layers here do not have
     channels1, x1, y1 = list(previous_inputs[0].size())[1], list(previous_inputs[0].size())[2], \
                         list(previous_inputs[0].size())[3]
@@ -113,22 +107,17 @@ def merge_conv_outputs(previous_inputs, new_input):
         x1, y1, x2, y2 = previous_inputs[0].size()[2], previous_inputs[0].size()[3], new_input.size()[2], \
                          new_input.size()[3]
         if x1 != x2 or y1 != y2:
-            # print("using padding for prev:", x1,y1,"new:",x2,y2)
             # larger convs have been pooled. however a small misalignment remains
             new_input, previous_inputs = pad_conv_input(x1, x2, y1, y2, new_input, previous_inputs)
         x1, y1, x2, y2 = new_input.size()[2], new_input.size()[3], previous_inputs[0].size()[2], \
                          previous_inputs[0].size()[3]
-        # print("\treturning prev:", x1, y1, "new:", x2, y2)
 
     else:
         # tensors are similar size - can be padded
-        # print("using padding, prev:", x1,y1,"new:",x2,y2)
         new_input, previous_inputs = pad_conv_input(x1, x2, y1, y2, new_input, previous_inputs)
-        # print("\treturning prev:",previous_inputs[0].size(),"new:",new_input.size())
 
     previous_channels, new_channels = previous_inputs[-1].size()[1], new_input.size()[1]
     if not (previous_channels == new_channels):
-        # print("differing channel counts", previous_channels, new_channels)
         previous_inputs = [
             merge_differing_channel_convs(new_input, torch.sum(torch.stack(previous_inputs, dim=0), dim=0))]
     else:
@@ -156,12 +145,10 @@ def max_pool_conv_input(x1, x2, y1, y2, new_input, previous_inputs):
 
     if (x1 + y1) > (x2 + y2):
         # previous inputs must be pooled
-        # print("pooling prev")
         for i in range(len(previous_inputs)):
             previous_inputs[i] = F.max_pool2d(previous_inputs[i], kernel_size=(round(size_ratio), round(size_ratio)))
 
     else:
-        # print("pooling new")
         new_input = F.max_pool2d(new_input, kernel_size=(round(size_ratio), round(size_ratio)))
 
     return new_input, previous_inputs

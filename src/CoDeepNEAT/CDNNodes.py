@@ -196,7 +196,6 @@ class BlueprintNEATNode(NodeGene):
                 """by now, the target species numbers have been reached, but the high mutation rate \
                 has not had enough time to create a good distribution. so we shuffle species numbers"""
                 self.species_number.set_value(random.randint(0, num_species - 1))
-                # print("shuffling species num to:", self.species_number())
 
         self.species_number.end_range = num_species
         if self.species_number() >= num_species:
@@ -331,7 +330,7 @@ class DANode(NodeGene):
 
         for choice in choice_pool.keys():
             prob = choice_pool[choice]
-            if rand_val >= from_range and rand_val <= from_range + prob:
+            if from_range <= rand_val <= from_range + prob:
                 return choice
             from_range += prob
 

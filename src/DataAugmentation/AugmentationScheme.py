@@ -325,7 +325,6 @@ class AugmentationScheme:
         sub_values = augmentation_mutagen.get_sub_values()
         if sub_values is None:
             self.augs.append(AugmentationScheme.Augmentations[augmentation_name])
-            # print('got', augmentation_name)
         else:
             args = [sub_values[x]() for x in sub_values]
             try:
@@ -333,17 +332,12 @@ class AugmentationScheme:
             except Exception as e:
                 print(e)
                 raise Exception(augmentation_name + " failed to initialise with parameters" + repr(args))
-            # print('got', augmentation_name, "args", args, "*args", *args)
-
-        # print('related function: ', AugmentationScheme.Augmentations[augmentation_name])
 
     # This function returns a new list of augmented images based on the pipeline you create
     def augment_images(self):
-
         if self.augs:
             seq = iaa.Sequential(self.augs)
             images_aug = seq.augment_images(self.images)
-            # print("auging with:",seq,"\nfrom augs",self.augs)
             self.labels = self.labels  # labels should be identical
             return images_aug, self.labels
 

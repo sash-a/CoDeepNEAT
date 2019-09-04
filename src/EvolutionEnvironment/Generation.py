@@ -90,7 +90,6 @@ class Generation:
 
         DataManager.save_generation_state(self)
 
-        # print('Species count:', self.module_population.get_num_species(), self.module_population.speciation_threshold)
         print('Module species distribution:', ', '.join([str(len(spc)) for spc in self.module_population.species]))
 
     def evaluate(self, generation_number):
@@ -145,7 +144,6 @@ class Generation:
             if Config.evolve_data_augmentations and evaluated_bp.da_scheme_index != -1:
                 self.da_population[evaluated_bp.da_scheme_index].report_fitness([fitness[0]])
 
-            # print("reporting fitnesses to: ",  evaluated_bp.modules_used_index)
             for species_index, member_index in evaluated_bp.modules_used_index:
                 if Config.second_objective == "":
                     if isinstance(member_index, tuple):
@@ -234,10 +232,7 @@ class Generation:
                 raise Exception('Found data augmentation with branches, this should not happen')
 
             da_scheme = da_indv.to_phenotype()
-            # print("indv:",da_indv,"\nscheme:",da_scheme.augs)
-            # module_graph.data_augmentation_schemes.append(da_scheme)
             module_graph.data_augmentation_schemes.append(da_indv)
-            # module_graph.plot_tree_with_graphvis(view=True)
         else:
             da_scheme = None
 

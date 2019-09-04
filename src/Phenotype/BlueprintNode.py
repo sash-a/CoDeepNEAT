@@ -41,12 +41,9 @@ class BlueprintNode(Node):
                 if isinstance(mod_idx, tuple):
                     spc, mod = mod_idx
                     input_module_individual = generation.module_population.species[spc][mod]
-                    # print("phenotype using override mapping from:",self.species_number,"to",spc, mod)
                 else:
                     input_module_individual = generation.module_population.species[self.species_number][mod_idx]
-                # print('Found a surviving module',input_module_individual, self.blueprint_genome.species_module_index_map)
             else:
-                # print("sampling fresh")
                 input_module_individual, mod_idx = \
                     generation.module_population.species[self.species_number].sample_individual()
                 self.blueprint_genome.species_module_index_map[self.species_number] = mod_idx
@@ -121,7 +118,6 @@ class BlueprintNode(Node):
                 childBlueprintNode.parse_to_module_graph(generation, output_module_node, species_indexes)
 
         if self.is_input_node():
-            # print("blueprint parsed. getting module node traversal ID's")
             input_module_node.clear()
             input_module_node.get_traversal_ids("_")
 

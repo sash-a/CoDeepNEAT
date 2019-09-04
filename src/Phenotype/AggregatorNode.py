@@ -153,7 +153,6 @@ class AggregatorNode(Module):
                     """homogeniser can sometimes collapse the previous inputs into one in certain circumstances"""
                     change = length_of_outputs - len(outputs)
                     i = 0
-                    # print("outputs list(",len(outputs),") returned shorter than expected (",length_of_outputs,") - readjusting. Collapsed shape:",outputs[0].size(), "full:",[x.size() for x in outputs])
                     length_of_outputs = len(outputs)
 
                 if Config.test_in_run:

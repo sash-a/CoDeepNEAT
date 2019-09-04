@@ -36,14 +36,6 @@ def get_fully_trained_network(module_graph, data_augs, num_epochs=100, plot_best
 
     print("model trained on", num_epochs, "epochs scored:", acc)
 
-    # model = create_nn(module_graph_clone, sample, feature_multiplier=0.8)
-    # # module_graph.plot_tree_with_graphvis(title="after putting in model", file="after")
-    # print("training nn", model)
-    # acc = Evaluator.evaluate(model, num_epochs, Config.get_device(), train_loader=train, test_loader=test,
-    #                          print_accuracy=True, batch_size=256)
-    #
-    # print("model trained on", num_epochs, "epochs scored:",acc)
-
 
 def get_accuracy_for_network(model, da_scheme=None, batch_size=256):
     if Config.dummy_run:

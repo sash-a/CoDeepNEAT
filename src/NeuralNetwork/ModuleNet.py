@@ -35,7 +35,6 @@ class ModuleNet(nn.Module):
             return
         if self.lr == 0:
             raise Exception('please set net learning rate before calling specify dims')
-        # print("configuring output dims with in=", input_sample.size())
         # self.module_graph.add_reshape_node(list(input_sample.size()))
         output_nodes = int(list(output_dimensionality)[0])
         output = self(input_sample, configuration_run=True)
@@ -43,7 +42,6 @@ class ModuleNet(nn.Module):
             raise Exception("Error: failed to pass input through nn")
 
         in_layers = Utils.get_flat_number(output)
-        # print("out = ", output.size(), "using linear layer (", in_layers, ",", output_nodes, ")")
 
         self.final_layer = nn.Linear(in_layers, output_nodes).to(Config.get_device())
 

@@ -47,7 +47,6 @@ class ModuleNode(Node):
             self.generate_module_node_from_gene()
 
     def generate_module_node_from_gene(self, feature_multiplier=1):
-        # print("generating module node from gene:", self.module_NEAT_node)
         self.out_features = round(self.module_NEAT_node.layer_type.get_sub_value("out_features") * feature_multiplier)
         self.activation = self.module_NEAT_node.activation()
 
@@ -57,7 +56,6 @@ class ModuleNode(Node):
 
         if not (neat_regularisation() is None):
             self.regularisation = neat_regularisation()(self.out_features)
-            # print("initialised", self.regularisation)
 
         if not (neat_reduction is None) and not (neat_reduction() is None):
             if neat_reduction() == nn.MaxPool2d or neat_reduction() == nn.MaxPool1d:
@@ -66,13 +64,11 @@ class ModuleNode(Node):
                     self.reduction = nn.MaxPool2d(pool_size, pool_size)
                 if neat_reduction() == nn.MaxPool1d:
                     self.reduction = nn.MaxPool1d(pool_size)
-                # print("initialised",self.reduction)
             else:
                 raise Exception("Error not implemented reduction " + repr(neat_reduction()))
 
         if not (neat_dropout is None) and not (neat_dropout() is None):
             self.dropout = neat_dropout()(neat_dropout.get_sub_value("dropout_factor"))
-            # print("initialised drop out")
 
     def create_layer(self, in_features):
 
@@ -101,7 +97,6 @@ class ModuleNode(Node):
 
         else:
             self.deep_layer = layer_type()(self.in_features, self.out_features).to(device)
-            # print("created", self.deep_layer)
 
         if not (self.reduction is None):
             self.reduction = self.reduction.to(device)
@@ -247,17 +242,14 @@ class ModuleNode(Node):
                                 conv_dim)
 
             output_shape = [input_shape[0], features, conv_dim, conv_dim]
-            # print('adding convreshape node for', input_shape, "num features:",features, "out shape:",output_shape)
 
         if self.is_linear():
             features = input_flat_size
             output_shape = [input_shape[0], input_flat_size]
-            # print('adding linear reshape node for', input_shape, "num features:",features, "out shape:",output_shape)
 
         self.create_layer(features)
         if input_shape == output_shape:
             return
-        # print("using reshape node from",input_shape,"to",output_shape)
 
         self.reshape = ReshapeNode(input_shape, output_shape)
 
@@ -283,7 +275,6 @@ class ModuleNode(Node):
                 return params
 
     def get_plot_colour(self, include_shape=True):
-        # print("plotting agg node")
         if include_shape:
             if self.deep_layer is None:
                 return "rs"

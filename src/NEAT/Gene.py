@@ -61,6 +61,9 @@ class NodeGene(Gene):
     def is_input_node(self):
         return self.node_type == NodeType.INPUT
 
+    def get_all_mutagens(self):
+        return []
+
 
 class ConnectionGene(Gene):
     def __init__(self, id, from_node: int, to_node: int):
@@ -79,12 +82,10 @@ class ConnectionGene(Gene):
 
     def mutate_add_node(self, mutation_record, genome):
         mutation = self.id
-        # print("adding node to connection",self)
         if mutation_record.exists(mutation):
             mutated_node_id = mutation_record.mutations[mutation]
             mutated_from_conn_id = mutation_record.mutations[(self.from_node, mutated_node_id)]
             mutated_to_conn_id = mutation_record.mutations[(mutated_node_id, self.to_node)]
-            # print("mutated node already existed - id's: node:",mutated_node_id,"connections:",mutated_from_conn_id,mutated_to_conn_id)
             if mutated_node_id in genome._nodes:  # this connection has already created a new node
                 return  # TODO retry (not important)
 
@@ -92,7 +93,6 @@ class ConnectionGene(Gene):
             mutated_node_id = mutation_record.add_mutation(mutation)
             mutated_from_conn_id = mutation_record.add_mutation((self.from_node, mutated_node_id))
             mutated_to_conn_id = mutation_record.add_mutation((mutated_node_id, self.to_node))
-            # print("mutated node novel - id's: node:",mutated_node_id,"connections:",mutated_from_conn_id,mutated_to_conn_id)
 
         NodeType = type(list(genome._nodes.values())[0])
         mutated_node = NodeType(mutated_node_id)

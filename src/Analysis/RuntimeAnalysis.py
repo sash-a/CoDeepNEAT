@@ -58,7 +58,6 @@ def load_date_from_log_file(run_name, iteration=0, summary=False):
                     if o > 0:
                         print("warning, accuracy not the first objective in log", filename)
                         return
-                    # print(vals)
                     accuracies = ast.literal_eval(vals)
                 elif o == 1:
                     second = ast.literal_eval(vals)

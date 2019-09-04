@@ -15,34 +15,24 @@ class ParetoPopulation:
         self.worst_das = []
 
     def queue_candidate(self, candidate):
-        # print("queuing candidate:",candidate)
         self.candidates.append(copy.deepcopy(candidate))
 
     def update_pareto_front(self):
-        start_time = time.time()
-        # print("updating pareto pop from",len(self.candidates),"candidates and",len(self.pareto_front),"in front", end = " ")
         self.best_members.append(self.get_highest_accuracy(1, check_set=self.candidates))
         if Config.evolve_data_augmentations:
             self.worst_das.append(self.get_worst_da_from_candidates())
-            # print("worst das:",self.worst_das)
 
         self.pareto_front = general_pareto_sorting(self.candidates + self.pareto_front, return_pareto_front_only=True)
-        # print("after:",len(self.pareto_front),"in front time:", (time.time() - start_time))
-        # print("candidates:",repr(self.candidates))
 
         if len(self.pareto_front) == 0:
             raise Exception("pareto front empty after step")
 
         self.candidates = []
-        # self.plot_fitnesses()
-        # self.plot_all_in_pareto_front()
-        # self.get_highest_accuracy(print=True)
 
     def get_best_network(self, num_augs=1):
         best_graphs = self.get_highest_accuracy(num=max(len(self.best_members) - 8, 1), check_set=self.best_members)
         best = best_graphs[0]
-        # print("num:",(len(self.best_members) - 8))
-        print("fully training", Config.run_name, "reported acc:", best.fitness_values[0])
+        print("Fully training", Config.run_name, "reported acc:", best.fitness_values[0])
 
         augs = [x.data_augmentation_schemes[0] for x in best_graphs if len(x.data_augmentation_schemes) > 0]
         aug_names = set()
@@ -53,7 +43,6 @@ class ParetoPopulation:
                                                                                                                     "").replace(
                 '"', "").replace(" ", "")
 
-            # print("name:",name)
             if name not in aug_names:
                 aug_names.add(name)
                 unique_augs.append(aug)
@@ -61,8 +50,6 @@ class ParetoPopulation:
         return Validation.get_fully_trained_network(best, unique_augs, num_epochs=Config.num_epochs_in_full_train)
 
     def plot_fitnesses(self):
-        # print("lengths:" , repr([len(x.fitness_values) for x in self.pareto_front]))
-        # print("pop:",self.pareto_front)
         accuracies = [x.fitness_values[0] for x in self.pareto_front]
         num_objectives = len(self.pareto_front[0].fitness_values)
         if num_objectives == 1:
@@ -85,9 +72,7 @@ class ParetoPopulation:
             check_set = self.pareto_front
 
         if num > 1:
-            # print("getting top", num, "graphs from", self.pareto_front )
             acc_sorted = sorted(check_set, key=lambda x: x.fitness_values[0], reverse=True)
-            # print('len sorted:', len(acc_sorted))
             num_best_graphs = acc_sorted[:num]
             return num_best_graphs
 

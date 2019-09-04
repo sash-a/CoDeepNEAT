@@ -61,8 +61,6 @@ class Node:
             return
 
         self.traversal_id = current_id
-        # print(self,"num children:", len(self.children))
-        # print("Me:",self,"child:",self.children[0])
         for childNo in range(len(self.children)):
             new_id = current_id + (',' if not current_id == "" else "") + repr(childNo)
             # print(newID)
@@ -94,14 +92,11 @@ class Node:
             nodes_plotted = set()
         else:
             if self in nodes_plotted:
-                # print("node",self.traversal_id,self.get_layer_type_name()," already plotted")
                 return
 
         nodes_plotted.add(self)
-        # print('adding node',self.traversal_id,self.get_layer_type_name()    )
 
         prefix = 'INPUT\n' if self.is_input_node() else ("OUTPUT\n" if self.is_output_node() else '')
-        # print("pref:",prefix,"id:",self.traversal_id)
         graph.node(self.traversal_id, (prefix + self.get_layer_type_name()), style="filled",
                    fillcolor=self.get_plot_colour(include_shape=False))
         for child in self.children:
@@ -190,13 +185,10 @@ class Node:
             Removes this node entirely from the graph.
             Removes self as a child of all parents and removes self as a parent of all children
         """
-        # print("severing node",self)
         for parent in self.parents:
-            # print("severing",self, "from parent",parent)
             parent.children.remove(self)
         self.parents = []
 
         for child in self.children:
-            # print("severing",self, "from parent",child)
             child.parents.remove(self)
         self.children = []

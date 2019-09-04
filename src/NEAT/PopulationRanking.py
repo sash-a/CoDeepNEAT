@@ -47,11 +47,9 @@ def nsga_rank(individuals):
     for front in fronts:
         # rank is firstly based on which front the indv is in
         distances = {}
-        # print("num_objectives =",individuals[0].fitness_values)
         for objective in range(len(individuals[0].fitness_values)):
             # estimate density by averaging the two nearest along each objective axis, then combining each distance
             objective_sorted = sorted(front, key=lambda x: x.fitness_values[objective])
-            # print("sorted:", objective_sorted)
             for i, indv in enumerate(objective_sorted):
                 if i == 0 or i == len(objective_sorted) - 1:
                     distance = sys.maxsize
@@ -85,20 +83,15 @@ def general_pareto_sorting(individuals, return_pareto_front_only=False):
             if indv == comparitor:
                 continue
             if check_domination(indv, comparitor):
-                # print(indv.fitness_values,"dominated",comparitor.fitness_values)
                 domination_by_indv.append(comparitor)
             elif check_domination(comparitor, indv):
-                # print(indv.fitness_values,"was dominated by",comparitor.fitness_values)
                 dominated_count += 1
         if dominated_count == 0:
-            # print("found indv which is not dominated by anyone")
             fronts[0].append(indv)
-        # print()
 
         dominations[indv] = domination_by_indv
         domination_counts[indv] = dominated_count
 
-    # print("found front 0:",fronts[0])
     if return_pareto_front_only:
         return fronts[0]
 

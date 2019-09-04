@@ -49,7 +49,6 @@ class Species:
         self._reproduce(mutation_record, elite_count, topological_mutation_modifier, attribute_mutation_modifier,
                         module_pop, gen=gen)
 
-        # print("mutation modufiers~ top:",topological_mutation_modifier, "att:",attribute_mutation_modifier,"spc:",(1/math.pow(self.fitness/1.1,0.8)), "fitness:",self.fitness)
         self._select_representative()
         self.age += 1
 
@@ -58,7 +57,6 @@ class Species:
         num_elite = min(math.ceil(Props.ELITE_TO_KEEP * len(self.members)), self.next_species_size)
         highest_acc = self.members[0].fitness_values[0]
         i = 1
-        # print("searching for ties from:",[self.members[i].fitness_values[0] for i in range(len(self.members))])
         while i < len(self.members) and self.members[i].fitness_values[0] == highest_acc:
             i += 1
         self.tie_count = i

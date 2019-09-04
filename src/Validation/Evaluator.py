@@ -26,15 +26,11 @@ def train_epoch(model, train_loader, epoch, test_loader, device, augmentors=None
     :param test_loader: The test dataset loader
     :param print_accuracy: True if should test when printing batch info
     """
-    # print('Train received device:', device)
     model.train()
-    # print("training with:", augmentors)
     loss = 0
     batch_idx = 0
     loops = 1 if not augmentors else 1 + len(augmentors)
     loops = 1 if Config.batch_by_batch else loops
-    # print("num loops:", loops)
-    s = time.time()
 
     if Config.drop_learning_rate:
         if not Config.use_adaptive_learning_rate_adjustment:
@@ -66,7 +62,6 @@ def train_epoch(model, train_loader, epoch, test_loader, device, augmentors=None
                     augmentor = augmentors[i - 1]
                     if augmentor is None:
                         continue
-                    # print("training on aug:",augmentor)
                     loss += train_batch(model, inputs, targets, device, augmentor=augmentor)
                 else:
                     for augmentor in augmentors:
@@ -77,7 +72,6 @@ def train_epoch(model, train_loader, epoch, test_loader, device, augmentors=None
             train_on_original = train_on_original or Config.batch_by_batch
 
             if train_on_original:
-                # print("training on orig")
                 loss += train_batch(model, inputs, targets, device)
 
             if batch_idx >= 2:
@@ -127,7 +121,6 @@ def test(model, test_loader, device, print_acc=False):
     """
     model.eval()
 
-    # print('testing received device', device)
     correct = 0
     with torch.no_grad():
         for inputs, targets in test_loader:
@@ -167,8 +160,6 @@ def evaluate(model, epochs, device, batch_size=64, augmentors=None, train_loader
     :param batch_size: The dataset batch size
     :return: The trained model
     """
-    # print('Eval received device', device, 'on processor', mp.current_process())
-    # print("got das:",augmentors)
     if train_loader is None:
         train_loader, test_loader = load_data(batch_size)
 

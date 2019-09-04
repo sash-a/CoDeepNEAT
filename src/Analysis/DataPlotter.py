@@ -72,7 +72,6 @@ def get_all_run_names():
     runs = set()
     for subdir, dirs, files in os.walk(os.path.join(DataManager.get_data_folder(), "runs")):
         sub = subdir.split("runs")[1][1:].split("\\")[0].split("/")[0]
-        # print(sub)
         if sub == "":
             continue
         runs.add(sub)
@@ -149,9 +148,7 @@ def get_run_boundries(aggregation_type='max', num_top=5, fitness_index=0, max_ge
         max_num_gens = len(sorted(fitnesses, key=lambda x: len(x))[-2])
         mins = []
         maxes = []
-        # print("group:\n",group)
-        # print("fitnesses:\n",fitnesses)
-        # print("max gens:", max_num_gens, )
+
         for i in range(max_num_gens):
             elements = [x[i] for x in fitnesses if len(x) > i]
             # print("elements:\n",elements)
@@ -182,7 +179,6 @@ def plot_all_runs(aggregation_type='max', num_top=5, fitness_index=0, max_gens=1
 
             plot = plt.fill_between(gens, mins, maxs, alpha=0.4, label=group_name + ", n=" + repr(counts[group_name]))
             colours[group_name] = [max(min(x * 1.5, 1), 0) for x in plot.get_facecolor()[0]]
-            # print("colour:",colours[group_name])
 
     runs = get_all_runs(aggregation_type=aggregation_type, num_top=num_top, fitness_index=fitness_index,
                         max_gens=max_gens)

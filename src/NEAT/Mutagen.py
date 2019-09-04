@@ -23,12 +23,13 @@ class Mutagen:
         self.name = name
         self.age = 0
         self.distance_weighting = distance_weighting
-        self.inherit_as_discrete = inherit_as_discrete  # some whole number values such as species number should not be interpolated during inheritance, as this does not make sense
+        # some whole number values such as species number should not be interpolated during inheritance,
+        # as this does not make sense
+        self.inherit_as_discrete = inherit_as_discrete
 
         if len(discreet_options) > 0:
             self.possible_values = discreet_options
             self.current_value_id = current_value
-            # print("possible values:", discreet_options)
 
         elif not (start_range is None) and not (end_range is None):
             if start_range > current_value or self.end_range < current_value:
@@ -72,20 +73,16 @@ class Mutagen:
             other_value = other.get_value()
             new_value = my_value + 0.35 * (other_value - my_value)
             if self.value_type == ValueType.WHOLE_NUMBERS:
-                # print(self)
                 new_value += random.random() * 0.2 - 0.1  # to make it equally likely to round up/down from  x.5
                 self.set_value(int(round(new_value)))
             else:
                 self.set_value(new_value)
 
         if not (self.sub_values is None):
-            # print("trying to mutate subs")
             for val in self.sub_values.keys():
                 my_subs = self.sub_values[val]
-                # print("trying to mutate sub mut, my val=",self.get_value(), "subs key value=",val)
                 if val == self.get_value():
                     for sub_mut_name in my_subs.keys():
-                        # print("mutating submutagen",sub_mut())
                         if val in other.sub_values:
                             other_subs = other.sub_values[val]
                             my_subs[sub_mut_name].inherit(other_subs[sub_mut_name])
@@ -108,8 +105,6 @@ class Mutagen:
                 new_current_value_id = random.randint(0, len(self.possible_values) - 1)
                 if new_current_value_id == self.current_value_id:
                     new_current_value_id = (self.current_value_id + 1) % len(self.possible_values)
-                # print("mutating", self.get_value(), "from id", self.current_value_id,"to",new_current_value_id,"poss=",self.possible_values)
-                # print("mutating value from",old_value,"to",self.possible_values[new_current_value_id])
                 self.current_value_id = new_current_value_id
 
             if self.value_type == ValueType.WHOLE_NUMBERS:
@@ -120,16 +115,12 @@ class Mutagen:
                     deviation_fraction = math.pow(random.random(), 4) * (1 if random.random() < 0.5 else -1) * magnitude
                     new_current_value = self.current_value + int(
                         deviation_fraction * (self.end_range - self.start_range))
-                    # print("altering whole number from",old_value,"to",new_current_value,"using dev frac=",deviation_fraction,"range: [",self.start_range,",",self.end_range,")")
 
                 if new_current_value == self.current_value:
                     new_current_value = self.current_value + (1 if random.random() < 0.5 else -1)
-                    # print("readjusting value to",new_current_value)
 
                 new_current_value = max(self.start_range, min(self.end_range - 1, new_current_value))
                 self.current_value = new_current_value
-
-                # print("mutating whole number from", old_value, "to",self.current_value, "range:",self.start_range,self.end_range)
 
             if self.value_type == ValueType.CONTINUOUS:
                 if random.random() < 0.25:
@@ -151,15 +142,11 @@ class Mutagen:
             return not old_value == self()
 
     def mutate_sub_mutagens(self):
-        # print("called mutate_sub_mutagens",self.sub_values)
         if not (self.sub_values is None):
-            # print("trying to mutate subs")
             for val in self.sub_values.keys():
                 subs = self.sub_values[val]
-                # print("trying to mutate sub mut, my val=",self.get_value(), "subs key value=",val)
                 if val == self.get_value():
                     for sub_mut in subs.values():
-                        # print("mutating submutagen",sub_mut())
                         sub_mut.mutate()
 
     def get_value(self):
@@ -168,7 +155,6 @@ class Mutagen:
         if self.value_type == ValueType.DISCRETE:
             return self.possible_values[self.current_value_id]
         else:
-            # print("returning:",self.current_value)
             return self.current_value
 
     def get_sub_value(self, sub_value_name, value=None, return_mutagen=False):
