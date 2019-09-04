@@ -1,4 +1,4 @@
-# Result naming guid
+# Result naming guide
 
 base: CoDeepNEAT with no extensions
 
