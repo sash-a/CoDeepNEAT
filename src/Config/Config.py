@@ -33,7 +33,7 @@ drop_factor = 1.2
 use_adaptive_learning_rate_adjustment = True
 # --------------------------------------------------------------------------------------------------------------------#
 # Multiobjective options
-second_objective = 'network_size_adjusted'  # network_size | network_size_adjusted | network_size_adjusted_2
+second_objective = ''  # network_size | network_size_adjusted | network_size_adjusted_2
 second_objective_comparator = operator.lt  # lt for minimisation, gt for maximisation
 third_objective = ''
 third_objective_comparator = operator.lt
@@ -51,7 +51,7 @@ train_on_origonal_data = True
 batch_by_batch = False
 
 # --------------------------------------------------------------------------------------------------------------------#
-module_retention = True
+module_retention = False
 fitness_aggregation = 'avg'  # max | avg
 
 allow_species_module_mapping_ignores = True
