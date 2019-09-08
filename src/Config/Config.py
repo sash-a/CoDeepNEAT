@@ -9,6 +9,8 @@ run_name = "mms20E_da_breed"
 continue_from_last_run = True
 deterministic_pop_init = True
 dummy_run = False
+max_num_generations = 30
+
 
 # --------------------------------------------------------------------------------------------------------------------#
 # nn options
@@ -20,7 +22,7 @@ data_path = ''
 number_of_epochs_per_evaluation = 5
 
 # --------------------------------------------------------------------------------------------------------------------#
-max_num_generations = 30
+# fully train options
 fully_train = False
 
 num_epochs_in_full_train = 300
@@ -51,12 +53,14 @@ train_on_origonal_data = True
 batch_by_batch = False
 
 # --------------------------------------------------------------------------------------------------------------------#
+# module retention options
 module_retention = False
 fitness_aggregation = 'avg'  # max | avg
 
 allow_species_module_mapping_ignores = True
 allow_cross_species_mappings = True
 # --------------------------------------------------------------------------------------------------------------------#
+# specitation options
 speciation_overhaul = False
 
 use_representative = False
@@ -70,10 +74,11 @@ ignore_disabled_connections_for_topological_similarity = False
 
 allow_attribute_distance = False
 # --------------------------------------------------------------------------------------------------------------------#
+# mutation extension options
 adjust_species_mutation_magnitude_based_on_fitness = False
 adjust_mutation_magnitudes_over_run = False
 allow_elite_cloning = False
-# --------------------------------------------------------------------------------------------------------------------#
+
 breed_mutagens = False
 mutagen_breed_chance = 0.5
 # --------------------------------------------------------------------------------------------------------------------#
