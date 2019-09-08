@@ -21,6 +21,15 @@ All config options are in src/Config/ directory
 See Liron's paper
 
 #### Config options
+evolve_data_augmentations: turns on/off the data augmentations extension
+
+colour_augmentations: determines if photometric (colour-based) augmentations are included in the evolvable population (see appendix B in Liron's paper)
+
+allow_da_scheme_ignores: turns on/off the DA_scheme_ignores modification (see section 4.2 in Liron's paper)
+
+train_on_original_data: determines if evolved networks train on both the original data and augmented data (reccomended) or just the augmented data
+
+batch_by_batch: determines how networks train on data. Networks can train batch by batch, meaning they train on one batch of original data and then one batch of augmented data or epoch by epoch (reccomended), in which case they train on original data for one epoch and then augmented data for the next.
 
 ### Elitism improvements
 
