@@ -1,7 +1,7 @@
 import copy
 import time
 
-from src.Analysis.DataPlotter import plot_acc_vs_second, plot_histogram
+from src.Analysis.EvolutionaryDataPlotter import plot_acc_vs_second, plot_histogram
 from src.Config import Config
 from src.NEAT.PopulationRanking import general_pareto_sorting
 from src.Validation import Validation

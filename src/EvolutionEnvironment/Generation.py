@@ -10,7 +10,7 @@ from data import DataManager
 
 import src.Config.NeatProperties as Props
 import src.Validation.DataLoader
-from src.Analysis import RuntimeAnalysis
+from src.Analysis import Logger
 from src.CoDeepNEAT import PopulationInitialiser as PopInit
 from src.CoDeepNEAT.CDNGenomes import ModuleGenome, BlueprintGenome, DAGenome
 from src.CoDeepNEAT.CDNNodes import ModulenNEATNode, BlueprintNEATNode, DANode
@@ -206,7 +206,7 @@ class Generation:
 
             self.pareto_population.queue_candidate(module_graph)
 
-        RuntimeAnalysis.log_new_generation(accuracies, generation_number,
+        Logger.log_new_generation(accuracies, generation_number,
                                            second_objective_values=(
                                                second_objective_values if second_objective_values else None),
                                            third_objective_values=(

@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from data import DataManager
 
-from src.Analysis import RuntimeAnalysis
+from src.Analysis import Logger
 
 """
 file which reads generation by generation data containing info on the 
@@ -13,16 +13,14 @@ accuracy of every evaluated network, as well as their scores on subsequent objec
 
 Data plotter aggregates each generations scores into one, either by using max, or average, or average of the top n
 Data plotter then plots these aggregated scores at each generation for multiple runs
-
-
 """
 
 plot = None
 
 def plot_objectives_at_gen(generation):
-    if len(RuntimeAnalysis.generations) <= generation:
+    if len(Logger.generations) <= generation:
         return
-    generation = RuntimeAnalysis.generations[generation]
+    generation = Logger.generations[generation]
     acc = generation.accuracies
     second = generation.second_objective_values
     third = generation.third_objective_values
@@ -47,19 +45,19 @@ def plot_histogram(acc):
 
 
 def plot_generations():
-    for generation in RuntimeAnalysis.generations:
+    for generation in Logger.generations:
         plot_objectives_at_gen(generation.generation_number)
 
 
 def get_gens_and_fitnesses(aggregation_type='max', fitness_index=0, num_top=5):
-    gens = list(range(0, len(RuntimeAnalysis.generations)))
+    gens = list(range(0, len(Logger.generations)))
     if aggregation_type == 'max':
-        fitness = [gen.get_max_of_objective(fitness_index) for gen in RuntimeAnalysis.generations]
+        fitness = [gen.get_max_of_objective(fitness_index) for gen in Logger.generations]
     elif aggregation_type == 'avg':
-        fitness = [gen.get_average_of_objective(fitness_index) for gen in RuntimeAnalysis.generations]
+        fitness = [gen.get_average_of_objective(fitness_index) for gen in Logger.generations]
     elif aggregation_type == 'top':
         fitness = []
-        for gen in RuntimeAnalysis.generations:
+        for gen in Logger.generations:
             fitness.append(sum(heapq.nlargest(num_top, gen.objectives[fitness_index])) / num_top)
     else:
         raise ValueError('Only aggregation types allowed are avg and max, received' + str(aggregation_type))
@@ -95,7 +93,7 @@ def get_all_runs(aggregation_type='max', num_top=5, fitness_index=0, max_gens=10
 
     for run in runs:
         try:
-            RuntimeAnalysis.load_date_from_log_file(run, summary=False)
+            Logger.load_date_from_log_file(run, summary=False)
             gens, fitness = get_gens_and_fitnesses(aggregation_type, fitness_index, num_top=num_top)
             if len(gens) > max_gens:
                 gens = gens[:max_gens]
