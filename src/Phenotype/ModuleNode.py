@@ -47,6 +47,8 @@ class ModuleNode(Node):
             self.generate_module_node_from_gene()
 
     def generate_module_node_from_gene(self, feature_multiplier=1):
+        """reads the gene for this node, and applies its attribute to this the phenotype equivalent """
+
         self.out_features = round(self.module_NEAT_node.layer_type.get_sub_value("out_features") * feature_multiplier)
         self.activation = self.module_NEAT_node.activation()
 
@@ -71,6 +73,7 @@ class ModuleNode(Node):
             self.dropout = neat_dropout()(neat_dropout.get_sub_value("dropout_factor"))
 
     def create_layer(self, in_features):
+        """creates the weights in this nodes layer. also initialises this nodes regularisers"""
 
         self.in_features = in_features
         device = Config.get_device()
@@ -105,6 +108,7 @@ class ModuleNode(Node):
             self.regularisation = self.regularisation.to(device)
 
     def delete_layer(self):
+        """severs this noed from its operations and layers"""
         self.deep_layer = None
         self.reduction = None
         self.regularisation = None
@@ -114,9 +118,13 @@ class ModuleNode(Node):
     def insert_aggregator_nodes(self, state="start"):
         from src.Phenotype.AggregatorNode import AggregatorNode as Aggregator
         """
-        *NB  -- must have called getTraversalIDs on root node to use this function
+        must have called getTraversalIDs on root node to use this function
         traverses the module graph from the input up to output, and inserts aggregators
-        which are module nodes which take multiple inputs and combine them"""
+        which are module nodes which take multiple inputs and combine them.
+        
+        called on a fully stiched dnn.
+        traverses layer graph and insert aggregator nodes wherever a node has multiple parents
+        """
 
         if state == "start":  # method is called from the root node - but must be traversed from the output node
             output_node = self.get_output_node()
@@ -177,6 +185,8 @@ class ModuleNode(Node):
         return child_out
 
     def pass_input_through_layer(self, input):
+        """applies this nodes operations to the input and passes the result up the graph"""
+
         if input is None:
             return None
         if self.deep_layer is None:
@@ -249,6 +259,7 @@ class ModuleNode(Node):
         self.reshape = ReshapeNode(input_shape, output_shape)
 
     def get_parameters(self, parametersDict, top=True):
+        """collects all the trainable parameters via a traversal"""
         if self not in parametersDict:
             if self.deep_layer is None:
                 raise Exception("no deep layer - ", self)
@@ -285,6 +296,8 @@ class ModuleNode(Node):
                 return "cyan"
 
     def get_layer_type_name(self):
+        """used for dnn plotting"""
+
         layer_type = self.module_NEAT_node.layer_type
         extras = ""
         if layer_type() == nn.Conv2d:
@@ -350,6 +363,7 @@ class ModuleNode(Node):
         return self.module_NEAT_node.layer_type.get_value() == nn.Conv2d
 
     def get_first_feature_count(self, input):
+        """used to decide how many input features the first node of the dnn should have - based on a sample input"""
         layer_type = self.module_NEAT_node.layer_type
         if layer_type() == nn.Conv2d:
             return list(input.size())[1]

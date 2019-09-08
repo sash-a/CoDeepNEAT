@@ -83,7 +83,6 @@ def pad_linear_outputs(previous_inputs, new_input):
 
 
 def merge_conv_outputs(previous_inputs, new_input):
-    # conv layers here do not have
     channels1, x1, y1 = list(previous_inputs[0].size())[1], list(previous_inputs[0].size())[2], \
                         list(previous_inputs[0].size())[3]
     channels2, x2, y2 = list(new_input.size())[1], list(new_input.size())[2], list(new_input.size())[3]

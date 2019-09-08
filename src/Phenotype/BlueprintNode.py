@@ -8,7 +8,7 @@ from src.Phenotype.Node import Node
 
 class BlueprintNode(Node):
     """
-    Each value in a blueprint graph is a Module Species number
+    One node in a blueprint phenotype graph
     """
 
     speciesIndexesUsed = []
@@ -35,6 +35,8 @@ class BlueprintNode(Node):
             self.species_number = gene.species_number()
 
     def get_module_individual(self, generation):
+        """returns the module which this node is turning into.
+        this may happen by a species sampling or by module retention"""
         if not Config.use_representative:
             if self.species_number in self.blueprint_genome.species_module_index_map:
                 mod_idx = self.blueprint_genome.species_module_index_map[self.species_number]
@@ -73,6 +75,8 @@ class BlueprintNode(Node):
 
     def parse_to_module_graph(self, generation, module_construct=None, species_indexes=None):
         """
+        converts node into a module graph. stiches the nodes together during the traversal via the module construct arg.
+
         :param module_construct: the output module node to have this newly sampled module attached to. None if this is root blueprint node
         :return: a handle on the root node of the newly created module graph
         """

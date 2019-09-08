@@ -18,6 +18,7 @@ class AggregatorNode(Module):
         self.out_features = 25
 
     def create_layer(self, in_features=None, device=torch.device("cpu")):
+        """passes this recursive action onwards"""
         for child in self.children:
             child.create_layer(device=device)
 
@@ -42,7 +43,7 @@ class AggregatorNode(Module):
         self.parents.append(parent)
 
     def reset_node(self):
-        """typically called between uses of the forward method of the NN created
+        """called between uses of the forward method of the NN created.
             tells the aggregator a new pass is underway and all inputs must again be waited for to pass forward
         """
         self.accountedForInputIDs = {}
@@ -57,19 +58,20 @@ class AggregatorNode(Module):
         return "Aggregator"
 
     def pass_ann_input_up_graph(self, input, parent_id="", configuration_run=False):
+        """collects the inputs which are passed to it one at a time"""
+
         self.accountedForInputIDs[parent_id] = input
 
         if len(self.module_node_input_ids) == len(self.accountedForInputIDs):
             # all inputs have arrived
             # may now aggregate and pass upwards
             out = super(AggregatorNode, self).pass_ann_input_up_graph(None, configuration_run=configuration_run)
-            # if(not out is None):
-            #     print("agg got non null out")
             self.reset_node()
 
             return out
 
     def pass_input_through_layer(self, _):
+        """aggregates inputs collected and passes the result up the graph"""
         conv_outputs = []
         linear_outputs = []
         outputs_deep_layers = {}
@@ -82,21 +84,21 @@ class AggregatorNode(Module):
             deep_layer = parent.deep_layer
             new_input = self.accountedForInputIDs[parent.traversal_id]
             outputs_deep_layers[new_input] = deep_layer
-            if (type(deep_layer) == nn.Conv2d):
+            if type(deep_layer) == nn.Conv2d:
                 conv_outputs.append(new_input)
                 has_conv = True
-            elif (type(deep_layer) == nn.Linear):
+            elif type(deep_layer) == nn.Linear:
                 linear_outputs.append(new_input)
                 has_linear = True
 
-        if (has_linear and not has_conv):
+        if not (not has_linear or has_conv):
             linear_outputs = self.homogenise_outputs_list(linear_outputs, AggregatorOperations.merge_linear_outputs,
                                                           outputs_deep_layers)
             return torch.sum(torch.stack(linear_outputs), dim=0)
-        elif (has_conv and not has_linear):
+        elif has_conv and not has_linear:
             conv_outputs = self.homogenise_outputs_list(conv_outputs, AggregatorOperations.merge_conv_outputs,
                                                         outputs_deep_layers)
-            if (conv_outputs is None):
+            if conv_outputs is None:
                 print("Error: null conv outputs returned from homogeniser")
             try:
                 return torch.sum(torch.stack(conv_outputs), dim=0)
@@ -105,7 +107,7 @@ class AggregatorNode(Module):
                 for conv in conv_outputs:
                     print(conv.size(), end=",")
                 raise e
-        elif (has_linear and has_conv):
+        elif has_linear and has_conv:
             linear_outputs = self.homogenise_outputs_list(linear_outputs, AggregatorOperations.merge_linear_outputs,
                                                           outputs_deep_layers)
             conv_outputs = self.homogenise_outputs_list(conv_outputs, AggregatorOperations.merge_conv_outputs,

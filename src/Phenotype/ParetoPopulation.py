@@ -8,6 +8,7 @@ from src.Validation import Validation
 
 
 class ParetoPopulation:
+
     def __init__(self):
         self.pareto_front = []
         self.candidates = []
@@ -18,6 +19,9 @@ class ParetoPopulation:
         self.candidates.append(copy.deepcopy(candidate))
 
     def update_pareto_front(self):
+        """creates a new pareto front of best solutions by combining the previous
+        pareto front with all of the new  individuals scored in the last generation"""
+
         self.best_members.append(self.get_highest_accuracy(1, check_set=self.candidates))
         if Config.evolve_data_augmentations:
             self.worst_das.append(self.get_worst_da_from_candidates())
@@ -29,7 +33,8 @@ class ParetoPopulation:
 
         self.candidates = []
 
-    def get_best_network(self, num_augs=1):
+    def get_trained_best_network(self, num_augs=1):
+        """selects the best network, and trains it fully"""
         best_graphs = self.get_highest_accuracy(num=max(len(self.best_members) - 8, 1), check_set=self.best_members)
         best = best_graphs[0]
         print("Fully training", Config.run_name, "reported acc:", best.fitness_values[0])
@@ -50,6 +55,7 @@ class ParetoPopulation:
         return Validation.get_fully_trained_network(best, unique_augs, num_epochs=Config.num_epochs_in_full_train)
 
     def plot_fitnesses(self):
+        """analysis tool which plots the scores of individuals in the pareto pop"""
         accuracies = [x.fitness_values[0] for x in self.pareto_front]
         num_objectives = len(self.pareto_front[0].fitness_values)
         if num_objectives == 1:
@@ -61,11 +67,9 @@ class ParetoPopulation:
         else:
             raise Exception(">3 objectives")
 
-    def plot_all_in_pareto_front(self):
-        for graph in self.pareto_front:
-            graph.module_graph_root_node.plot_tree_with_graphvis(file="fitnesses=" + repr(graph.fitness_values))
-
     def get_highest_accuracy(self, num, plot_best=False, check_set=None):
+        """gets the n highest performing individuals from a given set"""
+
         highest_acc = 0
         best_graph = None
         if check_set is None:
@@ -91,6 +95,7 @@ class ParetoPopulation:
             raise Exception("Number of graphs chosen is negative")
 
     def get_worst_da_from_candidates(self):
+        """analysis tool"""
         worst = None
         worst_acc = 9999999
         for mod_graph in self.candidates:

@@ -7,6 +7,8 @@ from src.Phenotype.ModuleNode import ModuleNode
 
 class ModuleGraph():
 
+    """represents the whole module graph. simply holds a handle on the root module node"""
+
     def __init__(self, module_graph_root_node, dataset=""):
 
         self.module_graph_root_node: ModuleNode = module_graph_root_node
@@ -18,14 +20,17 @@ class ModuleGraph():
         self.data_augmentation_schemes = []
 
     def to_nn(self, in_features):
+        """converts this full dnn module graph into a dnn"""
         self.module_graph_root_node.create_layer(in_features)
         return ModuleNet(self)
 
     def get_net_size(self):
+        """returns the complexity of the full dnn, ie the blueprints complexity"""
         net_params = self.module_graph_root_node.get_parameters({})
         return sum(p.numel() for p in net_params if p.requires_grad)
 
     def delete_all_layers(self):
+        """flashes the weights, to allow for compact saving"""
         for node in self.module_graph_root_node.get_all_nodes_via_bottom_up(set()):
             node.delete_layer()
 

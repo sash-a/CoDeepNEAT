@@ -10,6 +10,8 @@ from src.Config import Config
 
 class Node:
     """
+    the general form of the phenotype nodes for blueprints, modules and das.
+    holds a collection of operations needed for all of the phenotypes
     All children lead to the leaf node
     """
 
@@ -54,7 +56,10 @@ class Node:
 
     def get_traversal_ids(self, current_id=""):
         """should be called on root node
-            calculates all nodes traversal ID
+            calculates all nodes traversal ID.
+
+            A traversal id eg: 0,2,1,0  - is a list of the child ids one should take to arrive at this node
+
         """
 
         if not self.traversal_id == "":
@@ -148,7 +153,8 @@ class Node:
         return x, y
 
     def clear(self):
-
+        """flash id's.
+        once aggregator nodes are inserted, traversak ids change, and must be updated"""
         for node in self.get_all_nodes_via_bottom_up(set()):
             node.traversal_id = ""
 
