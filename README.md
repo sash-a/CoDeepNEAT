@@ -23,7 +23,7 @@ See Liron's paper
 #### Config options
 ```evolve_data_augmentations```: turns on/off the data augmentations extension
 
-```colour_augmentations```: determines if photometric (colour-based) augmentations are included in the evolvable population (see appendix B in Liron's paper)
+```colour_augmentations```: determines if photometric (colour-based) augmentations are included in the evolvable population (cannot be used with black and white images) (see appendix B in Liron's paper)
 
 ```allow_da_scheme_ignores```: turns on/off the DA_scheme_ignores modification (see section 4.2 in Liron's paper)
 
