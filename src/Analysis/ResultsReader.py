@@ -7,32 +7,38 @@ from data import DataManager
 def get_accuracies(results_lines):
     accs = []
     for line in results_lines:
-        if "accuracy:" not in line:
-            continue
         try:
-            acc = line.split("i")[0].split("accuracy:")[1].replace(" ", "")
-            accs.append(float(acc))
+
+            if "accuracy:" in line:
+                """results file was copied from out file"""
+                acc = line.split("i")[0].split("accuracy:")[1].replace(" ", "")
+                accs.append(float(acc))
+            elif "loss" in line:
+                """results file itself was taken"""
+                acc = line.split(",")[0].split(":")[1].replace(" ", "")
+                accs.append(float(acc))
         except:
             print(line)
 
     return accs
 
 
-def get_all_results_folders():
+def get_all_results_folders(dataset):
     folders = set()
-    for subdir, dirs, files in os.walk(DataManager.get_results_file()):
-        sub = subdir.split("results")[1][1:].split("\\")[0].split("/")[0]
-        # print(sub)
+    # print("getting results from:",os.path.join(DataManager.get_results_folder(), dataset,"fully_train"))
+    for subdir, dirs, files in os.walk(os.path.join(DataManager.get_results_folder(), dataset,"fully_train")):
+        sub = subdir.split("fully_train")[1][1:].split("\\")[0].split("/")[0]
         if sub == "":
             continue
+        # print("result folder:",sub)
         folders.add(sub)
 
     return folders
 
 
-def get_all_results_files_in_folder(folder):
+def get_all_results_files_in_folder(dataset,folder):
     files = set()
-    for subdir, dirs, files in os.walk(os.path.join(DataManager.get_results_file(), folder)):
+    for subdir, dirs, files in os.walk(os.path.join(DataManager.get_results_folder(), dataset,"fully_train",folder)):
         sub = subdir.split(folder)[1][1:].split("\\")[0].split("/")[0]
         # print(sub)
         if sub == "":
@@ -42,11 +48,11 @@ def get_all_results_files_in_folder(folder):
     return files
 
 
-def print_max_accuracies():
-    for run in get_all_results_folders():
+def print_max_accuracies(dataset):
+    for run in get_all_results_folders(dataset):
         print(run)
-        for result_file in get_all_results_files_in_folder(run):
-            file_path = os.path.join(DataManager.get_results_file(), run, result_file)
+        for result_file in get_all_results_files_in_folder(dataset,run):
+            file_path = os.path.join(DataManager.get_results_folder(), dataset,"fully_train",run, result_file)
             # print(result_file,file_path)
             with open(file_path) as file:
                 lines = file.readlines()
@@ -56,12 +62,12 @@ def print_max_accuracies():
                 print("\t", result_file.replace(".txt", ""), "max acc:", max_acc)
 
 
-def get_fm_acc_tuples():
+def get_fm_acc_tuples(dataset):
     data = {}  # dict from run: {config:(fm,acc)}
 
-    for run in get_all_results_folders():
-        for result_file in get_all_results_files_in_folder(run):
-            file_path = os.path.join(DataManager.get_results_file(), run, result_file)
+    for run in get_all_results_folders(dataset):
+        for result_file in get_all_results_files_in_folder(dataset,run):
+            file_path = os.path.join(DataManager.get_results_folder(),dataset,"fully_train", run, result_file)
             train_config = result_file.split("fm")[0].replace("_", " ")
             train_config = "NONE" if len(train_config) == 0 else train_config
 
@@ -81,8 +87,8 @@ def get_fm_acc_tuples():
     return data
 
 
-def plot_fm_acc_tuples():
-    data = get_fm_acc_tuples()
+def plot_fm_acc_tuples(dataset):
+    data = get_fm_acc_tuples(dataset)
 
     for run in data.keys():
         for config in data[run].keys():
@@ -105,5 +111,6 @@ def plot_fm_acc_tuples():
 
 
 if __name__ == "__main__":
-    print_max_accuracies()
-    plot_fm_acc_tuples()
+    dataset = "CIFAR-10"
+    print_max_accuracies(dataset)
+    plot_fm_acc_tuples(dataset)

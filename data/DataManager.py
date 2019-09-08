@@ -39,7 +39,7 @@ def get_Datasets_folder():
         return Config.data_path
 
 def get_results_folder():
-    return os.path.join(get_data_folder(), "results")
+    return os.path.join(get_data_folder(),"..", "results")
 
 def get_DataEfficiencyResults_folder():
     return os.path.join(get_data_folder(), "DataEfficiencyResults")

@@ -7,8 +7,17 @@ from data import DataManager
 
 from src.Analysis import RuntimeAnalysis
 
-plot = None
+"""
+file which reads generation by generation data containing info on the 
+accuracy of every evaluated network, as well as their scores on subsequent objectives.
 
+Data plotter aggregates each generations scores into one, either by using max, or average, or average of the top n
+Data plotter then plots these aggregated scores at each generation for multiple runs
+
+
+"""
+
+plot = None
 
 def plot_objectives_at_gen(generation):
     if len(RuntimeAnalysis.generations) <= generation:
