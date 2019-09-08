@@ -30,6 +30,28 @@ All config options are in ```src/Config/``` directory
 
 ```second_objective_comparator```: how the second objectives should be optimized e.g ```operator.lt``` for minimisation
 
+#### fully training options
+
+```fully_train```: decides if the program should continue an evolutionary run, or fully train 
+the best network produced in an existing run. If this option is true. the program will not do evolution. only training
+
+```num_epochs_in_full_train```: max number of epoch to train the network for
+
+```num_augs_in_full_train```: the number of da augmentation schemes to use while training
+
+```feature_multiplier_for_fully_train```: the factor to increase all layer throughputs by in the trained network
+
+```drop_learning_rate```: whether or not to drop the learning rate while training. has shown to vastly 
+increase the speed of convergence
+
+```toss_bad_runs```: whether or not to perform early tests to decide if the training is going well. 
+and if not - to reinitialise the weights and start over
+
+```use_adaptive_learning_rate_adjustment```: whether to drop the learning rate adaptively 
+ by detecting accuracy plateaus. the alternative is a static drop period where the learning rate drops every x epochs 
+
+
+
 ## Extensions:
 
 ### Data augmentations
