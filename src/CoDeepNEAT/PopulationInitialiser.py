@@ -15,7 +15,7 @@ def initialize_pop(Node, Genome, initial_individuals, create_triangles=True, mod
         pop.append(Genome([ConnectionGene(0, 0, 1)],
                           [Node(*in_node_params), Node(*out_node_params)]))
 
-        if modules is not None and Config.use_representative:
+        if modules is not None and Config.blueprint_nodes_use_representatives:
             for node in pop[-1]._nodes.values():
                 reps.append(node.choose_representative(modules, reps))
 
@@ -24,7 +24,7 @@ def initialize_pop(Node, Genome, initial_individuals, create_triangles=True, mod
             pop.append(Genome([ConnectionGene(0, 0, 1), ConnectionGene(1, 0, 2), ConnectionGene(2, 2, 1)],
                               [Node(*in_node_params), Node(*tri_node_params), Node(*out_node_params)]))
 
-            if modules is not None and Config.use_representative:
+            if modules is not None and Config.blueprint_nodes_use_representatives:
                 for node in pop[-1]._nodes.values():
                     reps.append(node.choose_representative(modules, reps))
 

@@ -27,7 +27,8 @@ fully_train = False
 
 num_epochs_in_full_train = 300
 num_augs_in_full_train = 1
-feature_multiplier_for_fully_train = 1  # multiplies feature count of every layer by this number to increase or decrease bandwidth
+# multiplies feature count of every layer by this number to increase or decrease bandwidth
+feature_multiplier_for_fully_train = 1
 toss_bad_runs = False
 drop_learning_rate = True
 drop_period = 30
@@ -63,7 +64,7 @@ allow_cross_species_mappings = True
 # specitation options
 speciation_overhaul = False
 
-use_representative = False
+blueprint_nodes_use_representatives = False  # section 3.2.4 Sasha's paper
 rep_mutation_chance_early = 0.6
 rep_mutation_chance_late = 0.2
 similar_rep_mutation_chance = 0.2

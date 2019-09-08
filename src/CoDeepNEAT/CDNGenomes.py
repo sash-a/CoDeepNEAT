@@ -25,6 +25,8 @@ class BlueprintGenome(Genome):
         self.modules_used = []  # holds ref to module individuals used - can multiple represent
         self.modules_used_index = []  # hold tuple (species no, module index) of module used
 
+        # The need for these two maps arises because of how python does parallelism, since a reference will not
+        # continue to reference the same item in a new thread
         self.species_module_ref_map = {}  # maps species index: module ref in that species
         self.species_module_index_map = {}  # maps species index: module index in that species
         self.max_accuracy = 0  # the max accuracy of each of the samplings of this blueprint
@@ -32,7 +34,6 @@ class BlueprintGenome(Genome):
         self.da_scheme: DAGenome = None
         self.da_scheme_index = -1
 
-        # TODO make this a static number
         self.learning_rate = Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.001, start_range=0.0006,
                                      end_range=0.003, print_when_mutating=False, mutation_chance=0)
         self.beta1 = Mutagen(value_type=ValueType.CONTINUOUS, current_value=0.9, start_range=0.88, end_range=0.92,
@@ -43,11 +44,13 @@ class BlueprintGenome(Genome):
                                    discreet_value=nn.init.kaiming_uniform_, name='initialization function',
                                    mutation_chance=0.13)
 
-    if Config.use_representative:
+    # List of all representatives used by nodes in the Genome
+    if Config.blueprint_nodes_use_representatives:
         representatives: List[ModulenNEATNode] = property(lambda self: self.get_all_reps())
 
     def get_all_reps(self) -> List[ModulenNEATNode]:
-        if not Config.use_representative:
+        """:returns all representatives used by nodes in the Genome"""
+        if not Config.blueprint_nodes_use_representatives:
             raise Exception('Use representatives is false, but get all representatives was called')
 
         reps = list()
@@ -95,7 +98,8 @@ class BlueprintGenome(Genome):
         """update module indexes mappings based on reference mappings"""
         self.species_module_index_map = {}
 
-        if Config.use_representative:
+        if Config.blueprint_nodes_use_representatives:
+            # For representatives species_module_index_map becomes: representative -> (species index, member index)
             for rep, module in self.species_module_ref_map.items():
                 if module is None:
                     continue
@@ -129,7 +133,8 @@ class BlueprintGenome(Genome):
         """update module reference mappings based on index mappings"""
         self.species_module_ref_map = {}
 
-        if Config.use_representative:
+        if Config.blueprint_nodes_use_representatives:
+            # For representatives species_module_ref_map becomes: representative -> chosen module
             reps = self.representatives
             for rep, (spc_index, module_index) in self.species_module_index_map.items():
                 if rep not in reps:  # removes reps that no longer exist
@@ -148,7 +153,7 @@ class BlueprintGenome(Genome):
                         module_index]
 
     def mutate(self, mutation_record, attribute_magnitude=1, topological_magnitude=1, module_population=None, gen=-1):
-        """all the mutations relevant to blueprint genomes"""
+        """All the mutations relevant to blueprint genomes"""
         if Config.module_retention and random.random() < 0.1 * topological_magnitude and self.species_module_ref_map:
             # release a module_individual
             tries = 100
@@ -163,12 +168,14 @@ class BlueprintGenome(Genome):
         if Config.evolve_data_augmentations and random.random() < 0.2:
             self.da_scheme = None
 
-        if Config.use_representative:
+        if Config.blueprint_nodes_use_representatives:
+            # All representative mutation detailed in Sasha's paper section 3.2.4
             reps = self.representatives
             for node in self._nodes.values():
                 if gen == -1:
                     raise Exception('Invalid generation number: -1')
 
+                # Increase mutation chance early to better explore the space of representatives
                 chance = Config.rep_mutation_chance_early if gen <= 3 else Config.rep_mutation_chance_late
                 if random.random() > chance:  # no rep mutation
                     continue
@@ -185,8 +192,8 @@ class BlueprintGenome(Genome):
         nodes_before_mutation = set(self._nodes.keys())
         mutated = super()._mutate(mutation_record, Props.BP_NODE_MUTATION_CHANCE, Props.BP_CONN_MUTATION_CHANCE,
                                   attribute_magnitude=attribute_magnitude, topological_magnitude=topological_magnitude)
-        # Check if a node was added
-        if Config.use_representative:
+        # Check if a node was added and assign it a representative
+        if Config.blueprint_nodes_use_representatives:
             for node_id in self._nodes.keys():
                 if node_id not in nodes_before_mutation:
                     self._nodes[node_id].choose_representative(module_population.individuals, reps)

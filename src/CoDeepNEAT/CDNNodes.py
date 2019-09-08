@@ -132,16 +132,19 @@ class BlueprintNEATNode(NodeGene):
                                       mutation_chance=0.5, inherit_as_discrete=True)
         self.target_num_species_reached = False
 
-        if Config.use_representative:
+        # Changes blueprint from using species indexes to using representatives, allowing the node to act as a species
+        if Config.blueprint_nodes_use_representatives:
             self.representative = representative
 
     def get_similar_modules(self, modules, n):
-        if not Config.use_representative:
+        """:returns the n most similar modules to to self.representative"""
+        if not Config.blueprint_nodes_use_representatives:
             raise Exception('get_similar_modules called, but use representatives is false')
 
         return heapq.nsmallest(n, modules, key=lambda indv: indv.distance_to(self.representative))
 
     def choose_representative(self, modules, all_reps):
+        """Chooses a representative for self"""
         all_reps = list(set(all_reps))  # removing duplicated to make choosing fair
         chance = random.random()
         # If rep is none ignore chance to pick similar rep

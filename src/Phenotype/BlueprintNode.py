@@ -23,13 +23,13 @@ class BlueprintNode(Node):
 
         if blueprint_NEAT_node is None:
             print("null neat node passed to blueprint")
-        if Config.use_representative:
+        if Config.blueprint_nodes_use_representatives:
             self.blueprint_node_gene = blueprint_NEAT_node
         self.generate_blueprint_node_from_gene(blueprint_NEAT_node)
 
     def generate_blueprint_node_from_gene(self, gene):
         """applies the properties of the blueprint gene for this node"""
-        if Config.use_representative:
+        if Config.blueprint_nodes_use_representatives:
             self.species_number = None
         else:
             self.species_number = gene.species_number()
@@ -37,7 +37,7 @@ class BlueprintNode(Node):
     def get_module_individual(self, generation):
         """returns the module which this node is turning into.
         this may happen by a species sampling or by module retention"""
-        if not Config.use_representative:
+        if not Config.blueprint_nodes_use_representatives:
             if self.species_number in self.blueprint_genome.species_module_index_map:
                 mod_idx = self.blueprint_genome.species_module_index_map[self.species_number]
                 if isinstance(mod_idx, tuple):
@@ -90,7 +90,8 @@ class BlueprintNode(Node):
             self.blueprint_genome.modules_used_index.append((self.species_number, index))
             self.blueprint_genome.modules_used.append(input_module_individual)
 
-            if Config.use_representative:
+            # Setting the chosen module if it hasn't been chosen already
+            if Config.blueprint_nodes_use_representatives:
                 self.blueprint_genome.species_module_index_map[self.blueprint_node_gene.representative] = \
                     (self.species_number, index)
             else:

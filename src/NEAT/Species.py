@@ -129,7 +129,7 @@ class Species:
                 raise Exception("Error: cross over produced null child")
 
             if child.validate():
-                if Config.use_representative and type(child) == BlueprintGenome and module_pop is None:
+                if Config.blueprint_nodes_use_representatives and type(child) == BlueprintGenome and module_pop is None:
                     raise Exception(
                         'Using representative, but received a none module population when mutating a blueprint node')
 
