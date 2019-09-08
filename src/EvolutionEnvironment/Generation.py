@@ -226,15 +226,10 @@ class Generation:
                 bp_index.value += 1
 
             # Evaluating individual
-            try:
-                module_graph, blueprint_individual, results = self.evaluate_blueprint(blueprint_individual, inputs,
-                                                                                      curr_index)
-                result_dict[curr_index] = results, blueprint_individual, module_graph
-            except Exception as e:
-                result_dict[curr_index] = 'defective', False, False
-                if not Config.protect_parsing_from_errors:
-                    print('Defective blueprint evaluation')
-                    raise Exception(e)
+            module_graph, blueprint_individual, results = self.evaluate_blueprint(blueprint_individual, inputs,
+                                                                                  curr_index)
+            result_dict[curr_index] = results, blueprint_individual, module_graph
+
 
     def evaluate_blueprint(self, blueprint_individual, inputs, index):
         # Validation

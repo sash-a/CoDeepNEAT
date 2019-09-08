@@ -397,10 +397,8 @@ class Genome:
         root_node.get_traversal_ids("_")
         return root_node
 
-    def plot_tree_with_graphvis(self, title="", file="temp_g", view=None, graph=None, return_graph_obj=False,
+    def plot_tree_with_graphvis(self, title="", file="temp_g", view=False, graph=None, return_graph_obj=False,
                                 node_prefix=""):
-        if view is None:
-            view = Config.print_best_graphs
 
         file = os.path.join(DataManager.get_Graphs_folder(), file)
 

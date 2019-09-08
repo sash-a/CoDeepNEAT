@@ -78,11 +78,8 @@ class Node:
 
         return False
 
-    def plot_tree_with_graphvis(self, title="", graph=None, nodes_plotted=None, file="temp", view=None):
+    def plot_tree_with_graphvis(self, title="", graph=None, nodes_plotted=None, file="temp", view=False):
         file = os.path.join(DataManager.get_Graphs_folder(), file)
-
-        if view is None:
-            view = Config.print_best_graphs
 
         if graph is None:
             graph = graphviz.Digraph(comment=title)

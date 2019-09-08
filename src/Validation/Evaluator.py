@@ -46,12 +46,7 @@ def train_epoch(model, train_loader, epoch, test_loader, device, augmentors=None
 
         for batch_idx, (inputs, targets) in enumerate(train_loader):
             """batch loop"""
-
             model.optimizer.zero_grad()
-
-            if Config.interleaving_check:
-                print('in train', mp.current_process().name)
-                sys.stdout.flush()
 
             has_augs = augmentors is not None and len(augmentors) > 0
 
@@ -120,9 +115,6 @@ def test(model, test_loader, device, print_acc=False):
     correct = 0
     with torch.no_grad():
         for inputs, targets in test_loader:
-            if Config.interleaving_check:
-                print('in test', mp.current_process().name)
-                sys.stdout.flush()
 
             inputs, targets = inputs.to(device), targets.to(device)
             output = model(inputs)

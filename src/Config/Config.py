@@ -78,15 +78,6 @@ breed_mutagens = False
 mutagen_breed_chance = 0.5
 # --------------------------------------------------------------------------------------------------------------------#
 
-protect_parsing_from_errors = False
-test_in_run = False
-interleaving_check = False
-
-save_best_graphs = False
-print_best_graphs = False
-print_best_graph_every_n_generations = 5
-save_failed_graphs = False
-
 
 # --------------------------------------------------------------------------------------------------------------------#
 def get_device():

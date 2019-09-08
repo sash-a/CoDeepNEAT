@@ -111,8 +111,6 @@ def create_nn(module_graph, sample_inputs, feature_multiplier=1):
             Config.get_device())
 
     except Exception as e:
-        if Config.save_failed_graphs:
-            module_graph.plot_tree_with_graphvis("Module graph which failed to parse to nn")
         raise Exception("Error: failed to parse module graph into nn", e)
 
     for module_node in module_graph.module_graph_root_node.get_all_nodes_via_bottom_up(set()):

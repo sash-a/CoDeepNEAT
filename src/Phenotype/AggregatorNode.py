@@ -155,24 +155,7 @@ class AggregatorNode(Module):
                     i = 0
                     length_of_outputs = len(outputs)
 
-                if Config.test_in_run:
-                    feat = outputs[0].size()
-                    for c in range(0, i):
-                        new = outputs[c].size()
-                        if not (new == feat):
-                            raise Exception("Error: failed to homogenise outputs list with", homogeniser, ", found",
-                                            new, "at", i, "hom:", [x.size() for x in outputs])
-
             i += 1
-
-        if Config.test_in_run:
-            features = outputs[0].size()
-            for c in range(1, len(outputs)):
-                new_features = outputs[c].size()
-                if not (new_features == features):
-                    raise Exception("Error: failed to homogenise outputs list with", homogeniser, ", found",
-                                    new_features,
-                                    "at", c, "hom:", [x.size() for x in outputs])
 
         if outputs is None:
             raise Exception("Error: outputs turned null from homogenising using" + repr(homogeniser))

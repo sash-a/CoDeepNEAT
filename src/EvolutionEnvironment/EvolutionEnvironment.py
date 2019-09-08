@@ -91,8 +91,6 @@ def parse_args():
     parser.add_argument('-t', '--third', type=str, nargs='*', default=(Config.third_objective, 'lt'),
                         help='Third objective name and lt or gt to indicate if a lower or higher value is better')
     parser.add_argument('-f', '--fake', action='store_true', help='Runs a dummy version, for testing')
-    parser.add_argument('--protect', action='store_true', help='Protects from possible graph parsing errors')
-    parser.add_argument('-g', '--graph-save', action='store_true', help='Saves the best graphs in a generation')
 
     args = parser.parse_args()
 
@@ -116,8 +114,6 @@ def parse_args():
         if len(args.second) == 2:
             Config.third_objective, third_obj_comp = args.third
         Config.dummy_run = args.fake
-        Config.protect_parsing_from_errors = args.protect
-        Config.save_best_graphs = args.graph_save
 
         if len(args.second) == 2:
             if second_obj_comp == 'lt':
