@@ -35,16 +35,18 @@ def main():
 
 
 def run_evolution_from_scratch():
-    evolve_generation(Generation())
+    evolve_from_generation(Generation())
 
 
 def continue_evolution_from_save_state(run_name):
     generation = DataManager.load_generation_state(run_name)
     generation.update_rank_function()
-    evolve_generation(generation)
+    evolve_from_generation(generation)
 
 
-def evolve_generation(generation):
+def evolve_from_generation(generation):
+    """continues an evolutionary run for the given generation"""
+
     if generation.generation_number == -1:
         print("evolving gen from scratch")
         start_gen = 0

@@ -21,6 +21,10 @@ from src.Phenotype.ParetoPopulation import ParetoPopulation
 from src.Validation import DataLoader
 from src.Validation import Validation
 
+"""the generation class is a container for the 3 cdn populations.
+    It is also responsible for stepping the evolutionary cycle.
+    The evaluation of blueprints, and its parallelisation is controlled by this class.
+"""
 
 class Generation:
     def __init__(self):
@@ -32,7 +36,10 @@ class Generation:
 
 
     def initialise_populations(self):
+        """starts off the populations of a new generation"""
+
         if Config.deterministic_pop_init:
+            """to make the population initialisation deterministic"""
             random.seed(1)
 
         self.module_population = Population(
@@ -65,12 +72,16 @@ class Generation:
                 Props.DA_TARGET_NUM_SPECIES)
 
         if Config.deterministic_pop_init:
+            """to make the rest of the evolutionary run random again"""
             random.seed()
 
         self.update_rank_function()
 
 
     def update_rank_function(self):
+        """choses the populations ranking functions based on Config options.
+            assigns the ranking functions to the populations"""
+
         rank_fn = single_objective_rank if Config.second_objective == '' else (
             cdn_rank if Config.moo_optimiser == "cdn" else nsga_rank)
 
@@ -85,6 +96,9 @@ class Generation:
         bad_init = sys.maxsize
 
         for indv in all_indvs:
+            """update the fitness value arrays of individuals. 
+            this should only be necessary if the moo options are changed mid run time
+            for example when the algorithm is changed from single objective to multi objective mid run"""
             if len(indv.fitness_values) > num_objectives:
                 """must drop a value, ie go from storing acc,complexity to just acc"""
                 indv.fitness_values = indv.fitness_values[:num_objectives]
@@ -120,6 +134,10 @@ class Generation:
         print('Module species distribution:', ', '.join([str(len(spc)) for spc in self.module_population.species]))
 
     def evaluate(self, generation_number):
+        """evaluates all blueprints multiple times.
+            passes evaluation scores back to individuals
+        """
+
         self.generation_number = generation_number
 
         procs = []
@@ -283,9 +301,15 @@ class Generation:
         return module_graph, blueprint_individual, results
 
     def get_topology_mutation_modifier(self):
+        """for the global mutation magnitide extension.
+            returns: the top mod as a function of the generation number
+        """
         return self._get_mutation_modifier(3, 7.5, 3.5)
 
     def get_attribute_mutation_modifier(self):
+        """for the global mutation magnitide extension.
+          returns: the att mod as a function of the generation number
+                """
         return self._get_mutation_modifier(6.2, 10, 4)
 
     def _get_mutation_modifier(self, a, b, c):
