@@ -14,8 +14,12 @@ from src.Phenotype.BlueprintGraph import BlueprintGraph
 from src.Phenotype.BlueprintNode import BlueprintNode
 from src.Phenotype.ModuleNode import ModuleNode
 
+"""A collection of all genome subclasses"""
 
 class BlueprintGenome(Genome):
+
+    """the blueprint variation of the genome class."""
+
     def __init__(self, connections, nodes):
         super(BlueprintGenome, self).__init__(connections, nodes)
         self.modules_used = []  # holds ref to module individuals used - can multiple represent
@@ -63,6 +67,9 @@ class BlueprintGenome(Genome):
         return BlueprintGraph(super().to_phenotype(BlueprintNode))
 
     def pick_da_scheme(self, da_population):
+        """samples a da indv if none is stored in self.da_scheme,
+        else returns what is stored in da_scheme"""
+
         if self.da_scheme is not None and self.da_scheme in da_population.species[0].members:
             self.da_scheme_index = da_population.species[0].members.index(self.da_scheme)
             return self.da_scheme
@@ -73,7 +80,7 @@ class BlueprintGenome(Genome):
         return self.da_scheme
 
     def inherit_species_module_mapping(self, generation, other, acc, da_scheme=None, inherit_module_mapping=True):
-        """Updates the species-module mapping if accuracy is higher than max accuracy"""
+        """Updates the species-module mapping, and/or if accuracy is higher than max accuracy"""
         if acc > self.max_accuracy:
             if inherit_module_mapping:
                 other.update_module_refs(generation)
@@ -85,6 +92,7 @@ class BlueprintGenome(Genome):
                 self.da_scheme = da_scheme
 
     def update_module_indexes(self, generation):
+        """update module indexes mappings based on reference mappings"""
         self.species_module_index_map = {}
 
         if Config.use_representative:
@@ -118,6 +126,7 @@ class BlueprintGenome(Genome):
                             break
 
     def update_module_refs(self, generation):
+        """update module reference mappings based on index mappings"""
         self.species_module_ref_map = {}
 
         if Config.use_representative:
@@ -139,6 +148,7 @@ class BlueprintGenome(Genome):
                         module_index]
 
     def mutate(self, mutation_record, attribute_magnitude=1, topological_magnitude=1, module_population=None, gen=-1):
+        """all the mutations relevant to blueprint genomes"""
         if Config.module_retention and random.random() < 0.1 * topological_magnitude and self.species_module_ref_map:
             # release a module_individual
             tries = 100
@@ -184,6 +194,7 @@ class BlueprintGenome(Genome):
         return mutated
 
     def inherit(self, genome):
+        """passes da_scheme, module ref maps and weight init method from parent to child blueprint genome"""
         self.da_scheme = genome.da_scheme
         self.weight_init = copy.deepcopy(genome.weight_init)
         self.species_module_ref_map = genome.species_module_ref_map
@@ -197,14 +208,19 @@ class BlueprintGenome(Genome):
         self.update_module_indexes(generation)
 
     def reset_number_of_module_species(self, num_module_species, generation_number):
+        """updates all the species number mutagens"""
         for node in self._nodes.values():
             node.set_species_upper_bound(num_module_species, generation_number)
 
     def get_all_mutagens(self):
+        """returns all mutagens attached to the blueprint genome"""
         return [self.learning_rate, self.beta1, self.beta2, self.weight_init]
 
 
 class ModuleGenome(Genome):
+
+    """the module variation of the genome class."""
+
     def __init__(self, connections, nodes):
         super(ModuleGenome, self).__init__(connections, nodes)
         self.module_node = None  # the module node created from this gene
@@ -250,6 +266,7 @@ class ModuleGenome(Genome):
         return copy.deepcopy(module)
 
     def distance_to(self, other):
+        """the similarity metric used by modules for speciation"""
         if type(self) != type(other):
             raise TypeError('Trying finding distance from Module genome to ' + str(type(other)))
 
@@ -259,6 +276,7 @@ class ModuleGenome(Genome):
         return math.sqrt(attrib_dist * attrib_dist + topology_dist * topology_dist)
 
     def get_attribute_distance(self, other):
+        """done mutagen wise - combines the distance of each corresponding mutagen based on their values"""
         if not isinstance(other, ModuleGenome):
             raise TypeError('Expected type of ModuleGenome, received type: ' + str(type(other)))
 
@@ -288,6 +306,7 @@ class ModuleGenome(Genome):
         return str(hash(self))
 
     def get_comlexity(self):
+        """approximates the parameter size of this module"""
         complexity = 0
         for node in self._nodes.values():
             complexity += node.get_complexity()
@@ -295,6 +314,9 @@ class ModuleGenome(Genome):
 
 
 class DAGenome(Genome):
+
+    """the DA variation of the genome class."""
+
     def __init__(self, connections, nodes):
         super().__init__(connections, nodes)
 
@@ -342,7 +364,7 @@ class DAGenome(Genome):
         return da_scheme
 
     def _to_da_scheme(self, da_scheme: AugmentationScheme, curr_node_id, traversal_dictionary, debug=False):
-
+        """auxillary method used to convert from da genome to phenotype"""
         this_node_added_da = False
 
         if self._nodes[curr_node_id].enabled():
@@ -364,4 +386,5 @@ class DAGenome(Genome):
         return this_node_added_da
 
     def validate(self):
+        """to be valid, a da individual must also be linear, ie: no branches"""
         return super().validate() and not self.has_branches()

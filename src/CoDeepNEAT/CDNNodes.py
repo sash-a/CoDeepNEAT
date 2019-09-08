@@ -18,6 +18,8 @@ use_linears = True
 class ModulenNEATNode(NodeGene):
     def __init__(self, id, node_type=NodeType.HIDDEN, activation=F.relu, layer_type=nn.Conv2d,
                  conv_window_size=7, conv_stride=1, max_pool_size=2):
+        """initialises all of the nodes mutagens, and assigns initial values"""
+
         super(ModulenNEATNode, self).__init__(id, node_type)
 
         batch_norm_chance = 0.65  # chance that a new node will start with batch norm
@@ -27,7 +29,7 @@ class ModulenNEATNode(NodeGene):
         use_dropout = random.random() < dropout_chance
 
         max_pool_chance = 0.3  # chance that a new node will start with drop out
-        use_max_pool = random.random() < dropout_chance
+        use_max_pool = random.random() < max_pool_chance
 
         self.activation = Mutagen(F.relu, F.leaky_relu, torch.sigmoid, F.relu6,
                                   discreet_value=activation, name="activation function",
@@ -52,7 +54,7 @@ class ModulenNEATNode(NodeGene):
                 "out_features": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=linear_out_features,
                                         start_range=10,
                                         end_range=1024, name="num out features", mutation_chance=0.22,
-                                        distance_weighting=Props.LAYER_SIZE_COEFFICIENT if Config.allow_attribute_distance else 0)
+                                        distance_weighting=Props.LAYER_SIZE_COEFFICIENT if Config.  allow_attribute_distance else 0)
             }
 
         conv_submutagens = {
@@ -111,6 +113,7 @@ class ModulenNEATNode(NodeGene):
         return repr(self.layer_type()) + "\n" + "features: " + repr(self.layer_type.get_sub_value("out_features"))
 
     def get_complexity(self):
+        """approximates the size of this layer in terms of trainable parameters"""
         if self.layer_type() == nn.Conv2d:
             return pow(self.layer_type.get_sub_value("conv_window_size"), 2) * self.layer_type.get_sub_value(
                 "out_features")
@@ -184,6 +187,7 @@ class BlueprintNEATNode(NodeGene):
         return [self.species_number]
 
     def set_species_upper_bound(self, num_species, generation_number):
+        """used to update the species number mutagens. takes care of the species number shuffling"""
         if not self.target_num_species_reached and num_species >= Props.MODULE_TARGET_NUM_SPECIES:
             """species count starts low, and increases quickly. 
             due to low species number mutation rates, nodes would largely be stuck
@@ -206,6 +210,7 @@ class BlueprintNEATNode(NodeGene):
 
 class DANode(NodeGene):
     def __init__(self, id, node_type=NodeType.HIDDEN):
+        """initialises da mutagens, and sets initial values"""
         super().__init__(id, node_type)
 
         da_submutagens = {
@@ -315,6 +320,7 @@ class DANode(NodeGene):
         return repr(self.da()) + "\n" + self.get_node_parameters()
 
     def get_node_parameters(self):
+        """used for plotting da genomes"""
         parameters = []
         if self.da.get_sub_values() is not None:
             for key, value in self.da.get_sub_values().items():
