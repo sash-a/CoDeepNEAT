@@ -2,7 +2,10 @@ import os
 
 import matplotlib.pyplot as plt
 from data import DataManager
+from src.Analysis.EvolutionaryDataPlotter import name_overrides
 
+"""reads, parses and reports on the maximum accuracies attained by each of the netwokrs 
+which were fully trained, and had their results put into the results folder"""
 
 def get_accuracies(results_lines):
     accs = []
@@ -50,7 +53,11 @@ def get_all_results_files_in_folder(dataset,folder):
 
 def print_max_accuracies(dataset):
     for run in get_all_results_folders(dataset):
-        print(run)
+        run_name = run
+        if run_name in name_overrides:
+            run_name = name_overrides[run_name]
+        print(run_name)
+
         for result_file in get_all_results_files_in_folder(dataset,run):
             file_path = os.path.join(DataManager.get_results_folder(), dataset,"fully_train",run, result_file)
             # print(result_file,file_path)
@@ -59,7 +66,8 @@ def print_max_accuracies(dataset):
                 accuracies = get_accuracies(lines)
                 # print(accuracies)
                 max_acc = max(accuracies)
-                print("\t", result_file.replace(".txt", ""), "max acc:", max_acc)
+                config_name = result_file.replace(".txt", "")
+                print("\t", config_name, "max acc:", max_acc)
 
 
 def get_fm_acc_tuples(dataset):
@@ -113,4 +121,4 @@ def plot_fm_acc_tuples(dataset):
 if __name__ == "__main__":
     dataset = "CIFAR-10"
     print_max_accuracies(dataset)
-    plot_fm_acc_tuples(dataset)
+    # plot_fm_acc_tuples(dataset)

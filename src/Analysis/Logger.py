@@ -2,13 +2,12 @@ import ast
 import os
 import os.path
 from typing import List
-
 from data import DataManager
-
 from src.Analysis.GenerationData import GenerationData
 
-generations: List[GenerationData] = []
+"""the logging tool for saving/reading the results of runs during evolution"""
 
+generations: List[GenerationData] = []
 
 def log_new_generation(accuracies, generation_number, second_objective_values=None, third_objective_values=None,
                        write_summaries=False):

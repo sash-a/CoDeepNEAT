@@ -1,5 +1,6 @@
 from src.Config import Config
 
+"""a convienient wrapper to contain all of an evolutionary runs scores for all its objectives"""
 
 class GenerationData:
     def __init__(self, accuracies, generation_number, second_objective_values, third_objective_values):

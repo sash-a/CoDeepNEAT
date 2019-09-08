@@ -1,13 +1,12 @@
 import os
-
 from data import DataManager
-
 import src.Config.Config as Config
 from src.Analysis.EvolutionaryDataPlotter import get_all_run_names
 from src.NeuralNetwork.ModuleNet import create_nn
 # generation = DataManager.load_generation_state(Config.run_name)
 from src.Validation import DataLoader
 
+"""a file to trigger the plotting of the top n graphs in each run inside data/runs"""
 
 def plot_all_graphs(top_num=1):
     runs = get_all_run_names()
