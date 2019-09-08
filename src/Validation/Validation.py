@@ -7,6 +7,10 @@ from src.Validation import Evaluator, DataLoader
 
 
 def get_fully_trained_network(module_graph, data_augs, num_epochs=100, plot_best_graph=False):
+    """takes a module graph, converts it into a module net NN and trains it for n epochs.
+    used to fully train a saved module graph to find its max accuracy
+    """
+
     train, test = DataLoader.load_data(dataset=module_graph.dataset)
     sample, _ = DataLoader.sample_data(Config.get_device(), dataset=module_graph.dataset)
 
@@ -37,7 +41,8 @@ def get_fully_trained_network(module_graph, data_augs, num_epochs=100, plot_best
     print("model trained on", num_epochs, "epochs scored:", acc)
 
 
-def get_accuracy_for_network(model, da_scheme=None, batch_size=256):
+def get_accuracy_estimate_for_network(model, da_scheme=None, batch_size=256):
+    """used in the evolutionary process to  train a model for the number of epochs specified in Config settings"""
     if Config.dummy_run:
         acc = random.random()
     else:

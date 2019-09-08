@@ -6,6 +6,8 @@ from src.Config import Config
 
 
 def load_data(batch_size=64, dataset=""):
+    """loads a dataset using the torch dataloader and and the settings in Config"""
+
     data_loader_args = {'num_workers': Config.num_workers, 'pin_memory': False if Config.device != 'cpu' else False}
     data_path = DataManager.get_Datasets_folder()
 
@@ -76,6 +78,7 @@ def load_data(batch_size=64, dataset=""):
 
 
 def sample_data(device, batch_size=16, dataset=""):
+    """returns a single batch of the dataset named in Config"""
     train_loader, test_loader = load_data(batch_size=batch_size, dataset=dataset)
     for batch_idx, (inputs, targets) in enumerate(train_loader):
         return inputs.to(device), targets.to(device)

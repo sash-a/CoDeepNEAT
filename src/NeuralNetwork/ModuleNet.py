@@ -24,12 +24,17 @@ class ModuleNet(nn.Module):
         self.final_layer = None
 
     def configure(self, learning_rate, beta1, beta2):
+        """sets the hyper parameters which are evolved by the blueprint"""
         self.lr = learning_rate
         self.effective_lr = learning_rate
         self.beta1 = beta1
         self.beta2 = beta2
 
     def specify_dimensionality(self, input_sample, output_dimensionality=torch.tensor([10])):
+        """configures the final layers dimensionality to fit the target functions dimensions.
+            performs a 'configuration run' which passes a sample input up the layer graph once.
+            this is used to reshape inputs as they go through the graph.
+        """
         if self.dimensionality_configured:
             print("warning - trying to configure dimensionality multiple times on the same network")
             return
@@ -55,6 +60,10 @@ class ModuleNet(nn.Module):
         self.module_graph.blueprint_genome.weight_init.get_value()(self.final_layer.weight)
 
     def forward(self, x, configuration_run=False):
+        """passes an input up and through the layer graph.
+            then passes it through the final layer, which
+            shapes the output to the target functions dimensionality
+        """
         if x is None:
             print("null x passed to forward 1")
             return
@@ -75,6 +84,8 @@ class ModuleNet(nn.Module):
         self._init_weights(self.module_graph.module_graph_root_node)
 
     def _init_weights(self, module_node):
+        """uses the weight init scheme from the blueprint to initialise
+        the weights of all the layers in each module node"""
         for child in module_node.children:
             if child.deep_layer is None:
                 continue
@@ -83,7 +94,7 @@ class ModuleNet(nn.Module):
             self._init_weights(child)
 
     def multiply_learning_rate(self, factor):
-
+        """used for adaptive learning rate adjustment"""
         new_lr = self.lr * factor
 
         for param_group in self.optimizer.param_groups:
@@ -101,6 +112,7 @@ class ModuleNet(nn.Module):
 
 
 def create_nn(module_graph, sample_inputs, feature_multiplier=1):
+    """static method to create an instance of a module net given a module graph."""
     blueprint_individual = module_graph.blueprint_genome
 
     if module_graph is None:

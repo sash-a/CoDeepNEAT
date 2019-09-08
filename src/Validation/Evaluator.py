@@ -87,6 +87,8 @@ def train_epoch(model, train_loader, epoch, test_loader, device, augmentors=None
 
 
 def train_batch(model, inputs, targets, device, augmentor=None):
+    """trains the model for one batch """
+
     if augmentor is not None:
         train_inputs, train_labels = BatchAugmentor.augment_batch(inputs.numpy(), targets.numpy(), augmentor)
         train_inputs, train_labels = train_inputs.to(device), train_labels.to(device)
