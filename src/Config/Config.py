@@ -67,8 +67,8 @@ speciation_overhaul = False
 blueprint_nodes_use_representatives = False  # section 3.2.4 Sasha's paper
 rep_mutation_chance_early = 0.6
 rep_mutation_chance_late = 0.2
-similar_rep_mutation_chance = 0.2
-closest_reps_to_consider = 10
+similar_rep_mutation_chance = 0.2  # chance to mutate all of the nodes with the same representative in the same way
+closest_reps_to_consider = 6
 
 use_graph_edit_distance = False
 ignore_disabled_connections_for_topological_similarity = False
