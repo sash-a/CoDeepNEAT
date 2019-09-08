@@ -6,6 +6,8 @@ from src.NEAT.Mutagen import Mutagen
 
 class Gene:
 
+    """a gene is the general form of a neat node or connection"""
+
     def __init__(self, id):
         self.id = id
 
@@ -49,6 +51,7 @@ class NodeType(Enum):
 
 
 class NodeGene(Gene):
+    """the general form of blueprintNeatNode ect"""
     def __init__(self, id, type: NodeType = NodeType.HIDDEN):
         super().__init__(id)
 
@@ -66,6 +69,7 @@ class NodeGene(Gene):
 
 
 class ConnectionGene(Gene):
+    """Neat connection between nodes"""
     def __init__(self, id, from_node: int, to_node: int):
         super().__init__(id)
 

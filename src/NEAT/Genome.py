@@ -83,6 +83,7 @@ class Genome:
         self._connections[conn.id] = conn
 
     def report_fitness(self, fitnesses):
+        """updates the fitnesses stored with a new given fitness"""
         if self.fitness_values is None or not self.fitness_values:
             self.fitness_values = [0 for _ in fitnesses]
 
@@ -171,10 +172,12 @@ class Genome:
         return neat_dist
 
     def mutate(self, mutation_record, attribute_magnitude=1, topological_magnitude=1, module_population=None, gen=-1):
+        """each cdn genomme should override this method to do the specific mutations each type needs."""
         raise NotImplemented('Mutation should be called not in base class')
 
     def _mutate(self, mutation_record, add_node_chance, add_connection_chance, allow_connections_to_mutate=True,
                 debug=False, attribute_magnitude=1, topological_magnitude=1):
+        """the base mutation function which controls topological mutations and mutagen mutations"""
         if debug:
             print("Before mutation: ", self, "has branches;", self.has_branches())
 
@@ -254,6 +257,7 @@ class Genome:
         return True
 
     def crossover(self, other):
+        """performs neat style cross over between self and other as parents"""
         best = self if self < other else other
         worst = self if self > other else other
 
@@ -321,7 +325,7 @@ class Genome:
         self._calculate_heights(self.get_input_node().id, 0, self._get_traversal_dictionary())
 
     def _calculate_heights(self, current_node_id, height, traversal_dictionary):
-        """Calculates the heights of each node so that no cycles can occur in the graph"""
+        """Calculates the heights of each node to make sure that no cycles can occur in the graph"""
         self._nodes[current_node_id].height = max(height, self._nodes[current_node_id].height)
 
         if self._nodes[current_node_id].is_output_node():

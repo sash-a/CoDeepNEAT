@@ -4,6 +4,7 @@ import sys
 
 from src.Config import Config
 
+"""a collection of the population ranking functions which were tested"""
 
 def single_objective_rank(individuals):
     individuals.sort(key=lambda indv: (0 if not indv.fitness_values else indv.fitness_values[0]), reverse=True)

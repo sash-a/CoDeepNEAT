@@ -4,12 +4,21 @@ from enum import Enum
 
 
 class ValueType(Enum):
+    """discrete mutagens mutate between a set of options"""
     DISCRETE = 0
+    """whole/continuous numbers mutate a numerical value inside of a range"""
     WHOLE_NUMBERS = 1
     CONTINUOUS = 2
 
 
 class Mutagen:
+
+    """this class represents any mutatable parameter used by cdn.
+        generally speaking mutagens represent gene attributes
+
+        a submutagen is a mutagen which only applies to a specific discrete option of the parent mutagen
+        where layer_type is a mutagen, convolutional_window_size is a submutagen of layertype for the value convulutional_layer
+    """
 
     def __init__(self, *discreet_options, name="", current_value=-1, start_range=None, end_range=None,
                  value_type=ValueType.DISCRETE, sub_mutagens: dict = None, discreet_value=None, mutation_chance=None,
@@ -42,7 +51,7 @@ class Mutagen:
             print("error in initialising mutagen. "
                   "value must either be discreet and provided with options. or numerical values with a provided range")
 
-        self.sub_values = sub_mutagens
+        self.sub_values = sub_mutagens  #maps value:{sub_mutagen_name:submutagen}
         if value_type == ValueType.DISCRETE:
             self.set_value(discreet_value)
 
@@ -57,7 +66,10 @@ class Mutagen:
             self.mutation_chance = mutation_chance
 
     def inherit(self, other):
-        """returns """
+        """used by the mutagen breeding extension
+            sets this mutagens values and subvalues closer to the values and subvalues of other
+            this is the interpolation of this node towards other
+        """
         if self.value_type != other.value_type:
             raise Exception("cannot breed mutagens of differing types:", self.value_type, other.value_type)
 
@@ -91,7 +103,8 @@ class Mutagen:
         return self.get_value()
 
     def mutate(self, magnitude=1):
-        """:returns whether or not this gene mutated"""
+        """varies this mutagens values and subvalues
+        :returns whether or not this mutagen mutated"""
         old_value = self()
         self.mutate_sub_mutagens()
         if self.print_when_mutating:
@@ -142,6 +155,7 @@ class Mutagen:
             return not old_value == self()
 
     def mutate_sub_mutagens(self):
+        """part of the recursive mutation"""
         if not (self.sub_values is None):
             for val in self.sub_values.keys():
                 subs = self.sub_values[val]
@@ -158,6 +172,7 @@ class Mutagen:
             return self.current_value
 
     def get_sub_value(self, sub_value_name, value=None, return_mutagen=False):
+        """returns the submutagen or its value given its name"""
         if value is None:
             mutagen = self.sub_values[self.get_value()]
         else:
@@ -199,6 +214,9 @@ class Mutagen:
         return str(self.value_type) + ' ' + str(self.start_range) + ' ' + str(self.end_range)
 
     def distance_to(self, other):
+        """used for attribute distance.
+            calculates the distance or similarity between self and an other mutagen of the same kind
+        """
         if self.value_type == ValueType.DISCRETE:
             dist = 0
             if self() != other():

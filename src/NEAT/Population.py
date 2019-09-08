@@ -10,6 +10,7 @@ from src.NEAT.Species import Species
 
 
 class MutationRecords:
+
     def __init__(self, initial_mutations, current_max_node_id, current_max_conn_id):
         """Records all mutation in a single run so that no innovation is misused"""
         self.mutations = initial_mutations
@@ -45,6 +46,10 @@ class MutationRecords:
 
 
 class Population:
+    """contains species, which contain cdn individuals
+        may be a pop of modules, blueprints, or das
+    """
+
     def __init__(self, individuals, rank_population_fn, initial_mutations, population_size, max_node_id, max_innovation,
                  target_num_species):
 
@@ -88,6 +93,7 @@ class Population:
         return len(self.species)
 
     def speciate(self, individuals):
+        """collects all members together and redistributes them into new species"""
         for species in self.species:
             species.empty_species()
 
@@ -130,6 +136,8 @@ class Population:
         self.species = [spc for spc in self.species if spc.members]
 
     def adjust_speciation_threshold(self):
+        """dynamically alters the speciation threshold to try to achieve
+        the target number of species in the next speciation step"""
         if self.target_num_species == 1:
             return
 
@@ -157,7 +165,8 @@ class Population:
         self.current_threshold_dir = new_dir
 
     def update_species_sizes(self):
-        """Should be called before species.step(). Assigns the desired size of all species."""
+        """Should be called before species.step().
+        Assigns the desired size of all species based on fitnesses."""
         population_average_rank = self.get_average_rank()
         if population_average_rank == 0:
             raise Exception("population", self, "has an average rank of 0")
@@ -175,6 +184,7 @@ class Population:
             species.set_next_species_size(species_size)
 
     def get_average_rank(self):
+        """used for fitness normalisation"""
         individuals = self._get_all_individuals()
         if len(individuals) == 0:
             raise Exception("no individuals in population", self, "cannot get average rank")
@@ -204,6 +214,7 @@ class Population:
         self.speciate(individuals)
 
     def plot_species_spaces(self, generation):
+        """an analysis tool to asses the stability of species borders over time in feature space"""
         if self.target_num_species == 1:
             return
         relative_individual = self.species[0].members[0]

@@ -8,6 +8,8 @@ from src.Config import Config, NeatProperties as Props
 
 
 class Species:
+    """a collection of cdn individuals which a meant to be functionally similar"""
+
     def __init__(self, representative):
         self.representative = representative
         self.members = [representative]
@@ -35,6 +37,8 @@ class Species:
 
     def step(self, mutation_record, topological_mutation_modifier=1, attribute_mutation_modifier=1, module_pop=None,
              gen=-1):
+        """culls the species, and repopulates it with reproduction"""
+
         if len(self.members) == 0:
             raise Exception("cannot step empty species")
 
@@ -69,6 +73,7 @@ class Species:
 
     def _reproduce(self, mutation_record, number_of_elite, topological_mutation_modifier, attribute_mutation_modifier,
                    module_pop=None, gen=-1):
+        """crosses over the fittest members to create new offspring"""
         elite = self.members[:number_of_elite]
         children = []
         num_children = self.next_species_size - len(elite)
@@ -153,6 +158,9 @@ class Species:
         self.members.sort(key=lambda x: x.rank)
 
     def get_average_rank(self):
+        """average ranking of the members in this species.
+            used for rating species against each other when assigning species sizes
+        """
         if Config.adjust_species_mutation_magnitude_based_on_fitness:
             ranks = [indv.rank for indv in self.members if indv.fitness_values[0] != 0]
             if len(ranks) == 0:
@@ -163,6 +171,7 @@ class Species:
             return sum([indv.rank for indv in self.members]) / len(self.members)
 
     def _cull_species(self, num_elite):
+        """removes all members unfit for reproduction"""
         surivors = math.ceil(Props.PERCENT_TO_REPRODUCE * len(self.members))
         surivors = max(surivors, num_elite)
         for i in range(surivors, len(self.members)):
@@ -173,6 +182,9 @@ class Species:
         self.members = self.members[:surivors]
 
     def _select_representative(self):
+        """after reproduction, a new reprosentative is chosen
+            it will be used to decide which members come back to this species next generation
+        """
         if not Config.speciation_overhaul:
             self.representative = random.choice(self.members)
         else:
