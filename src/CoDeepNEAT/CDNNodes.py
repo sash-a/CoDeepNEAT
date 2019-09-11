@@ -54,7 +54,7 @@ class ModulenNEATNode(NodeGene):
                 "out_features": Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=linear_out_features,
                                         start_range=10,
                                         end_range=1024, name="num out features", mutation_chance=0.22,
-                                        distance_weighting=Props.LAYER_SIZE_COEFFICIENT if Config.  allow_attribute_distance else 0)
+                                        distance_weighting=Props.LAYER_SIZE_COEFFICIENT if Config.allow_attribute_distance else 0)
             }
 
         conv_submutagens = {
@@ -130,6 +130,8 @@ class BlueprintNEATNode(NodeGene):
         self.species_number = Mutagen(value_type=ValueType.WHOLE_NUMBERS, current_value=0, start_range=0,
                                       end_range=1, print_when_mutating=False, name="species number",
                                       mutation_chance=0.5, inherit_as_discrete=True)
+
+        self.chosen_module: ModulenNEATNode = None
         self.target_num_species_reached = False
 
         # Changes blueprint from using species indexes to using representatives, allowing the node to act as a species

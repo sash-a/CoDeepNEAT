@@ -71,6 +71,27 @@ class BlueprintGenome(Genome):
         """
         return BlueprintGraph(super().to_phenotype(BlueprintNode))
 
+    def to_phenotype(self, Phenotype):
+        multi_input_map = self.get_multi_input_nodes()
+        node_map = self.get_reachable_nodes(False)
+        connected_nodes = self.get_fully_connected_nodes()
+        # Add nodes with multiple inputs to node_map_from_inputs so that they can be inserted as aggregator nodes
+        # Aggregator nodes are represented as negative the node they are aggregating for
+        # Set all multi input nodes (node_map.values) to negative
+        for multi_input_node_id in multi_input_map.keys():
+            for from_node in node_map.keys():
+                if multi_input_node_id in node_map[from_node]:
+                    # print(from_node, node_map[from_node])
+                    idx = node_map[from_node].index(multi_input_node_id)
+                    node_map[from_node][idx] *= -1
+
+        # Add aggregator nodes as keys and point them to the node they aggregate the inputs for
+        # i.e -3 (an agg node) to 3 (used to be multi input node, now single input)
+        for multi_input_node_id in multi_input_map.keys():
+            node_map[multi_input_node_id * -1] = [multi_input_node_id]
+
+        # TODO: traverse and create modules. Connect input child to output of parent.
+
     def pick_da_scheme(self, da_population):
         """samples a da indv if none is stored in self.da_scheme,
         else returns what is stored in da_scheme"""
@@ -275,34 +296,32 @@ class ModuleGenome(Genome):
 
     def to_phenotype(self, Phenotype):
         multi_input_map = self.get_multi_input_nodes()
-        node_map_from_input = self.get_reachable_nodes(False)
+        node_map = self.get_reachable_nodes(False)
         connected_nodes = self.get_fully_connected_nodes()
         # Add nodes with multiple inputs to node_map_from_inputs so that they can be inserted as aggregator nodes
-        # Set all multi input nodes (in the values of bp_map) to negative - this represents an aggregator node
-        # i.e 3 would have an aggregator node of -3
+        # Aggregator nodes are represented as negative the node they are aggregating for
+        # Set all multi input nodes (node_map.values) to negative
         for multi_input_node_id in multi_input_map.keys():
-            for from_node in node_map_from_input.keys():
-                if multi_input_node_id in node_map_from_input[from_node]:
-                    idx = node_map_from_input[from_node].index(multi_input_node_id)
-                    node_map_from_input[from_node][idx] *= -1
+            for from_node in node_map.keys():
+                if multi_input_node_id in node_map[from_node]:
+                    # print(from_node, node_map[from_node])
+                    idx = node_map[from_node].index(multi_input_node_id)
+                    node_map[from_node][idx] *= -1
 
         # Add aggregator nodes as keys and point them to the node they aggregate the inputs for
-        # i.e -3 (an agg node) to 3 (a multi input node)
+        # i.e -3 (an agg node) to 3 (used to be multi input node, now single input)
         for multi_input_node_id in multi_input_map.keys():
-            node_map_from_input[multi_input_node_id * -1] = [multi_input_node_id]
-
-        print('agg nodes', multi_input_map)
-        print('new node map', node_map_from_input)
+            node_map[multi_input_node_id * -1] = [multi_input_node_id]
 
         input_neat_node = self.get_input_node()
         input_layer = Layer(input_neat_node)
 
         def create_layers(current_layer: Layer, current_node_id):
             # Create layers from genome
-            if current_node_id == 1:
+            if current_node_id not in node_map:
                 return
 
-            for node_id in node_map_from_input[current_node_id]:
+            for node_id in node_map[current_node_id]:
                 # Check node is a connected node or is an aggregator node before making it a layer
                 if node_id not in connected_nodes and node_id >= 0:
                     continue

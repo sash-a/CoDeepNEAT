@@ -1,7 +1,5 @@
 from torch import nn
 from src.CoDeepNEAT.CDNGenomes import BlueprintGenome
-from src.NEAT.Genome import Genome
-from NEAT.Gene import NodeGene
 
 from src.Phenotype2.Layer import Layer
 from src.Phenotype2.AggregationLayer import AggregationLayer

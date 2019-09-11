@@ -329,7 +329,9 @@ class Genome:
             if curr_node not in new_dict:
                 new_dict[curr_node] = []
 
-            new_dict[curr_node].append(node)
+            if node not in new_dict[curr_node]:  # don't add node id if already there
+                new_dict[curr_node].append(node)
+
             self._get_reachable_nodes(node_dict, node, new_dict)
 
     def has_branches(self):
