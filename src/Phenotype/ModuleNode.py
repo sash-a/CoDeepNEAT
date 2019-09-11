@@ -198,8 +198,7 @@ class ModuleNode(Node):
         if self.is_conv2d() and list(input.size())[2] < minimum_conv_dim:
             xkernel, ykernel = self.deep_layer.kernel_size
             xkernel, ykernel = (xkernel - 1) // 2, (ykernel - 1) // 2
-            input = F.pad(input=input, pad=(ykernel, ykernel, xkernel, xkernel), mode='constant',
-                          value=0)
+            input = F.pad(input=input, pad=(ykernel, ykernel, xkernel, xkernel), mode='constant', value=0)
 
         if self.regularisation is None:
             output = self.deep_layer(input)

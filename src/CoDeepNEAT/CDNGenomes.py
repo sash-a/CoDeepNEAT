@@ -16,8 +16,8 @@ from src.Phenotype.ModuleNode import ModuleNode
 
 """A collection of all genome subclasses"""
 
-class BlueprintGenome(Genome):
 
+class BlueprintGenome(Genome):
     """the blueprint variation of the genome class."""
 
     def __init__(self, connections, nodes):
@@ -225,7 +225,6 @@ class BlueprintGenome(Genome):
 
 
 class ModuleGenome(Genome):
-
     """the module variation of the genome class."""
 
     def __init__(self, connections, nodes):
@@ -321,7 +320,6 @@ class ModuleGenome(Genome):
 
 
 class DAGenome(Genome):
-
     """the DA variation of the genome class."""
 
     def __init__(self, connections, nodes):
