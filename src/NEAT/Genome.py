@@ -37,23 +37,11 @@ class Genome:
             self.add_connection(connection, True)
         self.netx_graph = None
 
-    def __gt__(self, other):
-        return self.rank > other.rank
-
-    def __lt__(self, other):
-        return self.rank < other.rank
-
     def eq(self, other):
         if not isinstance(other, Genome):
             return False
 
         return self._nodes.keys() == other._nodes.keys() and self._connections.values() == other._connections.values()
-
-    def get_unique_genes(self, other):
-        if not isinstance(other, Genome):
-            raise TypeError('Expected type Genome, received type: ' + str(type(other)))
-
-        return self._connections.keys() - other._connections.keys()
 
     def get_disjoint_excess_genes(self, other):
         if not isinstance(other, Genome):
@@ -295,24 +283,58 @@ class Genome:
             if node.is_input_node():
                 return node
 
+        raise Exception('Genome:', self, 'could not find an input node')
+
+    def get_output_node(self):
+        for node in self._nodes.values():
+            if node.is_output_node():
+                return node
+
         raise Exception('Genome:', self, 'could not find an output node')
 
-    def _get_traversal_dictionary(self, exclude_disabled_connection=False):
-        """:returns a mapping of from node id to a list of to node ids for easy traversal"""
+    def get_traversal_dictionary(self, exclude_disabled_connection=False, reverse=False):
+        """
+        :param exclude_disabled_connection: if true does not include nodes connected by disabled connections
+        :param reverse: if true dictionary keys become 'to nodes' and values become 'from nodes'
+        :returns: a mapping {node id -> list of connected node ids} for easy traversal
+        """
         dictionary = {}
 
         for conn in self._connections.values():
             if not conn.enabled() and exclude_disabled_connection:
                 continue
-            if conn.from_node not in dictionary:
-                dictionary[conn.from_node] = []
 
-            dictionary[conn.from_node].append(conn.to_node)
+            key, value = (conn.from_node, conn.to_node) if not reverse else (conn.to_node, conn.from_node)
+
+            if key not in dictionary:
+                dictionary[key] = []
+
+            dictionary[key].append(value)
+
         return dictionary
+
+    def get_reachable_nodes(self, reverse):
+        node_dict = self.get_traversal_dictionary(True, reverse)
+        new_dict = {}
+
+        start_id = self.get_input_node().id if not reverse else self.get_output_node().id
+        self._get_reachable_nodes(node_dict, start_id, new_dict)
+        return new_dict
+
+    def _get_reachable_nodes(self, node_dict, curr_node, new_dict):
+        if curr_node not in node_dict:
+            return
+
+        for node in node_dict[curr_node]:
+            if curr_node not in new_dict:
+                new_dict[curr_node] = []
+
+            new_dict[curr_node].append(node)
+            self._get_reachable_nodes(node_dict, node, new_dict)
 
     def has_branches(self):
         """Checks if there are any paths that don't reach the output node that do not contain disabled connections"""
-        traversal_dict = self._get_traversal_dictionary(exclude_disabled_connection=True)
+        traversal_dict = self.get_traversal_dictionary(exclude_disabled_connection=True)
         for children in traversal_dict.values():
             if len(children) > 1:
                 return True
@@ -322,7 +344,7 @@ class Genome:
         for node in self._nodes.values():
             node.height = 0
 
-        self._calculate_heights(self.get_input_node().id, 0, self._get_traversal_dictionary())
+        self._calculate_heights(self.get_input_node().id, 0, self.get_traversal_dictionary())
 
     def _calculate_heights(self, current_node_id, height, traversal_dictionary):
         """Calculates the heights of each node to make sure that no cycles can occur in the graph"""
@@ -336,7 +358,7 @@ class Genome:
             self._calculate_heights(child, height + 1, traversal_dictionary)
 
     def validate(self):
-        return self._validate_traversal(self.get_input_node().id, self._get_traversal_dictionary(True), set())
+        return self._validate_traversal(self.get_input_node().id, self.get_traversal_dictionary(True), set())
 
     def _validate_traversal(self, current_node_id, traversal_dictionary, nodes_visited):
         """Confirms that there is a path from input to output"""
@@ -420,3 +442,26 @@ class Genome:
         graph.render(file, view=view)
         if return_graph_obj:
             return graph
+
+    def get_fully_connected_nodes(self):
+        """:returns only nodes that are connected to input and output node"""
+        # Discard hanging nodes - i.e nodes that are only connected to either the input or output node
+        node_map_from_input = self.get_reachable_nodes(False)
+        node_map_from_output = self.get_reachable_nodes(True)
+        # All non-hanging nodes excluding input and output node
+        connected_nodes = node_map_from_input.keys() & node_map_from_output.keys()
+        connected_nodes.add(self.get_input_node().id)  # Add input node
+        connected_nodes.add(self.get_output_node().id)  # Add output node
+
+        return connected_nodes
+
+    def get_multi_input_nodes(self):
+        # Find all nodes with multiple inputs
+        multi_input_map = {}  # maps {node id: number of inputs}
+        node_map = self.get_reachable_nodes(False)
+        for node_id in self.get_fully_connected_nodes():
+            num_inputs = sum(list(node_map.values()), []).count(node_id)
+            if num_inputs > 1:
+                multi_input_map[node_id] = num_inputs
+
+        return multi_input_map

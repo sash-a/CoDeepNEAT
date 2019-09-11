@@ -20,6 +20,7 @@ class AggregationLayer(nn.Module):
         elif self.received_inputs < self.num_inputs:
             return
 
+        # TODO: should received inputs be reset here? Otherwise need to reset them somewhere.
         return self.aggregate()
 
     def aggregate(self):

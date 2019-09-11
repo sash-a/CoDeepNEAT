@@ -50,3 +50,4 @@ class Layer(nn.Module):
             input = self.dropout(input)
 
         return input
+

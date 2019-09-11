@@ -5,6 +5,8 @@ from typing import List
 
 from torch import nn
 
+from Phenotype2.AggregationLayer import AggregationLayer
+from Phenotype2.Layer import Layer
 from src.CoDeepNEAT.CDNNodes import ModulenNEATNode, BlueprintNEATNode
 from src.Config import Config, NeatProperties as Props
 from src.DataAugmentation.AugmentationScheme import AugmentationScheme
@@ -271,6 +273,51 @@ class ModuleGenome(Genome):
         self.module_node = module
         return copy.deepcopy(module)
 
+    def to_phenotype(self, Phenotype):
+        multi_input_map = self.get_multi_input_nodes()
+        node_map_from_input = self.get_reachable_nodes(False)
+        connected_nodes = self.get_fully_connected_nodes()
+        # Add nodes with multiple inputs to node_map_from_inputs so that they can be inserted as aggregator nodes
+        # Set all multi input nodes (in the values of bp_map) to negative - this represents an aggregator node
+        # i.e 3 would have an aggregator node of -3
+        for multi_input_node_id in multi_input_map.keys():
+            for from_node in node_map_from_input.keys():
+                if multi_input_node_id in node_map_from_input[from_node]:
+                    idx = node_map_from_input[from_node].index(multi_input_node_id)
+                    node_map_from_input[from_node][idx] *= -1
+
+        # Add aggregator nodes as keys and point them to the node they aggregate the inputs for
+        # i.e -3 (an agg node) to 3 (a multi input node)
+        for multi_input_node_id in multi_input_map.keys():
+            node_map_from_input[multi_input_node_id * -1] = [multi_input_node_id]
+
+        print('agg nodes', multi_input_map)
+        print('new node map', node_map_from_input)
+
+        input_neat_node = self.get_input_node()
+        input_layer = Layer(input_neat_node)
+
+        def create_layers(current_layer: Layer, current_node_id):
+            # Create layers from genome
+            if current_node_id == 1:
+                return
+
+            for node_id in node_map_from_input[current_node_id]:
+                # Check node is a connected node or is an aggregator node before making it a layer
+                if node_id not in connected_nodes and node_id >= 0:
+                    continue
+
+                if node_id >= 0:
+                    new_layer = Layer(self._nodes[node_id])
+                else:
+                    new_layer = AggregationLayer(multi_input_map[node_id * -1])
+
+                current_layer.add_module(str(node_id), new_layer)
+                create_layers(new_layer, node_id)
+
+        create_layers(input_layer, input_neat_node.id)
+        return input_layer
+
     def distance_to(self, other):
         """the similarity metric used by modules for speciation"""
         if type(self) != type(other):
@@ -332,7 +379,7 @@ class DAGenome(Genome):
                 node_names.append(node.get_node_name())
 
         toString = "\tNodes:" + repr(list(node_names)) + "\n" + "\tTraversal_Dict: " + repr(
-            self._get_traversal_dictionary())
+            self.get_traversal_dictionary())
         return "\n" + "\tConnections: " + super().__repr__() + "\n" + toString
 
     def _mutate_add_connection(self, mutation_record, node1, node2):
@@ -350,7 +397,7 @@ class DAGenome(Genome):
         """Construct a data augmentation scheme from its genome"""
 
         da_scheme = AugmentationScheme(None, None)
-        traversal = self._get_traversal_dictionary(exclude_disabled_connection=True)
+        traversal = self.get_traversal_dictionary(exclude_disabled_connection=True)
         curr_node = self.get_input_node().id
 
         if not self._to_da_scheme(da_scheme, curr_node, traversal, debug=True):

@@ -36,10 +36,10 @@ class ModuleNet(nn.Module):
             this is used to reshape inputs as they go through the graph.
         """
         if self.dimensionality_configured:
-            print("warning - trying to configure dimensionality multiple times on the same network")
+            print("Warning - trying to configure dimensionality multiple times on the same network")
             return
         if self.lr == 0:
-            raise Exception('please set net learning rate before calling specify dims')
+            raise Exception('Must set net learning rate before calling specify dimensionality')
         output_nodes = int(list(output_dimensionality)[0])
         output = self(input_sample, configuration_run=True)
         if output is None:
