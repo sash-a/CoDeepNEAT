@@ -71,7 +71,7 @@ class BlueprintGenome(Genome):
         """
         return BlueprintGraph(super().to_phenotype(BlueprintNode))
 
-    def to_phenotype(self, Phenotype):
+    def to_phenotype(self, Phenotype, module_species):
         multi_input_map = self.get_multi_input_nodes()
         node_map = self.get_reachable_nodes(False)
         connected_nodes = self.get_fully_connected_nodes()
@@ -91,6 +91,37 @@ class BlueprintGenome(Genome):
             node_map[multi_input_node_id * -1] = [multi_input_node_id]
 
         # TODO: traverse and create modules. Connect input child to output of parent.
+        # Select module genomes then create and link modules phenotypes from the genomes
+        def create_modules(current_bp: BlueprintNEATNode):
+            if current_bp.species_number in self.species_module_ref_map:
+                mod_idx = self.species_module_index_map[current_bp.species_number]
+                if isinstance(mod_idx, tuple):
+                    spc, mod = mod_idx
+                    module_genome = module_species[spc][mod]
+                else:
+                    module_genome = module_species[current_bp.species_number][mod_idx]
+            else:
+                module_genome, mod_idx = module_species[current_bp.species_number].sample_individual()
+                self.species_module_index_map[current_bp.species_number] = mod_idx
+
+            nn_input_node, nn_output_node = module_genome.to_phenotype(None)  # TODO make it return output also
+
+            # Get the output node and link to parent bp
+            if current_bp.id not in node_map:
+                return nn_input_node, nn_output_node
+
+            for child_bp_node_id in node_map:
+                # If aggregator node
+                if child_bp_node_id < 0:
+                    # This won't work is gonna create multiple agg layers
+                    child_input_node = AggregationLayer(multi_input_map[child_bp_node_id * -1])
+                else:
+                    child_input_node, child_output_node = create_modules(self._nodes[child_bp_node_id])
+
+                # Linking out of parent to input of child
+                nn_output_node.add_module(str(child_bp_node_id), child_input_node)  # TODO unique ID
+
+            return nn_input_node, nn_output_node
 
     def pick_da_scheme(self, da_population):
         """samples a da indv if none is stored in self.da_scheme,
