@@ -380,16 +380,16 @@ class Genome:
 
     def to_phenotype(self, Phenotype):
         """Converts self to a neural network"""
-        phenotyes = {}
+        phenotypes = {}
 
         root_node = None
         output_node = None
         for node in self._nodes.values():
-            phenotyes[node.id] = Phenotype(node, self)
+            phenotypes[node.id] = Phenotype(node, self)
             if node.is_input_node():
-                root_node = phenotyes[node.id]
+                root_node = phenotypes[node.id]
             if node.is_output_node():
-                output_node = phenotyes[node.id]
+                output_node = phenotypes[node.id]
 
         for conn in self._connections.values():
             if not conn.enabled():
@@ -398,8 +398,8 @@ class Genome:
             if conn.from_node == conn.to_node:
                 raise Exception("connection from and to the same node", conn.from_node)
 
-            parent = phenotyes[conn.from_node]
-            child = phenotyes[conn.to_node]
+            parent = phenotypes[conn.from_node]
+            child = phenotypes[conn.to_node]
 
             parent.add_child(child)
 
@@ -412,7 +412,7 @@ class Genome:
             raise Exception("output node not in fully connected nodes")
 
         for neat_node in self._nodes.values():
-            graph_node = phenotyes[neat_node.id]
+            graph_node = phenotypes[neat_node.id]
 
             if graph_node in fully_connected_nodes:
                 continue
