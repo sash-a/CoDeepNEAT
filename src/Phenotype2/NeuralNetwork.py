@@ -21,8 +21,8 @@ class Network(nn.Module):
 
         self.model, output_layer = blueprint.to_phenotype(None, module_species)
         final_shape = self.shape_layers(self.model, input_shape, output_layer)
-        print(self.model)
-        print(final_shape)
+
+        # shaping the final layer
         flat_size = reduce(lambda x, y: x * y, final_shape)
         self.reshape = False
         if len(final_shape) != 2 or final_shape[1] != flat_size:
@@ -78,6 +78,7 @@ genome0 = ModuleGenome([conn0, conn1, conn2, conn3, conn4, conn5, conn6, conn7],
 conn10 = ConnectionGene(0, 0, 1)
 n10 = ModuleNEATNode(0, NodeType.INPUT)
 n11 = ModuleNEATNode(1, NodeType.OUTPUT)
+n10.layer_type.set_value(nn.Linear)
 genome1 = ModuleGenome([conn10], [n10, n11])
 
 # in_layer, out_layer = genome0.to_phenotype(None)
@@ -98,7 +99,7 @@ import math
 from src.Utilities.Utils import get_flat_number
 
 x: tensor
-x, target = DL.sample_data(Config.get_device(), 1)
+x, target = DL.sample_data(Config.get_device(), 16)
 enen = Network(bpg, spcs, list(x.shape))
 print(enen)
 print(enen(x))

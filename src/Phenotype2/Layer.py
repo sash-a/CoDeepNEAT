@@ -14,6 +14,7 @@ class Layer(BaseLayer):
         self.module_node: ModuleNEATNode = module
 
         self.out_features = round(module.layer_type.get_sub_value('out_features') * feature_multiplier)
+        print('of', self.out_features)
 
         self.deep_layer: nn.Module = None  # layer does not yet have a size
         self.reshape_layer: nn.Module = None
@@ -48,7 +49,8 @@ class Layer(BaseLayer):
 
     def forward(self, x):
         # TODO layer sizing
-
+        if self.reshape_layer is not None:
+            x = self.reshape_layer(x)
         if self.deep_layer is not None:
             x = self.deep_layer(x)
         if self.regularisation is not None:
@@ -68,14 +70,14 @@ class Layer(BaseLayer):
         else:
             raise Exception('Invalid input of size ' + str(len(in_shape)))
 
-        flat_size = reduce(lambda x, y: x * y, in_shape)
+        flat_size = int(reduce(lambda x, y: x * y, in_shape))
 
         # Calculating out feature size, creating deep layer and reshaping if necessary
         if self.module_node.layer_type.value == nn.Conv2d:
             if len(in_shape) == 2:
                 # TODO non-square
                 h = w = int(math.sqrt(flat_size / channels))
-                self.reshape_layer(batch, channels, h, w).to(Config.get_device())
+                self.reshape_layer = Reshape(batch, channels, h, w).to(Config.get_device())
 
             # TODO padding the image could help
             # Also could make kernel size and stride a tuple
@@ -99,5 +101,7 @@ class Layer(BaseLayer):
             if len(in_shape) != 2 or channels != flat_size:
                 self.reshape_layer = Reshape(batch, flat_size).to(Config.get_device())
 
-            self.deep_layer = nn.Linear(flat_size, self.out_features).to(Config.get_device())
+            self.deep_layer = nn.Linear(flat_size, int(self.out_features)).to(Config.get_device())
             return [batch, self.out_features]
+# TODO
+# ValueError: Expected more than 1 value per channel when training, got input size torch.Size([1, 121])
