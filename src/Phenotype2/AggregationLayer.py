@@ -1,9 +1,9 @@
 from torch import nn, tensor
 from typing import List
-from src.Phenotype2.Layer import Layer
+from src.Phenotype2.LayerUtils import BaseLayer
 
 
-class AggregationLayer(nn.Module):
+class AggregationLayer(BaseLayer):
     def __init__(self, num_inputs: int):
         super().__init__()
         self.num_inputs: int = num_inputs

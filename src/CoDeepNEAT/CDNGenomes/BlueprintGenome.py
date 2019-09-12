@@ -1,16 +1,22 @@
 import copy
 import random
 from typing import List
-
 from torch import nn
 
-from CoDeepNEAT.CDNGenomes import DAGenome
-from Config import Config, NeatProperties as Props
 from NEAT.Genome import Genome
+from CoDeepNEAT.CDNGenomes.DAGenome import DAGenome
+from CoDeepNEAT.CDNGenomes.ModuleGenome import ModuleGenome
+
+from CoDeepNEAT.CDNNodes.BlueprintNode import BlueprintNEATNode
+from CoDeepNEAT.CDNNodes.ModuleNode import ModuleNEATNode
+
+from Config import Config, NeatProperties as Props
 from NEAT.Mutagen import Mutagen, ValueType
+from NEAT.Species import Species
 from Phenotype.BlueprintGraph import BlueprintGraph
 from Phenotype.BlueprintNode import BlueprintNode
 from Phenotype2.AggregationLayer import AggregationLayer
+from Phenotype2.Layer import Layer
 
 
 class BlueprintGenome(Genome):
@@ -42,9 +48,9 @@ class BlueprintGenome(Genome):
 
     # List of all representatives used by nodes in the Genome
     if Config.blueprint_nodes_use_representatives:
-        representatives: List[ModulenNEATNode] = property(lambda self: self.get_all_reps())
+        representatives: List[ModuleNEATNode] = property(lambda self: self.get_all_reps())
 
-    def get_all_reps(self) -> List[ModulenNEATNode]:
+    def get_all_reps(self) -> List[ModuleNEATNode]:
         """:returns all representatives used by nodes in the Genome"""
         if not Config.blueprint_nodes_use_representatives:
             raise Exception('Use representatives is false, but get all representatives was called')
@@ -65,7 +71,7 @@ class BlueprintGenome(Genome):
         """
         return BlueprintGraph(super().to_phenotype(BlueprintNode))
 
-    def to_phenotype(self, Phenotype, module_species):
+    def to_phenotype(self, Phenotype, module_species: List[Species]):
         multi_input_map = self.get_multi_input_nodes()
         node_map = self.get_reachable_nodes(False)
         connected_nodes = self.get_fully_connected_nodes()
@@ -84,49 +90,52 @@ class BlueprintGenome(Genome):
         for multi_input_node_id in multi_input_map.keys():
             node_map[multi_input_node_id * -1] = [multi_input_node_id]
 
-        # TODO: traverse and create modules. Connect input child to output of parent.
-        # Select module genomes then create and link modules phenotypes from the genomes
-        def create_modules(current_bp: BlueprintNEATNode):
-            if current_bp.species_number in self.species_module_ref_map:
-                mod_idx = self.species_module_index_map[current_bp.species_number]
-                if isinstance(mod_idx, tuple):
-                    spc, mod = mod_idx
-                    module_genome = module_species[spc][mod]
+        agg_layers = {}
+        # input node of the input module and output node of the input module
+        input_module_input, input_module_output = self.get_input_node().pick_module(self.species_module_index_map, module_species).to_phenotype(None)
+        output_module = self.get_output_node().pick_module(self.species_module_index_map, module_species).to_phenotype(None)
+
+        def create_modules(parent_nn_output: Layer, parent_bp_node_id):
+            if parent_bp_node_id not in node_map:
+                return
+
+            for child_node_id in node_map[parent_bp_node_id]:
+                # Check node is a connected node or is an aggregator node before making it a layer
+                if child_node_id not in connected_nodes and child_node_id >= 0:
+                    continue
+
+                nn_input_layer: nn.Module
+                nn_output_layer: nn.Module
+
+                if child_node_id >= 0:
+                    # Creates a new module
+                    bp_node: BlueprintNEATNode = self._nodes[child_node_id]
+                    neat_module: ModuleGenome = bp_node.pick_module(self.species_module_index_map, module_species)
+                    # Use already created output module if child is output node
+                    nn_input_layer, nn_output_layer = neat_module.to_phenotype(None) \
+                        if not bp_node.is_output_node() else output_module
+                    create_modules(nn_output_layer, child_node_id)
+                elif child_node_id in agg_layers:
+                    nn_input_layer = agg_layers[child_node_id]  # only create an aggregation layer once
                 else:
-                    module_genome = module_species[current_bp.species_number][mod_idx]
-            else:
-                module_genome, mod_idx = module_species[current_bp.species_number].sample_individual()
-                self.species_module_index_map[current_bp.species_number] = mod_idx
+                    # Create aggregation layer if not already created and node_id is negative
+                    nn_input_layer = AggregationLayer(multi_input_map[child_node_id * -1])
+                    agg_layers[child_node_id] = nn_input_layer
+                    create_modules(nn_input_layer, child_node_id)
 
-            nn_input_node, nn_output_node = module_genome.to_phenotype(None)  # TODO make it return output also
+                # Connect output of parent to input of child
+                parent_nn_output.add_module(str(child_node_id), nn_input_layer)
 
-            # Get the output node and link to parent bp
-            if current_bp.id not in node_map:
-                return nn_input_node, nn_output_node
-
-            for child_bp_node_id in node_map:
-                # If aggregator node
-                if child_bp_node_id < 0:
-                    # This won't work is gonna create multiple agg layers
-                    child_input_node = AggregationLayer(multi_input_map[child_bp_node_id * -1])
-                else:
-                    child_input_node, child_output_node = create_modules(self._nodes[child_bp_node_id])
-
-                # Linking out of parent to input of child
-                nn_output_node.add_module(str(child_bp_node_id), child_input_node)  # TODO unique ID
-
-            return nn_input_node, nn_output_node
+        create_modules(input_module_output, self.get_input_node().id)  # starts the recursive call for creating modules
+        return input_module_input, output_module[1]
 
     def pick_da_scheme(self, da_population):
-        """samples a da indv if none is stored in self.da_scheme,
-        else returns what is stored in da_scheme"""
+        """samples a da individual if none is stored in self.da_scheme, else returns what is stored in da_scheme"""
 
         if self.da_scheme is not None and self.da_scheme in da_population.species[0].members:
             self.da_scheme_index = da_population.species[0].members.index(self.da_scheme)
             return self.da_scheme
 
-        # Assuming data augmentation only has 1 species
-        # TODO make sure there is only ever 1 species - could make it random choice from individuals
         self.da_scheme, self.da_scheme_index = da_population.species[0].sample_individual()
         return self.da_scheme
 

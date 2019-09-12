@@ -96,3 +96,17 @@ class BlueprintNEATNode(NodeGene):
 
     def get_node_name(self):
         return "Species:" + repr(self.species_number())
+
+    def pick_module(self, species_module_index_map, module_species):
+        if self.species_number in species_module_index_map:
+            mod_idx = species_module_index_map[self.species_number.value]
+            if isinstance(mod_idx, tuple):
+                spc, mod = mod_idx
+                module_genome = module_species[spc][mod]
+            else:
+                module_genome = module_species[self.species_number.value][mod_idx]
+        else:
+            module_genome, mod_idx = module_species[self.species_number.value].sample_individual()
+            species_module_index_map[self.species_number.value] = mod_idx
+
+        return module_genome

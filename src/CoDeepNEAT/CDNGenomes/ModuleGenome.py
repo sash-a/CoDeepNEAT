@@ -1,6 +1,7 @@
 import copy
 import math
 
+from CoDeepNEAT.CDNNodes.ModuleNode import ModuleNEATNode
 from Config import NeatProperties as Props
 from NEAT.Genome import Genome
 from Phenotype.ModuleNode import ModuleNode
@@ -74,29 +75,42 @@ class ModuleGenome(Genome):
         for multi_input_node_id in multi_input_map.keys():
             node_map[multi_input_node_id * -1] = [multi_input_node_id]
 
+        agg_layers = {}  # maps {node_id : AggregatorLayer}
+
         input_neat_node = self.get_input_node()
         input_layer = Layer(input_neat_node)
+        output_layer = Layer(self.get_output_node())
 
-        def create_layers(current_layer: Layer, current_node_id):
-            # Create layers from genome
-            if current_node_id not in node_map:
+        print(node_map)
+
+        def create_layers(parent_layer: Layer, parent_node_id: int):
+            if parent_node_id not in node_map:
                 return
 
-            for node_id in node_map[current_node_id]:
+            for child_node_id in node_map[parent_node_id]:
                 # Check node is a connected node or is an aggregator node before making it a layer
-                if node_id not in connected_nodes and node_id >= 0:
+                if child_node_id not in connected_nodes and child_node_id >= 0:
                     continue
 
-                if node_id >= 0:
-                    new_layer = Layer(self._nodes[node_id])
+                if child_node_id >= 0:
+                    # Creates a new layer
+                    neat_node: ModuleNEATNode = self._nodes[child_node_id]
+                    # Use already created output layer if child is output node
+                    new_layer = Layer(neat_node) if not neat_node.is_output_node() else output_layer
+                    create_layers(new_layer, child_node_id)
+                elif child_node_id in agg_layers:
+                    new_layer = agg_layers[child_node_id]  # only create an aggregation layer once
                 else:
-                    new_layer = AggregationLayer(multi_input_map[node_id * -1])
+                    # Create aggregation layer if not already created and node_id is negative
+                    new_layer = AggregationLayer(multi_input_map[child_node_id * -1])
+                    agg_layers[child_node_id] = new_layer
+                    create_layers(new_layer, child_node_id)
 
-                current_layer.add_module(str(node_id), new_layer)
-                create_layers(new_layer, node_id)
+                parent_layer.add_module(str(child_node_id), new_layer)  # Add new layer as a child of current layer
 
-        create_layers(input_layer, input_neat_node.id)
-        return input_layer
+        create_layers(input_layer, input_neat_node.id)  # starts the recursive call for creating layers
+
+        return input_layer, output_layer
 
     def distance_to(self, other):
         """the similarity metric used by modules for speciation"""
