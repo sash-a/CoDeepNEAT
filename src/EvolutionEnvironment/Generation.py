@@ -13,7 +13,9 @@ import src.Validation.DataLoader
 from src.Analysis import Logger
 from src.CoDeepNEAT import PopulationInitialiser as PopInit
 from src.CoDeepNEAT.CDNGenomes import ModuleGenome, BlueprintGenome, DAGenome
-from src.CoDeepNEAT.CDNNodes import ModulenNEATNode, BlueprintNEATNode, DANode
+from src.CoDeepNEAT.CDNNodes.ModuleNode import ModuleNEATNode
+from src.CoDeepNEAT.CDNNodes.BlueprintNode import BlueprintNEATNode
+from src.CoDeepNEAT.CDNNodes.DANode import DANode
 from src.Config import Config
 from src.NEAT.Population import Population
 from src.NEAT.PopulationRanking import single_objective_rank, cdn_rank, nsga_rank
@@ -26,6 +28,7 @@ from src.Validation import Validation
     The evaluation of blueprints, and its parallelisation is controlled by this class.
 """
 
+
 class Generation:
     def __init__(self):
         self.speciesNumbers = []
@@ -33,7 +36,6 @@ class Generation:
         self.initialise_populations()
         self.generation_number = -1
         self.pareto_population = ParetoPopulation()
-
 
     def initialise_populations(self):
         """starts off the populations of a new generation"""
@@ -43,7 +45,7 @@ class Generation:
             random.seed(1)
 
         self.module_population = Population(
-            PopInit.initialize_pop(ModulenNEATNode, ModuleGenome, Props.MODULE_POP_SIZE, True),
+            PopInit.initialize_pop(ModuleNEATNode, ModuleGenome, Props.MODULE_POP_SIZE, True),
             None,
             PopInit.initialize_mutations(True),
             Props.MODULE_POP_SIZE,
@@ -77,7 +79,6 @@ class Generation:
 
         self.update_rank_function()
 
-
     def update_rank_function(self):
         """choses the populations ranking functions based on Config options.
             assigns the ranking functions to the populations"""
@@ -106,8 +107,6 @@ class Generation:
             while len(indv.fitness_values) < num_objectives:
                 """must prepare for a new fitness score: complexity"""
                 indv.fitness_values.append(bad_init)
-
-
 
     def step(self):
         """Runs CDN for one generation - must be called after fitness evaluation"""
@@ -199,9 +198,9 @@ class Generation:
                 else:
                     if isinstance(member_index, tuple):
                         spc, mod = member_index
-                        module_indv =self.module_population.species[spc][mod]
+                        module_indv = self.module_population.species[spc][mod]
                     else:
-                        module_indv =self.module_population.species[species_index][member_index]
+                        module_indv = self.module_population.species[species_index][member_index]
 
                     acc = fitness[0]
 
@@ -225,10 +224,10 @@ class Generation:
             self.pareto_population.queue_candidate(module_graph)
 
         Logger.log_new_generation(accuracies, generation_number,
-                                           second_objective_values=(
-                                               second_objective_values if second_objective_values else None),
-                                           third_objective_values=(
-                                               third_objective_values if third_objective_values else None))
+                                  second_objective_values=(
+                                      second_objective_values if second_objective_values else None),
+                                  third_objective_values=(
+                                      third_objective_values if third_objective_values else None))
 
     def _evaluate(self, lock, bp_index, result_dict):
         cv2.setNumThreads(0)
@@ -247,7 +246,6 @@ class Generation:
             module_graph, blueprint_individual, results = self.evaluate_blueprint(blueprint_individual, inputs,
                                                                                   curr_index)
             result_dict[curr_index] = results, blueprint_individual, module_graph
-
 
     def evaluate_blueprint(self, blueprint_individual, inputs, index):
         # Validation

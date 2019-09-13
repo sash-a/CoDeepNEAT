@@ -7,6 +7,8 @@ from src.CoDeepNEAT.CDNNodes.ModuleNode import ModuleNEATNode
 from src.Phenotype2.LayerUtils import Reshape, BaseLayer
 import src.Config.Config as Config
 
+from src.Phenotype import AggregatorOperations
+
 
 class Layer(BaseLayer):
     def __init__(self, module: ModuleNEATNode, feature_multiplier=1):
@@ -28,8 +30,6 @@ class Layer(BaseLayer):
         neat_reduction = module.layer_type.get_sub_value('reduction', return_mutagen=True)
         neat_dropout = module.layer_type.get_sub_value('dropout', return_mutagen=True)
 
-        device = Config.get_device()
-
         if neat_regularisation.value is not None:
             self.regularisation = neat_regularisation()(self.out_features)
 
@@ -39,7 +39,7 @@ class Layer(BaseLayer):
                 if neat_reduction.value == nn.MaxPool2d:
                     self.reduction = nn.MaxPool2d(pool_size, pool_size)  # TODO this should be stride
                 elif neat_reduction.value == nn.MaxPool1d:
-                    # TODO should be this: but need to calc size for 1d nn.MaxPool1d(pool_size).to(device)
+                    # TODO should be this: but need to calc size for 1d nn.MaxPool1d(pool_size)
                     self.reduction = nn.MaxPool2d(pool_size, pool_size)
             else:
                 raise Exception('Error unimplemented reduction ' + repr(neat_reduction()))
@@ -104,6 +104,6 @@ class Layer(BaseLayer):
             self.deep_layer = nn.Linear(img_flat_size, int(self.out_features))
             self.out_shape = [batch, self.out_features]
 
+        print('\n\nin', in_shape)
+        print('out', self.out_shape)
         return self.out_shape
-# TODO
-# ValueError: Expected more than 1 value per channel when training, got input size torch.Size([1, 121])
