@@ -66,7 +66,6 @@ class ModuleGenome(Genome):
         for multi_input_node_id in multi_input_map.keys():
             for from_node in node_map.keys():
                 if multi_input_node_id in node_map[from_node]:
-                    # print(from_node, node_map[from_node])
                     idx = node_map[from_node].index(multi_input_node_id)
                     node_map[from_node][idx] *= -1
 
@@ -80,8 +79,6 @@ class ModuleGenome(Genome):
         input_neat_node = self.get_input_node()
         input_layer = Layer(input_neat_node)
         output_layer = Layer(self.get_output_node())
-
-        print(node_map)
 
         def create_layers(parent_layer: Layer, parent_node_id: int):
             if parent_node_id not in node_map:

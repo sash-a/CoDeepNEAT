@@ -277,7 +277,7 @@ class Generation:
         else:
             da_scheme = None
 
-        accuracy = Validation.get_accuracy_estimate_for_network(net, da_scheme=da_scheme, batch_size=256)
+        accuracy = Validation.get_accuracy_estimate_for_network(net, da_scheme=da_scheme, batch_size=Config.batch_size)
 
         objective_names = [Config.second_objective, Config.third_objective]
         results = [accuracy]

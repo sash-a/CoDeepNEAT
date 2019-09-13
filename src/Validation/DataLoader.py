@@ -8,7 +8,7 @@ from src.Config import Config
 from typing import Tuple
 
 
-def load_data(batch_size=64, dataset=""):
+def load_data(batch_size=Config.batch_size, dataset=""):
     """loads a dataset using the torch dataloader and and the settings in Config"""
 
     data_loader_args = {'num_workers': Config.num_workers, 'pin_memory': False if Config.device != 'cpu' else False}
@@ -79,7 +79,7 @@ def load_data(batch_size=64, dataset=""):
     return train_loader, test_loader
 
 
-def sample_data(device, batch_size=16, dataset=Config.dataset) -> Tuple[tensor, tensor]:
+def sample_data(device, batch_size=Config.batch_size, dataset=Config.dataset) -> Tuple[tensor, tensor]:
     """returns a single batch of the dataset named in Config"""
     train_loader, test_loader = load_data(batch_size=batch_size, dataset=dataset)
     input, target = next(iter(train_loader))

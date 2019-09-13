@@ -16,7 +16,6 @@ class Layer(BaseLayer):
         self.module_node: ModuleNEATNode = module
 
         self.out_features = round(module.layer_type.get_sub_value('out_features') * feature_multiplier)
-        self.out_shape: list = []
 
         self.deep_layer: nn.Module = None  # layer does not yet have a size
         self.reshape_layer: nn.Module = None
@@ -49,7 +48,6 @@ class Layer(BaseLayer):
 
     def forward(self, x):
         if self.reshape_layer is not None:
-            print('Reshaping input with shape:', x.shape, 'to:', self.reshape_layer.size)
             x = self.reshape_layer(x)
         if self.deep_layer is not None:
             x = self.deep_layer(x)
@@ -77,7 +75,6 @@ class Layer(BaseLayer):
             if len(in_shape) == 2:
                 h = w = int(math.sqrt(img_flat_size / channels))
                 self.reshape_layer = Reshape(batch, channels, h, w)
-                print('reshape', (batch, channels, h, w))
 
             # TODO could make kernel size and stride a tuple
             padding = 1  # TODO how is this affecting the output
@@ -101,9 +98,7 @@ class Layer(BaseLayer):
             if len(in_shape) != 2 or channels != img_flat_size:
                 self.reshape_layer = Reshape(batch, img_flat_size)
 
-            self.deep_layer = nn.Linear(img_flat_size, int(self.out_features))
+            self.deep_layer = nn.Linear(img_flat_size, self.out_features)
             self.out_shape = [batch, self.out_features]
 
-        print('\n\nin', in_shape)
-        print('out', self.out_shape)
         return self.out_shape

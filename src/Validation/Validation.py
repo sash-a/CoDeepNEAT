@@ -30,7 +30,7 @@ def get_fully_trained_network(module_graph, data_augs, num_epochs=100, plot_best
         print("fully training using augs:", data_augs)
 
     acc = Evaluator.evaluate(model, num_epochs, Config.get_device(), train_loader=train, test_loader=test,
-                             print_accuracy=True, batch_size=256, augmentors=da_phenotypes,
+                             print_accuracy=True, batch_size=Config.batch_size, augmentors=da_phenotypes,
                              training_target=module_graph.fitness_values[0])
 
     if Config.toss_bad_runs and acc == "toss":
@@ -41,7 +41,7 @@ def get_fully_trained_network(module_graph, data_augs, num_epochs=100, plot_best
     print("model trained on", num_epochs, "epochs scored:", acc)
 
 
-def get_accuracy_estimate_for_network(model, da_scheme=None, batch_size=256):
+def get_accuracy_estimate_for_network(model, da_scheme=None, batch_size=Config.batch_size):
     """used in the evolutionary process to  train a model for the number of epochs specified in Config settings"""
     if Config.dummy_run:
         acc = random.random()

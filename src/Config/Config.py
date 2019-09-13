@@ -20,6 +20,7 @@ num_workers = 0  # this doesn't work in parallel because daemonic processes cann
 dataset = 'cifar10'
 data_path = ''
 number_of_epochs_per_evaluation = 5
+batch_size = 256
 
 # --------------------------------------------------------------------------------------------------------------------#
 # fully train options
@@ -34,7 +35,8 @@ toss_bad_runs = False
 drop_learning_rate = True
 drop_period = 30
 drop_factor = 1.2
-use_adaptive_learning_rate_adjustment = True
+use_adaptive_learning_rate_adjustment = False
+
 # --------------------------------------------------------------------------------------------------------------------#
 # Multiobjective options
 second_objective = ''  # network_size | network_size_adjusted | network_size_adjusted_2

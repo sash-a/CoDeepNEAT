@@ -88,7 +88,6 @@ def train_epoch(model, train_loader, epoch, test_loader, device, augmentors=None
 
 def train_batch(model, inputs, targets, device, augmentor=None):
     """trains the model for one batch """
-
     if augmentor is not None:
         train_inputs, train_labels = BatchAugmentor.augment_batch(inputs.numpy(), targets.numpy(), augmentor)
         train_inputs, train_labels = train_inputs.to(device), train_labels.to(device)
@@ -140,7 +139,7 @@ def test(model, test_loader, device, print_acc=False):
     return acc
 
 
-def evaluate(model, epochs, device, batch_size=64, augmentors=None, train_loader=None, test_loader=None,
+def evaluate(model, epochs, device, batch_size=Config.batch_size, augmentors=None, train_loader=None, test_loader=None,
              print_accuracy=False, training_target=-1):
     """
     Runs all epochs and tests the model after all epochs have run
@@ -184,6 +183,7 @@ def evaluate(model, epochs, device, batch_size=64, augmentors=None, train_loader
                 return "toss"
 
     e = time.time()
+    print('Training time over ', epochs, ' epochs is:', e-s)
 
     test_acc = test(model, test_loader, device)
     return test_acc

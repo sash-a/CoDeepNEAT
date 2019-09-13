@@ -1,4 +1,4 @@
-from torch import nn, tensor
+from torch import nn, tensor, optim
 import torch
 
 from src.CoDeepNEAT.CDNGenomes.BlueprintGenome import BlueprintGenome
@@ -21,19 +21,19 @@ class Network(nn.Module):
 
         self.model, output_layer = blueprint.to_phenotype(None, module_species)
         self.shape_layers(input_shape)
-        final_shape = output_layer.out_shape
-        print(final_shape, output_layer.deep_layer)
 
         # shaping the final layer
-        img_flat_size = int(reduce(lambda x, y: x * y, final_shape) / final_shape[0])
+        img_flat_size = int(reduce(lambda x, y: x * y, output_layer.out_shape) / output_layer.out_shape[0])
         self.use_final_reshape = False
-        if len(final_shape) != 2 or final_shape[1] != img_flat_size:
+        if len(output_layer.out_shape) != 2 or output_layer.out_shape[1] != img_flat_size:
             self.use_final_reshape = True
             self.reshape_layer = Reshape(input_shape[0], img_flat_size)
 
         self.final_layer = nn.Linear(img_flat_size, output_dim)
 
-        # TODO: get params and add optimizer
+        self.loss_fn = nn.NLLLoss()
+        self.optimizer: torch.optim.adam = optim.Adam(self.parameters(), lr=self.blueprint.learning_rate.value,
+                                                      betas=(self.blueprint.beta1.value, self.blueprint.beta2.value))
 
     def forward(self, input):
         q: List[Tuple[Union[Layer, AggregationLayer], tensor]] = [(self.model, input)]
@@ -59,6 +59,9 @@ class Network(nn.Module):
             # out_shape will be None if agg layer has not received all its inputs yet
             if output_shape is not None:
                 q.extend([(child, output_shape) for child in list(layer.children()) if isinstance(child, BaseLayer)])
+
+    def multiply_learning_rate(self, factor):
+        pass
 
 
 from NEAT.Gene import ConnectionGene
@@ -106,13 +109,15 @@ bn1.species_number.set_value(1)
 bpg = BlueprintGenome([conn10], [bn0, bn1])
 
 import src.Validation.DataLoader as DL
+from src.Validation.Validation import get_accuracy_estimate_for_network
+
 import math
 from src.Utilities.Utils import get_flat_number
 
 x: tensor
-x, target = DL.sample_data(Config.get_device(), 16)
+x, target = DL.sample_data(Config.get_device(), 256)
 enen = Network(bpg, spcs, list(x.shape)).to(Config.get_device())
 # print(enen)
 
-from src.Validation.Validation import get_accuracy_estimate_for_network
+
 get_accuracy_estimate_for_network(enen)

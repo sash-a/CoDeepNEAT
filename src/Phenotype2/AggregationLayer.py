@@ -10,7 +10,6 @@ from src.Phenotype import AggregatorOperations
 class AggregationLayer(BaseLayer):
     def __init__(self, num_inputs: int):
         super().__init__()
-        self.out_shape: list = []
 
         self.n_inputs_expected: int = num_inputs
         self.n_inputs_received: int = 0
@@ -26,10 +25,13 @@ class AggregationLayer(BaseLayer):
             return
 
         aggregated = self.aggregate()
-        # TODO: inputs should probably be reset after the step although can be pretty sure that its fine
+        # TODO: inputs should probably be reset after the step although can be pretty sure that this is fine
+        self.reset()
+        return aggregated
+
+    def reset(self):
         self.n_inputs_received = 0
         self.inputs = []
-        return aggregated
 
     def create_layer(self, in_shape: list):
         self.n_inputs_received += 1
@@ -42,8 +44,7 @@ class AggregationLayer(BaseLayer):
 
         # Calculate the output shape of the layer by passing input through it
         self.out_shape = list(self.aggregate().size())
-        self.n_inputs_received = 0
-        self.inputs = []
+        self.reset()
 
         return self.out_shape
 
