@@ -146,8 +146,8 @@ class ModuleGenome(Genome):
         super().end_step()
         self.module_node = None
 
-    def __repr__(self):
-        return str(hash(self))
+    # def __repr__(self):
+    #     return str(hash(self))
 
     def get_comlexity(self):
         """approximates the parameter size of this module"""

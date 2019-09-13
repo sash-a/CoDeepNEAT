@@ -5,8 +5,8 @@ import torch.multiprocessing as mp
 
 # --------------------------------------------------------------------------------------------------------------------#
 # Run state options
-run_name = "mms20E_da_breed"
-continue_from_last_run = True
+run_name = "compare"
+continue_from_last_run = False
 deterministic_pop_init = True
 dummy_run = False
 max_num_generations = 30
@@ -58,14 +58,14 @@ batch_by_batch = False
 
 # --------------------------------------------------------------------------------------------------------------------#
 # module retention options
-module_retention = False
-fitness_aggregation = 'avg'  # max | avg
+module_retention = True
+fitness_aggregation = 'max'  # max | avg
 
 allow_species_module_mapping_ignores = True
 allow_cross_species_mappings = True
 # --------------------------------------------------------------------------------------------------------------------#
 # specitation options
-speciation_overhaul = False
+speciation_overhaul = True
 
 blueprint_nodes_use_representatives = False  # section 3.2.4 Sasha's paper
 rep_mutation_chance_early = 0.6

@@ -1,27 +1,33 @@
 import copy
 import sys
-
 import math
-import multiprocessing as mp
 import random
+import time
 
+import multiprocessing as mp
 import cv2
+
+from Phenotype2.NeuralNetwork import Network
+
 from data import DataManager
 
 import src.Config.NeatProperties as Props
-import src.Validation.DataLoader
-from src.Analysis import Logger
-from src.CoDeepNEAT import PopulationInitialiser as PopInit
-from src.CoDeepNEAT.CDNGenomes import ModuleGenome, BlueprintGenome, DAGenome
-from src.CoDeepNEAT.CDNNodes.ModuleNode import ModuleNEATNode
-from src.CoDeepNEAT.CDNNodes.BlueprintNode import BlueprintNEATNode
-from src.CoDeepNEAT.CDNNodes.DANode import DANode
 from src.Config import Config
+from src.Validation import DataLoader, Validation
+from src.Analysis import Logger
+
+from src.CoDeepNEAT import PopulationInitialiser as PopInit
 from src.NEAT.Population import Population
 from src.NEAT.PopulationRanking import single_objective_rank, cdn_rank, nsga_rank
 from src.Phenotype.ParetoPopulation import ParetoPopulation
-from src.Validation import DataLoader
-from src.Validation import Validation
+
+from src.CoDeepNEAT.CDNGenomes.ModuleGenome import ModuleGenome
+from src.CoDeepNEAT.CDNGenomes.BlueprintGenome import BlueprintGenome
+from src.CoDeepNEAT.CDNGenomes.DAGenome import DAGenome
+
+from src.CoDeepNEAT.CDNNodes.ModuleNode import ModuleNEATNode
+from src.CoDeepNEAT.CDNNodes.BlueprintNode import BlueprintNEATNode
+from src.CoDeepNEAT.CDNNodes.DANode import DANode
 
 """the generation class is a container for the 3 cdn populations.
     It is also responsible for stepping the evolutionary cycle.
@@ -254,11 +260,19 @@ class Generation:
         if blueprint_individual.modules_used:
             raise Exception('Modules used is not empty', blueprint_individual.modules_used)
 
+        s = time.time()
+        print(list(inputs.size()))
+        net2 = Network(blueprint_individual, self.module_population.species, list(inputs.size()))
+        Validation.get_accuracy_estimate_for_network(net2, da_scheme=None, batch_size=Config.batch_size)
+        print('New:', time.time() - s)
+
+        s = time.time()
         blueprint_graph = blueprint_individual.to_blueprint()
         module_graph = blueprint_graph.parse_to_module_graph(self,
                                                              allow_ignores=True if index >= Props.BP_POP_SIZE else False)
 
-        net = src.Validation.Validation.create_nn(module_graph, inputs)
+        net = Validation.create_nn(module_graph, inputs)
+
         if Config.evolve_data_augmentations:
             if Config.allow_da_scheme_ignores and random.random() < Config.da_ignore_chance:
                 # ignore da scheme to try different one
@@ -278,6 +292,7 @@ class Generation:
             da_scheme = None
 
         accuracy = Validation.get_accuracy_estimate_for_network(net, da_scheme=da_scheme, batch_size=Config.batch_size)
+        print('Old:', time.time() - s)
 
         objective_names = [Config.second_objective, Config.third_objective]
         results = [accuracy]

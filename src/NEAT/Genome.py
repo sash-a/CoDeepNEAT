@@ -280,7 +280,7 @@ class Genome:
 
     def get_input_node(self):
         for node in self._nodes.values():
-            if node.is_input_node():
+            if node.is_output_node():
                 return node
 
         raise Exception('Genome:', self, 'could not find an input node')
@@ -467,3 +467,6 @@ class Genome:
                 multi_input_map[node_id] = num_inputs
 
         return multi_input_map
+
+    def __repr__(self):
+        return str(list(self._nodes.values())) + ' ' + str(list(self._connections.values()))

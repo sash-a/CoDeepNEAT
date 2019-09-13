@@ -1,13 +1,9 @@
-import torch
 from torch import nn
 import math
 from functools import reduce
 
 from src.CoDeepNEAT.CDNNodes.ModuleNode import ModuleNEATNode
 from src.Phenotype2.LayerUtils import Reshape, BaseLayer
-import src.Config.Config as Config
-
-from src.Phenotype import AggregatorOperations
 
 
 class Layer(BaseLayer):

@@ -5,7 +5,6 @@ from src.NEAT.Mutagen import Mutagen
 
 
 class Gene:
-
     """a gene is the general form of a neat node or connection"""
 
     def __init__(self, id):
@@ -52,6 +51,7 @@ class NodeType(Enum):
 
 class NodeGene(Gene):
     """the general form of blueprintNeatNode ect"""
+
     def __init__(self, id, type: NodeType = NodeType.HIDDEN):
         super().__init__(id)
 
@@ -59,10 +59,10 @@ class NodeGene(Gene):
         self.node_type = type
 
     def is_output_node(self):
-        return self.node_type == NodeType.OUTPUT
+        return NodeType.OUTPUT.value == self.node_type.value
 
     def is_input_node(self):
-        return self.node_type == NodeType.INPUT
+        return NodeType.INPUT.value == self.node_type.value
 
     def get_all_mutagens(self):
         return []
@@ -70,6 +70,7 @@ class NodeGene(Gene):
 
 class ConnectionGene(Gene):
     """Neat connection between nodes"""
+
     def __init__(self, id, from_node: int, to_node: int):
         super().__init__(id)
 

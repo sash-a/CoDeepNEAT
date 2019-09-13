@@ -104,7 +104,7 @@ class ModuleNEATNode(NodeGene):
         return [self.activation, self.layer_type]
 
     def __repr__(self):
-        return 'Module node:' + str(self.layer_type) + ' ' + str(self.layer_type.get_sub_value('out_features'))
+        return str(self.node_type)
 
     def get_node_name(self):
         return repr(self.layer_type()) + "\n" + "features: " + repr(self.layer_type.get_sub_value("out_features"))

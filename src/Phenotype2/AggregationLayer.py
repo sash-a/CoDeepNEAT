@@ -1,5 +1,5 @@
 import torch
-from torch import nn, tensor
+from torch import tensor
 from typing import List
 
 from src.Config import Config
