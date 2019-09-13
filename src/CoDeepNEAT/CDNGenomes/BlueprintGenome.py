@@ -81,7 +81,6 @@ class BlueprintGenome(Genome):
         for multi_input_node_id in multi_input_map.keys():
             for from_node in node_map.keys():
                 if multi_input_node_id in node_map[from_node]:
-                    # print(from_node, node_map[from_node])
                     idx = node_map[from_node].index(multi_input_node_id)
                     node_map[from_node][idx] *= -1
 

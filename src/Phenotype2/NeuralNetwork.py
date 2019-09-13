@@ -20,32 +20,39 @@ class Network(nn.Module):
         self.blueprint: BlueprintGenome = blueprint
 
         self.model, output_layer = blueprint.to_phenotype(None, module_species)
-        final_shape = self.shape_layers(self.model, input_shape, output_layer)
+        self.shape_layers(self.model, input_shape)
+        final_shape = output_layer.out_shape
 
         # shaping the final layer
-        flat_size = reduce(lambda x, y: x * y, final_shape)
-        self.reshape = False
-        if len(final_shape) != 2 or final_shape[1] != flat_size:
-            self.reshape = True
-            self.reshape_layer = Reshape(input_shape[0], flat_size).to(Config.get_device())
+        img_flat_size = int(reduce(lambda x, y: x * y, final_shape) / final_shape[0])
+        self.use_final_reshape = False
+        if len(final_shape) != 2 or final_shape[1] != img_flat_size:
+            self.use_final_reshape = True
+            self.reshape_layer = Reshape(input_shape[0], img_flat_size)
 
-        self.final_layer = nn.Linear(flat_size, output_dim).to(Config.get_device())
+        self.final_layer = nn.Linear(img_flat_size, output_dim)
 
         # TODO: get params and add optimizer
 
-    def forward(self, input):
-        if self.reshape:
-            return self.final_layer(self.reshape_layer(self.model(input)))
-        return self.final_layer(self.model(input))
+    def forward(self, inp):
+        q: List[Union[Layer, AggregationLayer]] = [self.model]
 
-    def shape_layers(self, layer: Union[Layer, AggregationLayer], in_shape: list, output_layer):
+        while q:
+            layer = q.pop()
+            inp = layer(inp)
+            q.extend([child for child in list(layer.children()) if isinstance(child, BaseLayer)])
+
+        if self.use_final_reshape:
+            return self.final_layer(self.reshape_layer(inp))
+        else:
+            return self.final_layer(inp)
+
+    def shape_layers(self, layer: Union[Layer, AggregationLayer], in_shape: list):
         out_shape = layer.create_layer(in_shape)
-        if layer == output_layer:
-            return out_shape
 
         for child in layer.children():
             if isinstance(child, BaseLayer):
-                self.shape_layers(child, out_shape, output_layer)
+                self.shape_layers(child, out_shape)
 
         return out_shape
 
@@ -100,23 +107,6 @@ from src.Utilities.Utils import get_flat_number
 
 x: tensor
 x, target = DL.sample_data(Config.get_device(), 16)
-enen = Network(bpg, spcs, list(x.shape))
-print(enen)
+enen = Network(bpg, spcs, list(x.shape)).to(Config.get_device())
+# print(enen)
 print(enen(x))
-
-# h_out = (32 + 2 * 0 - 1 * (3 - 1) - 1) / 1 + 1
-# print(h_out)
-#
-# # x = x.reshape(x.shape[0], -1)
-# # lin = nn.Linear(3 * 32 * 32, 10).to(Cfg.get_device())
-# # x = lin(x)
-# # print(x.size())
-#
-# conv_dim = int(math.sqrt(10 / 10))
-# # x = x.reshape([1, 10, 1, 1])
-# conv = nn.Conv2d(3, 23513, 3, 1).to(Cfg.get_device())
-# x = conv(x)
-# print(x.size())
-#
-# bn = nn.BatchNorm2d(23513).to(Cfg.get_device())
-# bn(x).size()

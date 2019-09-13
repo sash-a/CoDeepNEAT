@@ -14,7 +14,7 @@ use_linears = True
 
 class ModuleNEATNode(NodeGene):
     def __init__(self, id, node_type=NodeType.HIDDEN, activation=F.relu, layer_type=nn.Conv2d,
-                 conv_window_size=7, conv_stride=1, max_pool_size=2):
+                 conv_window_size=3, conv_stride=1, max_pool_size=2):
         """initialises all of the nodes mutagens, and assigns initial values"""
 
         super(ModuleNEATNode, self).__init__(id, node_type)
