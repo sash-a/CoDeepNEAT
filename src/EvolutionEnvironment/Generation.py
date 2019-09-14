@@ -262,8 +262,8 @@ class Generation:
 
         s = time.time()
         print(list(inputs.size()))
-        net2 = Network(blueprint_individual, self.module_population.species, list(inputs.size()))
-        Validation.get_accuracy_estimate_for_network(net2, da_scheme=None, batch_size=Config.batch_size)
+        n2 = Network(copy.deepcopy(blueprint_individual), self.module_population.species, list(inputs.size())).to(Config.get_device())
+        Validation.get_accuracy_estimate_for_network(n2, da_scheme=None, batch_size=Config.batch_size)
         print('New:', time.time() - s)
 
         s = time.time()

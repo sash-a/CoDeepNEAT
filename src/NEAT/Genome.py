@@ -280,7 +280,7 @@ class Genome:
 
     def get_input_node(self):
         for node in self._nodes.values():
-            if node.is_output_node():
+            if node.is_input_node():
                 return node
 
         raise Exception('Genome:', self, 'could not find an input node')
