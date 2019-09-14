@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+	<title>W3.CSS Template</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<style>
+		body {font-family: "Lato", sans-serif}
+		.mySlides {display: none}
+	</style>
+<body>
+
+<!-- Navbar -->
+<!-- <div class="w3-top">
+  <div class="w3-bar w3-black w3-card">
+    <a class="w3-bar-item w3-button w3-padding-large w3-hide-medium w3-hide-large w3-right" href="javascript:void(0)" onclick="myFunction()" title="Toggle Navigation Menu"><i class="fa fa-bars"></i></a>
+    <a href="#" class="w3-bar-item w3-button w3-padding-large">GALLERY</a>
+    <a href="#tour" class="w3-bar-item w3-button w3-padding-large w3-hide-small">HOW TO PLAY</a>
+    <a href="#band" class="w3-bar-item w3-button w3-padding-large w3-hide-small">DEVELOPERS</a>
+  </div>
+</div> -->
+
+<!-- Page content -->
+<div class="w3-content" style="max-width:2000px;margin-top:30px">
+  <!-- Heading -->
+  <h1 class="w3-wide w3-center"><big>Efficient neural architecture search via neuroevolution<big></h1>
+
+  <div id="tour">
+    <div class="w3-container w3-content" style="max-width:800px">
+      <!-- intro -->
+
+      <h3 class="w3-wide">Introduction</h3>
+
+      <p class="w3-justify">The performance of an artificial neural network is highly dependant on its architecture and the problem it attempts to solve. Couple this with the fact that the number of possible neural network architectures is vast. This makes finding performant neural network architectures difficult since it requires expertise and much trial and error. Neural architecture search automates the design of neural networks.</p>
+
+      <p class="w3-justify">CoDeepNEAT is an efficient neural architecture search algorithm, which uses an evolutionary approach to find performant architectures. We implemented an <a href="https://github.com/sash-a/CoDeepNEAT">open source version of CoDeepNEAT</a> from the description found in <a href="https://arxiv.org/pdf/1703.00548/">Evolutionary Neural AutoML for Deep Learning</a>. This provides a publically available version for future research and development. Additionally, this implementation was used as a baseline to test conceptual improvements to the algorithm.<br><br><br><br></p>
+
+      <!-- background -->
+
+      <h3 class="w3-wide">Background</h3>
+
+      <p class="w3-opacity"><i>CoDeepNEAT</i></p>
+      <p class="w3-justify">Modern state-of-the-art neural networks make use of connected repeating sub-structures. In isolation each of these structures is a small, functional neural network. In CoDeepNEAT they are known as modules, and are connected via graphs known as blueprints. Blueprints evolve to best utilise modules, while modules evolve into useful sub-structures which produce performant networks when connected.</p>
+
+      <p class="w3-opacity"><i>Speciation</i></p>
+      <p class="w3-justify">Modules are grouped by their function, these groups are called species. This is based on the principles of darwinian evolution in which every animal exists in its own species. To construct a neural network blueprints pick modules from different species and connect them together.</p>
+
+      <p class="w3-opacity"><i>Elitism</i></p>
+      <p class="w3-justify">In some evolutionary algorithms evolution is done in discrete steps, where each step is called a generation. Elitism allows the most successful individuals in a generation to survive, unchanged, into the next generation.</p>
+
+      <p class="w3-opacity"><i>Data augmentation</i></p>
+      <p class="w3-justify">Data augmentation enlarges a dataset by altering the data while still preserving its classification label. For instance, in the context of image data, one might rotate the image of a dog to create a new image, but that new image will still resemble a dog.</p>
+
+     <!-- explaination image -->
+     <div class="w3-container w3-content w3-center w3-padding-64" style="max-width:800px">
+        <img src="CDNexplained.jpeg" class="w3-round w3-margin-bottom" alt="Random Name", style="width: 100%">
+        <p>A visualization of how CoDeepNEAT uses blueprints and modules</p>
+     </div>
+
+      <!-- method -->
+
+      <h3 class="w3-wide">Method</h3>
+	  <p class="w3-justify">We propose three conceptual modifications of CoDeepNEAT. Our primary goal is for each modification to improve upon the performance of our baseline CoDeepNEAT implementation.</p>
+
+	  <p class="w3-opacity"><i>Speciation</i></p>
+      <p class="w3-justify">We found the speciation method used in CoDeepNEAT naively groups modules by their function. We propose a new method of speciation which allows for species to better represent distinct functional groups of modules.</p>
+
+
+	  <p class="w3-opacity"><i>Elitism</i></p>
+      <p class="w3-justify">Blueprints sample modules randomly from species and connect them together. This means that the same blueprint is unlikely to create the same neural network twice. This hinders elitism because even if a blueprint’s modules survive into later generations the same modules may not be picked again by the blueprint in subsequent evaluations. Module retention facilitates elitism by guaranteeing that the best blueprints will pick the same modules until they die.</p>
+
+	  <p class="w3-opacity"><i>Data augmentation</i></p>
+      <p class="w3-justify">CoDeepNEAT evolves properties of data augmentations, however, the augmentations themselves are predefined. We propose a method whereby we evolve a population of compound data augmentations alongside blueprints and modules. Blueprints link to data augmentations and use these augmentations during evaluation.<br><br><br><br></p>
+    </div>
+  </div>
+
+
+  <!-- Results -->
+  <div class="w3-container w3-content w3-center w3-padding-64" style="max-width:800px" id="results">
+    <h1 class="w3-wide">Results</h1>
+
+	<div class="w3-container w3-content w3-center w3-padding-64" style="max-width:800px">
+        <img src="spcvsbase.png" class="w3-round w3-margin-bottom" alt="Random Name">
+        <p>Graph showing the performance gains of the speciation modification when compared to our baseline implementation</p>
+    </div>
+
+    <div class="w3-container w3-content w3-center w3-padding-64" style="max-width:800px">
+        <img src="results table.png" class="w3-round w3-margin-bottom" alt="Random Name">
+        <p>This table shows the best accuracies of the experiments that were ran</p>
+    </div>
+  </div>
+ 
+  <!-- about us -->
+  <div class="w3-container w3-content w3-center w3-padding-64" style="max-width:800px" id="about">
+    <h2 class="w3-wide">About us</h2>
+      
+  </div>
+<!-- End Page Content -->
+</div>
+
+<!-- Footer -->
+<footer class="w3-container w3-padding-64 w3-center w3-opacity w3-light-grey w3-xlarge">
+  <p class="w3-medium">University of Cape Town</a></p>
+</footer>
+
+</body>
+</html>
