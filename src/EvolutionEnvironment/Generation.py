@@ -268,12 +268,12 @@ class Generation:
 
         Config.use_graph = False
         s_train = time.time()
-        Validation.get_accuracy_estimate_for_network(n2, da_scheme=None, batch_size=Config.batch_size)
+        new_acc = Validation.get_accuracy_estimate_for_network(n2, da_scheme=None, batch_size=Config.batch_size)
         new_train_time = time.time() - s_train
 
         Config.use_graph = True
         s_train = time.time()
-        Validation.get_accuracy_estimate_for_network(n2, da_scheme=None, batch_size=Config.batch_size)
+        new_acc_graph = Validation.get_accuracy_estimate_for_network(n2, da_scheme=None, batch_size=Config.batch_size)
         new_train_time_graph = time.time() - s_train
 
         s_constr = time.time()
@@ -314,6 +314,11 @@ class Generation:
         with open('constructiontime.txt', 'a+') as f:
             f.write('\nnew:' + str(new_construction_time))
             f.write('\nold:' + str(old_construction_time))
+
+        with open('acc.txt', 'a+') as f:
+            f.write('\nnew:' + str(new_acc))
+            f.write('\nnew_graph:' + str(new_acc_graph))
+            f.write('\nold:' + str(accuracy))
 
         objective_names = [Config.second_objective, Config.third_objective]
         results = [accuracy]
