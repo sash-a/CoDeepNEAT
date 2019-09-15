@@ -24,7 +24,7 @@ def load_data(batch_size=Config.batch_size, dataset=""):
         transforms.Normalize((0.5,), (0.5,))
     ])
 
-    download = True
+    download = False
 
     if dataset == "":
         dataset = Config.dataset.lower()

@@ -103,7 +103,7 @@ class ModuleGenome(Genome):
                     agg_layers[child_node_id] = new_layer
                     create_layers(new_layer, child_node_id)
 
-                parent_layer.add_module(str(child_node_id), new_layer)  # Add new layer as a child of current layer
+                parent_layer.add_child(str(child_node_id), new_layer)  # Add new layer as a child of current layer
 
         create_layers(input_layer, input_neat_node.id)  # starts the recursive call for creating layers
 

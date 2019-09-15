@@ -1,5 +1,6 @@
 from torch import nn, tensor, optim
 
+from src.Config import Config
 from src.CoDeepNEAT.CDNGenomes.BlueprintGenome import BlueprintGenome
 from src.NEAT.Species import Species
 
@@ -41,7 +42,10 @@ class Network(nn.Module):
             input = layer(input)
             # input will be None if agg layer has not received all its inputs yet
             if input is not None:
-                q.extend([(child, input) for child in list(layer.children()) if isinstance(child, BaseLayer)])
+                if Config.use_graph:
+                    q.extend([(child, input) for child in list(layer.child_layers)])
+                else:
+                    q.extend([(child, input) for child in list(layer.children()) if isinstance(child, BaseLayer)])
 
         if self.use_final_reshape:
             return self.final_layer(self.reshape_layer(input))
@@ -56,7 +60,11 @@ class Network(nn.Module):
             output_shape = layer.create_layer(input_shape)
             # out_shape will be None if agg layer has not received all its inputs yet
             if output_shape is not None:
-                q.extend([(child, output_shape) for child in list(layer.children()) if isinstance(child, BaseLayer)])
+                if Config.use_graph:
+                    q.extend([(child, output_shape) for child in list(layer.child_layers)])
+                else:
+                    q.extend(
+                        [(child, output_shape) for child in list(layer.children()) if isinstance(child, BaseLayer)])
 
     def multiply_learning_rate(self, factor):
         pass

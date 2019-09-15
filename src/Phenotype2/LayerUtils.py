@@ -1,15 +1,25 @@
+from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import List
 from torch import nn, tensor
+
+from src.Config import Config
 
 
 class BaseLayer(nn.Module, ABC):
     def __init__(self):
         super().__init__()
         self.out_shape: List[int] = []
+        self.child_layers: List[BaseLayer] = []
+
+    def add_child(self, name: str, child: BaseLayer) -> None:
+        if Config.use_graph:
+            self.child_layers.append(child)
+
+        self.add_module(name, child)
 
     @abstractmethod
-    def create_layer(self, in_shape):
+    def create_layer(self, in_shape) -> List[int]:
         pass
 
 

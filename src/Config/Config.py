@@ -3,6 +3,7 @@ import operator
 import torch
 import torch.multiprocessing as mp
 
+use_graph = False
 # --------------------------------------------------------------------------------------------------------------------#
 # Run state options
 run_name = "compare"
@@ -10,7 +11,6 @@ continue_from_last_run = False
 deterministic_pop_init = True
 dummy_run = False
 max_num_generations = 30
-
 
 # --------------------------------------------------------------------------------------------------------------------#
 # nn options
@@ -85,6 +85,8 @@ allow_elite_cloning = False
 
 breed_mutagens = False
 mutagen_breed_chance = 0.5
+
+
 # --------------------------------------------------------------------------------------------------------------------#
 
 

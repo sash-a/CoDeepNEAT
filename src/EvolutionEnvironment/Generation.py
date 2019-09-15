@@ -260,18 +260,29 @@ class Generation:
         if blueprint_individual.modules_used:
             raise Exception('Modules used is not empty', blueprint_individual.modules_used)
 
-        s = time.time()
-        print(list(inputs.size()))
-        n2 = Network(copy.deepcopy(blueprint_individual), self.module_population.species, list(inputs.size())).to(Config.get_device())
-        Validation.get_accuracy_estimate_for_network(n2, da_scheme=None, batch_size=Config.batch_size)
-        print('New:', time.time() - s)
+        Config.use_graph = True
+        s_constr = time.time()
+        n2 = Network(copy.deepcopy(blueprint_individual), self.module_population.species, list(inputs.size())).to(
+            Config.get_device())
+        new_construction_time = time.time() - s_constr
 
-        s = time.time()
+        Config.use_graph = False
+        s_train = time.time()
+        Validation.get_accuracy_estimate_for_network(n2, da_scheme=None, batch_size=Config.batch_size)
+        new_train_time = time.time() - s_train
+
+        Config.use_graph = True
+        s_train = time.time()
+        Validation.get_accuracy_estimate_for_network(n2, da_scheme=None, batch_size=Config.batch_size)
+        new_train_time_graph = time.time() - s_train
+
+        s_constr = time.time()
         blueprint_graph = blueprint_individual.to_blueprint()
         module_graph = blueprint_graph.parse_to_module_graph(self,
                                                              allow_ignores=True if index >= Props.BP_POP_SIZE else False)
 
         net = Validation.create_nn(module_graph, inputs)
+        old_construction_time = time.time() - s_constr
 
         if Config.evolve_data_augmentations:
             if Config.allow_da_scheme_ignores and random.random() < Config.da_ignore_chance:
@@ -291,8 +302,18 @@ class Generation:
         else:
             da_scheme = None
 
+        s_train = time.time()
         accuracy = Validation.get_accuracy_estimate_for_network(net, da_scheme=da_scheme, batch_size=Config.batch_size)
-        print('Old:', time.time() - s)
+        old_train_time = time.time() - s_train
+
+        with open('traintime.txt', 'a+') as f:
+            f.write('\nnew:' + str(new_train_time))
+            f.write('\nnew_graph:' + str(new_train_time_graph))
+            f.write('\nold:' + str(old_train_time))
+
+        with open('constructiontime.txt', 'a+') as f:
+            f.write('\nnew:' + str(new_construction_time))
+            f.write('\nold:' + str(old_construction_time))
 
         objective_names = [Config.second_objective, Config.third_objective]
         results = [accuracy]

@@ -123,7 +123,7 @@ class BlueprintGenome(Genome):
                     create_modules(nn_input_layer, child_node_id)
 
                 # Connect output of parent to input of child
-                parent_nn_output.add_module(str(child_node_id), nn_input_layer)
+                parent_nn_output.add_child(str(child_node_id), nn_input_layer)
 
         create_modules(input_module_output, self.get_input_node().id)  # starts the recursive call for creating modules
         return input_module_input, output_module[1]
