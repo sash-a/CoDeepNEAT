@@ -6,7 +6,7 @@ import torch.multiprocessing as mp
 use_graph = False
 # --------------------------------------------------------------------------------------------------------------------#
 # Run state options
-run_name = "compare"
+run_name = "compare1"
 continue_from_last_run = False
 deterministic_pop_init = True
 dummy_run = False
@@ -62,7 +62,7 @@ module_retention = True
 fitness_aggregation = 'max'  # max | avg
 
 allow_species_module_mapping_ignores = True
-allow_cross_species_mappings = True
+allow_cross_species_mappings = False
 # --------------------------------------------------------------------------------------------------------------------#
 # specitation options
 speciation_overhaul = True

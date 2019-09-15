@@ -1,4 +1,5 @@
-from torch import nn, tensor, optim
+from torch import nn, tensor, optim, squeeze
+import torch.nn.functional as F
 
 from src.Config import Config
 from src.CoDeepNEAT.CDNGenomes.BlueprintGenome import BlueprintGenome
@@ -16,41 +17,36 @@ class Network(nn.Module):
     def __init__(self, blueprint: BlueprintGenome, module_species: List[Species], input_shape: list, output_dim=10):
         super().__init__()
         self.blueprint: BlueprintGenome = blueprint
+        self.output_dim = output_dim
 
         self.model, output_layer = blueprint.to_phenotype(None, module_species)
         self.shape_layers(input_shape)
 
-        print(output_layer.out_shape)
         # shaping the final layer
         img_flat_size = int(reduce(lambda x, y: x * y, output_layer.out_shape) / output_layer.out_shape[0])
-        self.use_final_reshape = False
-        if len(output_layer.out_shape) != 2 or output_layer.out_shape[1] != img_flat_size:
-            self.use_final_reshape = True
-            self.reshape_layer = Reshape(input_shape[0], img_flat_size)
-
         self.final_layer = nn.Linear(img_flat_size, output_dim)
 
         self.loss_fn = nn.NLLLoss()
         self.optimizer: optim.adam = optim.Adam(self.parameters(), lr=self.blueprint.learning_rate.value,
                                                 betas=(self.blueprint.beta1.value, self.blueprint.beta2.value))
 
-    def forward(self, input):
-        q: List[Tuple[Union[Layer, AggregationLayer], tensor]] = [(self.model, input)]
+    def forward(self, x):
+        q: List[Tuple[Union[Layer, AggregationLayer], tensor]] = [(self.model, x)]
+        batch_size = x.size()[0]
 
         while q:
-            layer, input = q.pop()
-            input = layer(input)
+            layer, x = q.pop()
+            x = layer(x)
             # input will be None if agg layer has not received all its inputs yet
-            if input is not None:
+            if x is not None:
                 if Config.use_graph:
-                    q.extend([(child, input) for child in list(layer.child_layers)])
+                    q.extend([(child, x) for child in list(layer.child_layers)])
                 else:
-                    q.extend([(child, input) for child in list(layer.children()) if isinstance(child, BaseLayer)])
+                    q.extend([(child, x) for child in list(layer.children()) if isinstance(child, BaseLayer)])
 
-        if self.use_final_reshape:
-            return self.final_layer(self.reshape_layer(input))
-        else:
-            return self.final_layer(input)
+        # TODO final activation function should be evolvable
+        final_layer_out = F.relu(self.final_layer(x.view(batch_size, -1)))
+        return squeeze(F.log_softmax(final_layer_out.view(batch_size, self.output_dim, -1), dim=1))
 
     def shape_layers(self, in_shape: list):
         q: List[Tuple[Union[Layer, AggregationLayer], list]] = [(self.model, in_shape)]

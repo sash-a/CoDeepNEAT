@@ -28,6 +28,7 @@ from src.CoDeepNEAT.CDNGenomes.DAGenome import DAGenome
 from src.CoDeepNEAT.CDNNodes.ModuleNode import ModuleNEATNode
 from src.CoDeepNEAT.CDNNodes.BlueprintNode import BlueprintNEATNode
 from src.CoDeepNEAT.CDNNodes.DANode import DANode
+from src.NEAT.Species import Species
 
 """the generation class is a container for the 3 cdn populations.
     It is also responsible for stepping the evolutionary cycle.
@@ -254,28 +255,15 @@ class Generation:
             result_dict[curr_index] = results, blueprint_individual, module_graph
 
     def evaluate_blueprint(self, blueprint_individual, inputs, index):
+        blueprint_individual: BlueprintGenome
         # Validation
         if blueprint_individual.modules_used_index:
             raise Exception('Modules used index is not empty', blueprint_individual.modules_used_index)
         if blueprint_individual.modules_used:
             raise Exception('Modules used is not empty', blueprint_individual.modules_used)
 
-        Config.use_graph = True
-        s_constr = time.time()
-        n2 = Network(copy.deepcopy(blueprint_individual), self.module_population.species, list(inputs.size())).to(
-            Config.get_device())
-        new_construction_time = time.time() - s_constr
-
-        Config.use_graph = False
-        s_train = time.time()
-        new_acc = Validation.get_accuracy_estimate_for_network(n2, da_scheme=None, batch_size=Config.batch_size)
-        new_train_time = time.time() - s_train
-
-        Config.use_graph = True
-        s_train = time.time()
-        new_acc_graph = Validation.get_accuracy_estimate_for_network(n2, da_scheme=None, batch_size=Config.batch_size)
-        new_train_time_graph = time.time() - s_train
-
+        # Testing old
+        bpcp = copy.deepcopy(blueprint_individual)
         s_constr = time.time()
         blueprint_graph = blueprint_individual.to_blueprint()
         module_graph = blueprint_graph.parse_to_module_graph(self,
@@ -283,6 +271,11 @@ class Generation:
 
         net = Validation.create_nn(module_graph, inputs)
         old_construction_time = time.time() - s_constr
+
+        mod_spcs = [None for _ in range(len(self.module_population.species))]
+        for spc in sorted(blueprint_individual.species_module_index_map.keys()):
+            mod_idx = blueprint_individual.species_module_index_map[spc]
+            mod_spcs.insert(spc, Species(self.module_population.species[spc][mod_idx]))
 
         if Config.evolve_data_augmentations:
             if Config.allow_da_scheme_ignores and random.random() < Config.da_ignore_chance:
@@ -305,6 +298,26 @@ class Generation:
         s_train = time.time()
         accuracy = Validation.get_accuracy_estimate_for_network(net, da_scheme=da_scheme, batch_size=Config.batch_size)
         old_train_time = time.time() - s_train
+
+        # Testing new pheno
+        Config.use_graph = True
+        bp = copy.deepcopy(bpcp)
+        s_constr = time.time()
+        Network(bp, self.module_population.species, list(inputs.size())).to(Config.get_device())
+        new_construction_time = time.time() - s_constr
+
+        # Creating the network with the same modules as used previously
+        n2 = Network(copy.deepcopy(bpcp), mod_spcs, list(inputs.size())).to(Config.get_device())
+        Config.use_graph = False
+        s_train = time.time()
+        new_acc = Validation.get_accuracy_estimate_for_network(n2, da_scheme=None, batch_size=Config.batch_size)
+        new_train_time = time.time() - s_train
+
+        n2 = Network(bpcp, mod_spcs, list(inputs.size())).to(Config.get_device())
+        Config.use_graph = True
+        s_train = time.time()
+        new_acc_graph = Validation.get_accuracy_estimate_for_network(n2, da_scheme=None, batch_size=Config.batch_size)
+        new_train_time_graph = time.time() - s_train
 
         with open('traintime.txt', 'a+') as f:
             f.write('\nnew:' + str(new_train_time))
