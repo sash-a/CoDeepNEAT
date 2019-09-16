@@ -7,8 +7,9 @@ from src.Config import Config
 
 
 class BaseLayer(nn.Module, ABC):
-    def __init__(self):
+    def __init__(self, name):
         super().__init__()
+        self.name = name
         self.out_shape: List[int] = []
         self.child_layers: List[BaseLayer] = []
 

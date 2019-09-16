@@ -41,11 +41,11 @@ def train_epoch(model, train_loader, epoch, test_loader, device, augmentors=None
 
     for i in range(loops):
         if i == 0 and not Config.train_on_origonal_data and not Config.batch_by_batch:
-            """skip origonal data in epoch splicing"""
+            # skip origInal data in epoch splicing
             continue
 
         for batch_idx, (inputs, targets) in enumerate(train_loader):
-            """batch loop"""
+            # batch loop
             model.optimizer.zero_grad()
 
             has_augs = augmentors is not None and len(augmentors) > 0

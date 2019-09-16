@@ -1,3 +1,4 @@
+import graphviz
 from torch import nn, tensor, optim, squeeze
 import torch.nn.functional as F
 
@@ -45,7 +46,8 @@ class Network(nn.Module):
                     q.extend([(child, x) for child in list(layer.children()) if isinstance(child, BaseLayer)])
 
         # TODO final activation function should be evolvable
-        final_layer_out = F.relu(self.final_layer(x.view(batch_size, -1)))
+        # img_flat_size = int(reduce(lambda a, b: a * b, list(x.size())[1:]))
+        final_layer_out = F.relu(self.final_layer(x.reshape(batch_size, -1)))
         return squeeze(F.log_softmax(final_layer_out.view(batch_size, self.output_dim, -1), dim=1))
 
     def shape_layers(self, in_shape: list):
@@ -64,3 +66,24 @@ class Network(nn.Module):
 
     def multiply_learning_rate(self, factor):
         pass
+
+    def visualize(self):
+        print('visualizing')
+        graph = graphviz.Digraph(name='New graph', comment='New graph')
+
+        q: List[BaseLayer] = [self.model]
+        visited = set()
+
+        while q:
+            layer = q.pop()
+
+            if layer.name not in visited:
+                visited.add(layer.name)
+                for child in layer.child_layers:
+                    if isinstance(child, BaseLayer):
+                        graph.node(child.name)
+                        graph.edge(layer.name, child.name)
+
+                        q.append(child)
+
+        graph.render('new', view=False)

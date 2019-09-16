@@ -91,8 +91,8 @@ class BlueprintGenome(Genome):
 
         agg_layers = {}
         # input node of the input module and output node of the input module
-        input_module_input, input_module_output = self.get_input_node().pick_module(self.species_module_index_map, module_species).to_phenotype(None)
-        output_module = self.get_output_node().pick_module(self.species_module_index_map, module_species).to_phenotype(None)
+        input_module_input, input_module_output = self.get_input_node().pick_module(self.species_module_index_map, module_species).to_phenotype(None, 0)
+        output_module = self.get_output_node().pick_module(self.species_module_index_map, module_species).to_phenotype(None, 1)
 
         def create_modules(parent_nn_output: Layer, parent_bp_node_id):
             if parent_bp_node_id not in node_map:
@@ -111,7 +111,7 @@ class BlueprintGenome(Genome):
                     bp_node: BlueprintNEATNode = self._nodes[child_node_id]
                     neat_module: ModuleGenome = bp_node.pick_module(self.species_module_index_map, module_species)
                     # Use already created output module if child is output node
-                    nn_input_layer, nn_output_layer = neat_module.to_phenotype(None) \
+                    nn_input_layer, nn_output_layer = neat_module.to_phenotype(None, bp_node.id) \
                         if not bp_node.is_output_node() else output_module
                     create_modules(nn_output_layer, child_node_id)
                 elif child_node_id in agg_layers:

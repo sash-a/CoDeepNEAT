@@ -8,8 +8,8 @@ from src.Phenotype import AggregatorOperations
 
 
 class AggregationLayer(BaseLayer):
-    def __init__(self, num_inputs: int):
-        super().__init__()
+    def __init__(self, num_inputs: int, name):
+        super().__init__(name)
 
         self.n_inputs_expected: int = num_inputs
         self.n_inputs_received: int = 0

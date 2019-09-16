@@ -7,8 +7,8 @@ from src.Phenotype2.LayerUtils import Reshape, BaseLayer
 
 
 class Layer(BaseLayer):
-    def __init__(self, module: ModuleNEATNode, feature_multiplier=1):
-        super().__init__()
+    def __init__(self, module: ModuleNEATNode, name, feature_multiplier=1):
+        super().__init__(name)
         self.module_node: ModuleNEATNode = module
 
         self.out_features = round(module.layer_type.get_sub_value('out_features') * feature_multiplier)

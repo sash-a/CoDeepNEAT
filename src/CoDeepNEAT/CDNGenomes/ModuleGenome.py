@@ -56,7 +56,7 @@ class ModuleGenome(Genome):
         self.module_node = module
         return copy.deepcopy(module)
 
-    def to_phenotype(self, Phenotype):
+    def to_phenotype(self, Phenotype, bp_id):
         multi_input_map = self.get_multi_input_nodes()
         node_map = self.get_reachable_nodes(False)
         connected_nodes = self.get_fully_connected_nodes()
@@ -77,8 +77,8 @@ class ModuleGenome(Genome):
         agg_layers = {}  # maps {node_id : AggregatorLayer}
 
         input_neat_node = self.get_input_node()
-        input_layer = Layer(input_neat_node)
-        output_layer = Layer(self.get_output_node())
+        input_layer = Layer(input_neat_node, str(bp_id) + '_0')
+        output_layer = Layer(self.get_output_node(), str(bp_id) + '_1')
 
         def create_layers(parent_layer: Layer, parent_node_id: int):
             if parent_node_id not in node_map:
@@ -93,17 +93,18 @@ class ModuleGenome(Genome):
                     # Creates a new layer
                     neat_node: ModuleNEATNode = self._nodes[child_node_id]
                     # Use already created output layer if child is output node
-                    new_layer = Layer(neat_node) if not neat_node.is_output_node() else output_layer
+                    new_layer = Layer(neat_node, str(bp_id)+'_'+str(child_node_id)) if not neat_node.is_output_node() else output_layer
                     create_layers(new_layer, child_node_id)
                 elif child_node_id in agg_layers:
                     new_layer = agg_layers[child_node_id]  # only create an aggregation layer once
                 else:
                     # Create aggregation layer if not already created and node_id is negative
-                    new_layer = AggregationLayer(multi_input_map[child_node_id * -1])
+                    new_layer = AggregationLayer(multi_input_map[child_node_id * -1], str(bp_id)+'_'+str(child_node_id))
                     agg_layers[child_node_id] = new_layer
                     create_layers(new_layer, child_node_id)
 
-                parent_layer.add_child(str(child_node_id), new_layer)  # Add new layer as a child of current layer
+                # Add new layer as a child of current layer
+                parent_layer.add_child(str(bp_id) + '_' + str(child_node_id), new_layer)
 
         create_layers(input_layer, input_neat_node.id)  # starts the recursive call for creating layers
 

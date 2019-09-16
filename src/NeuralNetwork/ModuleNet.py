@@ -54,6 +54,7 @@ class ModuleNet(nn.Module):
         final_params = self.final_layer.parameters()
         full_parameters = self.module_graph.module_graph_root_node.get_parameters({})
         full_parameters.extend(final_params)
+
         self.optimizer = optim.Adam(full_parameters, lr=self.lr, betas=(self.beta1, self.beta2))
 
         self.init_weights()

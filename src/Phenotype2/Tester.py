@@ -47,7 +47,9 @@ bn1.species_number.set_value(1)
 
 bpg = BlueprintGenome([conn10], [bn0, bn1])
 
+Config.use_graph = True
 x, target = DL.sample_data(Config.get_device(), 256)
 enen = Network(bpg, spcs, list(x.shape)).to(Config.get_device())
+enen.visualize()
 
-get_accuracy_estimate_for_network(enen)
+# get_accuracy_estimate_for_network(enen)
