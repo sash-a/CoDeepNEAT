@@ -27,5 +27,3 @@ graphviz
 python-graphviz
 
 imgaug
-
-python-resources

@@ -17,6 +17,7 @@ Data plotter then plots these aggregated scores at each generation for multiple 
 
 plot = None
 
+
 def plot_objectives_at_gen(generation):
     if len(Logger.generations) <= generation:
         return
@@ -234,12 +235,13 @@ def plot_all_runs(aggregation_type='max', num_top=5, fitness_index=0, max_gens=1
     plt.set_cmap('gray')
 
     plt.xlabel("Generation")
-    ylabel = "fitness " + repr(fitness_index) if fitness_index > 0 else "accuracy%"
+    ylabel = "fitness " + repr(fitness_index) if fitness_index > 0 else "accuracy (%)"
     plt.ylabel(ylabel)
     title = aggregation_type + (" " + repr(num_top) if aggregation_type == "top" else "") + " fitness"
-    plt.title(title)
+    plt.title("Top 5 accuracy of base and ModMax")
 
-    plt.show()
+    # plt.show()
+    plt.savefig('MMvsBase', dpi=300)
 
 
 def get_rolling_averages(data, alpha=0.65):
@@ -265,4 +267,4 @@ if __name__ == "__main__":
     # style.use('fivethirtyeight')
     plot_all_runs(aggregation_type="top", num_top=5, show_data=True, show_best_fit=False, show_smoothed_data=False,
                   stay_at_max=False, show_boundires=True, smooth_boundries=False, show_data_in_boundries=True,
-                  colour_group_run_lines_same=True)
+                  colour_group_run_lines_same=True, max_gens=30)
