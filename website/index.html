@@ -12,28 +12,21 @@
 
 
 
-
-
-
-
-
-
-
 </style>
 <body>
 
 <!-- Navbar -->
-<!-- <div class="w3-top">
+<div class="w3-top">
   <div class="w3-bar w3-black w3-card">
     <a class="w3-bar-item w3-button w3-padding-large w3-hide-medium w3-hide-large w3-right" href="javascript:void(0)" onclick="myFunction()" title="Toggle Navigation Menu"><i class="fa fa-bars"></i></a>
-    <a href="#" class="w3-bar-item w3-button w3-padding-large">GALLERY</a>
-    <a href="#tour" class="w3-bar-item w3-button w3-padding-large w3-hide-small">HOW TO PLAY</a>
-    <a href="#band" class="w3-bar-item w3-button w3-padding-large w3-hide-small">DEVELOPERS</a>
+    <a href="#intro" class="w3-bar-item w3-button w3-padding-large">Introduction</a>
+    <a href="#method" class="w3-bar-item w3-button w3-padding-large w3-hide-small">Method</a>
+    <a href="#results" class="w3-bar-item w3-button w3-padding-large w3-hide-small">Results</a>
   </div>
-</div> -->
+</div>
 
 <!-- Page content -->
-<div class="w3-content" style="max-width:2000px;margin-top:30px">
+<div class="w3-content" style="max-width:2000px;margin-top:60px">
     <!-- Heading -->
     <h1 class="w3-wide w3-center"><big>Efficient neural architecture search via neuroevolution</big></h1>
 
@@ -66,7 +59,7 @@
                 sub-structures. In isolation each of these structures is a small, functional neural network. In
                 CoDeepNEAT they are known as modules, and are connected via graphs known as blueprints. Blueprints
                 evolve to best utilise modules, while modules evolve into useful sub-structures which produce performant
-                networks when connected.</p>
+                networks when connected. <br><a href="cdn.html">more info</a></p>
 
             <p class="w3-opacity"><i>Speciation</i></p>
             <p class="w3-justify">Modules are grouped by their function, these groups are called species. This is based
@@ -98,7 +91,7 @@
             <p class="w3-opacity"><i>Speciation</i></p>
             <p class="w3-justify">We found the speciation method used in CoDeepNEAT naively groups modules by their
                 function. We propose a new method of speciation which allows for species to better represent distinct
-                functional groups of modules.</p>
+                functional groups of modules. <br><a href="speciation.html">more info</a></p>
 
 
             <p class="w3-opacity"><i>Elitism</i></p>
@@ -106,25 +99,28 @@
                 that the same blueprint is unlikely to create the same neural network twice. This hinders elitism
                 because even if a blueprint’s modules survive into later generations the same modules may not be picked
                 again by the blueprint in subsequent evaluations. Module retention facilitates elitism by guaranteeing
-                that the best blueprints will pick the same modules until they die.</p>
+                that the best blueprints will pick the same modules until they die.
+                <br><a href="mms.html">more info</a></p>
 
             <p class="w3-opacity"><i>Data augmentation</i></p>
             <p class="w3-justify">CoDeepNEAT evolves properties of data augmentations, however, the augmentations
                 themselves are predefined. We propose a method whereby we evolve a population of compound data
                 augmentations alongside blueprints and modules. Blueprints link to data augmentations and use these
-                augmentations during evaluation.<br><br><br><br></p>
+                augmentations during evaluation. <br><a href="DA.html">more info</a><br><br><br></p>
         </div>
     </div>
 
 
     <!-- Results -->
     <div class="w3-container w3-content w3-center w3-padding-64" style="max-width:800px" id="results">
-        <h1 class="w3-wide">Results</h1>
+        <h1 class="w3-wide<p>ModMax = CoDeepNEAT with module retention and max fitness aggregations">Results</h1>
 
         <p class="w3-opacity"><i>Abbreviations</i></p>
         <p>CDN = Baseline CoDeepNEAT</p>
         <p>SPCDN = CoDeepNEAT with speciation</p>
-        <p> = CoDeepNEAT with module retention</p>
+        <p>ModMax = CoDeepNEAT with module retention and max fitness aggregations</p>
+        <p>DACDN = CoDeepNEAT with co-evolved data augmentations</p>
+        <p>EliteCDN = CoDeepNEAT with all extensions</p>
 
         <div class="w3-container w3-content w3-center w3-padding-64" style="max-width:800px">
             <img src="results table.png" class="w3-round w3-margin-bottom" alt="Result table">
