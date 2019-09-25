@@ -20,6 +20,7 @@ class Network(nn.Module):
         self.blueprint: BlueprintGenome = blueprint
         self.output_dim = output_dim
 
+        self.model: Layer
         self.model, output_layer = blueprint.to_phenotype(None, module_species)
         self.shape_layers(input_shape)
 
@@ -67,11 +68,12 @@ class Network(nn.Module):
     def multiply_learning_rate(self, factor):
         pass
 
-    def visualize(self):
+    def visualize(self, filename='new'):
         print('visualizing')
-        graph = graphviz.Digraph(name='New graph', comment='New graph')
+        graph = graphviz.Digraph(name='New graph', comment='New graph', filename=filename)
 
         q: List[BaseLayer] = [self.model]
+        graph.node(self.model.name, self.model.get_layer_type_name())
         visited = set()
 
         while q:
@@ -80,10 +82,14 @@ class Network(nn.Module):
             if layer.name not in visited:
                 visited.add(layer.name)
                 for child in layer.child_layers:
-                    if isinstance(child, BaseLayer):
-                        graph.node(child.name)
-                        graph.edge(layer.name, child.name)
+                    if not isinstance(child, AggregationLayer):
+                        description = child.get_layer_type_name()
+                    else:
+                        description = ''
 
-                        q.append(child)
+                    graph.node(child.name, description)
+                    graph.edge(layer.name, child.name)
 
-        graph.render('new', view=False)
+                    q.append(child)
+
+        graph.render(filename, view=True)

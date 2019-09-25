@@ -262,8 +262,9 @@ class Generation:
         if blueprint_individual.modules_used:
             raise Exception('Modules used is not empty', blueprint_individual.modules_used)
 
-        # Testing old
         bpcp = copy.deepcopy(blueprint_individual)
+
+        # Testing old
         s_constr = time.time()
         blueprint_graph = blueprint_individual.to_blueprint()
         module_graph = blueprint_graph.parse_to_module_graph(self,
@@ -272,25 +273,30 @@ class Generation:
         net = Validation.create_nn(module_graph, inputs)
         old_construction_time = time.time() - s_constr
 
+        bpcp.species_module_index_map = blueprint_individual.species_module_index_map
+
         Config.use_graph = True
         bp = copy.deepcopy(bpcp)
         s_constr = time.time()
         new_net = Network(bp, self.module_population.species, list(inputs.size())).to(Config.get_device())
         new_construction_time = time.time() - s_constr
-        par = list(net.module_graph.module_graph_root_node.get_parameters({}))
-        par.extend(net.final_layer.parameters())
-        import numpy as np
-        model_parameters = filter(lambda p: p.requires_grad, par)
-        params = sum([np.prod(p.size()) for p in model_parameters])
-        print('old', params)
-        model_parameters = filter(lambda p: p.requires_grad, new_net.parameters())
-        params = sum([np.prod(p.size()) for p in model_parameters])
-        print('new', params)
 
-        mod_spcs = [0 for _ in range(len(self.module_population.species))]
-        for spc in sorted(blueprint_individual.species_module_index_map.keys()):
-            mod_idx = blueprint_individual.species_module_index_map[spc]
-            mod_spcs.insert(spc, Species(self.module_population.species[spc][mod_idx]))
+        # Visualizing stuff
+        # blueprint_individual.plot_tree_with_graphvis(view=True, file='bp')
+        # blueprint_individual.modules_used[0].plot_tree_with_graphvis(view=True, file='mod')
+        # net.module_graph.plot_tree_with_graphvis(title='old', view=True, file='old')
+        # new_net.visualize()
+
+        # Number of parameters
+        # par = list(net.module_graph.module_graph_root_node.get_parameters({}))
+        # par.extend(net.final_layer.parameters())
+        # import numpy as np
+        # model_parameters = filter(lambda p: p.requires_grad, par)
+        # params = sum([np.prod(p.size()) for p in model_parameters])
+        # print('old', params)
+        # model_parameters = filter(lambda p: p.requires_grad, new_net.parameters())
+        # params = sum([np.prod(p.size()) for p in model_parameters])
+        # print('new', params)
 
         if Config.evolve_data_augmentations:
             if Config.allow_da_scheme_ignores and random.random() < Config.da_ignore_chance:
@@ -318,13 +324,13 @@ class Generation:
 
         # Creating the network with the same modules as used previously
         Config.use_graph = False
-        n2 = Network(copy.deepcopy(bpcp), mod_spcs, list(inputs.size())).to(Config.get_device())
+        n2 = Network(copy.deepcopy(bpcp), self.module_population.species, list(inputs.size())).to(Config.get_device())
         s_train = time.time()
         new_acc = Validation.get_accuracy_estimate_for_network(n2, da_scheme=None, batch_size=Config.batch_size)
         new_train_time = time.time() - s_train
 
         Config.use_graph = True
-        n2 = Network(bpcp, mod_spcs, list(inputs.size())).to(Config.get_device())
+        n2 = Network(bpcp, self.module_population.species, list(inputs.size())).to(Config.get_device())
         s_train = time.time()
         new_acc_graph = Validation.get_accuracy_estimate_for_network(n2, da_scheme=None, batch_size=Config.batch_size)
         new_train_time_graph = time.time() - s_train

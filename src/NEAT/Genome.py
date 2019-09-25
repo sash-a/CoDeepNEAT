@@ -37,6 +37,12 @@ class Genome:
             self.add_connection(connection, True)
         self.netx_graph = None
 
+    def __gt__(self, other):
+        return self.rank > other.rank
+
+    def __lt__(self, other):
+        return self.rank < other.rank
+
     def eq(self, other):
         if not isinstance(other, Genome):
             return False

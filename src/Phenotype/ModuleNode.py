@@ -195,10 +195,11 @@ class ModuleNode(Node):
         if not (self.reshape is None):
             input = self.reshape.shape(input)
 
-        if self.is_conv2d() and list(input.size())[2] < minimum_conv_dim:
-            xkernel, ykernel = self.deep_layer.kernel_size
-            xkernel, ykernel = (xkernel - 1) // 2, (ykernel - 1) // 2
-            input = F.pad(input=input, pad=(ykernel, ykernel, xkernel, xkernel), mode='constant', value=0)
+        img_side_size = list(input.size())[2]
+        if self.is_conv2d() and img_side_size < minimum_conv_dim:
+            kernel_size, _ = self.deep_layer.kernel_size
+            pad = math.ceil((kernel_size - img_side_size) / 2)
+            input = F.pad(input=input, pad=[pad] * 4, mode='constant', value=0)
 
         if self.regularisation is None:
             output = self.deep_layer(input)
@@ -216,15 +217,17 @@ class ModuleNode(Node):
         if self.dropout is not None:
             output = self.dropout(output)
 
-        if self.is_linear() or (self.is_conv2d() and list(output.size())[2] > minimum_conv_dim):
-            return self.activation(output)
-        else:
-            # is conv layer - is small. needs padding
-            xkernel, ykernel = self.deep_layer.kernel_size
-            xkernel, ykernel = (xkernel - 1) // 2, (ykernel - 1) // 2
+        # if self.is_linear() or (self.is_conv2d() and list(output.size())[2] > minimum_conv_dim):
+        #     return self.activation(output)
+        # else:
+        #     # is conv layer - is small. needs padding
+        #     xkernel, ykernel = self.deep_layer.kernel_size
+        #     xkernel, ykernel = (xkernel - 1) // 2, (ykernel - 1) // 2
+        #
+        #     return F.pad(input=self.activation(output), pad=(ykernel, ykernel, xkernel, xkernel), mode='constant',
+        #                  value=0)
 
-            return F.pad(input=self.activation(output), pad=(ykernel, ykernel, xkernel, xkernel), mode='constant',
-                         value=0)
+        return self.activation(output)
 
     def shape_layer(self, input_shape):
         """

@@ -98,3 +98,23 @@ class Layer(BaseLayer):
             self.out_shape = [batch, self.out_features]
 
         return self.out_shape
+
+    def get_layer_type_name(self):
+        """used for dnn plotting"""
+
+        layer_type = self.module_node.layer_type
+        extras = ""
+        if layer_type() == nn.Conv2d:
+            extras += "\nwidow size:" + repr(self.deep_layer.kernel_size)
+        extras += "\nout features:" + repr(self.out_features)
+        extras += "\n" + repr(self.regularisation).split("(")[0] if not (self.regularisation is None) else ""
+        extras += "\n" + repr(self.reduction).split("(")[0] if not (self.reduction is None) else ""
+        extras += "\n" + repr(self.dropout).split("(")[0] if not (self.dropout is None) else ""
+
+        if layer_type() == nn.Conv2d:
+            return "Conv" + extras
+
+        elif layer_type() == nn.Linear:
+            return "Linear" + extras
+        else:
+            print("layer type", layer_type(), "not implemented")
