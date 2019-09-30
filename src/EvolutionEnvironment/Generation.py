@@ -312,10 +312,10 @@ class Generation:
         new_construction_time = time.time() - s_constr
 
         # Visualizing stuff
-        blueprint_individual.plot_tree_with_graphvis(view=True, file='bp')
-        blueprint_individual.modules_used[0].plot_tree_with_graphvis(view=True, file='mod')
-        net.module_graph.plot_tree_with_graphvis(title='old', view=True, file='old')
-        new_net.visualize(view=True)
+        # blueprint_individual.plot_tree_with_graphvis(view=True, file='bp')
+        # blueprint_individual.modules_used[0].plot_tree_with_graphvis(view=True, file='mod')
+        # net.module_graph.plot_tree_with_graphvis(title='old', view=True, file='old')
+        # new_net.visualize(view=True)
 
         # Number of parameters
         # par = list(net.module_graph.module_graph_root_node.get_parameters({}))
