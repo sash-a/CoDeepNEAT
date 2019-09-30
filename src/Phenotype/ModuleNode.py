@@ -195,10 +195,13 @@ class ModuleNode(Node):
         if not (self.reshape is None):
             input = self.reshape.shape(input)
 
-        img_side_size = list(input.size())[2]
-        if self.is_conv2d() and img_side_size < minimum_conv_dim:
-            kernel_size, _ = self.deep_layer.kernel_size
-            pad = math.ceil((kernel_size - img_side_size) / 2)
+        if self.is_conv2d():
+            img_side_size = list(input.size())[2]
+            window_size, _ = self.deep_layer.kernel_size
+
+            pad = math.ceil((window_size - img_side_size) / 2)
+            pad = pad if pad >= 0 else 0
+
             input = F.pad(input=input, pad=[pad] * 4, mode='constant', value=0)
 
         if self.regularisation is None:

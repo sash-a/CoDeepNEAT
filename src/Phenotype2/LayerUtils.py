@@ -25,6 +25,10 @@ class BaseLayer(nn.Module, ABC):
     def create_layer(self, in_shape) -> List[int]:
         pass
 
+    @abstractmethod
+    def get_layer_type_name(self):
+        pass
+
 
 class Reshape(nn.Module):
     def __init__(self, *size):

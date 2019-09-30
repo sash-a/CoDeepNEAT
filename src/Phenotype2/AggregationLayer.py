@@ -48,6 +48,9 @@ class AggregationLayer(BaseLayer):
 
         return self.out_shape
 
+    def get_layer_type_name(self):
+        return "Aggregation layer"
+
     def aggregate(self):
         input_dims = list(map(lambda x: len(list(x.size())), self.inputs))
         has_linear = 2 in input_dims

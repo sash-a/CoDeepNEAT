@@ -1,4 +1,4 @@
-from torch import nn
+from torch import nn, zeros
 import math
 from functools import reduce
 
@@ -13,13 +13,13 @@ class Layer(BaseLayer):
 
         self.out_features = round(module.layer_type.get_sub_value('out_features') * feature_multiplier)
 
-        self.deep_layer: nn.Module = None  # layer does not yet have a size
+        self.deep_layer: nn.Module = None
         self.reshape_layer: nn.Module = None
         self.regularisation: nn.Module = None
         self.reduction: nn.Module = None
         self.dropout: nn.Module = None
 
-        self.activation: nn.Module = module.activation.value  # to device?
+        self.activation: nn.Module = module.activation.value
 
         neat_regularisation = module.layer_type.get_sub_value('regularisation', return_mutagen=True)
         neat_reduction = module.layer_type.get_sub_value('reduction', return_mutagen=True)
@@ -72,24 +72,25 @@ class Layer(BaseLayer):
                 h = w = int(math.sqrt(img_flat_size / channels))
                 self.reshape_layer = Reshape(batch, channels, h, w)
 
-            # TODO could make kernel size and stride a tuple
-            padding = 1  # TODO how is this affecting the output
-            dilation = 1
-            kernel_size = self.module_node.layer_type.get_sub_value('conv_window_size')
+            # TODO make kernel size and stride a tuple
+            window_size = self.module_node.layer_type.get_sub_value('conv_window_size')
             stride = self.module_node.layer_type.get_sub_value('conv_stride')
+            padding = math.ceil((window_size - h) / 2)  # depends how the padding param actually works
+            padding = padding if padding >= 0 else 0
+            dilation = 1
 
-            h_out = math.floor((h + 2 * padding - dilation * (kernel_size - 1) - 1) / stride + 1)
-            w_out = math.floor((w + 2 * padding - dilation * (kernel_size - 1) - 1) / stride + 1)
+            # h_out = math.floor((h + 2 * padding - dilation * (window_size - 1) - 1) / stride + 1)
+            # w_out = math.floor((w + 2 * padding - dilation * (window_size - 1) - 1) / stride + 1)  # same cause square
+            #
+            # # If using max pooling out feature size changes
+            # neat_reduction = self.module_node.layer_type.get_sub_value('reduction', return_mutagen=True)
+            # if neat_reduction is not None and neat_reduction.value is not None:  # Using max pooling
+            #     pool_size = neat_reduction.get_sub_value('pool_size')
+            #     h_out = math.ceil((h_out - pool_size) / pool_size + 1)
+            #     w_out = math.ceil((w_out - pool_size) / pool_size + 1)
 
-            # If using max pooling out feature size changes
-            neat_reduction = self.module_node.layer_type.get_sub_value('reduction', return_mutagen=True)
-            if neat_reduction is not None and neat_reduction.value is not None:  # Using max pooling
-                pool_size = neat_reduction.get_sub_value('pool_size')
-                h_out = math.ceil((h_out - pool_size) / pool_size + 1)
-                w_out = math.ceil((w_out - pool_size) / pool_size + 1)
-
-            self.deep_layer = nn.Conv2d(channels, self.out_features, kernel_size, stride, padding)
-            self.out_shape = [batch, self.out_features, h_out, w_out]
+            self.deep_layer = nn.Conv2d(channels, self.out_features, window_size, stride, padding)
+            self.out_shape = list(self.forward(zeros(in_shape)).size())
         else:  # self.module_node.layer_type.value == nn.Linear:
             if len(in_shape) != 2 or channels != img_flat_size:
                 self.reshape_layer = Reshape(batch, img_flat_size)

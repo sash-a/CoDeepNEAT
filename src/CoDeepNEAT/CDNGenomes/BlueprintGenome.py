@@ -91,8 +91,11 @@ class BlueprintGenome(Genome):
 
         agg_layers = {}
         # input node of the input module and output node of the input module
-        input_module_input, input_module_output = self.get_input_node().pick_module(self.species_module_index_map, module_species).to_phenotype(None, 0)
-        output_module = self.get_output_node().pick_module(self.species_module_index_map, module_species).to_phenotype(None, 1)
+        input_module_input, input_module_output = self.get_input_node().pick_module(self.species_module_index_map,
+                                                                                    module_species).to_phenotype(None,
+                                                                                                                 0)
+        output_module = self.get_output_node().pick_module(self.species_module_index_map, module_species).to_phenotype(
+            None, 1)
 
         def create_modules(parent_nn_output: Layer, parent_bp_node_id):
             if parent_bp_node_id not in node_map:
@@ -118,7 +121,8 @@ class BlueprintGenome(Genome):
                     nn_input_layer = agg_layers[child_node_id]  # only create an aggregation layer once
                 else:
                     # Create aggregation layer if not already created and node_id is negative
-                    nn_input_layer = AggregationLayer(multi_input_map[child_node_id * -1])
+                    nn_input_layer = AggregationLayer(multi_input_map[child_node_id * -1],
+                                                      str(child_node_id) + '_' + str(child_node_id))
                     agg_layers[child_node_id] = nn_input_layer
                     create_modules(nn_input_layer, child_node_id)
 

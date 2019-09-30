@@ -6,7 +6,7 @@ import torch.multiprocessing as mp
 use_graph = False
 # --------------------------------------------------------------------------------------------------------------------#
 # Run state options
-run_name = "compare1"
+run_name = "compare_test"
 continue_from_last_run = False
 deterministic_pop_init = True
 dummy_run = False

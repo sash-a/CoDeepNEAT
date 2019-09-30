@@ -183,7 +183,6 @@ def evaluate(model, epochs, device, batch_size=Config.batch_size, augmentors=Non
                 return "toss"
 
     e = time.time()
-    print('Training time over ', epochs, ' epochs is:', e-s)
 
     test_acc = test(model, test_loader, device)
     return test_acc
