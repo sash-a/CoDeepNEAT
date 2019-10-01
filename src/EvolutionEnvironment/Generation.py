@@ -188,6 +188,7 @@ class Generation:
 
         acc_table = wandb.Table(columns=["old accuracy", "new accuracy", "new accuracy graph"])
         time_table = wandb.Table(columns=["old time", "new time", "new time graph"])
+        # TODO log image of best graph: wandb.log({"examples": [wandb.Image(numpy_array_or_pil, caption="Label")]})
 
         for bp_key, (fitness, evaluated_bp, module_graph, new_acc, new_acc_graph, new_train_time, new_train_time_graph,
                      old_train_time) in results_dict.items():
@@ -197,7 +198,7 @@ class Generation:
 
             # pheno comparison stuff
             acc_table.add_data(fitness[0], new_acc, new_acc_graph)
-            acc_table.add_data(old_train_time, new_train_time, new_train_time_graph)
+            time_table.add_data(old_train_time, new_train_time, new_train_time_graph)
 
             # Validation
             if evaluated_bp.eq(bp_pop_indvs[bp_key % bp_pop_size]):

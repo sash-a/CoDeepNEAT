@@ -14,6 +14,7 @@ def create_runs_folder():
         os.makedirs(get_Graphs_folder())
         os.makedirs(get_Logs_folder())
 
+
 def get_Logs_folder(run_name=None):
     return os.path.join(get_run_folder(run_name), "Logs")
 
@@ -28,8 +29,9 @@ def get_run_folder(run_name=None):
     else:
         return os.path.join(get_data_folder(), "runs", run_name)
 
+
 def get_results_file(run_name=None):
-    return os.path.join(get_run_folder(run_name=run_name),"fully train_" + Config.run_name + ".txt")
+    return os.path.join(get_run_folder(run_name=run_name), "fully train_" + Config.run_name + ".txt")
 
 
 def get_Datasets_folder():
@@ -38,8 +40,10 @@ def get_Datasets_folder():
     else:
         return Config.data_path
 
+
 def get_results_folder():
-    return os.path.join(get_data_folder(),"..", "results")
+    return os.path.join(get_data_folder(), "..", "results")
+
 
 def get_DataEfficiencyResults_folder():
     return os.path.join(get_data_folder(), "DataEfficiencyResults")
@@ -49,6 +53,9 @@ def get_data_folder():
     return os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 
 
+# TODO add wandb saving to the cloud
+#  save with generation number so that any generation can be visited
+#  wandb.save(path_to_file)
 def save_generation_state(generation):
     generation_state_file_name = os.path.join(get_run_folder(), "GenerationState.pickle")
     pickle_out = open(generation_state_file_name, "wb")
@@ -59,7 +66,7 @@ def save_generation_state(generation):
 def load_generation_state(run_name):
     generation_state_file_name = os.path.join(get_run_folder(run_name), "GenerationState.pickle")
     pickle_in = open(generation_state_file_name, "rb")
-    gen =  pickle.load(pickle_in)
+    gen = pickle.load(pickle_in)
     pickle_in.close()
     return gen
 
