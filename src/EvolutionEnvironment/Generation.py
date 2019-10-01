@@ -186,6 +186,7 @@ class Generation:
         bp_pop_size = len(self.blueprint_population)
         bp_pop_indvs = self.blueprint_population.individuals
 
+        new_accs, new_accs_graph = [], []
         acc_table = wandb.Table(columns=["old accuracy", "new accuracy", "new accuracy graph"])
         time_table = wandb.Table(columns=["old time", "new time", "new time graph"])
         # TODO log image of best graph: wandb.log({"examples": [wandb.Image(numpy_array_or_pil, caption="Label")]})
@@ -199,6 +200,9 @@ class Generation:
             # pheno comparison stuff
             acc_table.add_data(fitness[0], new_acc, new_acc_graph)
             time_table.add_data(old_train_time, new_train_time, new_train_time_graph)
+
+            new_accs.append(new_acc)
+            new_accs_graph.append(new_accs_graph)
 
             # Validation
             if evaluated_bp.eq(bp_pop_indvs[bp_key % bp_pop_size]):
@@ -258,7 +262,14 @@ class Generation:
 
             self.pareto_population.queue_candidate(module_graph)
 
-        wandb.log({'accuracies': acc_table, 'time': time_table}, step=generation_number)
+        avg_old_acc = sum(accuracies) / len(accuracies)
+        avg_new_acc = sum(new_accs) / len(new_accs)
+        avg_nag = sum(new_accs_graph) / len(new_accs_graph)
+
+        wandb.log({'accuracies': acc_table, 'time': time_table, 'old accuracies': accuracies,
+                   'average old accuracy': avg_old_acc, 'average new accuracies': avg_new_acc,
+                   'average new accuracies with graph': avg_nag},
+                  step=generation_number)
 
         Logger.log_new_generation(accuracies, generation_number,
                                   second_objective_values=(
@@ -347,7 +358,12 @@ class Generation:
         else:
             da_scheme = None
 
-        # Testing new pheno
+        # Testing old train time
+        s_train = time.time()
+        accuracy = Validation.get_accuracy_estimate_for_network(net, da_scheme=da_scheme, batch_size=Config.batch_size)
+        old_train_time = time.time() - s_train
+
+        # -------------------Testing new phenotype------------------------------
 
         # Creating the network with the same modules as used previously
         Config.use_graph = False
@@ -361,23 +377,6 @@ class Generation:
         s_train = time.time()
         new_acc_graph = Validation.get_accuracy_estimate_for_network(n3, da_scheme=None, batch_size=Config.batch_size)
         new_train_time_graph = time.time() - s_train
-
-        # Testing old train time
-        s_train = time.time()
-        accuracy = Validation.get_accuracy_estimate_for_network(net, da_scheme=da_scheme, batch_size=Config.batch_size)
-        old_train_time = time.time() - s_train
-
-        # Logging
-        print('new:' + str(new_train_time))
-        print('new_graph:' + str(new_train_time_graph))
-        print('old:' + str(old_train_time))
-
-        print('new:' + str(new_construction_time))
-        print('old:' + str(old_construction_time))
-
-        print('new:' + str(new_acc))
-        print('new_graph:' + str(new_acc_graph))
-        print('old:' + str(accuracy))
 
         with open('traintime.txt', 'a+') as f:
             f.write('\nnew:' + str(new_train_time))
