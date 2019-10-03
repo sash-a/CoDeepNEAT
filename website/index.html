@@ -7,41 +7,36 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <style>
-		body {font-family: "Lato", sans-serif}
-		.mySlides {display: none}
-
-
-
-
-
-
-
-
-
-
+    body {
+        font-family: "Lato", sans-serif
+    }
 </style>
 <body>
 
 <!-- Navbar -->
-<!-- <div class="w3-top">
-  <div class="w3-bar w3-black w3-card">
-    <a class="w3-bar-item w3-button w3-padding-large w3-hide-medium w3-hide-large w3-right" href="javascript:void(0)" onclick="myFunction()" title="Toggle Navigation Menu"><i class="fa fa-bars"></i></a>
-    <a href="#" class="w3-bar-item w3-button w3-padding-large">GALLERY</a>
-    <a href="#tour" class="w3-bar-item w3-button w3-padding-large w3-hide-small">HOW TO PLAY</a>
-    <a href="#band" class="w3-bar-item w3-button w3-padding-large w3-hide-small">DEVELOPERS</a>
-  </div>
-</div> -->
+<div class="w3-top">
+    <div class="w3-bar w3-black w3-card">
+        <a class="w3-bar-item w3-button w3-padding-large w3-hide-medium w3-hide-large w3-right"
+           href="javascript:void(0)" onclick="myFunction()" title="Toggle Navigation Menu"><i
+                class="fa fa-bars"></i></a>
+        <a href="#intro" class="w3-bar-item w3-button w3-padding-large w3-hide-small">Introduction</a>
+        <a href="#method" class="w3-bar-item w3-button w3-padding-large w3-hide-small">Method</a>
+        <a href="#results" class="w3-bar-item w3-button w3-padding-large w3-hide-small">Results</a>
+        <a href="#conc" class="w3-bar-item w3-button w3-padding-large w3-hide-small">Conclusion</a>
+    </div>
+</div>
 
 <!-- Page content -->
-<div class="w3-content" style="max-width:2000px;margin-top:30px">
+<div class="w3-content" style="max-width:2000px;margin-top:60px">
     <!-- Heading -->
-    <h1 class="w3-wide w3-center"><big>Efficient neural architecture search via neuroevolution</big></h1>
+    <h1 class="w3-wide w3-center"><big>Efficient neural architecture search via neuroevolution<br></big></h1>
 
-    <div id="tour">
+    <!-- intro -->
+    <div id="intro">
+        <br><br>
         <div class="w3-container w3-content" style="max-width:800px">
-            <!-- intro -->
+            <h2 class="w3-wide">Introduction</h2>
 
-            <h3 class="w3-wide">Introduction</h3>
 
             <p class="w3-justify">The performance of an artificial neural network is highly dependant on its
                 architecture and the problem it attempts to solve. Couple this with the fact that the number of possible
@@ -66,7 +61,8 @@
                 sub-structures. In isolation each of these structures is a small, functional neural network. In
                 CoDeepNEAT they are known as modules, and are connected via graphs known as blueprints. Blueprints
                 evolve to best utilise modules, while modules evolve into useful sub-structures which produce performant
-                networks when connected.</p>
+                networks when connected. <br>
+                <a href="assets/Sasha.pdf">For more info please see this paper (section 2.3)</a></p>
 
             <p class="w3-opacity"><i>Speciation</i></p>
             <p class="w3-justify">Modules are grouped by their function, these groups are called species. This is based
@@ -85,20 +81,28 @@
 
             <!-- explaination image -->
             <div class="w3-container w3-content w3-center w3-padding-64" style="max-width:800px">
-                <img src="CDNexplained.jpeg" class="w3-round w3-margin-bottom" alt="Random Name" , style="width: 100%">
+                <img src="assets/CDNexplained.jpeg" class="w3-round w3-margin-bottom" alt="Random Name" ,
+                     style="width: 100%">
                 <p>A visualization of how CoDeepNEAT uses blueprints and modules</p>
             </div>
+        </div>
+    </div>
 
-            <!-- method -->
+    <!-- method -->
+    <div id="method">
+        <br><br>
 
-            <h3 class="w3-wide">Method</h3>
+        <div class="w3-container w3-content" style="max-width:800px">
+
+            <h2 class="w3-wide">Method</h2>
             <p class="w3-justify">We propose three conceptual modifications of CoDeepNEAT. Our primary goal is for each
                 modification to improve upon the performance of our baseline CoDeepNEAT implementation.</p>
 
             <p class="w3-opacity"><i>Speciation</i></p>
             <p class="w3-justify">We found the speciation method used in CoDeepNEAT naively groups modules by their
                 function. We propose a new method of speciation which allows for species to better represent distinct
-                functional groups of modules.</p>
+                functional groups of modules. <br>
+                <a href="assets/Sasha.pdf">For more info please see this paper (section 3.1.1 and 3.2)</a></p>
 
 
             <p class="w3-opacity"><i>Elitism</i></p>
@@ -106,16 +110,17 @@
                 that the same blueprint is unlikely to create the same neural network twice. This hinders elitism
                 because even if a blueprint’s modules survive into later generations the same modules may not be picked
                 again by the blueprint in subsequent evaluations. Module retention facilitates elitism by guaranteeing
-                that the best blueprints will pick the same modules until they die.</p>
+                that the best blueprints will pick the same modules until they die.<br>
+                <a href="assets/Shane.pdf">For more info please see this paper (section 3.1)</a></p>
 
             <p class="w3-opacity"><i>Data augmentation</i></p>
             <p class="w3-justify">CoDeepNEAT evolves properties of data augmentations, however, the augmentations
                 themselves are predefined. We propose a method whereby we evolve a population of compound data
                 augmentations alongside blueprints and modules. Blueprints link to data augmentations and use these
-                augmentations during evaluation.<br><br><br><br></p>
+                augmentations during evaluation. <br>
+                <a href="assets/Liron.pdf">For more info please see this paper (section 4)</a><br><br><br></p>
         </div>
     </div>
-
 
     <!-- Results -->
     <div class="w3-container w3-content w3-center w3-padding-64" style="max-width:800px" id="results">
@@ -124,52 +129,79 @@
         <p class="w3-opacity"><i>Abbreviations</i></p>
         <p>CDN = Baseline CoDeepNEAT</p>
         <p>SPCDN = CoDeepNEAT with speciation</p>
-        <p> = CoDeepNEAT with module retention</p>
+        <p>ModMax = CoDeepNEAT with module retention and max fitness aggregations</p>
+        <p>DACDN = CoDeepNEAT with co-evolved data augmentations</p>
+        <p>EliteCDN = CoDeepNEAT with all extensions</p>
 
         <div class="w3-container w3-content w3-center w3-padding-64" style="max-width:800px">
-            <img src="results table.png" class="w3-round w3-margin-bottom" alt="Result table">
+            <img src="assets/results table.png" class="w3-round w3-margin-bottom" alt="Result table">
             <p>This table shows the best accuracies of the experiments that were ran</p>
         </div>
 
         <div class="w3-container w3-content w3-center w3-padding-64" style="max-width:800px">
-            <img src="SPCvsBase.png" class="w3-round w3-margin-bottom" alt="speciation result graph"
+            <img src="assets/SPCvsBase.png" class="w3-round w3-margin-bottom" alt="speciation result graph"
                  style="max-width:100%">
             <p>Graph showing the performance and stability gains of the speciation modification when compared to our
                 baseline implementation</p>
         </div>
 
         <div class="w3-container w3-content w3-center w3-padding-64" style="max-width:800px">
-            <img src="MMvsBase.png" class="w3-round w3-margin-bottom" alt="modmax result graph"
+            <img src="assets/MMvsBase.png" class="w3-round w3-margin-bottom" alt="modmax result graph"
                  style="max-width:100%">
             <p>Graph showing the performance gains of the module retention modification, along with how it aids in
                 elitism when compared to our baseline implementation</p>
         </div>
 
         <div class="w3-container w3-content w3-center w3-padding-64" style="max-width:800px">
-            <img src="DAvsBase.png" class="w3-round w3-margin-bottom" alt="DA result graph" style="max-width:100%">
+            <img src="assets/DAvsBase.png" class="w3-round w3-margin-bottom" alt="DA result graph"
+                 style="max-width:100%">
             <p>Graph showing the performance gains when co-evolving data augmentations for 10 epochs compared to 10
                 epochs of our baseline implementation</p>
         </div>
 
         <div class="w3-container w3-content w3-center w3-padding-64" style="max-width:800px">
-            <img src="EliteDACDN.png" class="w3-round w3-margin-bottom" alt="EliteCDN result graph"
+            <img src="assets/EliteDACDN.png" class="w3-round w3-margin-bottom" alt="EliteCDN result graph"
                  style="max-width:100%">
             <p>Graph showing the performance gains of when combining all modifications and training for 10 and 20
                 epochs</p>
         </div>
     </div>
 
-    <!-- about us -->
-    <div class="w3-container w3-content w3-center w3-padding-64" style="max-width:800px" id="about">
-        <h2 class="w3-wide">About us</h2>
-
+<!-- Conclusion -->
+    <div class="w3-container w3-content w3-center w3-padding-64" style="max-width:800px" id="conc">
+        <h2 class="w3-wide">Conclusion</h2>
+        <p>We have demonstrated that our proposed extensions improve the performance of our implementation of CoDeepNEAT, without significantly affecting the computational cost. Furthermore when used in combination, these extensions perform better than in isolation</p>
     </div>
+  <!-- ABOUT US -->
+  <div class="w3-container w3-content w3-center w3-padding-64" style="max-width:1000px" id="band">
+    <h2 class="w3-wide">About us</h2>
+    <p class="w3-opacity"><i>We are three computer science students. Currently completing our honours degree at the University of Cape
+            Town.</i></p>
+    <div class="w3-row w3-padding-32">
+      <div class="w3-third">
+        <p><a href="mailto: reallysasha.uct@gmail.com">Sasha Abramowitz</a></p>
+        <img src="assets/sasha.JPG" style="width: 60%" alt="sasha">      </div>
+      <div class="w3-third">
+        <p>Shane Acton</p>
+        <img src="Shane.jpg" class="w3-round w3-margin-bottom" alt="Shane" style="width:60%">
+      </div>
+      <div class="w3-third">
+        <p><a href="mailto: liron.toledo@outlook.com">Liron Toledo<a></p>
+        <img src="assets/liron.jpeg" class="w3-round" alt="Liron" style="width:60%">
+      </div>
+    </div>
+  </div>
     <!-- End Page Content -->
 </div>
 
 <!-- Footer -->
 <footer class="w3-container w3-padding-64 w3-center w3-opacity w3-light-grey w3-xlarge">
-    <p class="w3-medium">University of Cape Town</a></p>
+
+    <img src="assets/uctlogo.gif" style="height: 60px" alt="uct logo">
+    <img src="assets/logo_computer_science.png" style="height: 50px" alt="cs logo">
+    <p class="w3-medium">University of Cape Town</p>
+    <p class="w3-medium">Rondebosch, Cape Town, 7700</p>
+    <p class="w3-medium"><a href="mailto: dept@cs.uct.ac.za">dept@cs.uct.ac.za</a></p>
 </footer>
 
 </body>
