@@ -1,0 +1,64 @@
+digraph {
+	_ [label="INPUT
+Conv
+widow size:5
+out features:34
+BatchNorm2d
+MaxPool2d" fillcolor=yellow style=filled]
+	"_,0" [label="Conv
+widow size:7
+out features:31
+BatchNorm2d
+MaxPool2d" fillcolor=yellow style=filled]
+	"_,0,0" [label="Linear
+out features:156" fillcolor=cyan style=filled]
+	"_,0,0,0" [label=Aggregator fillcolor=violet style=filled]
+	"_,0,0,0,0" [label="Conv
+widow size:5
+out features:44
+MaxPool2d" fillcolor=yellow style=filled]
+	"_,0,0,0,0,0" [label=Aggregator fillcolor=violet style=filled]
+	"_,0,0,0,0,0,0" [label="OUTPUT
+Conv
+widow size:7
+out features:99
+BatchNorm2d
+MaxPool2d
+Dropout2d" fillcolor=yellow style=filled]
+	"_,0,0,0,0,0" -> "_,0,0,0,0,0,0"
+	"_,0,0,0,0" -> "_,0,0,0,0,0"
+	"_,0,0,0,0,1" [label="Linear
+out features:126" fillcolor=cyan style=filled]
+	"_,0,0,0,0,1,0" [label="Conv
+widow size:7
+out features:41
+BatchNorm2d" fillcolor=yellow style=filled]
+	"_,0,0,0,0,1,0" -> "_,0,0,0,0,0"
+	"_,0,0,0,0,1" -> "_,0,0,0,0,1,0"
+	"_,0,0,0,0" -> "_,0,0,0,0,1"
+	"_,0,0,0" -> "_,0,0,0,0"
+	"_,0,0" -> "_,0,0,0"
+	"_,0,0,1" [label="Conv
+widow size:5
+out features:34
+BatchNorm2d
+MaxPool2d" fillcolor=yellow style=filled]
+	"_,0,0,1,0" [label="Conv
+widow size:7
+out features:31
+BatchNorm2d
+MaxPool2d" fillcolor=yellow style=filled]
+	"_,0,0,1,0,0" [label="Linear
+out features:156" fillcolor=cyan style=filled]
+	"_,0,0,1,0,0" -> "_,0,0,0"
+	"_,0,0,1,0" -> "_,0,0,1,0,0"
+	"_,0,0,1" -> "_,0,0,1,0"
+	"_,0,0" -> "_,0,0,1"
+	"_,0" -> "_,0,0"
+	_ -> "_,0"
+	0 [label="'Grayscale'
+[('alpha_lo', '0.35'), ('alpha_hi', '0.75')]" fillcolor=white style=filled]
+	1 [label="'Grayscale'
+[('alpha_lo', '0.35'), ('alpha_hi', '0.7502368037121041')]" fillcolor=white style=filled]
+	0 -> 1
+}
