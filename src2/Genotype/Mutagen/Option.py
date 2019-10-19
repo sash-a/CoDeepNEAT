@@ -6,8 +6,12 @@ from src2.Genotype.Mutagen.Mutagen import Mutagen
 
 class Option(Mutagen):
 
-    def __init__(self, name, current_value, *options, submutagens: Dict[Any, Dict[str, Mutagen]] = None,
-                 mutation_chance=0.3):
+    def __init__(self, name: str, *options, current_value=None,
+                 submutagens: Dict[Any, Dict[str, Mutagen]] = None,
+                 mutation_chance: float = 0.3):
+
+        if current_value is None:
+            raise Exception("must provide a current value")
 
         super(name, mutation_chance)
         self.options = options
@@ -33,12 +37,12 @@ class Option(Mutagen):
 
     def mutate(self):
         if random.random() < self.mutation_chance:
-            if(len(self.options) < 2):
+            if (len(self.options) < 2):
                 raise Exception("too few options to mutate")
 
             new_value = self.options[random.randint(0, len(self.options) - 1)]
 
-            while(new_value == self() ):
+            while (new_value == self()):
                 new_value = self.options[random.randint(0, len(self.options) - 1)]
 
             self.current_value = new_value
@@ -48,6 +52,3 @@ class Option(Mutagen):
     def mutate_sub_mutagens(self):
         for sub in self.get_submutagens():
             sub.mutate()
-
-
-
