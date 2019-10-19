@@ -28,7 +28,7 @@ class Network(nn.Module):
         img_flat_size = int(reduce(lambda x, y: x * y, output_layer.out_shape) / output_layer.out_shape[0])
         self.final_layer = nn.Linear(img_flat_size, output_dim)
 
-        self.loss_fn = nn.NLLLoss()
+        self.loss_fn = nn.NLLLoss()  # TODO mutagen
         self.optimizer: optim.adam = optim.Adam(self.parameters(), lr=self.blueprint.learning_rate.value,
                                                 betas=(self.blueprint.beta1.value, self.blueprint.beta2.value))
 

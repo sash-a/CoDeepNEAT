@@ -57,12 +57,12 @@ class Generation:
         if not tags:
             tags = ['base']
 
-        wandb.init(name=Config.run_name, project='cdn_test', tags=tags, dir='../../results')
-        wandb.config.module_retention = Config.module_retention
-        wandb.config.dataset = Config.dataset
-        wandb.config.evolution_epochs = Config.number_of_epochs_per_evaluation
-        wandb.config.new_speciation = Config.speciation_overhaul
-        wandb.config.da = Config.evolve_data_augmentations
+        # wandb.init(name=Config.run_name, project='cdn_test', tags=tags, dir='../../results')
+        # wandb.config.module_retention = Config.module_retention
+        # wandb.config.dataset = Config.dataset
+        # wandb.config.evolution_epochs = Config.number_of_epochs_per_evaluation
+        # wandb.config.new_speciation = Config.speciation_overhaul
+        # wandb.config.da = Config.evolve_data_augmentations
 
     def initialise_populations(self):
         """starts off the populations of a new generation"""
@@ -186,9 +186,9 @@ class Generation:
         bp_pop_size = len(self.blueprint_population)
         bp_pop_indvs = self.blueprint_population.individuals
 
-        new_accs, new_accs_graph = [], []
-        acc_table = wandb.Table(columns=["old accuracy", "new accuracy", "new accuracy graph"])
-        time_table = wandb.Table(columns=["old time", "new time", "new time graph"])
+        # new_accs, new_accs_graph = [], []
+        # acc_table = wandb.Table(columns=["old accuracy", "new accuracy", "new accuracy graph"])
+        # time_table = wandb.Table(columns=["old time", "new time", "new time graph"])
         # TODO log image of best graph: wandb.log({"examples": [wandb.Image(numpy_array_or_pil, caption="Label")]})
 
         for bp_key, (fitness, evaluated_bp, module_graph, new_acc, new_acc_graph, new_train_time, new_train_time_graph,
@@ -198,11 +198,11 @@ class Generation:
                 continue
 
             # pheno comparison stuff
-            acc_table.add_data(fitness[0], new_acc, new_acc_graph)
-            time_table.add_data(old_train_time, new_train_time, new_train_time_graph)
-
-            new_accs.append(new_acc)
-            new_accs_graph.append(new_accs_graph)
+            # acc_table.add_data(fitness[0], new_acc, new_acc_graph)
+            # time_table.add_data(old_train_time, new_train_time, new_train_time_graph)
+            #
+            # new_accs.append(new_acc)
+            # new_accs_graph.append(new_accs_graph)
 
             # Validation
             if evaluated_bp.eq(bp_pop_indvs[bp_key % bp_pop_size]):
@@ -262,14 +262,14 @@ class Generation:
 
             self.pareto_population.queue_candidate(module_graph)
 
-        avg_old_acc = sum(accuracies) / len(accuracies)
-        avg_new_acc = sum(new_accs) / len(new_accs)
-        avg_nag = sum(new_accs_graph) / len(new_accs_graph)
-
-        wandb.log({'accuracies': acc_table, 'time': time_table, 'old accuracies': accuracies,
-                   'average old accuracy': avg_old_acc, 'average new accuracies': avg_new_acc,
-                   'average new accuracies with graph': avg_nag},
-                  step=generation_number)
+        # avg_old_acc = sum(accuracies) / len(accuracies)
+        # avg_new_acc = sum(new_accs) / len(new_accs)
+        # avg_nag = sum(new_accs_graph) / len(new_accs_graph)
+        #
+        # wandb.log({'accuracies': acc_table, 'time': time_table, 'old accuracies': accuracies,
+        #            'average old accuracy': avg_old_acc, 'average new accuracies': avg_new_acc,
+        #            'average new accuracies with graph': avg_nag},
+        #           step=generation_number)
 
         Logger.log_new_generation(accuracies, generation_number,
                                   second_objective_values=(
