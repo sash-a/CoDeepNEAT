@@ -5,9 +5,7 @@ from src.NEAT.Mutagen import Mutagen
 
 
 class Gene:
-
     """a gene is the general form of a neat node or connection"""
-
     def __init__(self, id):
         self.id = id
 
