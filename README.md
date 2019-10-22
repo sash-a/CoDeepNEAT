@@ -2,6 +2,10 @@
 
 An implementation of CoDeepNEAT with extensions
 
+## Currently in development
+
+We have decided to clean up the code and tweak the underlying structures to allow for better performance, the current master is not in working order, use commit daa545f035ea057e89108fa935e51fdccee3a1fc for a more stable version
+
 ## Setup
 
 ```conda create -n cdn --file requirements.txt``` to install all requirements  

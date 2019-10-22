@@ -11,8 +11,8 @@ class MutationRecords:
             simultaneously stores node and connection mutation informaion
         """
 
-        #maps mutation details to the mutation id
-        #for connection the mapping is from (from_node_id, to_node_id) to -> connection_mutation_id
+        # maps mutation details to the mutation id
+        # for connection the mapping is from (from_node_id, to_node_id) to -> connection_mutation_id
         self.mutations = initial_mutations
 
         self._next_node_id = current_max_node_id
