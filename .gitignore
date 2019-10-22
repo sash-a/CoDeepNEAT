@@ -7,6 +7,8 @@
 **/runs/*
 **/Graphs/*
 **/clusterbackup*/*
+**/wandb/*
+
 
 __pycache__/
 *.py[cod]
