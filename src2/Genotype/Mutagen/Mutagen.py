@@ -1,6 +1,7 @@
 class Mutagen:
+    """This is the base class for any mutate-able property"""
 
-    def __init__(self, name:str, mutation_chance:float):
+    def __init__(self, name: str, mutation_chance: float):
         self.name = name
         self.mutation_chance = mutation_chance
 

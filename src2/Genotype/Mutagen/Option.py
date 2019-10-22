@@ -6,17 +6,15 @@ from src2.Genotype.Mutagen.Mutagen import Mutagen
 
 class Option(Mutagen):
 
-    def __init__(self, name: str, *options, current_value=None,
-                 submutagens: Dict[Any, Dict[str, Mutagen]] = None,
+    def __init__(self, name: str, *options, current_value=None, submutagens: Dict[Any, Dict[str, Mutagen]] = None,
                  mutation_chance: float = 0.3):
-
+        super().__init__(name, mutation_chance)
         if current_value is None:
-            raise Exception("must provide a current value")
+            raise Exception('Must provide a current value')
 
-        super(name, mutation_chance)
         self.options = options
 
-        """maps an option value to -> a mapping from subvalue name to -> submutagen"""
+        # maps an option value to -> a mapping from subvalue name to -> submutagen
         self.submutagens: Dict[Any, Dict[str, Mutagen]] = submutagens
 
         if current_value not in options:
@@ -37,12 +35,12 @@ class Option(Mutagen):
 
     def mutate(self):
         if random.random() < self.mutation_chance:
-            if (len(self.options) < 2):
+            if len(self.options) < 2:
                 raise Exception("too few options to mutate")
 
             new_value = self.options[random.randint(0, len(self.options) - 1)]
 
-            while (new_value == self()):
+            while new_value == self():
                 new_value = self.options[random.randint(0, len(self.options) - 1)]
 
             self.current_value = new_value

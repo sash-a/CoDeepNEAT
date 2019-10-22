@@ -1,6 +1,6 @@
 import copy
 import sys
-from typing import Dict, List, Set, KeysView
+from typing import Dict, List, AbstractSet
 
 from src2.Configuration import config
 from src2.Genotype.NEAT.Connection import Connection
@@ -18,11 +18,11 @@ class Genome:
         self.uses = 0  # The numbers of times this genome is used
         self.fitness_values: List[int] = [-(sys.maxsize - 1)]
 
-        #nodes and connections map from gene id -> gene object
+        # nodes and connections map from gene id -> gene object
         self.nodes: Dict[int, Node] = {}
         self.connections: Dict[int, Connection] = {}
 
-        #connected nodes is stored to quickly tell if a connection is already in the genome
+        # connected nodes is stored to quickly tell if a connection is already in the genome
         self.connected_nodes = set()  # set of (from,to)tuples
 
         for node in nodes:
@@ -37,7 +37,7 @@ class Genome:
     def __hash__(self):
         return self.id
 
-    def get_disjoint_excess_connections(self, other) -> KeysView[int]:
+    def get_disjoint_excess_connections(self, other) -> AbstractSet[int]:
         if not isinstance(other, Genome):
             raise TypeError('Expected type Genome, received type: ' + str(type(other)))
 
@@ -49,7 +49,7 @@ class Genome:
             raise Exception("Added node " + repr(node) + " already in genome " + repr(self))
         self.nodes[node.id] = node
 
-    def add_connection(self, conn, ignore_height_exception=False):
+    def add_connection(self, conn):
         """Add connections. Nodes must be added before their connections"""
         if conn.id in self.connections:
             raise Exception("Added connection " + repr(conn) + " already in genome " + repr(self))
@@ -66,13 +66,13 @@ class Genome:
         if self.fitness_values is None or not self.fitness_values:
             self.fitness_values = [0 for _ in fitnesses]
 
-        if config.fitness_aggregation == "avg":
+        if config.fitness_aggregation == 'avg':
             for i, fitness in enumerate(fitnesses):
                 if self.fitness_values[i] is None:
                     self.fitness_values[i] = 0
                 self.fitness_values[i] = (self.fitness_values[i] * self.uses + fitness) / (self.uses + 1)
             self.uses += 1
-        elif config.fitness_aggregation == "max":
+        elif config.fitness_aggregation == 'max':
             for i, fitness in enumerate(fitnesses):
                 if self.fitness_values[i] is None:
                     self.fitness_values[i] = 0
