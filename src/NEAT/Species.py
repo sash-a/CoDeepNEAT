@@ -118,7 +118,7 @@ class Species:
 
             if parent1 == parent2 and not parent1.validate():
                 print("invalid parent traversal dict:",
-                      parent1._get_traversal_dictionary(exclude_disabled_connection=True))
+                      parent1.get_traversal_dictionary(exclude_disabled_connection=True))
                 raise Exception("invalid parent in species members list", parent1)
 
             best = parent1 if parent1 < parent2 else parent2

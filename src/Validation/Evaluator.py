@@ -41,11 +41,11 @@ def train_epoch(model, train_loader, epoch, test_loader, device, augmentors=None
 
     for i in range(loops):
         if i == 0 and not Config.train_on_origonal_data and not Config.batch_by_batch:
-            """skip origonal data in epoch splicing"""
+            # skip origInal data in epoch splicing
             continue
 
         for batch_idx, (inputs, targets) in enumerate(train_loader):
-            """batch loop"""
+            # batch loop
             model.optimizer.zero_grad()
 
             has_augs = augmentors is not None and len(augmentors) > 0
@@ -88,7 +88,6 @@ def train_epoch(model, train_loader, epoch, test_loader, device, augmentors=None
 
 def train_batch(model, inputs, targets, device, augmentor=None):
     """trains the model for one batch """
-
     if augmentor is not None:
         train_inputs, train_labels = BatchAugmentor.augment_batch(inputs.numpy(), targets.numpy(), augmentor)
         train_inputs, train_labels = train_inputs.to(device), train_labels.to(device)
@@ -140,7 +139,7 @@ def test(model, test_loader, device, print_acc=False):
     return acc
 
 
-def evaluate(model, epochs, device, batch_size=64, augmentors=None, train_loader=None, test_loader=None,
+def evaluate(model, epochs, device, batch_size=Config.batch_size, augmentors=None, train_loader=None, test_loader=None,
              print_accuracy=False, training_target=-1):
     """
     Runs all epochs and tests the model after all epochs have run

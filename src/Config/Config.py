@@ -3,14 +3,14 @@ import operator
 import torch
 import torch.multiprocessing as mp
 
+use_graph = False
 # --------------------------------------------------------------------------------------------------------------------#
 # Run state options
-run_name = "mms20E_da_breed"
-continue_from_last_run = True
+run_name = "compare_test"
+continue_from_last_run = False
 deterministic_pop_init = True
 dummy_run = False
 max_num_generations = 30
-
 
 # --------------------------------------------------------------------------------------------------------------------#
 # nn options
@@ -20,6 +20,7 @@ num_workers = 0  # this doesn't work in parallel because daemonic processes cann
 dataset = 'cifar10'
 data_path = ''
 number_of_epochs_per_evaluation = 5
+batch_size = 256
 
 # --------------------------------------------------------------------------------------------------------------------#
 # fully train options
@@ -34,7 +35,8 @@ toss_bad_runs = False
 drop_learning_rate = True
 drop_period = 30
 drop_factor = 1.2
-use_adaptive_learning_rate_adjustment = True
+use_adaptive_learning_rate_adjustment = False
+
 # --------------------------------------------------------------------------------------------------------------------#
 # Multiobjective options
 second_objective = ''  # network_size | network_size_adjusted | network_size_adjusted_2
@@ -56,14 +58,14 @@ batch_by_batch = False
 
 # --------------------------------------------------------------------------------------------------------------------#
 # module retention options
-module_retention = False
-fitness_aggregation = 'avg'  # max | avg
+module_retention = True
+fitness_aggregation = 'max'  # max | avg
 
 allow_species_module_mapping_ignores = True
-allow_cross_species_mappings = True
+allow_cross_species_mappings = False
 # --------------------------------------------------------------------------------------------------------------------#
 # specitation options
-speciation_overhaul = False
+speciation_overhaul = True
 
 blueprint_nodes_use_representatives = False  # section 3.2.4 Sasha's paper
 rep_mutation_chance_early = 0.6
@@ -83,6 +85,8 @@ allow_elite_cloning = False
 
 breed_mutagens = False
 mutagen_breed_chance = 0.5
+
+
 # --------------------------------------------------------------------------------------------------------------------#
 
 

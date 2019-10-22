@@ -1,11 +1,14 @@
 from data import DataManager
+
 from torch.utils.data import DataLoader
 from torchvision import transforms, datasets
+from torch import tensor
 
 from src.Config import Config
+from typing import Tuple
 
 
-def load_data(batch_size=64, dataset=""):
+def load_data(batch_size=Config.batch_size, dataset=""):
     """loads a dataset using the torch dataloader and and the settings in Config"""
 
     data_loader_args = {'num_workers': Config.num_workers, 'pin_memory': False if Config.device != 'cpu' else False}
@@ -21,11 +24,10 @@ def load_data(batch_size=64, dataset=""):
         transforms.Normalize((0.5,), (0.5,))
     ])
 
-    download = True
+    download = False
 
     if dataset == "":
         dataset = Config.dataset.lower()
-
 
     if dataset == 'mnist':
         train_loader = DataLoader(
@@ -77,8 +79,11 @@ def load_data(batch_size=64, dataset=""):
     return train_loader, test_loader
 
 
-def sample_data(device, batch_size=16, dataset=""):
+def sample_data(device, batch_size=Config.batch_size, dataset=Config.dataset) -> Tuple[tensor, tensor]:
     """returns a single batch of the dataset named in Config"""
     train_loader, test_loader = load_data(batch_size=batch_size, dataset=dataset)
-    for batch_idx, (inputs, targets) in enumerate(train_loader):
-        return inputs.to(device), targets.to(device)
+    input, target = next(iter(train_loader))
+    return input.to(device), target.to(device)
+
+    # for batch_idx, (inputs, targets) in enumerate(train_loader):
+    #     return inputs.to(device), targets.to(device)

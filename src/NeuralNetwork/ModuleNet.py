@@ -36,10 +36,10 @@ class ModuleNet(nn.Module):
             this is used to reshape inputs as they go through the graph.
         """
         if self.dimensionality_configured:
-            print("warning - trying to configure dimensionality multiple times on the same network")
+            print("Warning - trying to configure dimensionality multiple times on the same network")
             return
         if self.lr == 0:
-            raise Exception('please set net learning rate before calling specify dims')
+            raise Exception('Must set net learning rate before calling specify dimensionality')
         output_nodes = int(list(output_dimensionality)[0])
         output = self(input_sample, configuration_run=True)
         if output is None:
@@ -54,6 +54,7 @@ class ModuleNet(nn.Module):
         final_params = self.final_layer.parameters()
         full_parameters = self.module_graph.module_graph_root_node.get_parameters({})
         full_parameters.extend(final_params)
+
         self.optimizer = optim.Adam(full_parameters, lr=self.lr, betas=(self.beta1, self.beta2))
 
         self.init_weights()

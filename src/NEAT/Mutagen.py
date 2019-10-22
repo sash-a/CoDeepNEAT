@@ -65,6 +65,8 @@ class Mutagen:
         else:
             self.mutation_chance = mutation_chance
 
+    value = property(lambda self: self.get_value())
+
     def inherit(self, other):
         """used by the mutagen breeding extension
             sets this mutagens values and subvalues closer to the values and subvalues of other
