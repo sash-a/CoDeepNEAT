@@ -1,6 +1,6 @@
 import copy
 import sys
-from typing import Dict, List, Set
+from typing import Dict, List, Set, KeysView
 
 from src2.Configuration import config
 from src2.Genotype.NEAT.Connection import Connection
@@ -18,8 +18,12 @@ class Genome:
         self.uses = 0  # The numbers of times this genome is used
         self.fitness_values: List[int] = [-(sys.maxsize - 1)]
 
+        #nodes and connections map from gene id -> gene object
         self.nodes: Dict[int, Node] = {}
         self.connections: Dict[int, Connection] = {}
+
+        #connected nodes is stored to quickly tell if a connection is already in the genome
+        self.connected_nodes = set()  # set of (from,to)tuples
 
         for node in nodes:
             self.nodes[node.id] = node
@@ -33,7 +37,7 @@ class Genome:
     def __hash__(self):
         return self.id
 
-    def get_disjoint_excess_connections(self, other) -> Set[int]:
+    def get_disjoint_excess_connections(self, other) -> KeysView[int]:
         if not isinstance(other, Genome):
             raise TypeError('Expected type Genome, received type: ' + str(type(other)))
 
@@ -53,11 +57,8 @@ class Genome:
             raise Exception("Trying to add connection. But nodes not in genome")
         if conn.from_node == conn.to_node:
             raise Exception("connection goes from node", conn.to_node, "to itself")
-        if not ignore_height_exception and self.nodes[conn.from_node].height >= self.nodes[conn.to_node].height:
-            raise Exception("Cannot add connections downwards, trying to connect heights " + repr(
-                self.nodes[conn.from_node].height) + "->" + repr(self.nodes[conn.to_node].height))
 
-        # self._connected_nodes.add((conn.from_node, conn.to_node))
+        self.connected_nodes.add((conn.from_node, conn.to_node))
         self.connections[conn.id] = conn
 
     def report_fitness(self, fitnesses):

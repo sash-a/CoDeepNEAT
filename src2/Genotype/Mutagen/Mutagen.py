@@ -7,10 +7,13 @@ class Mutagen:
     value = property(lambda self: self.get_current_value())
 
     def get_current_value(self):
-        raise Exception("method must be implemented in sub class")
+        raise NotImplementedError("method must be implemented in sub class")
 
     def __call__(self):
         return self.get_current_value()
 
     def mutate(self):
-        raise Exception("method must be implemented in sub class")
+        raise NotImplementedError("method must be implemented in sub class")
+
+    def set_value(self, value):
+        raise NotImplementedError("method must be implemented in sub class")

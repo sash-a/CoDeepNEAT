@@ -52,3 +52,10 @@ class Option(Mutagen):
     def mutate_sub_mutagens(self):
         for sub in self.get_submutagens():
             sub.mutate()
+
+    def set_value(self, value):
+        if value not in self.options:
+            raise Exception("trying to set the value of the " + self.name + " mutagen to "
+                            + repr(value) + " which is not in the options: " + repr(self.options))
+
+        self.current_value = value
