@@ -9,7 +9,7 @@ class Config:
         self.excess_coefficient = 5
         # Speciation
         self.n_elite = 1
-        self.reproduce_percent = 0.5
+        self.reproduce_percent = 0.5  # Percent of species members that are allowed to reproduce
         # -------------------------------------------------------------------------------------------------------------
 
 

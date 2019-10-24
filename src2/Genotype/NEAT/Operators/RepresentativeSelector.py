@@ -3,26 +3,26 @@ import sys
 from abc import ABC, abstractmethod
 from typing import List
 
-from Genotype.NEAT import Genome
+from Genotype.NEAT.Genome import Genome
 
 
 class RepresentativeSelector(ABC):
     """Finds a representative for a species"""
 
     @abstractmethod
-    def select_representative(self, members: List[Genome]):
+    def select_representative(self, members: List[Genome]) -> Genome:
         pass
 
 
 class RandomRepSelector(RepresentativeSelector):
-    def select_representative(self, members: List[Genome]):
+    def select_representative(self, members: List[Genome]) -> Genome:
         return random.choice(members)
 
 
 class MostSimilarRepSelector(RepresentativeSelector):
     """Finds the member that is most similar to all other members of the species"""
 
-    def select_representative(self, members: List[Genome]):
+    def select_representative(self, members: List[Genome]) -> Genome:
         lowest_sum = sys.maxsize
         best_candidate = None
         for candidate in members:
@@ -44,5 +44,5 @@ class MostSimilarRepSelector(RepresentativeSelector):
 
 
 class BestRepresentativeSelection(RepresentativeSelector):
-    def select_representative(self, members: List[Genome]):
+    def select_representative(self, members: List[Genome]) -> Genome:
         return max(members, key=lambda genome: genome.fitness_values[0])
