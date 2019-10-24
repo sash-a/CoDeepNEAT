@@ -3,6 +3,7 @@ import sys
 from typing import Dict, List, AbstractSet
 
 from src2.Configuration import config
+from src2.Genotype.Mutagen import Mutagen
 from src2.Genotype.NEAT.Connection import Connection
 from src2.Genotype.NEAT.Node import Node
 
@@ -194,5 +195,5 @@ class Genome:
     def to_phenotype(self):
         pass
 
-    def get_all_mutagens(self):
+    def get_all_mutagens(self) -> List[Mutagen]:
         return []

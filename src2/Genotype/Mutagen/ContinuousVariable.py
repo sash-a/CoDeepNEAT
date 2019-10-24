@@ -8,7 +8,7 @@ from src2.Genotype.Mutagen.Variable import Variable
 class ContinuousVariable(Variable):
 
     def __init__(self, name, current_value: float, start_range: float, end_range: float, mutation_chance):
-        super(name, current_value, start_range, end_range, mutation_chance)
+        super().__init__(name, current_value, start_range, end_range, mutation_chance)
 
     def mutate(self):
         if random.random() > self.mutation_chance:
