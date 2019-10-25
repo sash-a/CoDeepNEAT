@@ -3,6 +3,7 @@ from typing import Dict, Any
 
 from src2.Genotype.Mutagen import Mutagen as MutagenFile
 from src2.Genotype.Mutagen.Mutagen import Mutagen
+from src2.Genotype.NEAT.Operators.Mutations.MutationReport import MutationReport
 
 
 class Option(Mutagen):
@@ -35,6 +36,7 @@ class Option(Mutagen):
         return self.current_value
 
     def mutate(self):
+        mutation_report = MutationReport()
         if random.random() < self.mutation_chance:
             if len(self.options) < 2:
                 raise Exception("too few options to mutate")
@@ -44,13 +46,17 @@ class Option(Mutagen):
             while new_value == self():
                 new_value = self.options[random.randint(0, len(self.options) - 1)]
 
+            mutation_report.attribute_mutations.append(self.name + " changed from " + repr(self.current_value) + " to " + repr(new_value))
             self.current_value = new_value
 
-        self.mutate_sub_mutagens()
+        return mutation_report + self.mutate_sub_mutagens()
 
-    def mutate_sub_mutagens(self):
+    def mutate_sub_mutagens(self) -> MutationReport:
+        mutation_report = MutationReport()
         for sub in self.get_submutagens():
-            sub.mutate()
+            mutation_report += sub.mutate()
+
+        return mutation_report
 
     def set_value(self, value):
         if value not in self.options:

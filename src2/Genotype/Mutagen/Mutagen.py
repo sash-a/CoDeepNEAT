@@ -1,3 +1,6 @@
+from src2.Genotype.NEAT.Operators.Mutations.MutationReport import MutationReport
+
+
 class Mutagen:
     """This is the base class for any mutate-able property"""
 
@@ -13,7 +16,7 @@ class Mutagen:
     def __call__(self):
         return self.get_current_value()
 
-    def mutate(self):
+    def mutate(self) -> MutationReport:
         raise NotImplementedError("method must be implemented in sub class")
 
     def set_value(self, value):

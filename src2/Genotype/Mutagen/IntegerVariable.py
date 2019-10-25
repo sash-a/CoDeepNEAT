@@ -3,6 +3,7 @@ import random
 import math
 
 from src2.Genotype.Mutagen.Variable import Variable
+from src2.Genotype.NEAT.Operators.Mutations.MutationReport import MutationReport
 
 
 class IntegerVariable(Variable):
@@ -11,8 +12,10 @@ class IntegerVariable(Variable):
         super().__init__(name, current_value, start_range, end_range, mutation_chance)
 
     def mutate(self):
+        mutation_report = MutationReport()
+
         if random.random() > self.mutation_chance:
-            return
+            return mutation_report
 
         range = self.end_range - self.start_range
 
@@ -30,7 +33,11 @@ class IntegerVariable(Variable):
         if new_current_value == self.current_value:
             new_current_value = self.current_value + random.choice(0, 1)
 
+        mutation_report.attribute_mutations.append(self.name + " changed from " + repr(self.current_value) + " to " + repr(new_current_value))
+
         self.current_value = self.start_range + ((new_current_value - self.start_range) % range)
+
+        return mutation_report
 
     def _interpolate(self, other):
         return IntegerVariable(self.name, start_range=self.start_range, end_range=self.end_range,

@@ -5,6 +5,7 @@ from src2.Genotype.NEAT.Connection import Connection
 from src2.Genotype.NEAT.Genome import Genome
 from src2.Genotype.NEAT.Node import Node, NodeType
 from src2.Genotype.NEAT.Operators.Mutations import MutationRecord
+from src2.Genotype.NEAT.Operators.Mutations.MutationReport import MutationReport
 from src2.Genotype.NEAT.Operators.Mutations.Mutator import Mutator
 
 
@@ -21,32 +22,49 @@ class GenomeMutator(Mutator):
 
         """performs base NEAT genome mutations, as well as node and genome property mutations"""
 
+        mutation_report = MutationReport()
+
+
         if random.random() < add_node_chance:
-            self.add_node_mutation(genome, mutation_record)
+            if self.add_node_mutation(genome, mutation_record):
+                mutation_report.nodes_added+=1
 
         if random.random() < add_connection_chance:
-            self.add_connection_mutation(genome, mutation_record)
+            if self.add_connection_mutation(genome, mutation_record):
+                mutation_report.connections_created +=1
 
         if allow_disabling_connections:
             """randomly deactivates and reactivates connections"""
             for connection in genome.connections.values():
                 orig_conn = copy.deepcopy(connection)
-                connection.mutate()  # this is the call which enables/disables connections
-                # If mutation made the genome invalid then undo it
-                if not genome.validate():
-                    """
-                        disabling the connection lead to a disconnected graph
-                        or enabling the connection lead to a cycle
-                    """
-                    genome.connections[orig_conn.id] = orig_conn
+                result = connection.mutate()  # this is the call which enables/disables connections
+
+                if result.check_mutated():
+                    """the connection was mutated"""
+                    # If mutation made the genome invalid then undo it
+                    if not genome.validate():
+                        """
+                            disabling the connection lead to a disconnected graph
+                            or enabling the connection lead to a cycle
+                            - undoing this mutation
+                        """
+                        genome.connections[orig_conn.id] = orig_conn
+                    else:
+                        """mutation is valid"""
+                        if connection.enabled():
+                            mutation_report.connections_enabled += 1
+                        else:
+                            mutation_report.connections_disabled += 1
 
         for node in genome.nodes.values():
             """mutates node properties"""
-            node.mutate()
+            mutation_report += node.mutate()
 
         for mutagen in genome.get_all_mutagens():
             """mutates the genome level properties"""
-            mutagen.mutate()
+            mutation_report += mutagen.mutate()
+
+        return mutation_report
 
     def add_connection_mutation(self, genome: Genome, mutation_record: MutationRecord):
         """

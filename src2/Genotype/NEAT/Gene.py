@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import List
 
 from src2.Genotype.Mutagen.Mutagen import Mutagen
+from src2.Genotype.NEAT.Operators.Mutations.MutationReport import MutationReport
 
 
 class Gene(ABC):
@@ -20,6 +21,6 @@ class Gene(ABC):
     def get_all_mutagens(self) -> List[Mutagen]:
         raise NotImplementedError('get_all_mutagens should not be called from Gene')
 
-    def mutate(self):
+    def mutate(self) -> MutationReport:
         for mutagen in self.get_all_mutagens():
             mutagen.mutate()
