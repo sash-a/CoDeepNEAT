@@ -8,7 +8,4 @@ from src2.Genotype.NEAT.Node import Node
 class ModuleGenome(Genome):
 
     def __int__(self, nodes: List[Node], connections: List[Connection]):
-        super().__init__(nodes,connections)
-
-
-
+        super().__init__(nodes, connections)
