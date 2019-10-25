@@ -19,7 +19,7 @@ class ModuleNode(Node):
         layer_type = None if random.random() > config.module_node_deep_layer_chance else (
             nn.Conv2d if random.random() < config.module_node_conv_layer_chance else nn.Linear)
         self.layer_type = Option("layer_type", None, nn.Conv2d, nn.Linear, current_value=layer_type,
-                                 submutagens=get_new_layer_submutagens())
+                                 submutagens=get_new_layer_submutagens()) #todo add in separable convs
 
         self.activation = Option("activation", F.relu, F.leaky_relu, torch.sigmoid, F.relu6,
                                  current_value=F.leaky_relu, mutation_chance=0.15)  # TODO try add in Selu, Elu
@@ -35,7 +35,7 @@ def get_new_conv_parameter_mutagens():
 
         "conv_stride": IntegerVariable("conv_stride", current_value=1, start_range=1, end_range=5, mutation_chance=0.1),
 
-        "reduction": Option("reduction", None, nn.MaxPool2d,
+        "reduction": Option("reduction", None, nn.MaxPool2d, nn.AvgPool2d,
                             current_value=nn.MaxPool2d if random.random() < config.module_node_max_pool_chance else None,
                             submutagens=
                             {
