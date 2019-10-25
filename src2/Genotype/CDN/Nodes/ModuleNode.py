@@ -9,6 +9,7 @@ from src2.Genotype.Mutagen.ContinuousVariable import ContinuousVariable
 from src2.Genotype.Mutagen.IntegerVariable import IntegerVariable
 from src2.Genotype.Mutagen.Option import Option
 from src2.Genotype.NEAT.Node import Node, NodeType
+from src2.Phenotype.DepthwiseSeparableConv import DepthwiseSeparableConv
 
 
 class ModuleNode(Node):
@@ -18,7 +19,12 @@ class ModuleNode(Node):
 
         layer_type = None if random.random() > config.module_node_deep_layer_chance else (
             nn.Conv2d if random.random() < config.module_node_conv_layer_chance else nn.Linear)
-        self.layer_type = Option("layer_type", None, nn.Conv2d, nn.Linear, current_value=layer_type,
+
+        layer_types = [ None, nn.Conv2d, nn.Linear]
+        if config.use_depthwise_separable_convs:
+            layer_types.append(DepthwiseSeparableConv)
+
+        self.layer_type = Option("layer_type", *layer_types, current_value=layer_type,
                                  submutagens=get_new_layer_submutagens()) #todo add in separable convs
 
         self.activation = Option("activation", F.relu, F.leaky_relu, torch.sigmoid, F.relu6,
@@ -91,8 +97,18 @@ def get_new_linear_parameter_mutagens():
     }
 
 
+def get_new_depthwise_conv_parameter_mutagens():
+    conv_params = get_new_conv_parameter_mutagens()
+    conv_params["kernels_per_layer"] = IntegerVariable("kernels_per_layer", current_value= random.normalvariate(mu = 15, sigma=2) , start_range= 1, end_range= 100)
+
+    return conv_params
+
 def get_new_layer_submutagens():
-    return {
+    subs = {
         nn.Conv2d: get_new_conv_parameter_mutagens(),
         nn.Linear: get_new_linear_parameter_mutagens()
     }
+    if config.use_depthwise_separable_convs:
+        subs[DepthwiseSeparableConv] = get_new_depthwise_conv_parameter_mutagens()
+
+    return subs

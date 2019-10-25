@@ -1,5 +1,6 @@
 import os
 
+from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
 from src2.Genotype.NEAT.Genome import Genome
 
 os.environ["PATH"] += os.pathsep + 'C:/Program Files (x86)/Graphviz2.38/bin/'
@@ -30,5 +31,6 @@ def get_graph_of(genome: Genome, sub_graph = True, cluster_style ="filled", clus
 
     return g
 
-
+def visualise_blueprint_genome(genome : BlueprintGenome):
+    pass
 
