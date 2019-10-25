@@ -18,3 +18,13 @@ class Mutagen:
 
     def set_value(self, value):
         raise NotImplementedError("method must be implemented in sub class")
+
+    def _interpolate(self, other):
+        raise NotImplementedError("method must be implemented in sub class")
+
+
+def interpolate(mutagen_a: Mutagen, mutagen_b: Mutagen) -> Mutagen:
+    if mutagen_a.name != mutagen_b.name:
+        raise Exception("cannot interpolate different types of mutagens: " + mutagen_a.name + " and " + mutagen_b.name)
+
+    return mutagen_a._interpolate(mutagen_b)

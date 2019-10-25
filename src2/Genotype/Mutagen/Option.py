@@ -1,6 +1,7 @@
 import random
 from typing import Dict, Any
 
+from src2.Genotype.Mutagen import Mutagen as MutagenFile
 from src2.Genotype.Mutagen.Mutagen import Mutagen
 
 
@@ -57,3 +58,21 @@ class Option(Mutagen):
                             + repr(value) + " which is not in the options: " + repr(self.options))
 
         self.current_value = value
+
+    def _interpolate(self, other: Mutagen):
+
+        return Option(self.name, *self.options,
+                      current_value=random.choice([self.current_value, other.get_current_value()]),
+                      submutagens=interpolate_submutagens(self, other))
+
+
+def interpolate_submutagens(mutagen_a: Option, mutagen_b: Option):
+    subs = {}
+    for val in mutagen_a.submutagens.keys():
+        subs[val] = {}
+
+        for name in mutagen_a.submutagens[val].keys():
+            subs[val][name] = MutagenFile.interpolate(mutagen_a.submutagens[val][name],
+                                                      mutagen_b.submutagens[val][name])
+
+    return subs
