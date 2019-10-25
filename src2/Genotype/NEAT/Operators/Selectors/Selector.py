@@ -1,6 +1,7 @@
-from typing import List, Tuple
+from typing import List, Tuple, TYPE_CHECKING
 
-from src2.Genotype.NEAT.Genome import Genome
+if TYPE_CHECKING:
+    from src2.Genotype.NEAT.Genome import Genome
 
 
 class Selector:

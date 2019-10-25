@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List, TYPE_CHECKING
 
-
 if TYPE_CHECKING:
     from Genotype.NEAT.Species import Species
 
@@ -17,12 +16,9 @@ class Speciator(ABC):
         pass
 
     @abstractmethod
-    def adjust_speciation_threshold(self, n_species: int):
+    def adjust_speciation_threshold(self, n_species: int) -> None:
         """
         dynamically alters the speciation threshold to try to achieve the target number of species for the next
         speciation step
         """
         pass
-
-
-

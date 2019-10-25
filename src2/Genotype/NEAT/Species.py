@@ -1,13 +1,14 @@
-from typing import Tuple, Dict, Type, List
+from typing import Tuple, List
 
 import math
 import random
 
-from Genotype.NEAT.Operators.RepresentativeSelector import RepresentativeSelector
+from Genotype.NEAT.Operators.Crowders.Crowder import Crowder
+from Genotype.NEAT.Operators.RepresentativeSelectors.RepresentativeSelector import RepresentativeSelector
 from src2.Genotype.NEAT.Genome import Genome
 from src2.Genotype.NEAT.Operators.Mutations import MutationRecord
 from src2.Configuration import config
-from src2.Genotype.NEAT.Operators import Selector
+from Genotype.NEAT.Operators.Selectors import Selector
 from src2.Genotype.NEAT.Operators.Mutations import Mutator
 import src2.Genotype.NEAT.Operators.Cross as Cross
 
@@ -19,6 +20,7 @@ class Species:
     selector: Selector
     mutator: Mutator
     representative_selector: RepresentativeSelector
+    crowder: Crowder
 
     def __init__(self, representative: Genome):
         self.id: int = Species.species_id
@@ -78,7 +80,9 @@ class Species:
             Species.mutator.mutate(child, mutation_record)
             children.append(child)
 
-        self.members = self.members[:elite] + children
+        # Only use the parent population after the elite, because elite will be added regardless
+        next_generation_members = Species.crowder.crowd(children, self.members[:elite])
+        self.members = self.members[:elite] + next_generation_members
 
     def step(self, mutation_record: MutationRecord):
         """Runs a single generation of evolution"""
