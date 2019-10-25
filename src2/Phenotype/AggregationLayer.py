@@ -92,11 +92,13 @@ class AggregationLayer(BaseLayer):
             return AggregatorOperations.merge_linear_and_conv(torch.sum(torch.stack(linear_inputs), dim=0),
                                                               torch.sum(torch.stack(conv_inputs), dim=0))
         else:
-            print("error - agg node received neither conv or linear inputs")
-            return None
+            raise Exception("error - agg node received neither conv or linear inputs")
 
-    def homogenise_outputs_list(self, outputs, homogeniser, outputs_deep_layers=None):
+    def homogenise_outputs_list(self, outputs, homogeniser):
         """
+        loops through the inputs, building up a list of homogeneously sized transformed inputs
+        for each new input, either reshapes that input, or the homogeneous list
+
         :param outputs: full list of unhomogenous output tensors - of the same layer type (dimensionality)
         :param homogeniser: the function used to return the homogenous list for this layer type
         :param outputs_deep_layers: a map of output tensor to deep layer it came from
@@ -104,10 +106,6 @@ class AggregationLayer(BaseLayer):
         """
         if outputs is None:
             raise Exception("Error: trying to homogenise null outputs list")
-
-        # if len(outputs) > len(outputs_deep_layers):
-        #     raise Exception("outputs list(", len(outputs), ") and outputs map (out->layer)(", len(outputs_deep_layers),
-        #                     ") do not match size")
 
         length_of_outputs = len(outputs)
         i = 0
@@ -118,7 +116,8 @@ class AggregationLayer(BaseLayer):
             new_features = outputs[i].size()
 
             if new_features != homogenous_features:
-                # either the list up till this point or the new  input needs modification
+                """either the list up till this point or the new  input needs modification"""
+
                 if i < length_of_outputs - 1:
                     outputs = homogeniser(outputs[:i], outputs[i]) + outputs[i + 1:]
                 else:  # i== len - 1
