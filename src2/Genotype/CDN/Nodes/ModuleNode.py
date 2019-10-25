@@ -36,7 +36,7 @@ class ModuleNode(Node):
 
 def get_new_conv_parameter_mutagens():
     return {
-        "conv_window_size": Option("conv_window_size", 3, 5, 7, current_value=random.choice([3, 5, 7]),
+        "conv_window_size": Option("conv_window_size", 1,3, 5, 7, current_value=random.choice([1,3, 5, 7]),
                                    mutation_chance=0.13),
 
         "conv_stride": IntegerVariable("conv_stride", current_value=1, start_range=1, end_range=5, mutation_chance=0.1),
