@@ -3,6 +3,13 @@ from typing import List
 
 class MutationReport():
 
+    """
+        represents the results of a mutation.
+        can be the result of a single small mutation eg: mutagen value change or an add node
+        can be the result of a composite of mutations on a whole genome
+        can be the result of a whole populations mutations in a single step or for the full run time
+    """
+
     def __int__(self):
         self.nodes_added = 0
         self.connections_enabled = 0
