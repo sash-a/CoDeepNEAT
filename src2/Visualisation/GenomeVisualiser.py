@@ -23,8 +23,8 @@ def get_graph_of(genome: Genome, sub_graph = True, cluster_style ="filled", clus
         g.edge(str(conn.from_node_id), str(conn.to_node_id))
 
     if sub_graph:
-        c.attr(style=cluster_style, color=cluster_colour)
-    c.node_attr.update(style=node_style, color=node_colour)
+        g.attr(style=cluster_style, color=cluster_colour)
+    g.node_attr.update(style=node_style, color=node_colour)
 
     g.attr(label = label)
 

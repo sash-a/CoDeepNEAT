@@ -1,4 +1,7 @@
 from abc import ABC, abstractmethod
+from typing import List
+
+from src2.Genotype.Mutagen.Mutagen import Mutagen
 
 
 class Gene(ABC):
@@ -14,7 +17,7 @@ class Gene(ABC):
         return self.id
 
     @abstractmethod
-    def get_all_mutagens(self):
+    def get_all_mutagens(self) -> List[Mutagen]:
         raise NotImplementedError('get_all_mutagens should not be called from Gene')
 
     def mutate(self):
