@@ -1,16 +1,21 @@
 import math
-
 import torch
 import torch.nn.functional as F
 
-from src.Config import Config
 from src.Utilities import Utils
 
 
 def merge_linear_and_conv(linear, conv, lossy=True):
-    """takes in a single linear shaped tensor and a single conv2d shaped tensor and merges them"""
+    """
+        takes in a single linear shaped tensor and a single conv2d shaped tensor
+        and merges them to create a linear layer tensor
+    """
+
+    # todo make option to make result a conv layer
+
     if list(conv.size())[2] != list(conv.size())[3]:
         print("conv has non square dimensions:", conv.size())
+
     if lossy:
         """reduce conv features until it can be reshaped to match dimensionality of linear - then sum"""
         conv_features = Utils.get_flat_number(conv)
@@ -52,6 +57,7 @@ def merge_linear_and_conv(linear, conv, lossy=True):
 
 
 def merge_linear_outputs(previous_inputs, new_input, cat=False):
+    # todo test cat=true
     if cat:
         previous = torch.sum(torch.stack(previous_inputs), dim=0)
         return [torch.cat([previous, new_input], dim=0)]
@@ -62,8 +68,15 @@ def merge_linear_outputs(previous_inputs, new_input, cat=False):
         return previous_inputs
 
 
-def pad_linear_outputs(previous_inputs, new_input):
-    size_diff = list(previous_inputs[0].size())[1] - list(new_input.size())[1]
+def pad_linear_outputs(homogeneous_inputs, new_input):
+    """
+
+    :param homogeneous_inputs: a list of same sized linear inputs
+    :param new_input: a linear input which is not the same size as the homogenous inputs
+    :return: returns the new input and the homogeneous inputs, now the same size
+    """
+
+    size_diff = list(homogeneous_inputs[0].size())[1] - list(new_input.size())[1]
     left_pad = round(abs(size_diff) / 2)
     right_pad = abs(size_diff) - left_pad
     if size_diff > 0:
@@ -71,15 +84,15 @@ def pad_linear_outputs(previous_inputs, new_input):
         new_input = F.pad(input=new_input, pad=(left_pad, right_pad))
     else:
         # new is larger
-        for i in range(len(previous_inputs)):
-            previous_inputs[i] = F.pad(input=previous_inputs[i], pad=(left_pad, right_pad))
+        for i in range(len(homogeneous_inputs)):
+            homogeneous_inputs[i] = F.pad(input=homogeneous_inputs[i], pad=(left_pad, right_pad))
 
-    size_diff = list(previous_inputs[0].size())[1] - list(new_input.size())[1]
+    size_diff = list(homogeneous_inputs[0].size())[1] - list(new_input.size())[1]
     if size_diff != 0:
         raise Exception("padding linear outputs failed. new size:", list(new_input.size())[1], "hom size:",
-                        list(previous_inputs[0].size())[1])
+                        list(homogeneous_inputs[0].size())[1])
 
-    return new_input, previous_inputs
+    return new_input, homogeneous_inputs
 
 
 def merge_conv_outputs(previous_inputs, new_input):
@@ -92,23 +105,33 @@ def merge_conv_outputs(previous_inputs, new_input):
         size_ratio = 1 / size_ratio
 
     if round(size_ratio) > 1.45:  # a ratio less than 1.45 will be made worse by maxPooling, requiring even more padding
-        # tensors are significantly different - should use a maxPool here to shrink the larger of the two
+        """
+            tensors are significantly different in size - 
+            should use a maxPool here to shrink the larger of the two shapes
+        """
+
         # print("using max pooling for prev:", x1,y1,"new:",x2,y2)
         new_input, previous_inputs = max_pool_conv_input(x1, x2, y1, y2, new_input, previous_inputs)
         x1, y1, x2, y2 = previous_inputs[0].size()[2], previous_inputs[0].size()[3], new_input.size()[2], \
                          new_input.size()[3]
         if x1 != x2 or y1 != y2:
-            # larger convs have been pooled. however a small misalignment remains
+            """larger convs have been pooled. however a small misalignment remains"""
+
             new_input, previous_inputs = pad_conv_input(x1, x2, y1, y2, new_input, previous_inputs)
         x1, y1, x2, y2 = new_input.size()[2], new_input.size()[3], previous_inputs[0].size()[2], \
                          previous_inputs[0].size()[3]
 
     else:
-        # tensors are similar size - can be padded
+        """tensors are similar size - can be padded"""
         new_input, previous_inputs = pad_conv_input(x1, x2, y1, y2, new_input, previous_inputs)
 
-    previous_channels, new_channels = previous_inputs[-1].size()[1], new_input.size()[1]
-    if not (previous_channels == new_channels):
+    homogeneous_channels, new_channels = previous_inputs[-1].size()[1], new_input.size()[1]
+    if not (homogeneous_channels == new_channels):
+        """
+            the two conv shapes have different numbers of channels.
+            the two shapes will be concatenated along the channel dimension
+        """
+
         previous_inputs = [
             merge_differing_channel_convs(new_input, torch.sum(torch.stack(previous_inputs, dim=0), dim=0))]
     else:
@@ -118,27 +141,46 @@ def merge_conv_outputs(previous_inputs, new_input):
 
 
 def merge_differing_channel_convs(conv_a, conv_b):
+    """cats on the channel dim"""
     return torch.cat([conv_a, conv_b], dim=1)
 
 
 def max_pool_conv_input(x1, x2, y1, y2, new_input, previous_inputs):
-    """takes a new input, and a list of homogenous previousInputs"""
+    """
+        takes a new input, and a list of homogenous previousInputs
+        :returns the new input and homogeneous inputs such that they
+        are as similar as max pooling can make them. not necessarily identical in size
+    """
+
     size_ratio = (x1 + y1) / (x2 + y2)
     if size_ratio < 1:
         size_ratio = 1 / size_ratio
 
     if (x1 + y1) > (x2 + y2):
-        # previous inputs must be pooled
+        "homogeneous inputs must be reduced"
         for i in range(len(previous_inputs)):
             previous_inputs[i] = F.max_pool2d(previous_inputs[i], kernel_size=(round(size_ratio), round(size_ratio)))
 
     else:
+        """new input must be reduced"""
         new_input = F.max_pool2d(new_input, kernel_size=(round(size_ratio), round(size_ratio)))
 
     return new_input, previous_inputs
 
 
 def pad_conv_input(x1, x2, y1, y2, new_input, previous_inputs):
+    """
+    pads each dimension of the smaller shape independently
+
+    :param x1:
+    :param x2:
+    :param y1:
+    :param y2:
+    :param new_input:
+    :param previous_inputs:
+    :return:
+    """
+
     if x1 < x2:
         # previous inputs are smalller on the x axis
         left_pad = (x2 - x1) // 2

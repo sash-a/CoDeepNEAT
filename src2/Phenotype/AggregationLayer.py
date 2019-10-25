@@ -1,10 +1,11 @@
-import torch
-from torch import tensor
 from typing import List
 
+import torch
+from torch import tensor
+
 from src.Config import Config
-from src.Phenotype2.LayerUtils import BaseLayer
 from src.Phenotype import AggregatorOperations
+from src.Phenotype2.LayerUtils import BaseLayer
 
 
 class AggregationLayer(BaseLayer):
@@ -22,6 +23,7 @@ class AggregationLayer(BaseLayer):
         if self.n_inputs_received > self.n_inputs_expected:
             raise Exception('Received more inputs than expected')
         elif self.n_inputs_received < self.n_inputs_expected:
+            """waiting on other inputs"""
             return
 
         aggregated = self.aggregate()
@@ -52,6 +54,11 @@ class AggregationLayer(BaseLayer):
         return "Aggregation layer"
 
     def aggregate(self):
+        """
+            by now the inputs list is full
+            :returns the result of aggregating all of the received inputs
+        """
+
         input_dims = list(map(lambda x: len(list(x.size())), self.inputs))
         has_linear = 2 in input_dims
         has_conv = 4 in input_dims
@@ -65,7 +72,8 @@ class AggregationLayer(BaseLayer):
         elif has_conv and not has_linear:
             conv_inputs = self.homogenise_outputs_list(conv_inputs, AggregatorOperations.merge_conv_outputs)
             if conv_inputs is None:
-                print("Error: null conv outputs returned from homogeniser")
+                raise Exception("Error: null conv outputs returned from homogeniser")
+
             try:
                 return torch.sum(torch.stack(conv_inputs), dim=0)
             except Exception as e:
@@ -74,6 +82,11 @@ class AggregationLayer(BaseLayer):
                     print(conv.size(), end=",")
                 raise e
         elif has_linear and has_conv:
+            """
+                strategy to deal with a mix of linear and conv inputs is to aggregate them separately, 
+                and then to merge the aggregated linear and conv input together
+            """
+
             linear_inputs = self.homogenise_outputs_list(linear_inputs, AggregatorOperations.merge_linear_outputs)
             conv_inputs = self.homogenise_outputs_list(conv_inputs, AggregatorOperations.merge_conv_outputs)
             return AggregatorOperations.merge_linear_and_conv(torch.sum(torch.stack(linear_inputs), dim=0),
