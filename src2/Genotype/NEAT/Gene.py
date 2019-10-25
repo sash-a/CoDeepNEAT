@@ -1,6 +1,8 @@
+from abc import ABC, abstractmethod
 
-class Gene:
-    """a gene is the general form of a neat node or connection"""
+
+class Gene(ABC):
+    """base class for a neat node and connection"""
 
     def __init__(self, id: int):
         self.id: int = id
@@ -11,10 +13,10 @@ class Gene:
     def __hash__(self):
         return self.id
 
+    @abstractmethod
     def get_all_mutagens(self):
-        raise NotImplementedError("Implement get all mutagens in super classes")
+        raise NotImplementedError('get_all_mutagens should not be called from Gene')
 
     def mutate(self):
         for mutagen in self.get_all_mutagens():
             mutagen.mutate()
-

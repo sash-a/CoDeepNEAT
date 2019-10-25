@@ -112,7 +112,7 @@ class Genome:
         traversal_dict = self.get_traversal_dictionary(True)
         return self._has_cycle(self.get_input_node().id, traversal_dict, visited_ids)
 
-    def _has_cycle(self, current_node_id, traversal_dict, visited_set: set):
+    def _has_cycle(self, current_node_id, traversal_dict, visited_set: set) -> bool:
         # TODO test and test performance
         if current_node_id in visited_set:
             return True
@@ -164,7 +164,7 @@ class Genome:
 
         return neat_dist
 
-    def has_branches(self):
+    def has_branches(self) -> bool:
         """Checks if there are any paths that don't reach the output node that do not contain disabled connections"""
         traversal_dict = self.get_traversal_dictionary(exclude_disabled_connection=True)
         for children in traversal_dict.values():
@@ -172,11 +172,11 @@ class Genome:
                 return True
         return False
 
-    def validate(self):
+    def validate(self) -> bool:
         connected = self._validate_traversal(self.get_input_node().id, self.get_traversal_dictionary(True), set())
         return connected and not self.has_cycle()
 
-    def _validate_traversal(self, current_node_id, traversal_dictionary, nodes_visited):
+    def _validate_traversal(self, current_node_id, traversal_dictionary, nodes_visited) -> bool:
         """Confirms that there is a path from input to output"""
         if self.nodes[current_node_id].is_output_node():
             return True
