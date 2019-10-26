@@ -26,14 +26,23 @@ class Population:
     def __iter__(self) -> Iterable[Genome]:
         return iter([member for spc in self.species for member in spc])
 
-    def update_species_sizes(self):
-        # TODO check the old code
-        pass
+    def _update_species_sizes(self):
+        """
+        Setting the number of children that each species will produce. Based on its rank and how many members are
+        already in the species
+        """
+        # TODO NEAT speciates based on fitness, how does rank (the way I am doing it) affect the sharing function?
+        species_adj_ranks = [sum([mem.rank for mem in species]) / len(species) for species in self.species]
+
+        pop_adj_rank = sum(species_adj_ranks)
+        for spc_adj_rank, species in zip(species_adj_ranks, self.species):
+            species_size = round(self.pop_size * spc_adj_rank / pop_adj_rank)
+            species.next_species_size = species_size
 
     def step(self):
-        # TODO delete a species if size is 0
         Population.ranker.rank(iter(self))
-        self.update_species_sizes()
+        self._update_species_sizes()
+        self.species = [species for species in self.species if species.next_species_size != 0]  # Removing empty species
 
         for spc in self.species:
             spc.step(self.mutation_record)

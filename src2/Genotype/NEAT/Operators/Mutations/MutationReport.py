@@ -1,8 +1,7 @@
 from typing import List
 
 
-class MutationReport():
-
+class MutationReport:
     """
         represents the results of a mutation.
         can be the result of a single small mutation eg: mutagen value change or an add node
@@ -19,30 +18,28 @@ class MutationReport():
         self.attribute_mutations: List[str] = []
 
     def check_mutated(self):
-        return self.nodes_added >0 or self.connections_enabled >0 \
-               or self.connections_disabled >0 or self.connections_created >0 \
+        return self.nodes_added > 0 or self.connections_enabled > 0 \
+               or self.connections_disabled > 0 or self.connections_created > 0 \
                or len(self.attribute_mutations) > 0
 
     def __str__(self):
         out = ""
         if self.nodes_added > 0:
             out += "nodes added: " + str(self.nodes_added) + "\n"
-        if self.connections_created >0:
+        if self.connections_created > 0:
             out += "connections created: " + str(self.connections_created) + "\n"
-        if self.connections_enabled >0:
+        if self.connections_enabled > 0:
             out += "connections enabled: " + str(self.connections_enabled) + "\n"
-        if self.connections_disabled >0:
+        if self.connections_disabled > 0:
             out += "connections disabled: " + str(self.connections_disabled) + "\n"
 
         for att in self.attribute_mutations:
-            out+= att +"\n"
+            out += att + "\n"
 
         if len(out) == 0:
             return "no mutations"
 
         return out
-
-
 
     def __add__(self, other):
         if type(other) == str:

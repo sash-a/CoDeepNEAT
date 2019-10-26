@@ -3,7 +3,6 @@ from typing import Tuple, List
 import math
 import random
 
-from Genotype.NEAT.Operators.Crowders.Crowder import Crowder
 from Genotype.NEAT.Operators.RepresentativeSelectors.RepresentativeSelector import RepresentativeSelector
 from src2.Genotype.NEAT.Genome import Genome
 from src2.Genotype.NEAT.Operators.Mutations import MutationRecord
@@ -20,7 +19,6 @@ class Species:
     selector: Selector
     mutator: Mutator
     representative_selector: RepresentativeSelector
-    crowder: Crowder
 
     def __init__(self, representative: Genome):
         self.id: int = Species.species_id
@@ -29,7 +27,7 @@ class Species:
         self.representative: Genome = representative
         self.members: List[Genome] = [representative.id]  # TODO dict of member_ids:members
         self.next_species_size: int = 1000
-        self.fitness: int = -1
+        # self.fitness: int = -1  # TODO is this ever used
         self.max_fitness_ties: int = 0  # a count of how many ties there are for the top accuracy
 
     def __iter__(self):
@@ -81,8 +79,7 @@ class Species:
             children.append(child)
 
         # Only use the parent population after the elite, because elite will be added regardless
-        next_generation_members = Species.crowder.crowd(children, self.members[:elite])
-        self.members = self.members[:elite] + next_generation_members
+        self.members = self.members[:elite] + children
 
     def step(self, mutation_record: MutationRecord):
         """Runs a single generation of evolution"""

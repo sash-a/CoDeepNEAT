@@ -8,4 +8,5 @@ if TYPE_CHECKING:
 class PopulationRanker(ABC):
     @abstractmethod
     def rank(self, individuals: Iterable[Genome]) -> None:
+        """Ranks individuals based on their fitness, with the rank 0 being the worst rank"""
         pass
