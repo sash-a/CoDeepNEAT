@@ -7,5 +7,6 @@ from main.Generation import Generation
 def save_generation(generation: Generation):
     pass
 
+
 def load_generation(name: str):
     pass

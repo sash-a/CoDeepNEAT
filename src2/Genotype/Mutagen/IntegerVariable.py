@@ -33,7 +33,8 @@ class IntegerVariable(Variable):
         if new_current_value == self.current_value:
             new_current_value = self.current_value + random.choice(0, 1)
 
-        mutation_report.attribute_mutations.append(self.name + " changed from " + repr(self.current_value) + " to " + repr(new_current_value))
+        mutation_report.attribute_mutations.append(
+            self.name + " changed from " + repr(self.current_value) + " to " + repr(new_current_value))
 
         self.current_value = self.start_range + ((new_current_value - self.start_range) % range)
 

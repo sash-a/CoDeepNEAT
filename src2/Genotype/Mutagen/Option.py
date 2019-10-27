@@ -46,7 +46,8 @@ class Option(Mutagen):
             while new_value == self():
                 new_value = self.options[random.randint(0, len(self.options) - 1)]
 
-            mutation_report.attribute_mutations.append(self.name + " changed from " + repr(self.current_value) + " to " + repr(new_value))
+            mutation_report.attribute_mutations.append(
+                self.name + " changed from " + repr(self.current_value) + " to " + repr(new_value))
             self.current_value = new_value
 
         return mutation_report + self.mutate_sub_mutagens()

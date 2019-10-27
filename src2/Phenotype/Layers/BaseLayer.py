@@ -1,7 +1,7 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import List
-from torch import nn, tensor
+from torch import nn
 
 from src.Config import Config
 
@@ -28,17 +28,3 @@ class BaseLayer(nn.Module, ABC):
     @abstractmethod
     def get_layer_type_name(self) -> str:
         pass
-
-
-class Reshape(nn.Module):
-    def __init__(self, *size):
-        super().__init__()
-        self.size: list = list(size)
-
-    def forward(self, inp: tensor):
-        # Allows for reshaping independent of batch size
-        batch_size = list(inp.size())[0]
-        if batch_size != self.size[0]:
-            self.size[0] = batch_size
-
-        return inp.reshape(*self.size)

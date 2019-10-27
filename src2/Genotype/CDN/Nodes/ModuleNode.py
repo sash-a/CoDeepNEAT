@@ -9,7 +9,7 @@ from src2.Genotype.Mutagen.ContinuousVariable import ContinuousVariable
 from src2.Genotype.Mutagen.IntegerVariable import IntegerVariable
 from src2.Genotype.Mutagen.Option import Option
 from src2.Genotype.NEAT.Node import Node, NodeType
-from src2.Phenotype.DepthwiseSeparableConv import DepthwiseSeparableConv
+from Phenotype.CustomLayers.DepthwiseSeparableConv import DepthwiseSeparableConv
 
 
 class ModuleNode(Node):
@@ -20,12 +20,12 @@ class ModuleNode(Node):
         layer_type = None if random.random() > config.module_node_deep_layer_chance else (
             nn.Conv2d if random.random() < config.module_node_conv_layer_chance else nn.Linear)
 
-        layer_types = [ None, nn.Conv2d, nn.Linear]
+        layer_types = [None, nn.Conv2d, nn.Linear]
         if config.use_depthwise_separable_convs:
             layer_types.append(DepthwiseSeparableConv)
 
         self.layer_type = Option("layer_type", *layer_types, current_value=layer_type,
-                                 submutagens=get_new_layer_submutagens()) #todo add in separable convs
+                                 submutagens=get_new_layer_submutagens())  # todo add in separable convs
 
         self.activation = Option("activation", F.relu, F.leaky_relu, torch.sigmoid, F.relu6,
                                  current_value=F.leaky_relu, mutation_chance=0.15)  # TODO try add in Selu, Elu
@@ -36,7 +36,7 @@ class ModuleNode(Node):
 
 def get_new_conv_parameter_mutagens():
     return {
-        "conv_window_size": Option("conv_window_size", 1,3, 5, 7, current_value=random.choice([1,3, 5, 7]),
+        "conv_window_size": Option("conv_window_size", 1, 3, 5, 7, current_value=random.choice([1, 3, 5, 7]),
                                    mutation_chance=0.13),
 
         "conv_stride": IntegerVariable("conv_stride", current_value=1, start_range=1, end_range=5, mutation_chance=0.1),
@@ -99,9 +99,12 @@ def get_new_linear_parameter_mutagens():
 
 def get_new_depthwise_conv_parameter_mutagens():
     conv_params = get_new_conv_parameter_mutagens()
-    conv_params["kernels_per_layer"] = IntegerVariable("kernels_per_layer", current_value= random.normalvariate(mu = 15, sigma=2) , start_range= 1, end_range= 100)
+    conv_params["kernels_per_layer"] = IntegerVariable("kernels_per_layer",
+                                                       current_value=random.normalvariate(mu=15, sigma=2),
+                                                       start_range=1, end_range=100)
 
     return conv_params
+
 
 def get_new_layer_submutagens():
     subs = {

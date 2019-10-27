@@ -10,6 +10,5 @@ class BlueprintNode(Node):
         self.linked_module_id: int = -1
         self.module_repeat_count = IntegerVariable("module_repeat_count", start_range=1, current_value=1, end_range=4)
 
-
     def get_all_mutagens(self):
         return [self.module_repeat_count]

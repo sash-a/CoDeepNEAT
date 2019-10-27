@@ -26,4 +26,3 @@ class Generation:
             calls the evaluation of all individuals
             prepares population objects for the next step
         """
-

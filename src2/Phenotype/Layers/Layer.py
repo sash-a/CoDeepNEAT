@@ -4,10 +4,9 @@ from torch import nn, zeros
 import math
 from functools import reduce
 
-from torch.nn import Sequential
-
 from src.CoDeepNEAT.CDNNodes.ModuleNode import ModuleNEATNode
-from src.Phenotype2.LayerUtils import Reshape, BaseLayer
+from src2.Phenotype.Layers.BaseLayer import BaseLayer
+from src2.Phenotype.Layers.CustomLayerTypes.Reshape import Reshape
 
 
 class Layer(BaseLayer):

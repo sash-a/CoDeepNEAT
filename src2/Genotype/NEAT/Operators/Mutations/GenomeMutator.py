@@ -24,14 +24,13 @@ class GenomeMutator(Mutator):
 
         mutation_report = MutationReport()
 
-
         if random.random() < add_node_chance:
             if self.add_node_mutation(genome, mutation_record):
-                mutation_report.nodes_added+=1
+                mutation_report.nodes_added += 1
 
         if random.random() < add_connection_chance:
             if self.add_connection_mutation(genome, mutation_record):
-                mutation_report.connections_created +=1
+                mutation_report.connections_created += 1
 
         if allow_disabling_connections:
             """randomly deactivates and reactivates connections"""
