@@ -1,13 +1,14 @@
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+import random
 from typing import List, TYPE_CHECKING, Tuple
+
+from Genotype.NEAT.Operators.Selectors.Selector import Selector
 
 if TYPE_CHECKING:
     from src2.Genotype.NEAT.Genome import Genome
 
 
-class Selector(ABC):
-    @abstractmethod
+class UniformSelector(Selector):
     def select(self, genomes: List[Genome]) -> Tuple[Genome, Genome]:
-        pass
+        return tuple(random.choices(genomes, k=2))

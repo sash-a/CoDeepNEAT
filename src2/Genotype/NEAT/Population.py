@@ -26,6 +26,9 @@ class Population:
     def __iter__(self) -> Iterable[Genome]:
         return iter([member for spc in self.species for member in spc])
 
+    def __len__(self):
+        return len(list(self))
+
     def _update_species_sizes(self):
         """
         Setting the number of children that each species will produce. Based on its rank and how many members are
