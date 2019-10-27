@@ -15,8 +15,8 @@ from NEAT.Mutagen import Mutagen, ValueType
 from NEAT.Species import Species
 from Phenotype.BlueprintGraph import BlueprintGraph
 from Phenotype.BlueprintNode import BlueprintNode
-from Phenotype2.AggregationLayer import AggregationLayer
-from Phenotype2.Layer import Layer
+from src2.Phenotype.Layers.Layer import Layer
+from src2.Phenotype.Layers.AggregationLayer import AggregationLayer
 
 
 class BlueprintGenome(Genome):

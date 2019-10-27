@@ -9,7 +9,7 @@ from src.CoDeepNEAT.CDNGenomes.ModuleGenome import ModuleGenome
 from src.CoDeepNEAT.CDNNodes.BlueprintNode import BlueprintNEATNode
 from src.CoDeepNEAT.CDNNodes.ModuleNode import ModuleNEATNode, NodeType
 from src.NEAT.Species import Species
-from src.Phenotype2.NeuralNetwork import Network
+from src2.Phenotype.NeuralNetwork import Network
 
 conn0 = ConnectionGene(0, 0, 2)
 conn1 = ConnectionGene(1, 0, 3)
@@ -48,8 +48,10 @@ bn1.species_number.set_value(1)
 bpg = BlueprintGenome([conn10], [bn0, bn1])
 
 Config.use_graph = True
-x, target = DL.sample_data(Config.get_device(), 256)
+x, target = DL.sample_data(Config.get_device(), 2)
 enen = Network(bpg, spcs, list(x.shape)).to(Config.get_device())
+li = enen.model.get_layer_info()
+print(li)
 enen.visualize()
 
 # get_accuracy_estimate_for_network(enen)

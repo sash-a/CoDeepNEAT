@@ -6,9 +6,9 @@ from src.Config import Config
 from src.CoDeepNEAT.CDNGenomes.BlueprintGenome import BlueprintGenome
 from src.NEAT.Species import Species
 
-from src.Phenotype2.Layer import Layer
-from src.Phenotype2.AggregationLayer import AggregationLayer
-from src.Phenotype2.LayerUtils import BaseLayer, Reshape
+from src2.Phenotype.Layers.Layer import Layer
+from src2.Phenotype.Layers.AggregationLayer import AggregationLayer
+from src2.Phenotype.Layers.BaseLayer import BaseLayer
 
 from functools import reduce
 from typing import List, Union, Tuple
@@ -72,7 +72,7 @@ class Network(nn.Module):
         graph = graphviz.Digraph(name='New graph', comment='New graph', filename=filename)
 
         q: List[BaseLayer] = [self.model]
-        graph.node(self.model.name, self.model.get_layer_type_name())
+        graph.node(self.model.name, self.model.get_layer_info())
         visited = set()
 
         while q:
@@ -81,7 +81,7 @@ class Network(nn.Module):
             if layer.name not in visited:
                 visited.add(layer.name)
                 for child in layer.child_layers:
-                    description = child.get_layer_type_name()
+                    description = child.get_layer_info()
 
                     graph.node(child.name, description)
                     graph.edge(layer.name, child.name)

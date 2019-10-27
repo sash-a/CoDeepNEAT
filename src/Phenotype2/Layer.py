@@ -103,7 +103,7 @@ class Layer(BaseLayer):
 
         return self.out_shape
 
-    def get_layer_type_name(self):
+    def get_layer_info(self):
         """for dnn visualization"""
 
         layer_type = self.module_node.layer_type

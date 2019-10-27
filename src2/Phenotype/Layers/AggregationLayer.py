@@ -50,8 +50,8 @@ class AggregationLayer(BaseLayer):
 
         return self.out_shape
 
-    def get_layer_type_name(self):
-        return "Aggregation layer"
+    def get_layer_info(self):
+        return 'Aggregation layer'
 
     def aggregate(self):
         """

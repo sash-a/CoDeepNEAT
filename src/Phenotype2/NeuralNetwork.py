@@ -72,7 +72,7 @@ class Network(nn.Module):
         graph = graphviz.Digraph(name='New graph', comment='New graph', filename=filename)
 
         q: List[BaseLayer] = [self.model]
-        graph.node(self.model.name, self.model.get_layer_type_name())
+        graph.node(self.model.name, self.model.get_layer_info())
         visited = set()
 
         while q:

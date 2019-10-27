@@ -1,4 +1,4 @@
-from typing import Type, Union, Optional
+from typing import Type, Union, Optional, List, Tuple
 
 from torch import nn, zeros
 import math
@@ -22,7 +22,7 @@ class Layer(BaseLayer):
     def forward(self, x):
         return self.activation(self.sequential(x))
 
-    def _create_regularisers(self):
+    def _create_regularisers(self) -> Tuple[nn.Module]:
         """Creates and returns regularisers given mutagens in self.module_node.layer_type"""
         regularisation: Optional[nn.Module] = None
         reduction: Optional[nn.Module] = None
@@ -50,7 +50,7 @@ class Layer(BaseLayer):
 
         return tuple(r for r in [regularisation, reduction, dropout] if r is not None)
 
-    def create_layer(self, in_shape: list):
+    def create_layer(self, in_shape: List[int]) -> List[int]:
         """
         Creates a layer of type nn.Linear or nn.Conv2d according to its module_node and gives it the correct shape.
         Populates the self.sequential attribute with created layers and values returned from self.create_regularisers.
@@ -76,17 +76,6 @@ class Layer(BaseLayer):
             stride = self.module_node.layer_type.get_sub_value('conv_stride')
             padding = math.ceil((window_size - h) / 2)
             padding = padding if padding >= 0 else 0
-            # dilation = 1
-
-            # h_out = math.floor((h + 2 * padding - dilation * (window_size - 1) - 1) / stride + 1)
-            # w_out = math.floor((w + 2 * padding - dilation * (window_size - 1) - 1) / stride + 1)  # same cause square
-            #
-            # # If using max pooling out feature size changes
-            # neat_reduction = self.module_node.layer_type.get_sub_value('reduction', return_mutagen=True)
-            # if neat_reduction is not None and neat_reduction.value is not None:  # Using max pooling
-            #     pool_size = neat_reduction.get_sub_value('pool_size')
-            #     h_out = math.ceil((h_out - pool_size) / pool_size + 1)
-            #     w_out = math.ceil((w_out - pool_size) / pool_size + 1)
 
             deep_layer = nn.Conv2d(channels, self.out_features, window_size, stride, padding)
         else:  # self.module_node.layer_type.value == nn.Linear:
@@ -98,26 +87,13 @@ class Layer(BaseLayer):
         self.sequential = nn.Sequential(*[module for module in
                                           [reshape_layer, deep_layer, *self._create_regularisers()]
                                           if module is not None])
+
+        # TODO: remove
+        #  doesn't look like out_shape is used anywhere else
         self.out_shape = list(self.forward(zeros(in_shape)).size())
 
         return self.out_shape
 
-    def get_layer_type_name(self):
+    def get_layer_info(self) -> str:
         """for dnn visualization"""
-
-        layer_type = self.module_node.layer_type
-        extras = ""
-        if layer_type() == nn.Conv2d:
-            extras += "\nwidow size:" + repr(self.deep_layer.kernel_size)
-        extras += "\nout features:" + repr(self.out_features)
-        extras += "\n" + repr(self.regularisation).split("(")[0] if not (self.regularisation is None) else ""
-        extras += "\n" + repr(self.reduction).split("(")[0] if not (self.reduction is None) else ""
-        extras += "\n" + repr(self.dropout).split("(")[0] if not (self.dropout is None) else ""
-
-        if layer_type() == nn.Conv2d:
-            return "Conv" + extras
-
-        elif layer_type() == nn.Linear:
-            return "Linear" + extras
-        else:
-            print("layer type", layer_type(), "not implemented")
+        return '\n'.join(map(lambda x: repr(x), list(self.sequential.children())))

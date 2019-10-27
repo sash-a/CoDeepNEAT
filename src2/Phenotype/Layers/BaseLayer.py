@@ -26,5 +26,5 @@ class BaseLayer(nn.Module, ABC):
         pass
 
     @abstractmethod
-    def get_layer_type_name(self) -> str:
+    def get_layer_info(self) -> str:
         pass
