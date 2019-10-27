@@ -3,11 +3,11 @@ from typing import Tuple, List
 import math
 import random
 
-from Genotype.NEAT.Operators.RepresentativeSelectors.RepresentativeSelector import RepresentativeSelector
+from src2.Genotype.NEAT.Operators.RepresentativeSelectors.RepresentativeSelector import RepresentativeSelector
 from src2.Genotype.NEAT.Genome import Genome
 from src2.Genotype.NEAT.Operators.Mutations import MutationRecord
 from src2.Configuration import config
-from Genotype.NEAT.Operators.Selectors import Selector
+from src2.Genotype.NEAT.Operators.Selectors import Selector
 from src2.Genotype.NEAT.Operators.Mutations import Mutator
 import src2.Genotype.NEAT.Operators.Cross as Cross
 
