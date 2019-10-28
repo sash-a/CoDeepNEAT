@@ -58,7 +58,6 @@ class AggregationLayer(BaseLayer):
             by now the inputs list is full
             :returns the result of aggregating all of the received inputs
         """
-
         input_dims = list(map(lambda x: len(list(x.size())), self.inputs))
         has_linear = 2 in input_dims
         has_conv = 4 in input_dims

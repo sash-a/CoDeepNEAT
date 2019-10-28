@@ -32,7 +32,7 @@ class Layer(BaseLayer):
         neat_reduction = self.module_node.layer_type.get_sub_value('reduction', return_mutagen=True)
         neat_dropout = self.module_node.layer_type.get_sub_value('dropout', return_mutagen=True)
 
-        if neat_regularisation.value is not None and neat_regularisation.value is not None:
+        if neat_regularisation is not None and neat_regularisation.value is not None:
             regularisation = neat_regularisation()(self.out_features)
 
         if neat_reduction is not None and neat_reduction.value is not None:
