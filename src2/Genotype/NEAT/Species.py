@@ -1,4 +1,4 @@
-from typing import Tuple, List
+from typing import Tuple, List, Dict
 
 import math
 import random
@@ -25,7 +25,8 @@ class Species:
         Species.species_id += 1
 
         self.representative: Genome = representative
-        self.members: List[Genome] = [representative.id]  # TODO dict of member_ids:members
+        self.members: Dict[int,Genome] = {representative.id: representative}
+        self.ranked_members: List[int] = [representative.id]
         self.next_species_size: int = 1000
         # self.fitness: int = -1  # TODO is this ever used
         self.max_fitness_ties: int = 0  # a count of how many ties there are for the top accuracy
@@ -36,21 +37,18 @@ class Species:
     def __len__(self):
         return len(self.members)
 
-    def __getitem__(self, item: int):
-        if item >= len(self.members):
-            raise IndexError('Index out of bounds: ' + str(item) + ' max: ' + str(len(self.members)))
-        return self.members[item]
+    def __getitem__(self, id: int):
+        return self.members[id]
 
     def __repr__(self):
-        return 'Species has ' + repr(len(self.members)) + ' members of type: ' + repr(type(self.members[0]))
+        return 'Species has ' + repr(len(self.members)) + ' members of type: ' + repr(type(list(self.members.values())[0]))
 
     def add(self, individual: Genome):
-        self.members.append(individual)
+        self.members[individual.id] = individual
 
-    def sample_individual(self) -> Tuple[Genome, int]:
+    def sample_individual(self) -> Genome:
         """:return a random individual from the species"""
-        index = random.randint(0, len(self.members) - 1)
-        return self.members[index], index
+        return random.choice(self.members.values())
 
     def _get_num_elite(self) -> int:
         """
@@ -58,28 +56,35 @@ class Species:
         number of ties there are for members with the best fitness
         """
         elite = min(config.elite, len(self.members))
-        highest_acc = self.members[0].fitness_values[0]
-        self.max_fitness_ties = sum(genome.fitness_values[0] == highest_acc for genome in self.members)  # TODO test
+        highest_acc = self.members[self.ranked_members[0]].fitness_values[0]
+        self.max_fitness_ties = sum(genome.fitness_values[0] == highest_acc for genome in self.members.values())  # TODO test
         return max(elite, self.max_fitness_ties)
 
     def _unfill(self):
         """Removes all poorly performing genomes"""
-        self.members = self.members[:math.ceil(len(self.members) * config.reproduce_percent)]
+        self.ranked_members = self.ranked_members[:math.ceil(len(self.ranked_members) * config.reproduce_percent)]
+        survivors = set(self.ranked_members)
+        new_members = {}
+        for id in self.members.keys():
+            if id in survivors:
+                new_members[id] = self.members[id]
+
+        self.members = new_members
 
     def _fill(self, mutation_record: MutationRecord):
         """Fills species until it has next_species_size members, using crossover and mutation"""
         children: List[Genome] = []
-        elite = self._get_num_elite()
-        Species.selector.before_selection(self.members)
+        num_elite = self._get_num_elite()
+        #Species.selector.before_selection(self.members) todo do we need this
 
-        while len(children) < self.next_species_size - elite:
-            p1, p2 = Species.selector.select(self.members)
+        while len(children) < self.next_species_size - num_elite:
+            p1, p2 = Species.selector.select(ranked_genomes=self.ranked_members, genomes=self.members)
             child = Cross.over(p1, p2)
             Species.mutator.mutate(child, mutation_record)
             children.append(child)
 
-        # Only use the parent population after the elite, because elite will be added regardless
-        self.members = self.members[:elite] + children
+        self.members = {id: self.members[id] for id in self.ranked_members[:num_elite]}#adds in elite
+        self.members = {**self.members, **{child.id: child for child in children} }# adds in children
 
     def step(self, mutation_record: MutationRecord):
         """Runs a single generation of evolution"""
@@ -87,11 +92,14 @@ class Species:
             raise Exception('Cannot step empty species')
 
         if self.next_species_size == 0:
-            self.members = []
+            """this species has been extincted"""
+            self.members = {}
+            self.ranked_members = []
             return
 
         # note original CoDeepNEAT checks for equal fitness's and prioritizes genomes with more genes
-        self.members.sort(key=lambda genome: genome.rank)  # TODO might need to reverse depends how we set rank
+        self.ranked_members = [id for id in self.members.keys()]
+        self.ranked_members.sort(key=lambda id: self.members[id].rank)  # TODO might need to reverse depends how we set rank
         self._unfill()
         self._fill(mutation_record)
 

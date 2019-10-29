@@ -1,5 +1,5 @@
 import random
-from typing import List, TYPE_CHECKING
+from typing import List, TYPE_CHECKING, Dict
 
 from Genotype.NEAT.Operators.RepresentativeSelectors.RepresentativeSelector import RepresentativeSelector
 
@@ -8,5 +8,5 @@ if TYPE_CHECKING:
 
 
 class RandomRepSelector(RepresentativeSelector):
-    def select_representative(self, members: List[Genome]) -> Genome:
-        return random.choice(members)
+    def select_representative(self, genomes : Dict[int:Genome]) -> Genome:
+        return random.choice(genomes.values())

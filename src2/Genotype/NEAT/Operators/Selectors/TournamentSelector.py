@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import random
-from typing import List, TYPE_CHECKING, Tuple
+from typing import List, TYPE_CHECKING, Tuple, Dict
 
 from Genotype.NEAT.Operators.Selectors.Selector import Selector
 
@@ -13,8 +13,10 @@ class TournamentSelector(Selector):
     def __init__(self, k):
         self.k = k
 
-    def select(self, genomes: List[Genome]) -> Tuple[Genome, Genome]:
-        tournament = random.choices(genomes, k=self.k)
+    def select(self, ranked_genomes: List[int], genomes : Dict[int:Genome]) -> Tuple[Genome, Genome]:
+        tournament = random.choices(genomes.values(), k=self.k)
         parent1 = max(tournament, key=lambda genome: genome.rank)
+
+        tournament = random.choices(genomes.values(), k=self.k)
         parent2 = max(tournament, key=lambda genome: genome.rank)
         return parent1, parent2

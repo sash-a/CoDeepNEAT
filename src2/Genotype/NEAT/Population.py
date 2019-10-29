@@ -51,3 +51,11 @@ class Population:
             spc.step(self.mutation_record)
 
         self.speciator.speciate(self.species)
+
+    def is_alive(self, genome_id) -> bool:
+
+        for spc in self.species:
+            if genome_id in spc.members.keys():
+                return True
+
+        return False

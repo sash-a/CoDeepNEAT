@@ -1,4 +1,4 @@
-from typing import List, TYPE_CHECKING
+from typing import List, TYPE_CHECKING, Dict
 
 from Genotype.NEAT.Operators.RepresentativeSelectors.RepresentativeSelector import RepresentativeSelector
 
@@ -7,5 +7,5 @@ if TYPE_CHECKING:
 
 
 class BestRepSelector(RepresentativeSelector):
-    def select_representative(self, members: List[Genome]) -> Genome:
-        return max(members, key=lambda genome: genome.fitness_values[0])
+    def select_representative(self, genomes : Dict[int:Genome]) -> Genome:
+        return max(genomes.values(), key=lambda genome: genome.fitness_values[0])

@@ -1,5 +1,5 @@
 import sys
-from typing import List, TYPE_CHECKING
+from typing import List, TYPE_CHECKING, Dict
 
 from Genotype.NEAT.Operators.RepresentativeSelectors.RepresentativeSelector import RepresentativeSelector
 
@@ -10,12 +10,12 @@ if TYPE_CHECKING:
 class MostSimilarRepSelector(RepresentativeSelector):
     """Finds the member that is most similar to all other members of the species"""
 
-    def select_representative(self, members: List[Genome]) -> Genome:
+    def select_representative(self, genomes : Dict[int:Genome]) -> Genome:
         lowest_sum = sys.maxsize
         best_candidate = None
-        for candidate in members:
+        for candidate in genomes.values():
             total_distance = 0
-            for other in members:
+            for other in genomes.values():
                 if candidate == other:
                     continue
                 dist = candidate.distance_to(other)

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import random
-from typing import List, TYPE_CHECKING, Tuple
+from typing import List, TYPE_CHECKING, Tuple, Dict
 
 from Genotype.NEAT.Operators.Selectors.Selector import Selector
 
@@ -10,5 +10,5 @@ if TYPE_CHECKING:
 
 
 class RouletteSelector(Selector):
-    def select(self, genomes: List[Genome]) -> Tuple[Genome, Genome]:
-        return tuple(random.choices(genomes, weights=[genome.rank for genome in genomes], k=2))
+    def select(self, ranked_genomes: List[int], genomes : Dict[int:Genome]) -> Tuple[Genome, Genome]:
+        return tuple(random.choices(genomes.values(), weights=[genome.rank for genome in genomes.values()], k=2))
