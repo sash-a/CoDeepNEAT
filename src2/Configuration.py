@@ -26,7 +26,13 @@ class Config:
         self.species_distance_thresh_mod_base = 1
         self.species_distance_thresh_mod_min = 1
         self.species_distance_thresh_mod_max = 1
+
+        self.blueprint_add_node_chance = 0.16
+        self.blueprint_add_connection_chance = 0.12
+        self.blueprint_node_type_switch_chance = 0
+        self.module_add_node_chance = 0.08
+        self.module_add_connection_chance = 0.08
         # -------------------------------------------------------------------------------------------------------------
 
 
-config = Config()
+config: Config = Config()

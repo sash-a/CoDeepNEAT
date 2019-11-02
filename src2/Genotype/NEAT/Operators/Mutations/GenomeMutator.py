@@ -18,7 +18,7 @@ class GenomeMutator(Mutator):
         raise NotImplementedError("Implement mutate method in all super classes")
 
     def mutate_base_genome(self, genome: Genome, mutation_record: MutationRecord, add_node_chance: float,
-                           add_connection_chance: float, allow_disabling_connections: bool = False):
+                           add_connection_chance: float, allow_disabling_connections: bool = True):
 
         """performs base NEAT genome mutations, as well as node and genome property mutations"""
 

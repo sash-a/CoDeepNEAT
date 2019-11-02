@@ -16,7 +16,7 @@ class Node(Gene):
         super().__init__(id)
 
         self.height = -1
-        self.node_type = type
+        self.node_type: NodeType = type
 
     def is_output_node(self):
         return self.node_type == NodeType.OUTPUT
