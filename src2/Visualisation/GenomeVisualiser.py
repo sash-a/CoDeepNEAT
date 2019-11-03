@@ -12,6 +12,21 @@ def get_graph_of(genome: Genome, sub_graph=False, cluster_style="filled", cluste
                  node_style="filled", node_colour="white", label="",
                  node_shape="", start_node_shape="Mdiamond", end_node_shape="Msquare",
                  node_names= "", append_graph: Digraph = None) -> Digraph:
+
+    """
+
+    :param genome:
+    :param sub_graph: boolean, if this graph should be made a cluster, intended to be a sub_graph of another graph
+    :param cluster_style:
+    :param cluster_colour:
+    :param node_style:
+    :param node_colour:
+    :param label:
+    :param node_names: the name prefix for each of the nodes in this genome
+    :param append_graph:the existing graph to be drawn into, instead of into a new graph
+    :return:
+    """
+
     if append_graph == "":
         g = Digraph(name=("cluster_" if sub_graph else "") + "genome_" + str(genome.id))
     else:
