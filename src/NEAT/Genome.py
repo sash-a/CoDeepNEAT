@@ -319,11 +319,11 @@ class Genome:
 
         return dictionary
 
-    def get_reachable_nodes(self, reverse):
-        node_dict = self.get_traversal_dictionary(True, reverse)
+    def get_reachable_nodes(self, from_output):
+        node_dict = self.get_traversal_dictionary(True, from_output)
         new_dict = {}
 
-        start_id = self.get_input_node().id if not reverse else self.get_output_node().id
+        start_id = self.get_input_node().id if not from_output else self.get_output_node().id
         self._get_reachable_nodes(node_dict, start_id, new_dict)
         return new_dict
 

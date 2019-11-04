@@ -1,11 +1,16 @@
+from __future__ import annotations
 import copy
 import sys
-from typing import Dict, List, AbstractSet
+from typing import Dict, List, AbstractSet, Type, Union, TYPE_CHECKING
 
 from src2.Configuration import config
 from src2.Genotype.Mutagen.Mutagen import Mutagen
-from src2.Genotype.NEAT.Connection import Connection
-from src2.Genotype.NEAT.Node import Node
+
+if TYPE_CHECKING:
+    from src2.Genotype.NEAT.Connection import Connection
+    from src2.Genotype.NEAT.Node import Node
+    from src2.Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
+    from src2.Genotype.CDN.Nodes.ModuleNode import ModuleNode
 
 
 class Genome:
@@ -20,7 +25,7 @@ class Genome:
         self.fitness_values: List[int] = [-(sys.maxsize - 1)]
 
         # nodes and connections map from gene id -> gene object
-        self.nodes: Dict[int, Node] = {}
+        self.nodes: Dict[int, Union[Node, BlueprintNode, ModuleNode]] = {}
         self.connections: Dict[int, Connection] = {}
 
         # connected nodes is stored to quickly tell if a connection is already in the genome
@@ -132,10 +137,10 @@ class Genome:
                 has_cycle = self._has_cycle(child, traversal_dict, branch_visited_set)
             return has_cycle
 
-    def get_input_node(self) -> Node:
+    def get_input_node(self) -> Union[Node, ModuleNode, BlueprintNode]:
         return [node for node in self.nodes.values() if node.is_input_node()][0]
 
-    def get_output_node(self) -> Node:
+    def get_output_node(self) -> Union[Node, ModuleNode, BlueprintNode]:
         return [node for node in self.nodes.values() if node.is_output_node()][0]
 
     def distance_to(self, other) -> float:

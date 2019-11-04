@@ -1,8 +1,13 @@
+from torch import device
+from threading import current_thread
+
+
 class Config:
     def __init__(self):
         print('loading config')
         # ----------------------------------------------- General stuff -----------------------------------------------
         self.n_gpus = 1
+        self.device = 'gpu'  # cpu
         # ------------------------------------------------- CDN stuff -------------------------------------------------
         # Features chances
         self.module_node_batchnorm_chance = 0.65
@@ -33,6 +38,13 @@ class Config:
         self.module_add_node_chance = 0.08
         self.module_add_connection_chance = 0.08
         # -------------------------------------------------------------------------------------------------------------
+
+        def get_device():
+            """Used to obtain the correct device taking into account multiple GPUs"""
+
+            gpu = 'cuda:'
+            gpu += current_thread().name
+            return device('cpu') if device == 'cpu' else device(gpu)
 
 
 config: Config = Config()
