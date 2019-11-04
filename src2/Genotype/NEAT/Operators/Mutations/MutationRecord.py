@@ -1,11 +1,10 @@
-from typing import Dict, Any
+from typing import Dict, Union
 
 from src2.Genotype.NEAT.Gene import Gene
 
 
 class MutationRecords:
-
-    def __init__(self, initial_mutations: Dict[Any, int], current_max_node_id, current_max_conn_id):
+    def __init__(self, initial_mutations: Dict[Union[int, tuple], int], current_max_node_id, current_max_conn_id):
         """
             Records all mutation in a single run so that no innovation is misused
             simultaneously stores node and connection mutation informaion
@@ -44,10 +43,10 @@ class MutationRecords:
         else:
             raise TypeError('Incorrect type passed to mutation: ' + mutation)
 
-    def get_next_node_id(self):
+    def get_next_node_id(self) -> int:
         self._next_node_id += 1
         return self._next_node_id
 
-    def get_next_connection_id(self):
+    def get_next_connection_id(self) -> int:
         self._next_conn_id += 1
         return self._next_conn_id

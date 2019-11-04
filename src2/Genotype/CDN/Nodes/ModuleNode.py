@@ -9,7 +9,7 @@ from src2.Genotype.Mutagen.ContinuousVariable import ContinuousVariable
 from src2.Genotype.Mutagen.IntegerVariable import IntegerVariable
 from src2.Genotype.Mutagen.Option import Option
 from src2.Genotype.NEAT.Node import Node, NodeType
-from Phenotype.CustomLayers.DepthwiseSeparableConv import DepthwiseSeparableConv
+from src2.Phenotype.Layers.CustomLayerTypes.DepthwiseSeparableConv import DepthwiseSeparableConv
 
 
 class ModuleNode(Node):

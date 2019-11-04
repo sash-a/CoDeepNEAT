@@ -4,7 +4,7 @@ from typing import List, Dict, TYPE_CHECKING, Optional
 from torch import nn
 
 from Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
-from Phenotype.Layers.AggregationLayer import AggregationLayer
+from src2.Phenotype.Layers.AggregationLayer import AggregationLayer
 from Genotype.CDN.Nodes import BlueprintNode
 from src2.Genotype.Mutagen.ContinuousVariable import ContinuousVariable
 from src2.Genotype.Mutagen.Mutagen import Mutagen
