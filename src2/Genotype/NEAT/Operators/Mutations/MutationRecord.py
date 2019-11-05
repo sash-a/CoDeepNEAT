@@ -7,7 +7,7 @@ class MutationRecords:
     def __init__(self, initial_mutations: Dict[Union[int, tuple], int], current_max_node_id, current_max_conn_id):
         """
             Records all mutation in a single run so that no innovation is misused
-            simultaneously stores node and connection mutation informaion
+            simultaneously stores node and connection mutation information
         """
 
         # maps mutation details to the mutation id
@@ -17,7 +17,7 @@ class MutationRecords:
         self._next_node_id = current_max_node_id
         self._next_conn_id = current_max_conn_id
 
-    def exists(self, mutation):
+    def exists(self, mutation) -> bool:
         return mutation in self.mutations
 
     def add_mutation(self, mutation):
