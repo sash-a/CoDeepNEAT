@@ -39,9 +39,16 @@ def random_genome(TypeGenome: Union[Type[Genome], Type[ModuleGenome], Type[Bluep
     for _ in random.randint(1, 10):  # random number of mutations
         if random.choice([True, False]):
             # Add connection
-            pass
+            from_id = random.randint(0, 6)
+            to_id = random.randint(0, 6)
+            if mr.exists((from_id, to_id)):
+                new_id = mr.mutations[(from_id, to_id)]
+            else:
+                new_id = mr.add_mutation((from_id, to_id))
+            genome.add_connection(Connection(new_id, from_id, to_id))
         else:
             # Add node
+            # TODO once mutation records have been fixed
             pass
 
     return genome, mr
