@@ -61,7 +61,10 @@ class GenomeMutator(Mutator):
 
         for mutagen in genome.get_all_mutagens():
             """mutates the genome level properties"""
-            mutation_report += mutagen.mutate()
+            report = mutagen.mutate()
+            if report is None:
+                raise Exception("none report returned from mutating "+ mutagen.name + ", " + repr(mutagen))
+            mutation_report += report
 
         return mutation_report
 
@@ -105,6 +108,8 @@ class GenomeMutator(Mutator):
         if candidate_connection in genome.connected_nodes:
             # this connection is already in the genome
             return False
+        else:
+            print("candidate conn",candidate_connection, " not in " , genome.connected_nodes)
 
         if from_node.node_type == NodeType.OUTPUT:
             return False
@@ -148,37 +153,38 @@ class GenomeMutator(Mutator):
         return added_node
 
     def test_and_add_node_on_connection(self, genome: Genome, mutation_record: MutationRecord, connection: Connection):
-        mutation_id = connection.id
 
-        if mutation_record.exists(mutation_id):
+        if mutation_record.exists(connection.id):
             # this node mutation has occurred before
+            # ie: this connection has had a node placed already
             mutated_node_id = mutation_record.mutations[
-                mutation_id]  # the id of the original node which was placed on this connection
+                connection.id]  # the id of the original node which was placed on this connection
             if mutated_node_id in genome.nodes:  # this connection has already created a new node
                 return False
 
             # the id of the connection which brides to the new node
-            into_node_connection_id = mutation_record.mutations[(self.from_node, mutated_node_id)]
+            into_node_connection_id = mutation_record.mutations[(connection.from_node_id, mutated_node_id)]
             # the id of the connection which brides from the new node
-            out_of_node_connection_id = mutation_record.mutations[(mutated_node_id, self.to_node)]
+            out_of_node_connection_id = mutation_record.mutations[(mutated_node_id, connection.to_node_id)]
         else:
             # if this mutation hasn't occurred before if should not be in any genome
 
-            mutated_node_id = mutation_record.add_mutation(mutation_id)
+            mutated_node_id = mutation_record.add_mutation(connection.id)
             if mutated_node_id in genome.nodes:  # this connection has already created a new node
-                raise Exception("node mutation not in mutation record, but in a genome")
+                raise Exception("tried to mutate a node onto connection " + str(connection.id) +
+                                " mutation (node id) given value " + str(mutated_node_id) +
+                                " but this value is already present in the genome: " + repr(genome.nodes.values()))
 
-            into_node_connection_id = mutation_record.add_mutation((self.from_node, mutated_node_id))
-            out_of_node_connection_id = mutation_record.add_mutation((mutated_node_id, self.to_node))
+            into_node_connection_id = mutation_record.add_mutation((connection.from_node_id, mutated_node_id))
+            out_of_node_connection_id = mutation_record.add_mutation((mutated_node_id, connection.to_node_id))
 
-        NodeType = type(list(genome.nodes.values())[0])  # node could be a blueprint, module or da node
-        mutated_node = NodeType(
-            mutated_node_id)  # multiple node objects share the same id. indicating they are functionally the same
+        TypeNode = type(list(genome.nodes.values())[0])  # node could be a blueprint, module or da node
+        mutated_node = TypeNode(mutated_node_id, NodeType.HIDDEN)  # multiple node objects share the same id. indicating they are functionally the same
 
         genome.add_node(mutated_node)
 
-        mutated_from_conn = Connection(into_node_connection_id, self.from_node, mutated_node_id)
-        mutated_to_conn = Connection(out_of_node_connection_id, mutated_node_id, self.to_node)
+        mutated_from_conn = Connection(into_node_connection_id, connection.from_node_id, mutated_node_id)
+        mutated_to_conn = Connection(out_of_node_connection_id, mutated_node_id, connection.to_node_id)
 
         genome.add_connection(mutated_from_conn)
         genome.add_connection(mutated_to_conn)

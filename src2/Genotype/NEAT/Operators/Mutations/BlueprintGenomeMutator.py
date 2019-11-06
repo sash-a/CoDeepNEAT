@@ -22,6 +22,8 @@ class BlueprintGenomeMutator(GenomeMutator):
 
         mutation_report += self.mutate_node_types(genome)
 
+        return genome
+
     def mutate_node_types(self, genome:Genome):
         """
         chance to change nodes from blueprint nodes to module nodes and visa versa

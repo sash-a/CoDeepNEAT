@@ -18,7 +18,7 @@ class MutationRecords:
         self._next_conn_id = current_max_conn_id
 
     def exists(self, mutation) -> bool:
-        return mutation in self.mutations
+        return mutation in self.mutations.keys()
 
     def add_mutation(self, mutation):
         if type(mutation) == tuple:

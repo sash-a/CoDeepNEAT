@@ -22,5 +22,7 @@ class Gene(ABC):
         raise NotImplementedError('get_all_mutagens should not be called from Gene')
 
     def mutate(self) -> MutationReport:
+        report = MutationReport()
         for mutagen in self.get_all_mutagens():
-            mutagen.mutate()
+            report += mutagen.mutate()
+        return report

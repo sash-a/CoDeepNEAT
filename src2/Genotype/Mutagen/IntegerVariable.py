@@ -11,7 +11,7 @@ class IntegerVariable(Variable):
     def __init__(self, name, current_value: int, start_range: int, end_range: int, mutation_chance):
         super().__init__(name, current_value, start_range, end_range, mutation_chance)
 
-    def mutate(self):
+    def mutate(self) -> MutationReport:
         mutation_report = MutationReport()
 
         if random.random() > self.mutation_chance:
@@ -25,13 +25,13 @@ class IntegerVariable(Variable):
         else:
             # random deviation
             deviation_magnitude = math.pow(random.random(), 4)
-            deviation_direction = (1 if random.choice(True, False) else -1)
+            deviation_direction = (1 if random.choice([True, False]) else -1)
 
             new_current_value = self.current_value + int(deviation_direction * deviation_magnitude * range)
 
         # making sure value changes
         if new_current_value == self.current_value:
-            new_current_value = self.current_value + random.choice(0, 1)
+            new_current_value = self.current_value + random.choice([0, 1])
 
         mutation_report.attribute_mutations.append(
             self.name + " changed from " + repr(self.current_value) + " to " + repr(new_current_value))

@@ -43,28 +43,28 @@ class Genome:
     def __hash__(self):
         return self.id
 
-    def get_disjoint_excess_connections(self, other) -> AbstractSet[int]:
+    def get_disjoint_excess_connections(self, other: Genome) -> AbstractSet[int]:
         if not isinstance(other, Genome):
             raise TypeError('Expected type Genome, received type: ' + str(type(other)))
 
         return self.connections.keys() ^ other.connections.keys()
 
-    def add_node(self, node):
+    def add_node(self, node: Node):
         """Add node. Nodes must be added before their connections"""
         if node.id in self.nodes:
             raise Exception("Added node " + repr(node) + " already in genome " + repr(self))
         self.nodes[node.id] = node
 
-    def add_connection(self, conn):
+    def add_connection(self, conn: Connection):
         """Add connections. Nodes must be added before their connections"""
         if conn.id in self.connections:
             raise Exception("Added connection " + repr(conn) + " already in genome " + repr(self))
-        if not (conn.from_node in self.nodes and conn.to_node in self.nodes):
+        if not (conn.from_node_id in self.nodes and conn.to_node_id in self.nodes):
             raise Exception("Trying to add connection. But nodes not in genome")
-        if conn.from_node == conn.to_node:
-            raise Exception("connection goes from node", conn.to_node, "to itself")
+        if conn.from_node_id == conn.to_node_id:
+            raise Exception("connection goes from node", conn.to_node_id, "to itself")
 
-        self.connected_nodes.add((conn.from_node, conn.to_node))
+        self.connected_nodes.add((conn.from_node_id, conn.to_node_id))
         self.connections[conn.id] = conn
 
     def report_fitness(self, fitnesses):

@@ -9,11 +9,11 @@ class MutationReport:
         can be the result of a whole populations mutations in a single step or for the full run time
     """
 
-    def __int__(self):
-        self.nodes_added = 0
-        self.connections_enabled = 0
-        self.connections_disabled = 0
-        self.connections_created = 0
+    def __init__(self):
+        self.nodes_added: int = 0
+        self.connections_enabled: int = 0
+        self.connections_disabled: int = 0
+        self.connections_created: int = 0
 
         self.attribute_mutations: List[str] = []
 
@@ -49,6 +49,9 @@ class MutationReport:
 
         if type(other) == type(self):
             result = MutationReport()
+            a = self.nodes_added
+            b = other.nodes_added
+            c = result.nodes_added
             result.nodes_added += self.nodes_added + other.nodes_added
             result.connections_enabled += self.connections_enabled + other.connections_enabled
             result.connections_disabled += self.connections_disabled + other.connections_disabled

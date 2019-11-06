@@ -27,15 +27,21 @@ class Option(Mutagen):
         return self.get_submutagen(subvalue_name).value
 
     def get_submutagen(self, subvalue_name):
+        if self.submutagens is None:
+            raise Exception("no submutagens on option: ", self.name, " " , self)
         return self.submutagens[self.value][subvalue_name]
 
     def get_submutagens(self):
+        if self.submutagens is None:
+            return []
+
         return self.submutagens[self.value].values()
 
     def get_current_value(self):
         return self.current_value
 
-    def mutate(self):
+    def mutate(self) -> MutationReport:
+
         mutation_report = MutationReport()
         if random.random() < self.mutation_chance:
             if len(self.options) < 2:
@@ -46,8 +52,7 @@ class Option(Mutagen):
             while new_value == self():
                 new_value = self.options[random.randint(0, len(self.options) - 1)]
 
-            mutation_report.attribute_mutations.append(
-                self.name + " changed from " + repr(self.current_value) + " to " + repr(new_value))
+            mutation_report+= self.name + " changed from " + repr(self.current_value) + " to " + repr(new_value)
             self.current_value = new_value
 
         return mutation_report + self.mutate_sub_mutagens()

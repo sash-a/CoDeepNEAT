@@ -11,19 +11,19 @@ class ContinuousVariable(Variable):
     def __init__(self, name, current_value: float, start_range: float, end_range: float, mutation_chance):
         super().__init__(name, current_value, start_range, end_range, mutation_chance)
 
-    def mutate(self):
+    def mutate(self) -> MutationReport:
         mutation_report = MutationReport()
 
         if random.random() > self.mutation_chance:
-            return
+            return mutation_report
 
         range = self.end_range - self.start_range
 
         if random.random() < 0.25:
             # random reset
             new_current_value = random.uniform(self.start_range, self.end_range)
-            mutation_report.attribute_mutations.append(
-                self.name + " changed from " + repr(self.current_value) + " to " + repr(new_current_value))
+            mutation_report += self.name + " changed from " + repr(self.current_value) + " to " + repr(
+                new_current_value)
 
             self.current_value = new_current_value
 
@@ -33,9 +33,14 @@ class ContinuousVariable(Variable):
             deviation_dir = (1 if random.choice(True, False) else -1)
 
             new_current_value = self.current_value + deviation_dir * deviation_magnitude * range
-            mutation_report.attribute_mutations.append(
-                self.name + " changed from " + repr(self.current_value) + " to " + repr(new_current_value))
+            mutation_report += self.name + " changed from " + repr(self.current_value) + " to " + repr(
+                new_current_value)
             self.current_value = self.start_range + ((new_current_value - self.start_range) % range)
+
+        if mutation_report is None:
+            raise Exception("none mutation report in " + self.name)
+
+        print("returning: ", mutation_report)
 
         return mutation_report
 

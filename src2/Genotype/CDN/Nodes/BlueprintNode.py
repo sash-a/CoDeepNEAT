@@ -8,7 +8,7 @@ class BlueprintNode(Node):
         super().__init__(id, type)
 
         self.linked_module_id: int = -1
-        self.module_repeat_count = IntegerVariable("module_repeat_count", start_range=1, current_value=1, end_range=4)
+        self.module_repeat_count = IntegerVariable("module_repeat_count", start_range=1, current_value=1, end_range=4, mutation_chance= 0.1)
         self.species_id: int = -1
 
     def get_all_mutagens(self):

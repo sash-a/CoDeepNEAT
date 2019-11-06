@@ -23,7 +23,7 @@ def get_mini_genome(TypeGenome: Union[Type[Genome], Type[ModuleGenome], Type[Blu
                     TypeNode: Union[Type[Node], Type[ModuleNode], Type[BlueprintNode]]) \
         -> Tuple[Union[Genome, ModuleGenome, BlueprintGenome], MutationRecords]:
     """0 - 1"""
-    mini_genome = TypeGenome([TypeNode(input_node_params), TypeNode(output_node_params)], [Connection(0, 0, 1)])
+    mini_genome = TypeGenome([TypeNode(*input_node_params), TypeNode(*output_node_params)], [Connection(0, 0, 1)])
     return mini_genome, MutationRecords({(0, 1): 0}, 1, 0)
 
 
@@ -32,7 +32,7 @@ def get_small_linear_genome(TypeGenome: Union[Type[Genome], Type[ModuleGenome], 
         -> Tuple[Union[Genome, ModuleGenome, BlueprintGenome], MutationRecords]:
     """0 -- 2 -- 1"""
     small_linear_genome = TypeGenome(
-        [TypeNode(input_node_params), TypeNode(hidden2_node), TypeNode(output_node_params)],
+        [TypeNode(*input_node_params), TypeNode(hidden2_node, NodeType.HIDDEN), TypeNode(*output_node_params)],
         [Connection(1, 0, 2), Connection(2, 2, 1)])
     return small_linear_genome, MutationRecords({(0, 1): 0,  # initial mini genome
                                                  0: 2,  # add node on connection 0
@@ -49,7 +49,7 @@ def get_small_tri_genome(TypeGenome: Union[Type[Genome], Type[ModuleGenome], Typ
          /  \
         1 -- 2
     """
-    small_tri_genome = TypeGenome([TypeNode(input_node_params), TypeNode(hidden2_node), TypeNode(output_node_params)],
+    small_tri_genome = TypeGenome([TypeNode(*input_node_params), TypeNode(hidden2_node, NodeType.HIDDEN), TypeNode(*output_node_params)],
                                   [Connection(0, 0, 1), Connection(1, 0, 2), Connection(2, 2, 1)])
 
     return small_tri_genome, MutationRecords({(0, 1): 0,  # initial mini genome
@@ -72,7 +72,7 @@ def get_large_genome(TypeGenome: Union[Type[Genome], Type[ModuleGenome], Type[Bl
            0
     """
     large_genome = TypeGenome(
-        [TypeNode(input_node_params), TypeNode(hidden2_node), TypeNode(hidden3_node), TypeNode(hidden4_node)],
+        [TypeNode(*input_node_params), TypeNode(hidden2_node, NodeType.HIDDEN), TypeNode(hidden3_node, NodeType.HIDDEN), TypeNode(hidden4_node, NodeType.HIDDEN)],
         [Connection(0, 0, 1), Connection(1, 0, 2), Connection(3, 2, 3), Connection(4, 3, 1), Connection(5, 0, 4),
          Connection(6, 4, 1),
          ])
