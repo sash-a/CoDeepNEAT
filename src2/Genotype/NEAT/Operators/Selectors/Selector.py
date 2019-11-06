@@ -9,5 +9,5 @@ if TYPE_CHECKING:
 
 class Selector(ABC):
     @abstractmethod
-    def select(self, ranked_genomes: List[int], genomes : Dict[int:Genome]) -> Tuple[Genome, Genome]:
+    def select(self, ranked_genomes: List[int], genomes: Dict[int:Genome]) -> Tuple[Genome, Genome]:
         pass

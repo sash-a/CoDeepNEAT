@@ -7,5 +7,5 @@ if TYPE_CHECKING:
 
 
 class BestRepSelector(RepresentativeSelector):
-    def select_representative(self, genomes : Dict[int:Genome]) -> Genome:
+    def select_representative(self, genomes: Dict[int:Genome]) -> Genome:
         return max(genomes.values(), key=lambda genome: genome.fitness_values[0])

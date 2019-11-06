@@ -10,5 +10,5 @@ if TYPE_CHECKING:
 
 
 class RouletteSelector(Selector):
-    def select(self, ranked_genomes: List[int], genomes : Dict[int:Genome]) -> Tuple[Genome, Genome]:
+    def select(self, ranked_genomes: List[int], genomes: Dict[int:Genome]) -> Tuple[Genome, Genome]:
         return tuple(random.choices(genomes.values(), weights=[genome.rank for genome in genomes.values()], k=2))

@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 class MostSimilarRepSelector(RepresentativeSelector):
     """Finds the member that is most similar to all other members of the species"""
 
-    def select_representative(self, genomes : Dict[int:Genome]) -> Genome:
+    def select_representative(self, genomes: Dict[int:Genome]) -> Genome:
         lowest_sum = sys.maxsize
         best_candidate = None
         for candidate in genomes.values():

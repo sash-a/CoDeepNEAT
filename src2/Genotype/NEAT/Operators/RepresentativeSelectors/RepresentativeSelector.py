@@ -11,5 +11,5 @@ class RepresentativeSelector(ABC):
     """Finds a representative for a species"""
 
     @abstractmethod
-    def select_representative(self, genomes : Dict[int:Genome]) -> Genome:
+    def select_representative(self, genomes: Dict[int:Genome]) -> Genome:
         pass

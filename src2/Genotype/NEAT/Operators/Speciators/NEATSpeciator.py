@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 class NEATSpeciator(Speciator):
     def speciate(self, species: List[Species]) -> None:
         self.adjust_speciation_threshold(len(species))
-        individuals: List[Genome] = [member for spc in species for member in spc.members]
+        individuals: List[Genome] = [member for spc in species for member in spc.members.values()]
 
         for individual in individuals:
             found = False

@@ -8,5 +8,5 @@ if TYPE_CHECKING:
 
 
 class RandomRepSelector(RepresentativeSelector):
-    def select_representative(self, genomes : Dict[int:Genome]) -> Genome:
+    def select_representative(self, genomes: Dict[int:Genome]) -> Genome:
         return random.choice(genomes.values())
