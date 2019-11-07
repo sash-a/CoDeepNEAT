@@ -1,7 +1,8 @@
 from __future__ import annotations
+
 import copy
 import sys
-from typing import Dict, List, AbstractSet, Type, Union, TYPE_CHECKING
+from typing import Dict, List, AbstractSet, Union, TYPE_CHECKING
 
 from src2.Configuration import config
 from src2.Genotype.Mutagen.Mutagen import Mutagen
@@ -36,6 +37,7 @@ class Genome:
 
         for con in connections:
             self.connections[con.id] = con
+            self.connected_nodes.add((con.from_node_id, con.to_node_id))
 
     def __eq__(self, other):
         return self.id == other.id
@@ -114,12 +116,13 @@ class Genome:
 
     def has_cycle(self) -> bool:
         visited_ids = set()
-        traversal_dict = self.get_traversal_dictionary(True)
+        traversal_dict = self.get_traversal_dictionary(exclude_disabled_connection=True)
         return self._has_cycle(self.get_input_node().id, traversal_dict, visited_ids)
 
     def _has_cycle(self, current_node_id, traversal_dict, visited_set: set) -> bool:
         # TODO test and test performance
         if current_node_id in visited_set:
+            # print("found cycle")
             return True
 
         if current_node_id not in traversal_dict:

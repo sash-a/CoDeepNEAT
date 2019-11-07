@@ -63,7 +63,7 @@ class GenomeMutator(Mutator):
             """mutates the genome level properties"""
             report = mutagen.mutate()
             if report is None:
-                raise Exception("none report returned from mutating "+ mutagen.name + ", " + repr(mutagen))
+                raise Exception("none report returned from mutating " + mutagen.name + ", " + repr(mutagen))
             mutation_report += report
 
         return mutation_report
@@ -108,8 +108,9 @@ class GenomeMutator(Mutator):
         if candidate_connection in genome.connected_nodes:
             # this connection is already in the genome
             return False
-        else:
-            print("candidate conn",candidate_connection, " not in " , genome.connected_nodes)
+        # else:
+        #     print("candidate conn", candidate_connection, " not in connections:", genome.connected_nodes,
+        #           "nodes:", genome.nodes.keys(), "connections:", genome.connections)
 
         if from_node.node_type == NodeType.OUTPUT:
             return False
@@ -173,13 +174,14 @@ class GenomeMutator(Mutator):
             if mutated_node_id in genome.nodes:  # this connection has already created a new node
                 raise Exception("tried to mutate a node onto connection " + str(connection.id) +
                                 " mutation (node id) given value " + str(mutated_node_id) +
-                                " but this value is already present in the genome: " + repr(genome.nodes.values()))
+                                " but this value is already present in the genome: " + repr(genome.nodes.keys()))
 
             into_node_connection_id = mutation_record.add_mutation((connection.from_node_id, mutated_node_id))
             out_of_node_connection_id = mutation_record.add_mutation((mutated_node_id, connection.to_node_id))
 
         TypeNode = type(list(genome.nodes.values())[0])  # node could be a blueprint, module or da node
-        mutated_node = TypeNode(mutated_node_id, NodeType.HIDDEN)  # multiple node objects share the same id. indicating they are functionally the same
+        mutated_node = TypeNode(mutated_node_id,
+                                NodeType.HIDDEN)  # multiple node objects share the same id. indicating they are functionally the same
 
         genome.add_node(mutated_node)
 
