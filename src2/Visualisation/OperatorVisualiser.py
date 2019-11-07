@@ -41,7 +41,7 @@ def visualise_mutation(genomes: List[Genome],
         both_graph.view()
 
 
-def visualise_crossover(genomes: List[Genome], count=1):
+def visualise_crossover(genomes: List[Genome], count=1, parent_mutation_count = 1):
     """
     pairs genomes, plots parents along with their children
     """
@@ -49,20 +49,33 @@ def visualise_crossover(genomes: List[Genome], count=1):
         raise Exception("need at least 2 genomes to show cross over, num found: " + str(len(genomes)))
 
     for i in range(count):
-        parent1 = random.choice(genomes)
+        parent1 = copy.deepcopy(random.choice(genomes))
         parent2 = None
 
         found_unique_parent = False
         while not found_unique_parent:
-            parent2 = random.choice(genomes)
+            parent2 = copy.deepcopy(random.choice(genomes))
             found_unique_parent = parent1 != parent2
 
         child = Cross.over(parent1, parent2)
-        parent1_graph = get_graph_of(parent1, node_names="parent1")
-        parent2_graph = get_graph_of(parent2, node_names="parent2", append_graph=parent1_graph)
-        full_graph = get_graph_of(child, node_names=" ")
+        if not child.validate():
+            print("invalid child")
+            continue
+
+        parent1_graph = get_graph_of(parent1, node_names="parent1", sub_graph=True, label= "parent 1")
+        parent2_graph = get_graph_of(parent2, node_names="parent2", sub_graph= True, label= "parent 2")
+        full_graph = get_graph_of(child, node_names="full", node_colour= "yellow")
+        full_graph.subgraph(parent1_graph)
+        full_graph.subgraph(parent2_graph)
+
+        full_graph.view()
 
 
 if __name__ == "__main__":
-    static_genome, record = StaticGenomes.get_mini_genome(BlueprintGenome, BlueprintNode)
-    visualise_mutation([static_genome], BlueprintGenomeMutator(), record, num_mutations=500, count=5)
+    trivial_genome, record = StaticGenomes.get_mini_genome(BlueprintGenome, BlueprintNode)
+    triangle_genome, record2 = StaticGenomes.get_small_tri_genome(BlueprintGenome, BlueprintNode)
+    three_chain_genome, record3 = StaticGenomes.get_small_linear_genome(BlueprintGenome, BlueprintNode)
+    large_genome, record4 = StaticGenomes.get_large_genome(BlueprintGenome, BlueprintNode)
+
+    # visualise_mutation([triangle_genome], BlueprintGenomeMutator(), record, num_mutations=1, count=5)
+    visualise_crossover([triangle_genome, three_chain_genome], count=5)

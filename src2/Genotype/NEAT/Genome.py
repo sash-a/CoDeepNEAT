@@ -46,6 +46,12 @@ class Genome:
     def __hash__(self):
         return self.id
 
+    def __gt__(self, other):
+        return self.rank > other.rank
+
+    def __lt__(self, other):
+        return self.rank < other.rank
+
     def get_disjoint_excess_connections(self, other: Genome) -> AbstractSet[int]:
         if not isinstance(other, Genome):
             raise TypeError('Expected type Genome, received type: ' + str(type(other)))
