@@ -43,9 +43,9 @@ def get_graph_of(genome: Genome, sub_graph=False, cluster_style="filled", cluste
 
         if shape != "":
             # print("using shape ",shape)
-            g.node(name=node_names + "_v " + str(node.id), shape=shape, label = "node")
+            g.node(name=node_names + "_v " + str(node.id), shape=shape, label="node " + str(node.id))
         else:
-            g.node(name=node_names + "_v " + str(node.id), label = "node")
+            g.node(name=node_names + "_v " + str(node.id), label="node " + str(node.id))
 
         # print("created node: ", (node_names + ": " + str(node.id)) , " id: ", node.id )
 
@@ -73,5 +73,6 @@ def visualise_blueprint_genome(genome: BlueprintGenome):
 if __name__ == "__main__":
     genome, record = StaticGenomes.get_small_tri_genome(BlueprintGenome, BlueprintNode)
     graph = get_graph_of(genome, node_colour="yellow")
-    print("genome ", genome, " parsed into graph: " , graph)
+    print("genome ", genome, " parsed into graph: ", graph)
+    genome.has_cycle()
     graph.view()

@@ -18,7 +18,7 @@ from test import StaticGenomes
 
 def visualise_mutation(genomes: List[Genome],
                        mutator: Union[GenomeMutator, ModuleGenomeMutator, BlueprintGenomeMutator],
-                       mutation_record: MutationRecord, count=1, num_mutations = 1):
+                       mutation_record: MutationRecord, count=1, num_mutations=1):
     """
     samples genomes and plots them before and after mutation
     """
@@ -28,7 +28,7 @@ def visualise_mutation(genomes: List[Genome],
         before_graph = get_graph_of(genome, node_names="before")
 
         mutant_genome = mutator.mutate(genome, mutation_record)
-        for i in range(num_mutations -1):
+        for i in range(num_mutations - 1):
             # print("mutated genome")
             mutant_genome = mutator.mutate(mutant_genome, mutation_record)
         # print("mutated genome")
@@ -46,4 +46,4 @@ def visualise_crossover(genomes: List[Genome], count=1):
 
 if __name__ == "__main__":
     static_genome, record = StaticGenomes.get_mini_genome(BlueprintGenome, BlueprintNode)
-    visualise_mutation([static_genome], BlueprintGenomeMutator(), record, num_mutations= 150)
+    visualise_mutation([static_genome], BlueprintGenomeMutator(), record, num_mutations=150)

@@ -75,7 +75,8 @@ def get_large_genome(TypeGenome: Union[Type[Genome], Type[ModuleGenome], Type[Bl
     large_genome = TypeGenome(
         [TypeNode(*input_node_params), TypeNode(hidden2_node, NodeType.HIDDEN), TypeNode(hidden3_node, NodeType.HIDDEN),
          TypeNode(hidden4_node, NodeType.HIDDEN), TypeNode(*output_node_params)],
-        [Connection(1, 0, 2), Connection(3, 2, 3), Connection(4, 3, 1), Connection(5, 0, 4), Connection(6, 4, 1)])
+        [Connection(1, 0, 2), Connection(3, 2, 3), Connection(4, 3, 1), Connection(5, 0, 4), Connection(6, 4, 1),
+         Connection(6, 1, 1)])
 
     return large_genome, MutationRecords({(0, 1): 0,
                                           0: 2,  # add node on connection 0
@@ -91,3 +92,6 @@ def get_large_genome(TypeGenome: Union[Type[Genome], Type[ModuleGenome], Type[Bl
                                           (0, 4): 5,  # Add connection for node 4
                                           (4, 1): 6},  # Add connection for node 4
                                          3, 6)
+
+
+print(get_large_genome(Genome, Node)[0].has_cycle())

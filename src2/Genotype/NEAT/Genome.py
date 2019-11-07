@@ -4,6 +4,8 @@ import copy
 import sys
 from typing import Dict, List, AbstractSet, Union, TYPE_CHECKING
 
+from tarjan import tarjan
+
 from src2.Configuration import config
 from src2.Genotype.Mutagen.Mutagen import Mutagen
 
@@ -115,30 +117,15 @@ class Genome:
         return dictionary
 
     def has_cycle(self) -> bool:
-        visited_ids = set()
-        traversal_dict = self.get_traversal_dictionary(exclude_disabled_connection=True)
-        return self._has_cycle(self.get_input_node().id, traversal_dict, visited_ids)
+        cycles = tarjan(self.get_traversal_dictionary(exclude_disabled_connection=True))
 
-    def _has_cycle(self, current_node_id, traversal_dict, visited_set: set) -> bool:
-        # TODO test and test performance
-        if current_node_id in visited_set:
-            # print("found cycle")
-            return True
-
-        if current_node_id not in traversal_dict:
-            return False
-
-        children = traversal_dict[current_node_id]
-        visited_set.add(current_node_id)
-
-        if len(children) == 1:
-            return self._has_cycle(children[0], traversal_dict, visited_set)
-        else:
-            has_cycle = False
-            for child in children:
-                branch_visited_set = copy.deepcopy(visited_set)
-                has_cycle = self._has_cycle(child, traversal_dict, branch_visited_set)
-            return has_cycle
+        for cycle in cycles:
+            if len(cycle) > 1:
+                return True
+        # print('no cycle')
+        # print(cycles)
+        # print(self.get_traversal_dictionary(exclude_disabled_connection=True))
+        return False
 
     def get_input_node(self) -> Union[Node, ModuleNode, BlueprintNode]:
         return [node for node in self.nodes.values() if node.is_input_node()][0]
