@@ -1,16 +1,18 @@
 from __future__ import annotations
-from typing import List, Dict, TYPE_CHECKING, Optional
+
+from typing import List, Dict, TYPE_CHECKING, Optional, Set
 
 from torch import nn
 
-from Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
-from src2.Phenotype.Layers.AggregationLayer import AggregationLayer
 from Genotype.CDN.Nodes import BlueprintNode
+from Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
+from Genotype.NEAT.Genome import _get_reachable_nodes
 from src2.Genotype.Mutagen.ContinuousVariable import ContinuousVariable
 from src2.Genotype.Mutagen.Mutagen import Mutagen
 from src2.Genotype.NEAT.Connection import Connection
 from src2.Genotype.NEAT.Genome import Genome
 from src2.Genotype.NEAT.Node import Node
+from src2.Phenotype.Layers.AggregationLayer import AggregationLayer
 
 if TYPE_CHECKING:
     from src2.Genotype.NEAT.Species import Species
@@ -50,44 +52,11 @@ class BlueprintGenome(Genome):
                 """updates the module id value of each node in the genome according to the sample map present"""
                 node.linked_module_id = self.module_sample_map[node.species_id]
 
-    def get_reachable_nodes(self, from_output):
-        node_dict = self.get_traversal_dictionary(True, from_output)
-        new_dict = {}
-
-        start_id = self.get_input_node().id if not from_output else self.get_output_node().id
-        self._get_reachable_nodes(node_dict, start_id, new_dict)
-        return new_dict
-
-    def _get_reachable_nodes(self, node_dict, curr_node, new_dict):
-        if curr_node not in node_dict:
-            return
-
-        for node in node_dict[curr_node]:
-            if curr_node not in new_dict:
-                new_dict[curr_node] = []
-
-            if node not in new_dict[curr_node]:  # don't add node id if already there
-                new_dict[curr_node].append(node)
-
-            self._get_reachable_nodes(node_dict, node, new_dict)
-
-    def get_fully_connected_nodes(self):
-        """:returns only nodes that are connected to input and output node"""
-        # Discard hanging nodes - i.e nodes that are only connected to either the input or output node
-        node_map_from_input = self.get_reachable_nodes(from_output=False)
-        node_map_from_output = self.get_reachable_nodes(from_output=True)
-        # All non-hanging nodes excluding input and output node
-        connected_nodes = node_map_from_input.keys() & node_map_from_output.keys()
-        connected_nodes.add(self.get_input_node().id)  # Add input node
-        connected_nodes.add(self.get_output_node().id)  # Add output node
-
-        return connected_nodes
-
     def get_multi_input_nodes(self):
         """Find all nodes with multiple inputs"""
         multi_input_map = {}  # maps {node id: number of inputs}
         node_map = self.get_reachable_nodes(False)
-        for node_id in self.get_fully_connected_nodes():
+        for node_id in self.get_fully_connected_node_ids():
             num_inputs = sum(list(node_map.values()), []).count(node_id)
             if num_inputs > 1:
                 multi_input_map[node_id] = num_inputs
@@ -97,7 +66,7 @@ class BlueprintGenome(Genome):
     def to_phenotype(self, module_species: List[Species]):
         multi_input_map = self.get_multi_input_nodes()
         node_map = self.get_reachable_nodes(False)
-        connected_nodes = self.get_fully_connected_nodes()
+        connected_nodes = self.get_fully_connected_node_ids()
         # Add nodes with multiple inputs to node_map_from_inputs so that they can be inserted as aggregator nodes
         # Aggregator nodes are represented as negative the node they are aggregating for
         # Set all multi input nodes (node_map.values) to negative

@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-import copy
 import sys
-from typing import Dict, List, AbstractSet, Union, TYPE_CHECKING
+from typing import Dict, List, AbstractSet, Union, TYPE_CHECKING, Set
 
 from tarjan import tarjan
 
@@ -192,3 +191,46 @@ class Genome:
 
     def get_all_mutagens(self) -> List[Mutagen]:
         return []
+
+    def get_fully_connected_connections(self) -> Set[Connection]:
+        connected_nodes = self.get_fully_connected_node_ids()
+        included_connections = set()
+        for connection in self.connections.values():
+            if connection.to_node_id in connected_nodes and connection.from_node_id in connected_nodes:
+                included_connections.add(connection)
+
+        return included_connections
+
+    def get_reachable_nodes(self, from_output_to_input: bool) -> Dict[int, List[int]]:
+        traversal_dict = self.get_traversal_dictionary(True, from_output_to_input)
+        reachable_dict = {}
+
+        start_id = self.get_input_node().id if not from_output_to_input else self.get_output_node().id
+        _get_reachable_nodes(traversal_dict, start_id, reachable_dict)
+        return reachable_dict
+
+    def get_fully_connected_node_ids(self) -> Set[int]:
+        """:returns only nodes that are connected to input and output node"""
+        # Discard hanging nodes - i.e nodes that are only connected to either the input or output node
+        node_map_from_input = self.get_reachable_nodes(from_output_to_input=False)
+        node_map_from_output = self.get_reachable_nodes(from_output_to_input=True)
+        # All non-hanging nodes excluding input and output node
+        connected_nodes: Set[int] = set(node_map_from_input.keys() & node_map_from_output.keys())
+        connected_nodes.add(self.get_input_node().id)  # Add input node
+        connected_nodes.add(self.get_output_node().id)  # Add output node
+
+        return connected_nodes
+
+
+def _get_reachable_nodes(traversal_dict, from_node, reachable_dict):
+    if from_node not in traversal_dict:
+        return
+
+    for to_node in traversal_dict[from_node]:
+        if from_node not in reachable_dict:
+            reachable_dict[from_node] = []
+
+        if to_node not in reachable_dict[from_node]:  # don't add node id if already there
+            reachable_dict[from_node].append(to_node)
+
+        _get_reachable_nodes(traversal_dict, to_node, reachable_dict)
