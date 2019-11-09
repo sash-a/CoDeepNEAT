@@ -17,7 +17,11 @@ class MutationRecords:
         self._next_node_id = current_max_node_id
         self._next_conn_id = current_max_conn_id
 
+    def __repr__(self):
+        return repr(self.mutations)
+
     def exists(self, mutation) -> bool:
+        # print("checking existence of mut",mutation,"in",self.mutations, "result",(mutation in self.mutations.keys()))
         return mutation in self.mutations.keys()
 
     def add_mutation(self, mutation):

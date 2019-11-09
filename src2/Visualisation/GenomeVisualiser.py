@@ -100,7 +100,7 @@ def get_node_metadata(node: Union[Node, BlueprintGenome, ModuleNode]):
         meta += "\nGene id: " + str(blueprintNode.id)
         meta +=  "\nModule: " + str(blueprintNode.linked_module_id)
         if blueprintNode.module_repeat_count() > 1:
-            meta += "\nRepeat count: " + str(blueprintNode.module_repeat_count)
+            meta += "\nRepeat count: " + str(blueprintNode.module_repeat_count())
 
     return meta
 
