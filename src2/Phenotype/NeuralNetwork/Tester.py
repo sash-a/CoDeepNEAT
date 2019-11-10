@@ -9,7 +9,7 @@ from src.CoDeepNEAT.CDNGenomes.ModuleGenome import ModuleGenome
 from src.CoDeepNEAT.CDNNodes.BlueprintNode import BlueprintNEATNode
 from src.CoDeepNEAT.CDNNodes.ModuleNode import ModuleNEATNode, NodeType
 from src.NEAT.Species import Species
-from src2.Phenotype.NeuralNetwork import Network
+from src2.Phenotype.NeuralNetwork.NeuralNetwork import Network
 
 conn0 = ConnectionGene(0, 0, 2)
 conn1 = ConnectionGene(1, 0, 3)

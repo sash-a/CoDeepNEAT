@@ -4,15 +4,15 @@ from torch import nn, zeros
 import math
 from functools import reduce
 
-from src.CoDeepNEAT.CDNNodes.ModuleNode import ModuleNEATNode
-from Phenotype.NeuralNetwork.Layers import BaseLayer
-from Phenotype.NeuralNetwork.Layers.CustomLayerTypes import Reshape
+from src2.Genotype.CDN.Nodes.ModuleNode import ModuleNode
+from src2.Phenotype.NeuralNetwork.Layers.BaseLayer import BaseLayer
+from src2.Phenotype.NeuralNetwork.Layers.CustomLayerTypes.Reshape import Reshape
 
 
 class Layer(BaseLayer):
-    def __init__(self, module: ModuleNEATNode, name, feature_multiplier=1):
+    def __init__(self, module: ModuleNode, name, feature_multiplier=1):
         super().__init__(name)
-        self.module_node: ModuleNEATNode = module
+        self.module_node: ModuleNode = module
 
         self.out_features = round(module.layer_type.get_sub_value('out_features') * feature_multiplier)
         self.sequential: Optional[nn.Sequential] = None
@@ -67,6 +67,7 @@ class Layer(BaseLayer):
 
         # Calculating out feature size, creating deep layer and reshaping if necessary
         if self.module_node.layer_type.value == nn.Conv2d:
+            # todo apply pad output gene
             if len(in_shape) == 2:
                 h = w = int(math.sqrt(img_flat_size / channels))
                 reshape_layer = Reshape(batch, channels, h, w)

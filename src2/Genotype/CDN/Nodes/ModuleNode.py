@@ -1,9 +1,11 @@
 import random
+from typing import Tuple
 
 import torch
 from torch import nn
 from torch.nn import functional as F
 
+from Phenotype.NeuralNetwork.Layers.Layer import Layer
 from src2.Configuration.Configuration import config
 from src2.Genotype.Mutagen.ContinuousVariable import ContinuousVariable
 from src2.Genotype.Mutagen.IntegerVariable import IntegerVariable
@@ -31,6 +33,11 @@ class ModuleNode(Node):
 
     def get_all_mutagens(self):
         return [self.layer_type, self.activation]
+
+    def convert_node(self, **kwargs) -> Tuple[Layer, Layer]:
+        bp_node_id = kwargs['node_id']
+        pheno = Layer(self, str(bp_node_id) + '_' + str(self.id))
+        return pheno, pheno
 
 
 def get_new_conv_parameter_mutagens():

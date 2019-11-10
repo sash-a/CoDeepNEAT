@@ -1,4 +1,4 @@
-from typing import List, Iterable
+from typing import List, Iterable, Optional
 
 from Genotype.NEAT.Genome import Genome
 from Genotype.NEAT.MutationRecord import MutationRecords
@@ -28,6 +28,22 @@ class Population:
 
     def __len__(self):
         return len(list(self))
+
+    def __getitem__(self, item):
+        for species in self.species:
+            if item not in species.members:
+                continue
+
+            return species[item]
+
+        return None
+
+    def get_species_by_id(self, species_id: int) -> Optional[Species]:
+        for species in self.species:
+            if species.id == species_id:
+                return species
+
+        return None
 
     def _update_species_sizes(self):
         """

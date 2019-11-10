@@ -2,20 +2,24 @@
     the generation class is a container for the 3 cdn populations.
     It is also responsible for stepping the evolutionary cycle.
 """
+from __future__ import annotations
 from concurrent.futures import ThreadPoolExecutor
 import random
 
 from src2.Genotype.NEAT.Population import Population
 from src2.main.ThreadManager import init_threads, reset_thread_name
 from Phenotype.NeuralNetwork.PhenotypeEvaluator import evaluate_blueprint
-from src2.Configuration import config
+from src2.Configuration.Configuration import config
 
 
 class Generation:
+    instance: Generation
+
     def __init__(self):
         self.module_population: Population = None
         self.blueprint_population: Population = None
         self.da_population: Population = None
+        Generation.instance = self
 
     def evaluate_blueprints(self):
         """Evaluates all blueprints multiple times."""
@@ -39,5 +43,3 @@ class Generation:
             prepares population objects for the next step
         """
         self.evaluate_blueprints()
-
-

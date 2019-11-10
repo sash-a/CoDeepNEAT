@@ -26,3 +26,6 @@ class Node(Gene):
 
     def get_all_mutagens(self):
         return []
+
+    def convert_node(self, **kwargs):
+        raise NotImplemented()
