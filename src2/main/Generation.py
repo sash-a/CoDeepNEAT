@@ -7,7 +7,7 @@ import random
 
 from src2.Genotype.NEAT.Population import Population
 from src2.main.ThreadManager import init_threads, reset_thread_name
-from src2.Phenotype.PhenotypeEvaluator import evaluate_blueprint
+from Phenotype.NeuralNetwork.PhenotypeEvaluator import evaluate_blueprint
 from src2.Configuration import config
 
 

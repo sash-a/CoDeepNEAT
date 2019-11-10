@@ -5,7 +5,7 @@ from torch import tensor
 
 from src.Config import Config
 from src.Phenotype import AggregatorOperations
-from src2.Phenotype.Layers.BaseLayer import BaseLayer
+from Phenotype.NeuralNetwork.Layers import BaseLayer
 
 
 class AggregationLayer(BaseLayer):

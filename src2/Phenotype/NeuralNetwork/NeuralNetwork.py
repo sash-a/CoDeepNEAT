@@ -6,9 +6,9 @@ from src.Config import Config
 from src.CoDeepNEAT.CDNGenomes.BlueprintGenome import BlueprintGenome
 from src.NEAT.Species import Species
 
-from src2.Phenotype.Layers.Layer import Layer
-from src2.Phenotype.Layers.AggregationLayer import AggregationLayer
-from src2.Phenotype.Layers.BaseLayer import BaseLayer
+from Phenotype.NeuralNetwork.Layers import Layer
+from Phenotype.NeuralNetwork.Layers import AggregationLayer
+from Phenotype.NeuralNetwork.Layers import BaseLayer
 
 from functools import reduce
 from typing import List, Union, Tuple

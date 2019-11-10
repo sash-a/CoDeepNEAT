@@ -127,9 +127,6 @@ class Genome:
         for cycle in cycles:
             if len(cycle) > 1:
                 return True
-        # print('no cycle')
-        # print(cycles)
-        # print(self.get_traversal_dictionary(exclude_disabled_connection=True))
         return False
 
     def get_input_node(self) -> Union[Node, ModuleNode, BlueprintNode]:
@@ -212,8 +209,23 @@ class Genome:
         reachable_dict = {}
 
         start_id = self.get_input_node().id if not from_output_to_input else self.get_output_node().id
-        _get_reachable_nodes(traversal_dict, start_id, reachable_dict)
+        self._get_reachable_nodes(traversal_dict, start_id, reachable_dict)
+
         return reachable_dict
+
+    def _get_reachable_nodes(self, traversal_dict, from_node, reachable_dict):
+        """Recursive method for get reachable nodes"""
+        if from_node not in traversal_dict:
+            return
+
+        if from_node not in reachable_dict:
+            reachable_dict[from_node] = []
+
+        for to_node in traversal_dict[from_node]:
+            if to_node not in reachable_dict[from_node]:  # don't add node id if already there
+                reachable_dict[from_node].append(to_node)
+
+            self._get_reachable_nodes(traversal_dict, to_node, reachable_dict)
 
     def get_fully_connected_node_ids(self) -> Set[int]:
         """:returns only nodes that are connected to input and output node"""
@@ -227,16 +239,13 @@ class Genome:
 
         return connected_nodes
 
+    def get_multi_input_nodes(self):
+        """Find all nodes with multiple inputs"""
+        multi_input_map = {}  # maps {node id: number of inputs}
+        node_map = self.get_reachable_nodes(False)
+        for node_id in self.get_fully_connected_node_ids():
+            num_inputs = sum(list(node_map.values()), []).count(node_id)
+            if num_inputs > 1:
+                multi_input_map[node_id] = num_inputs
 
-def _get_reachable_nodes(traversal_dict, from_node, reachable_dict):
-    if from_node not in traversal_dict:
-        return
-
-    for to_node in traversal_dict[from_node]:
-        if from_node not in reachable_dict:
-            reachable_dict[from_node] = []
-
-        if to_node not in reachable_dict[from_node]:  # don't add node id if already there
-            reachable_dict[from_node].append(to_node)
-
-        _get_reachable_nodes(traversal_dict, to_node, reachable_dict)
+        return multi_input_map

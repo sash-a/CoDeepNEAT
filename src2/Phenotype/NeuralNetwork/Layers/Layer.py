@@ -1,12 +1,12 @@
-from typing import Type, Union, Optional, List, Tuple
+from typing import Optional, List, Tuple
 
 from torch import nn, zeros
 import math
 from functools import reduce
 
 from src.CoDeepNEAT.CDNNodes.ModuleNode import ModuleNEATNode
-from src2.Phenotype.Layers.BaseLayer import BaseLayer
-from src2.Phenotype.Layers.CustomLayerTypes.Reshape import Reshape
+from Phenotype.NeuralNetwork.Layers import BaseLayer
+from Phenotype.NeuralNetwork.Layers.CustomLayerTypes import Reshape
 
 
 class Layer(BaseLayer):

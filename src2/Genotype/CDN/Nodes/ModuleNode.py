@@ -9,11 +9,10 @@ from src2.Genotype.Mutagen.ContinuousVariable import ContinuousVariable
 from src2.Genotype.Mutagen.IntegerVariable import IntegerVariable
 from src2.Genotype.Mutagen.Option import Option
 from src2.Genotype.NEAT.Node import Node, NodeType
-from src2.Phenotype.Layers.CustomLayerTypes.DepthwiseSeparableConv import DepthwiseSeparableConv
+from Phenotype.NeuralNetwork.Layers.CustomLayerTypes import DepthwiseSeparableConv
 
 
 class ModuleNode(Node):
-
     def __int__(self, id: int, type: NodeType):
         super().__init__(id, type)
 

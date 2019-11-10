@@ -1,22 +1,21 @@
 from __future__ import annotations
 
-from typing import List, Dict, TYPE_CHECKING, Optional, Set
+from typing import List, Dict, TYPE_CHECKING, Optional
 
 from torch import nn
 
 from Genotype.CDN.Nodes import BlueprintNode
 from Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
-from Genotype.NEAT.Genome import _get_reachable_nodes
 from src2.Genotype.Mutagen.ContinuousVariable import ContinuousVariable
 from src2.Genotype.Mutagen.Mutagen import Mutagen
 from src2.Genotype.NEAT.Connection import Connection
 from src2.Genotype.NEAT.Genome import Genome
 from src2.Genotype.NEAT.Node import Node
-from src2.Phenotype.Layers.AggregationLayer import AggregationLayer
+from Phenotype.NeuralNetwork.Layers import AggregationLayer
 
 if TYPE_CHECKING:
     from src2.Genotype.NEAT.Species import Species
-    from src2.Phenotype.Layers.Layer import Layer
+    from Phenotype.NeuralNetwork.Layers import Layer
     from src2.Genotype.CDN.Genomes.ModuleGenome import ModuleGenome
 
 
@@ -52,17 +51,6 @@ class BlueprintGenome(Genome):
                 """updates the module id value of each node in the genome according to the sample map present"""
                 node.linked_module_id = self.module_sample_map[node.species_id]
 
-    def get_multi_input_nodes(self):
-        """Find all nodes with multiple inputs"""
-        multi_input_map = {}  # maps {node id: number of inputs}
-        node_map = self.get_reachable_nodes(False)
-        for node_id in self.get_fully_connected_node_ids():
-            num_inputs = sum(list(node_map.values()), []).count(node_id)
-            if num_inputs > 1:
-                multi_input_map[node_id] = num_inputs
-
-        return multi_input_map
-
     def to_phenotype(self, module_species: List[Species]):
         multi_input_map = self.get_multi_input_nodes()
         node_map = self.get_reachable_nodes(False)
@@ -74,7 +62,7 @@ class BlueprintGenome(Genome):
             for from_node in node_map.keys():
                 if multi_input_node_id in node_map[from_node]:
                     idx = node_map[from_node].index(multi_input_node_id)
-                    node_map[from_node][idx] *= -1
+                    node_map[from_node][idx] *= -1  # Mark a node as agg node by making it negative
 
         # Add aggregator nodes as keys and point them to the node they aggregate the inputs for
         # i.e -3 (an agg node) to 3 (used to be multi input node, now single input)

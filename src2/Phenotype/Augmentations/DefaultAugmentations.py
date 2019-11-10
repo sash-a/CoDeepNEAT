@@ -1,0 +1,3 @@
+augmentations = [
+    'tests'
+]
