@@ -101,7 +101,7 @@ print(gen.get_reachable_nodes(False))
 
 if __name__ == "__main__":
     import importlib.util
-    spec = importlib.util.spec_from_file_location("DefaultAugmentations.py", "/home/sasha/Documents/CoDeepNEAT/src2/Phenotype/Augmentations/DefaultAugmentations.py")
+    spec = importlib.util.spec_from_file_location("EvolvedAugmentations.py", "/home/sasha/Documents/CoDeepNEAT/src2/Phenotype/Augmentations/EvolvedAugmentations.py")
     foo = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(foo)
     print(foo.augmentations)
