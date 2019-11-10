@@ -1,6 +1,9 @@
 import os
+from typing import Union
 
+from Genotype.CDN.Nodes.ModuleNode import ModuleNode
 from Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
+from Genotype.NEAT.Node import Node
 from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
 from src2.Genotype.NEAT.Genome import Genome
 from test import StaticGenomes
@@ -59,9 +62,9 @@ def get_graph_of(genome: Genome, sub_graph=False, cluster_style="filled", cluste
 
         if shape != "":
             # print("using shape ",shape)
-            g.node(name=node_names + "_v " + str(node.id), shape=shape, label="node " + str(node.id))
+            g.node(name=node_names + "_v " + str(node.id), shape=shape, label=get_node_metadata(node))
         else:
-            g.node(name=node_names + "_v " + str(node.id), label="node " + str(node.id))
+            g.node(name=node_names + "_v " + str(node.id), label=get_node_metadata(node))
 
         # print("created node: ", (node_names + ": " + str(node.id)) , " id: ", node.id )
 
@@ -88,6 +91,18 @@ def get_graph_of(genome: Genome, sub_graph=False, cluster_style="filled", cluste
 def visualise_blueprint_genome(genome: BlueprintGenome):
     pass
 
+
+def get_node_metadata(node: Union[Node, BlueprintGenome, ModuleNode]):
+    meta = ""
+    if isinstance(node, BlueprintNode):
+        blueprintNode: BlueprintNode = node
+        meta += "Species: " + str(blueprintNode.species_id)
+        meta += "\nGene id: " + str(blueprintNode.id)
+        meta +=  "\nModule: " + str(blueprintNode.linked_module_id)
+        if blueprintNode.module_repeat_count() > 1:
+            meta += "\nRepeat count: " + str(blueprintNode.module_repeat_count())
+
+    return meta
 
 if __name__ == "__main__":
     genome, record = StaticGenomes.get_small_tri_genome(BlueprintGenome, BlueprintNode)

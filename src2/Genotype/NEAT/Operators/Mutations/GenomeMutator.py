@@ -174,7 +174,8 @@ class GenomeMutator(Mutator):
             if mutated_node_id in genome.nodes:  # this connection has already created a new node
                 raise Exception("tried to mutate a node onto connection " + str(connection.id) +
                                 " mutation (node id) given value " + str(mutated_node_id) +
-                                " but this value is already present in the genome: " + repr(genome.nodes.keys()))
+                                " but this value is already present in the genome: " + repr(genome.nodes.keys())+
+                                "\nmutation record: " + repr(mutation_record))
 
             into_node_connection_id = mutation_record.add_mutation((connection.from_node_id, mutated_node_id))
             out_of_node_connection_id = mutation_record.add_mutation((mutated_node_id, connection.to_node_id))
