@@ -15,11 +15,13 @@ def load_data(batch_size=Config.batch_size, dataset=""):
     data_path = DataManager.get_Datasets_folder()
 
     colour_image_transform = transforms.Compose([
+        #image transform goes here
         transforms.ToTensor(),
         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
     ])
 
     black_and_white_image_transform = transforms.Compose([
+        #image transform goes here
         transforms.ToTensor(),
         transforms.Normalize((0.5,), (0.5,))
     ])
