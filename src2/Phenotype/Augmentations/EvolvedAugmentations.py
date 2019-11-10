@@ -90,6 +90,3 @@ else:
            "Coarse_Dropout", "No_Operation", current_value=random.choice(list(DA_SubMutagens.keys())),
            submutagens=DA_SubMutagens, mutation_chance=0.25)
 
-# what this do?
-# enabled = Option("enabled", True, False, current_value=True)
-

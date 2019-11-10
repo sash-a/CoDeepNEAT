@@ -4,7 +4,7 @@ from typing import List, Dict, TYPE_CHECKING, Optional
 
 from torch import nn
 
-from Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
+from src2.Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
 from src2.Genotype.Mutagen.ContinuousVariable import ContinuousVariable
 from src2.Genotype.Mutagen.Mutagen import Mutagen
 from src2.Genotype.NEAT.Connection import Connection
@@ -14,7 +14,7 @@ from src2.Phenotype.NeuralNetwork.Layers.AggregationLayer import AggregationLaye
 
 if TYPE_CHECKING:
     from src2.Genotype.NEAT.Species import Species
-    from Phenotype.NeuralNetwork.Layers import Layer
+    from src2.Phenotype.NeuralNetwork.Layers import Layer
     from src2.Genotype.CDN.Genomes.ModuleGenome import ModuleGenome
 
 

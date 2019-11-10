@@ -5,7 +5,7 @@ from typing import Dict, List, AbstractSet, Union, TYPE_CHECKING, Set
 
 from tarjan import tarjan
 
-from Genotype.NEAT.MutationRecord import MutationRecords
+from src2.Genotype.NEAT.MutationRecord import MutationRecords
 from src2.Configuration.Configuration import config
 from src2.Genotype.Mutagen.Mutagen import Mutagen
 
