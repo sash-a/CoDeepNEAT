@@ -39,14 +39,16 @@ class Config:
         self.module_add_connection_chance = 0.08
         # -------------------------------------------------------------------------------------------------------------
 
-        def get_device():
-            """Used to obtain the correct device taking into account multiple GPUs"""
+    def get_device(self):
+        """Used to obtain the correct device taking into account multiple GPUs"""
 
-            gpu = 'cuda:'
-            gpu += current_thread().name
-            return device('cpu') if device == 'cpu' else device(gpu)
+        gpu = 'cuda:'
+        gpu += current_thread().name
+        if current_thread().name == 'MainThread':
+            print('No threading detected supplying main thread with cuda:0')
+
+        gpu = 'cuda:0'
+        return device('cpu') if self.device == 'cpu' else device(gpu)
 
 
 config: Config = Config()
-
-

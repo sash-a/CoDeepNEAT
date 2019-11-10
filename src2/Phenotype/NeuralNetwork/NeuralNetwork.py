@@ -1,17 +1,20 @@
+from __future__ import annotations
+
 import graphviz
 from torch import nn, tensor, optim, squeeze
 import torch.nn.functional as F
 
 from src.Config import Config
-from src.CoDeepNEAT.CDNGenomes.BlueprintGenome import BlueprintGenome
-from src.NEAT.Species import Species
-
-from Phenotype.NeuralNetwork.Layers import Layer
-from Phenotype.NeuralNetwork.Layers import AggregationLayer
-from Phenotype.NeuralNetwork.Layers import BaseLayer
+from src2.Phenotype.NeuralNetwork.Layers import Layer
+from src2.Phenotype.NeuralNetwork.Layers import AggregationLayer
+from src2.Phenotype.NeuralNetwork.Layers import BaseLayer
 
 from functools import reduce
-from typing import List, Union, Tuple
+from typing import List, Union, Tuple, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
+    from src2.Genotype.NEAT.Species import Species
 
 
 class Network(nn.Module):
@@ -21,7 +24,7 @@ class Network(nn.Module):
         self.output_dim = output_dim
 
         self.model: Layer
-        self.model, output_layer = blueprint.to_phenotype(None, module_species)
+        self.model, output_layer = blueprint.to_phenotype()
         self.shape_layers(input_shape)
 
         # shaping the final layer

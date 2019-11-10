@@ -1,17 +1,21 @@
+from __future__ import annotations
+
 import random
-from typing import Tuple
+from typing import Tuple, TYPE_CHECKING
 
 import torch
 from torch import nn
 from torch.nn import functional as F
 
-from Phenotype.NeuralNetwork.Layers.Layer import Layer
 from src2.Configuration.Configuration import config
 from src2.Genotype.Mutagen.ContinuousVariable import ContinuousVariable
 from src2.Genotype.Mutagen.IntegerVariable import IntegerVariable
 from src2.Genotype.Mutagen.Option import Option
 from src2.Genotype.NEAT.Node import Node, NodeType
 from src2.Phenotype.NeuralNetwork.Layers.CustomLayerTypes import DepthwiseSeparableConv
+
+if TYPE_CHECKING:
+    from src2.Phenotype.NeuralNetwork.Layers.Layer import Layer
 
 
 class ModuleNode(Node):

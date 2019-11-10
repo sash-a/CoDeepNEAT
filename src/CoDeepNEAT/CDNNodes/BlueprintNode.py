@@ -2,10 +2,10 @@ import copy
 import heapq
 import random
 
-from CoDeepNEAT.CDNNodes.ModuleNode import ModuleNEATNode
-from Config import Config, NeatProperties as Props
-from NEAT.Gene import NodeGene, NodeType
-from NEAT.Mutagen import Mutagen, ValueType
+from src.CoDeepNEAT.CDNNodes.ModuleNode import ModuleNEATNode
+from src.Config import Config, NeatProperties as Props
+from src.NEAT.Gene import NodeGene, NodeType
+from src.NEAT.Mutagen import Mutagen, ValueType
 
 
 class BlueprintNEATNode(NodeGene):

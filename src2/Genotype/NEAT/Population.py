@@ -1,10 +1,10 @@
 from typing import List, Iterable, Optional
 
-from Genotype.NEAT.Genome import Genome
-from Genotype.NEAT.MutationRecord import MutationRecords
-from Genotype.NEAT.Operators.PopulationRankers.PopulationRanker import PopulationRanker
-from Genotype.NEAT.Operators.Speciators.Speciator import Speciator
-from Genotype.NEAT.Species import Species
+from src2.Genotype.NEAT.Genome import Genome
+from src2.Genotype.NEAT.MutationRecord import MutationRecords
+from src2.Genotype.NEAT.Operators.PopulationRankers.PopulationRanker import PopulationRanker
+from src2.Genotype.NEAT.Operators.Speciators.Speciator import Speciator
+from src2.Genotype.NEAT.Species import Species
 
 
 class Population:

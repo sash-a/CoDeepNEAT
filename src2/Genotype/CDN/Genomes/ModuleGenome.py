@@ -1,6 +1,6 @@
 from typing import List, Tuple
 
-from Phenotype.NeuralNetwork.Layers.Layer import Layer
+from src2.Phenotype.NeuralNetwork.Layers.Layer import Layer
 from src2.Genotype.NEAT.Connection import Connection
 from src2.Genotype.NEAT.Genome import Genome
 from src2.Genotype.NEAT.Node import Node

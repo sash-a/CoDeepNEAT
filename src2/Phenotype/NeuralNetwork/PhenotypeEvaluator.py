@@ -1,8 +1,13 @@
-from Configuration import config
-from Validation import DataLoader
-from src2.Phenotype.NeuralNetwork import Network
-from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
-from src2.Genotype.NEAT import Population
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
+from src2.Configuration.Configuration import config
+from src.Validation import DataLoader
+from src2.Phenotype.NeuralNetwork.NeuralNetwork import Network
+
+if TYPE_CHECKING:
+    from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
+    from src2.Genotype.NEAT import Population
 
 
 def evaluate_blueprint(blueprint: BlueprintGenome):

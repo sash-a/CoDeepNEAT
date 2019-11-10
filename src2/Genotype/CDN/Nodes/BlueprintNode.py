@@ -1,15 +1,17 @@
+from __future__ import annotations
+
 import random
 from typing import Dict, List, TYPE_CHECKING, Tuple
 
-from Phenotype.NeuralNetwork.Layers.Layer import Layer
-from main.Generation import Generation
+from src2.Phenotype.NeuralNetwork.Layers.Layer import Layer
+from src2.main.Generation import Generation
 from src2.Genotype.Mutagen.IntegerVariable import IntegerVariable
 from src2.Genotype.NEAT.Node import Node, NodeType
 
 if TYPE_CHECKING:
-    from Genotype.CDN.Genomes.ModuleGenome import ModuleGenome
-    from Genotype.NEAT.Species import Species
-    from Genotype.NEAT.Population import Population
+    from src2.Genotype.CDN.Genomes.ModuleGenome import ModuleGenome
+    from src2.Genotype.NEAT.Species import Species
+    from src2.Genotype.NEAT.Population import Population
 
 
 class BlueprintNode(Node):

@@ -1,11 +1,12 @@
+from __future__ import annotations
 from typing import List, TYPE_CHECKING
 
-from Genotype.NEAT.Operators.Speciators.Speciator import Speciator
-from src2.Configuration import config
+from src2.Genotype.NEAT.Operators.Speciators.Speciator import Speciator
+from src2.Configuration.Configuration import config
 
 if TYPE_CHECKING:
-    from Genotype.NEAT.Species import Species
-    from Genotype.NEAT.Genome import Genome
+    from src2.Genotype.NEAT.Species import Species
+    from src2.Genotype.NEAT.Genome import Genome
 
 
 class NEATSpeciator(Speciator):

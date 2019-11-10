@@ -3,20 +3,20 @@ import random
 from typing import List
 from torch import nn
 
-from NEAT.Genome import Genome
-from CoDeepNEAT.CDNGenomes.DAGenome import DAGenome
-from CoDeepNEAT.CDNGenomes.ModuleGenome import ModuleGenome
+from src.NEAT.Genome import Genome
+from src.CoDeepNEAT.CDNGenomes.DAGenome import DAGenome
+from src.CoDeepNEAT.CDNGenomes.ModuleGenome import ModuleGenome
 
-from CoDeepNEAT.CDNNodes.BlueprintNode import BlueprintNEATNode
-from CoDeepNEAT.CDNNodes.ModuleNode import ModuleNEATNode
+from src.CoDeepNEAT.CDNNodes.BlueprintNode import BlueprintNEATNode
+from src.CoDeepNEAT.CDNNodes.ModuleNode import ModuleNEATNode
 
-from Config import Config, NeatProperties as Props
-from NEAT.Mutagen import Mutagen, ValueType
-from NEAT.Species import Species
-from Phenotype.BlueprintGraph import BlueprintGraph
-from Phenotype.BlueprintNode import BlueprintNode
-from Phenotype.NeuralNetwork.Layers import Layer
-from Phenotype.NeuralNetwork.Layers import AggregationLayer
+from src.Config import Config, NeatProperties as Props
+from src.NEAT.Mutagen import Mutagen, ValueType
+from src.NEAT.Species import Species
+from src.Phenotype.BlueprintGraph import BlueprintGraph
+from src.Phenotype.BlueprintNode import BlueprintNode
+from src2.Phenotype.NeuralNetwork.Layers import Layer
+from src2.Phenotype.NeuralNetwork.Layers import AggregationLayer
 
 
 class BlueprintGenome(Genome):

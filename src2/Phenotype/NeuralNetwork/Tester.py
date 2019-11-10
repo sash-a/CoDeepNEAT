@@ -2,54 +2,60 @@ from torch import nn
 
 import src.Validation.DataLoader as DL
 from src.Validation.Validation import get_accuracy_estimate_for_network
-from src.CoDeepNEAT.CDNGenomes.BlueprintGenome import BlueprintGenome
-from src.Config import Config
-from src.NEAT.Gene import ConnectionGene
-from src.CoDeepNEAT.CDNGenomes.ModuleGenome import ModuleGenome
-from src.CoDeepNEAT.CDNNodes.BlueprintNode import BlueprintNEATNode
-from src.CoDeepNEAT.CDNNodes.ModuleNode import ModuleNEATNode, NodeType
-from src.NEAT.Species import Species
-from src2.Phenotype.NeuralNetwork.NeuralNetwork import Network
+from src2.Configuration.Configuration import config
+from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
+from src2.Genotype.CDN.Genomes.ModuleGenome import ModuleGenome
 
-conn0 = ConnectionGene(0, 0, 2)
-conn1 = ConnectionGene(1, 0, 3)
-conn2 = ConnectionGene(2, 2, 5)
-conn3 = ConnectionGene(3, 3, 6)
-conn4 = ConnectionGene(4, 6, 4)
-conn5 = ConnectionGene(5, 5, 1)
-conn6 = ConnectionGene(6, 4, 1)
-conn7 = ConnectionGene(7, 3, 5)
+from src2.Genotype.NEAT.Connection import Connection
+from src2.Genotype.NEAT.Node import Node, NodeType
+
+from src2.Genotype.CDN.Nodes.ModuleNode import ModuleNode
+from src2.Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
+from src2.Genotype.NEAT.Population import Population
+
+from src2.Genotype.NEAT.Species import Species
+from src2.Phenotype.NeuralNetwork.NeuralNetwork import Network
+from src2.main.Generation import Generation
+
+conn0 = Connection(0, 0, 2)
+conn1 = Connection(1, 0, 3)
+conn2 = Connection(2, 2, 5)
+conn3 = Connection(3, 3, 6)
+conn4 = Connection(4, 6, 4)
+conn5 = Connection(5, 5, 1)
+conn6 = Connection(6, 4, 1)
+conn7 = Connection(7, 3, 5)
 
 # conn3.enabled.set_value(False)
 
-n0 = ModuleNEATNode(0, NodeType.INPUT)
-n1 = ModuleNEATNode(1, NodeType.OUTPUT)
-n2 = ModuleNEATNode(2)
-n3 = ModuleNEATNode(3)
-n4 = ModuleNEATNode(4)
-n5 = ModuleNEATNode(5)
-n6 = ModuleNEATNode(6)
-genome0 = ModuleGenome([conn0, conn1, conn2, conn3, conn4, conn5, conn6, conn7], [n0, n1, n2, n3, n4, n5, n6])
+n0 = ModuleNode(0, NodeType.INPUT)
+n1 = ModuleNode(1, NodeType.OUTPUT)
+n2 = ModuleNode(2)
+n3 = ModuleNode(3)
+n4 = ModuleNode(4)
+n5 = ModuleNode(5)
+n6 = ModuleNode(6)
+genome0 = ModuleGenome([n0, n1, n2, n3, n4, n5, n6], [conn0, conn1, conn2, conn3, conn4, conn5, conn6, conn7])
 
-conn10 = ConnectionGene(0, 0, 1)
-n10 = ModuleNEATNode(0, NodeType.INPUT)
-n11 = ModuleNEATNode(1, NodeType.OUTPUT)
-n10.layer_type.set_value(nn.Linear)
-genome1 = ModuleGenome([conn10], [n10, n11])
+conn10 = Connection(0, 0, 1)
+n10 = ModuleNode(0, NodeType.INPUT)
+n11 = ModuleNode(1, NodeType.OUTPUT)
+
+# n10.layer_type.set_value(nn.Linear)
+genome1 = ModuleGenome([n10, n11], [conn10])
 
 spcs = [Species(genome0), Species(genome1)]
 
-bn0 = BlueprintNEATNode(0, NodeType.INPUT)
-bn1 = BlueprintNEATNode(1, NodeType.OUTPUT)
+bn0 = BlueprintNode(0, NodeType.INPUT)
+bn1 = BlueprintNode(1, NodeType.OUTPUT)
 
-bn0.species_number.set_value(0)
-bn1.species_number.set_value(1)
+bn0.species_id = 0
+bn1.species_id = 1
 
-bpg = BlueprintGenome([conn10], [bn0, bn1])
+bpg = BlueprintGenome([bn0, bn1], [conn10])
 
-Config.use_graph = True
-x, target = DL.sample_data(Config.get_device(), 2)
-enen = Network(bpg, spcs, list(x.shape)).to(Config.get_device())
+x, target = DL.sample_data(config.get_device(), 2)
+enen = Network(bpg, spcs, list(x.shape)).to(config.get_device())
 li = enen.model.get_layer_info()
 print(li)
 enen.visualize()

@@ -4,9 +4,9 @@ import torch
 from torch import nn as nn
 from torch.nn import functional as F
 
-from Config import NeatProperties as Props, Config
-from NEAT.Gene import NodeGene, NodeType
-from NEAT.Mutagen import Mutagen, ValueType
+from src.Config import NeatProperties as Props, Config
+from src.NEAT.Gene import NodeGene, NodeType
+from src.NEAT.Mutagen import Mutagen, ValueType
 
 use_convs = True
 use_linears = True

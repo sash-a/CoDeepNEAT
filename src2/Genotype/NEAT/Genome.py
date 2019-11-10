@@ -6,9 +6,9 @@ from typing import Dict, List, AbstractSet, Union, TYPE_CHECKING, Set, Tuple
 from tarjan import tarjan
 from torch import nn
 
-from Genotype.NEAT.MutationRecord import MutationRecords
-from Phenotype.NeuralNetwork.Layers.AggregationLayer import AggregationLayer
-from Phenotype.NeuralNetwork.Layers.Layer import Layer
+from src2.Genotype.NEAT.MutationRecord import MutationRecords
+from src2.Phenotype.NeuralNetwork.Layers.AggregationLayer import AggregationLayer
+from src2.Phenotype.NeuralNetwork.Layers.Layer import Layer
 from src2.Configuration.Configuration import config
 from src2.Genotype.Mutagen.Mutagen import Mutagen
 

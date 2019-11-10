@@ -4,11 +4,19 @@
 """
 from __future__ import annotations
 from concurrent.futures import ThreadPoolExecutor
+
 import random
 
+from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
+from src2.Genotype.CDN.Genomes.ModuleGenome import ModuleGenome
+from src2.Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
+from src2.Genotype.CDN.Nodes.ModuleNode import ModuleNode
+from src2.Genotype.NEAT.Operators.Speciators.NEATSpeciator import NEATSpeciator
+from src2.Phenotype.NeuralNetwork.NeuralNetwork import Network
+from test.StaticGenomes import get_small_linear_genome
 from src2.Genotype.NEAT.Population import Population
 from src2.main.ThreadManager import init_threads, reset_thread_name
-from Phenotype.NeuralNetwork.PhenotypeEvaluator import evaluate_blueprint
+from src2.Phenotype.NeuralNetwork.PhenotypeEvaluator import evaluate_blueprint
 from src2.Configuration.Configuration import config
 
 
@@ -20,6 +28,17 @@ class Generation:
         self.blueprint_population: Population = None
         self.da_population: Population = None
         Generation.instance = self
+
+        mod, modmr = get_small_linear_genome(ModuleGenome, ModuleNode)
+        bp, bpmr = get_small_linear_genome(BlueprintGenome, BlueprintNode)
+        spctr = NEATSpeciator(3, 1)
+        self.module_population = Population([mod], modmr, 1, spctr)
+        self.blueprint_population = Population([bp], bpmr, 1, spctr)
+
+        import src.Validation.DataLoader as DL
+
+        x, target = DL.sample_data(config.get_device(), 2)
+        Network(bp, None, list(x.shape()))
 
     def evaluate_blueprints(self):
         """Evaluates all blueprints multiple times."""
@@ -43,3 +62,6 @@ class Generation:
             prepares population objects for the next step
         """
         self.evaluate_blueprints()
+
+
+Generation()

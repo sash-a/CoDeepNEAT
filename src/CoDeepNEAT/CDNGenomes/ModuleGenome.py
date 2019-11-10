@@ -1,12 +1,12 @@
 import copy
 import math
 
-from CoDeepNEAT.CDNNodes.ModuleNode import ModuleNEATNode
-from Config import NeatProperties as Props
-from NEAT.Genome import Genome
-from Phenotype.ModuleNode import ModuleNode
-from Phenotype.NeuralNetwork.Layers import Layer
-from Phenotype.NeuralNetwork.Layers import AggregationLayer
+from src.CoDeepNEAT.CDNNodes.ModuleNode import ModuleNEATNode
+from src.Config import NeatProperties as Props
+from src.NEAT.Genome import Genome
+from src.Phenotype.ModuleNode import ModuleNode
+from src2.Phenotype.NeuralNetwork.Layers import Layer
+from src2.Phenotype.NeuralNetwork.Layers import AggregationLayer
 
 
 class ModuleGenome(Genome):
@@ -93,13 +93,15 @@ class ModuleGenome(Genome):
                     # Creates a new layer
                     neat_node: ModuleNEATNode = self._nodes[child_node_id]
                     # Use already created output layer if child is output node
-                    new_layer = Layer(neat_node, str(bp_id)+'_'+str(child_node_id)) if not neat_node.is_output_node() else output_layer
+                    new_layer = Layer(neat_node, str(bp_id) + '_' + str(
+                        child_node_id)) if not neat_node.is_output_node() else output_layer
                     create_layers(new_layer, child_node_id)
                 elif child_node_id in agg_layers:
                     new_layer = agg_layers[child_node_id]  # only create an aggregation layer once
                 else:
                     # Create aggregation layer if not already created and node_id is negative
-                    new_layer = AggregationLayer(multi_input_map[child_node_id * -1], str(bp_id)+'_'+str(child_node_id))
+                    new_layer = AggregationLayer(multi_input_map[child_node_id * -1],
+                                                 str(bp_id) + '_' + str(child_node_id))
                     agg_layers[child_node_id] = new_layer
                     create_layers(new_layer, child_node_id)
 

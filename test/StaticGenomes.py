@@ -1,6 +1,6 @@
 from typing import Tuple, Union, Type
 
-from Genotype.NEAT.MutationRecord import MutationRecords
+from src2.Genotype.NEAT.MutationRecord import MutationRecords
 from src2.Genotype.CDN.Nodes.ModuleNode import ModuleNode
 from src2.Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
 from src2.Genotype.CDN.Genomes.ModuleGenome import ModuleGenome

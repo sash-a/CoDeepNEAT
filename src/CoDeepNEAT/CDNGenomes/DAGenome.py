@@ -1,5 +1,5 @@
-from DataAugmentation.AugmentationScheme import AugmentationScheme
-from NEAT.Genome import Genome
+from src.DataAugmentation.AugmentationScheme import AugmentationScheme
+from src.NEAT.Genome import Genome
 
 
 class DAGenome(Genome):

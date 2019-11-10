@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 from src2.Genotype.NEAT import Genome
-from Genotype.NEAT import MutationRecord
+from src2.Genotype.NEAT import MutationRecord
 
 
 class Mutator(ABC):
