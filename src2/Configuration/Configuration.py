@@ -20,7 +20,7 @@ class Config:
         #
         self.fitness_aggregation = 'avg'  # max
         #
-        self.evaluations = 30  # Number of times to sample a blueprint to evaluate
+        self.evaluations = 30  # TODO: how are we gonna do this? num bps or evals per bp
         # ------------------------------------------------- NEAT stuff -------------------------------------------------
         # Used when calculating distance between genomes
         self.disjoint_coefficient = 3
@@ -48,3 +48,5 @@ class Config:
 
 
 config: Config = Config()
+
+

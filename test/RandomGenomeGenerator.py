@@ -1,7 +1,7 @@
 import random
 from typing import Tuple, Union, Type
 
-from src2.Genotype.NEAT.Operators.Mutations.MutationRecord import MutationRecords
+from Genotype.NEAT.MutationRecord import MutationRecords
 from src2.Genotype.CDN.Nodes.ModuleNode import ModuleNode
 from src2.Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
 from src2.Genotype.CDN.Genomes.ModuleGenome import ModuleGenome
@@ -42,7 +42,7 @@ def random_genome(TypeGenome: Union[Type[Genome], Type[ModuleGenome], Type[Bluep
             from_id = random.randint(0, 6)
             to_id = random.randint(0, 6)
             if mr.exists((from_id, to_id)):
-                new_id = mr.mutations[(from_id, to_id)]
+                new_id = mr.connection_mutations[(from_id, to_id)]
             else:
                 new_id = mr.add_mutation((from_id, to_id))
             genome.add_connection(Connection(new_id, from_id, to_id))

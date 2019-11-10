@@ -1,12 +1,12 @@
 import random
 
-from Configuration import config
+from Configuration.Configuration import config
 from Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
 from Genotype.CDN.Nodes.ModuleNode import ModuleNode
 from Genotype.NEAT.Node import Node
 from Genotype.NEAT.Operators.Mutations.MutationReport import MutationReport
 from src2.Genotype.NEAT.Genome import Genome
-from src2.Genotype.NEAT.Operators.Mutations import MutationRecord
+from Genotype.NEAT import MutationRecord
 from src2.Genotype.NEAT.Operators.Mutations.GenomeMutator import GenomeMutator
 
 

@@ -1,6 +1,6 @@
-from Configuration import config
+from Configuration.Configuration import config
 from src2.Genotype.NEAT.Genome import Genome
-from src2.Genotype.NEAT.Operators.Mutations import MutationRecord
+from Genotype.NEAT import MutationRecord
 from src2.Genotype.NEAT.Operators.Mutations.GenomeMutator import GenomeMutator
 
 

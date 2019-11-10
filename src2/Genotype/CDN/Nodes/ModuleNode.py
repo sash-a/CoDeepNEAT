@@ -4,12 +4,12 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 
-from src2.Configuration import config
+from src2.Configuration.Configuration import config
 from src2.Genotype.Mutagen.ContinuousVariable import ContinuousVariable
 from src2.Genotype.Mutagen.IntegerVariable import IntegerVariable
 from src2.Genotype.Mutagen.Option import Option
 from src2.Genotype.NEAT.Node import Node, NodeType
-from Phenotype.NeuralNetwork.Layers.CustomLayerTypes import DepthwiseSeparableConv
+from src2.Phenotype.NeuralNetwork.Layers.CustomLayerTypes import DepthwiseSeparableConv
 
 
 class ModuleNode(Node):

@@ -5,7 +5,8 @@ from typing import Dict, List, AbstractSet, Union, TYPE_CHECKING, Set
 
 from tarjan import tarjan
 
-from src2.Configuration import config
+from Genotype.NEAT.MutationRecord import MutationRecords
+from src2.Configuration.Configuration import config
 from src2.Genotype.Mutagen.Mutagen import Mutagen
 
 if TYPE_CHECKING:
@@ -100,6 +101,25 @@ class Genome:
         self.uses = 0
         if self.fitness_values is not None:
             self.fitness_values = [0 for _ in self.fitness_values]
+
+    def n_mutations_on_connection(self, record: MutationRecords, conn_id: int):
+        """finds the next usable node ID given the mutation record and the nodes in the genome"""
+        count = 0
+        found_next_id = False
+        while not found_next_id:
+            mutation = (conn_id, count)
+            if record.exists(mutation, False):
+                node_id = record.node_mutations[mutation]
+                if node_id in self.nodes:
+                    # If mutation has already occurred in this genome then continue searching for a valid node id
+                    count += 1
+                    continue
+
+            found_next_id = True
+
+        if count > 0:
+            print("using count =", count)
+        return count
 
     def get_traversal_dictionary(self, exclude_disabled_connection=False, reverse=False) -> Dict[int, List[int]]:
         """

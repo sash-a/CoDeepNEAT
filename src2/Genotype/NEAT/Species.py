@@ -1,11 +1,11 @@
-from typing import Tuple, List, Dict
+from typing import List, Dict
 
 import math
 import random
 
 from src2.Genotype.NEAT.Operators.RepresentativeSelectors.RepresentativeSelector import RepresentativeSelector
 from src2.Genotype.NEAT.Genome import Genome
-from src2.Genotype.NEAT.Operators.Mutations import MutationRecord
+from Genotype.NEAT import MutationRecord
 from src2.Configuration import config
 from src2.Genotype.NEAT.Operators.Selectors import Selector
 from src2.Genotype.NEAT.Operators.Mutations import Mutator

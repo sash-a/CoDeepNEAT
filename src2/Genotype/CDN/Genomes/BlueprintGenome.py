@@ -4,14 +4,13 @@ from typing import List, Dict, TYPE_CHECKING, Optional
 
 from torch import nn
 
-from Genotype.CDN.Nodes import BlueprintNode
 from Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
 from src2.Genotype.Mutagen.ContinuousVariable import ContinuousVariable
 from src2.Genotype.Mutagen.Mutagen import Mutagen
 from src2.Genotype.NEAT.Connection import Connection
 from src2.Genotype.NEAT.Genome import Genome
 from src2.Genotype.NEAT.Node import Node
-from Phenotype.NeuralNetwork.Layers import AggregationLayer
+from src2.Phenotype.NeuralNetwork.Layers.AggregationLayer import AggregationLayer
 
 if TYPE_CHECKING:
     from src2.Genotype.NEAT.Species import Species

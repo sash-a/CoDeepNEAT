@@ -1,7 +1,6 @@
-import copy
 from typing import Tuple, Union, Type
 
-from src2.Genotype.NEAT.Operators.Mutations.MutationRecord import MutationRecords
+from Genotype.NEAT.MutationRecord import MutationRecords
 from src2.Genotype.CDN.Nodes.ModuleNode import ModuleNode
 from src2.Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
 from src2.Genotype.CDN.Genomes.ModuleGenome import ModuleGenome
@@ -24,7 +23,7 @@ def get_mini_genome(TypeGenome: Union[Type[Genome], Type[ModuleGenome], Type[Blu
         -> Tuple[Union[Genome, ModuleGenome, BlueprintGenome], MutationRecords]:
     """0 - 1"""
     mini_genome = TypeGenome([TypeNode(*input_node_params), TypeNode(*output_node_params)], [Connection(0, 0, 1)])
-    return mini_genome, MutationRecords({(0, 1): 0}, 1, 0)
+    return mini_genome, MutationRecords({(0, 1): 0}, {}, 1, 0)
 
 
 def get_small_linear_genome(TypeGenome: Union[Type[Genome], Type[ModuleGenome], Type[BlueprintGenome]],
@@ -50,13 +49,14 @@ def get_small_tri_genome(TypeGenome: Union[Type[Genome], Type[ModuleGenome], Typ
         1 -- 2
     """
     small_tri_genome = TypeGenome(
-        [TypeNode(*input_node_params), TypeNode(hidden2_node, NodeType.HIDDEN), TypeNode(*output_node_params), TypeNode(5)],
-        [Connection(0, 0, 1), Connection(1, 0, 2), Connection(2, 2, 1), Connection(3, 5, 1)])
+        [TypeNode(*input_node_params), TypeNode(hidden2_node, NodeType.HIDDEN), TypeNode(*output_node_params)],
+        [Connection(0, 0, 1), Connection(1, 0, 2), Connection(2, 2, 1)])
 
     return small_tri_genome, MutationRecords({(0, 1): 0,  # initial mini genome
-                                              0: 2,  # add node on connection 0
+                                                # add node on connection 0
                                               (0, 2): 1,  # add connection for new node
                                               (2, 1): 2},  # add connection for new node
+                                             {(0,0): 2},
                                              2, 2)
 
 
@@ -99,8 +99,9 @@ gen = get_small_tri_genome(Genome, Node)[0]
 print(gen.get_traversal_dictionary(exclude_disabled_connection=True))
 print(gen.get_reachable_nodes(False))
 
-import importlib.util
-spec = importlib.util.spec_from_file_location("DefaultAugmentations.py", "/home/sasha/Documents/CoDeepNEAT/src2/Phenotype/Augmentations/DefaultAugmentations.py")
-foo = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(foo)
-print(foo.augmentations)
+if __name__ == "__main__":
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("DefaultAugmentations.py", "/home/sasha/Documents/CoDeepNEAT/src2/Phenotype/Augmentations/DefaultAugmentations.py")
+    foo = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(foo)
+    print(foo.augmentations)

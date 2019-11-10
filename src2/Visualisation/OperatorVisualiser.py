@@ -6,10 +6,10 @@ from Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
 from Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
 from Genotype.NEAT.Genome import Genome
 from Genotype.NEAT.Operators import Cross
-from Genotype.NEAT.Operators.Mutations import MutationRecord
-from Genotype.NEAT.Operators.Mutations.BlueprintGenomeMutator import BlueprintGenomeMutator
+from Genotype.NEAT import MutationRecord
+from Genotype.CDN.Operators.Mutators.BlueprintGenomeMutator import BlueprintGenomeMutator
 from Genotype.NEAT.Operators.Mutations.GenomeMutator import GenomeMutator
-from Genotype.NEAT.Operators.Mutations.ModuleGenomeMutator import ModuleGenomeMutator
+from Genotype.CDN.Operators.Mutators.ModuleGenomeMutator import ModuleGenomeMutator
 from Visualisation.GenomeVisualiser import get_graph_of
 from test import StaticGenomes
 
@@ -74,8 +74,8 @@ def visualise_crossover(genomes: List[Genome], count=1, parent_mutation_count = 
 if __name__ == "__main__":
     trivial_genome, record = StaticGenomes.get_mini_genome(BlueprintGenome, BlueprintNode)
     triangle_genome, record2 = StaticGenomes.get_small_tri_genome(BlueprintGenome, BlueprintNode)
-    three_chain_genome, record3 = StaticGenomes.get_small_linear_genome(BlueprintGenome, BlueprintNode)
-    large_genome, record4 = StaticGenomes.get_large_genome(BlueprintGenome, BlueprintNode)
+    # three_chain_genome, record3 = StaticGenomes.get_small_linear_genome(BlueprintGenome, BlueprintNode)
+    # large_genome, record4 = StaticGenomes.get_large_genome(BlueprintGenome, BlueprintNode)
 
-    visualise_mutation([three_chain_genome], BlueprintGenomeMutator(), record3, num_mutations=750, count=1)
+    visualise_mutation([triangle_genome], BlueprintGenomeMutator(), record2, num_mutations=800, count=1)
     # visualise_crossover([triangle_genome, trivial_genome], count=5)

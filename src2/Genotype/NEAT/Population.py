@@ -1,7 +1,7 @@
-from typing import List, Dict, TYPE_CHECKING, Iterable
+from typing import List, Iterable
 
 from Genotype.NEAT.Genome import Genome
-from Genotype.NEAT.Operators.Mutations.MutationRecord import MutationRecords
+from Genotype.NEAT.MutationRecord import MutationRecords
 from Genotype.NEAT.Operators.PopulationRankers.PopulationRanker import PopulationRanker
 from Genotype.NEAT.Operators.Speciators.Speciator import Speciator
 from Genotype.NEAT.Species import Species
