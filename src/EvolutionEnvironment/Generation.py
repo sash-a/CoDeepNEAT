@@ -311,6 +311,15 @@ class Generation:
         blueprint_graph = blueprint_individual.to_blueprint()
         module_graph = blueprint_graph.parse_to_module_graph(self,
                                                              allow_ignores=True if index >= Props.BP_POP_SIZE else False)
+        blueprint_individual: BlueprintGenome
+
+        if index == 1:
+            blueprint_individual.plot_tree_with_graphvis(view=True, file='bp')
+            for i, (spc, mod) in enumerate(blueprint_individual.species_module_index_map.items()):
+                module = self.module_population.species[spc][mod]
+                module.plot_tree_with_graphvis(view=True, file='mod' + str(i))
+
+            module_graph.plot_tree_with_graphvis(view=True)
 
         net = Validation.create_nn(module_graph, inputs)
         old_construction_time = time.time() - s_constr

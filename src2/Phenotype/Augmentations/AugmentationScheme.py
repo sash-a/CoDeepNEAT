@@ -5,9 +5,6 @@ import random
 
 
 # The AugmenationScheme class allows for the creation of a augmentation schemes.
-# Augmentation schemes consist of data augmentations that are chosen from the
-# dictionary below and applied in a linear order.
-
 
 class AugmentationScheme:
 
@@ -305,30 +302,14 @@ class AugmentationScheme:
 
     # AugmentationScheme objects require images and labels.
     # 'augs' is a list that contains all data augmentations in the scheme
-    def __init__(self):
-        self.augs = [iaa.Flipud(1)]
+    def __init__(self, augs):
+        print("augmentation scheme created")
+        self.augs = augs
 
     def __call__(self, image):
         image = np.array(image)
         aug_scheme = iaa.Sometimes(0.5, iaa.SomeOf(random.randrange(1, len(self.augs)+1), self.augs, random_order=True))
-        aug_img = self.aug_scheme.augment_image(image)
+        aug_img = aug_scheme.augment_image(image)
         # fixes negative strides
         aug_img = aug_img[..., ::1] - np.zeros_like(aug_img)
         return aug_img
-
-    # def add_augmentation(self, augmentation_mutagen):
-    #     """Used to add a single augmentation to the pipeline"""
-    #     augmentation_name = augmentation_mutagen()
-    #     self.augs_names.append(augmentation_name)
-    #     sub_values = augmentation_mutagen.get_sub_values()
-    #
-    #     if sub_values is None:
-    #         self.augs.append(AugmentationScheme.Augmentations[augmentation_name])
-    #     else:
-    #         args = [sub_values[x]() for x in sub_values]
-    #
-    #         try:
-    #             self.augs.append(AugmentationScheme.Augmentations[augmentation_name](*args))
-    #         except Exception as e:
-    #             raise Exception(augmentation_name + " failed to initialise with parameters" + repr(args))
-    #
