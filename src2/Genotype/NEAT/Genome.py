@@ -235,9 +235,11 @@ class Genome:
 
         agg_layers: Dict[int, AggregationLayer] = {}  # map from node marked as agg to the agg layer pheno
 
+        blueprint_node_id = kwargs["blueprint_node_id"] if "blueprint_node_id" in kwargs else None
+
         # input node of the input module and output node of the input module
-        first_layer, starting_layer = self.get_input_node().convert_node(**kwargs, node_id=0)
-        output_layers = self.get_output_node().convert_node(**kwargs, node_id=1)
+        first_layer, starting_layer = self.get_input_node().convert_node(**kwargs, node_id=blueprint_node_id)
+        output_layers = self.get_output_node().convert_node(**kwargs, node_id=blueprint_node_id)
 
         def create_and_link_layers(parent_nn_output: Layer, parent_node_id) -> None:
             """
@@ -260,7 +262,7 @@ class Genome:
                 if child_node_id >= 0:  # not an aggregator node
                     # Creates a new module
                     node: Node = self.nodes[child_node_id]
-                    input_layer, output_layer = node.convert_node(**kwargs, node_id=child_node_id)
+                    input_layer, output_layer = node.convert_node(**kwargs, node_id=blueprint_node_id)
                     # Use already created output module if child is output node
                     if node.is_output_node():
                         input_layer, output_layer = output_layers
@@ -270,8 +272,14 @@ class Genome:
                     input_layer = agg_layers[child_node_id]  # only create an aggregation layer once
                 else:
                     # Create aggregation layer if not already created and node_id is negative
-                    input_layer = AggregationLayer(multi_input_map[child_node_id * -1],
-                                                   str(child_node_id) + '_' + str(child_node_id))
+                    if blueprint_node_id is not None:
+                        """this is a module agg node"""
+                        name = str(blueprint_node_id) + "_agg("+str(-1*child_node_id)+")"
+                    else:
+                        """blueprint level agg node"""
+                        name = "agg("+str(-1*child_node_id)+")"
+
+                    input_layer = AggregationLayer(multi_input_map[child_node_id * -1],name)
                     agg_layers[child_node_id] = input_layer
                     create_and_link_layers(input_layer, child_node_id)
 

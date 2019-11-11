@@ -49,9 +49,9 @@ class Layer(BaseLayer):
         if neat_reduction is not None and neat_reduction.value is not None:
             pool_size = neat_reduction.get_subvalue('pool_size')
             if neat_reduction.value == nn.MaxPool2d or neat_reduction.value == nn.AvgPool2d:
-                reduction = neat_reduction.value(pool_size, pool_size, padding = pool_size//2)  # TODO should be stride
+                reduction = neat_reduction.value(pool_size, pool_size, padding=pool_size // 2)  # TODO should be stride
             elif neat_reduction.value == nn.MaxPool1d or neat_reduction.value == nn.AvgPool1d:
-                reduction = neat_reduction.value(pool_size, padding = pool_size//2)
+                reduction = neat_reduction.value(pool_size, padding=pool_size // 2)
 
         if neat_dropout is not None and neat_dropout.value is not None:
             dropout = neat_dropout.value(neat_dropout.get_subvalue('dropout_factor'))
@@ -79,7 +79,7 @@ class Layer(BaseLayer):
         img_flat_size = int(reduce(lambda x, y: x * y, in_shape) / batch)
 
         # Calculating out feature size, creating deep layer and reshaping if necessary
-        if self.module_node.layer_type.value == nn.Conv2d:
+        if self.module_node.is_conv():
             """is conv"""
             # todo apply pad output gene
             if len(in_shape) == 2:  # need a reshape if parent layer is linear because conv input needs 4 dims
@@ -93,8 +93,12 @@ class Layer(BaseLayer):
             # gathering conv params from module
             window_size = self.module_node.layer_type.get_subvalue('conv_window_size')
             stride = self.module_node.layer_type.get_subvalue('conv_stride')
-            padding = math.ceil((window_size - h) / 2)
+            padding = math.ceil((window_size - h) / 2)  # just-in-time padding
             padding = padding if padding >= 0 else 0
+            if self.module_node.layer_type.get_subvalue("pad_output"):
+                """preemptive padding"""
+                # print("using preemptive padding")
+                padding = max(padding, (window_size-1)//2)
 
             # creating conv layer
             deep_layer = nn.Conv2d(channels, self.out_features, window_size, stride, padding)

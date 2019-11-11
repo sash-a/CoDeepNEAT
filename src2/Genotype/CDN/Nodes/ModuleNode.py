@@ -37,7 +37,9 @@ class ModuleNode(Node):
 
     def convert_node(self, **kwargs) -> Tuple[Layer, Layer]:
         bp_node_id = kwargs['node_id']
-        pheno = Layer(self, str(bp_node_id) + '_' + str(self.id))
+        name = str(bp_node_id) if bp_node_id >= 0 else "agg(" + str(-1*bp_node_id)+")"
+        name += "_" + (str(self.id) if self.id >= 0 else "agg(" + str(-1*self.id) + ")")
+        pheno = Layer(self, name)
         return pheno, pheno
 
     def is_conv(self):

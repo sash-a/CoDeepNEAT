@@ -65,23 +65,25 @@ class Network(nn.Module):
         pass
 
     def visualize(self, filename='new', view=True):
-        graph = graphviz.Digraph(name='New graph', comment='New graph', filename=filename)
+        graph = graphviz.Digraph(name='Phenotype', comment='Phenotype', filename=filename)
 
         q: List[BaseLayer] = [self.model]
         graph.node(self.model.name, self.model.get_layer_info())
         visited = set()
 
         while q:
-            layer = q.pop()
+            parent_layer = q.pop()
 
-            if layer.name not in visited:
-                visited.add(layer.name)
-                for child in layer.child_layers:
-                    description = child.get_layer_info()
+            if parent_layer.name not in visited:
+                visited.add(parent_layer.name)
+                for child_layer in parent_layer.child_layers:
+                    description = child_layer.get_layer_info()
 
-                    graph.node(child.name, child.name)
-                    graph.edge(layer.name, child.name)
+                    # print("plotting layer node: " , child_layer.name)
 
-                    q.append(child)
+                    graph.node(child_layer.name, description)
+                    graph.edge(parent_layer.name, child_layer.name)
 
-        graph.render(filename, view=view)
+                    q.append(child_layer)
+
+        graph.view()
