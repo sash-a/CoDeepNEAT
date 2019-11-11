@@ -3,8 +3,8 @@ from __future__ import annotations
 import os
 from typing import TYPE_CHECKING, Union, List, Dict
 
-from Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
-from Genotype.CDN.Nodes.ModuleNode import ModuleNode
+from src2.Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
+from src2.Genotype.CDN.Nodes.ModuleNode import ModuleNode
 from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
 from test import StaticGenomes
 
@@ -98,7 +98,7 @@ def get_graph_of(genome: Genome, sub_graph=False, cluster_style="filled", cluste
 
 
 def visualise_blueprint_genome(genome: BlueprintGenome, sample_map: Dict[int, int] = None):
-    blueprint_graph = get_graph_of(genome, node_names="blueprint", sample_map=sample_map)
+    blueprint_graph = get_graph_of(genome, node_names="blueprint", sample_map=sample_map, node_colour= "yellow")
     module_ids = set()
 
     for bp_node in genome.nodes.values():
@@ -112,9 +112,11 @@ def visualise_blueprint_genome(genome: BlueprintGenome, sample_map: Dict[int, in
     import src2.main.Singleton as S
 
     for module_id in module_ids:
+        print("found module node")
         module = S.instance.module_population[module_id]
-        blueprint_graph = get_graph_of(module, node_names="module_" + str(module_id), append_graph=blueprint_graph,
-                                       sub_graph=True, label="Module " + str(module_id))
+        module_graph = get_graph_of(module, node_names="module_" + str(module_id),
+                                    sub_graph=True, label="Module " + str(module_id), node_colour="blue")
+        blueprint_graph.subgraph(module_graph)
 
     blueprint_graph.view()
 
@@ -149,7 +151,7 @@ def get_node_metadata(node: Union[BlueprintNode, ModuleNode], **kwargs):
             meta += "\nRepeat count: " + str(blueprintNode.module_repeat_count())
 
     if isinstance(node, ModuleNode):
-        # print("found module node")
+        print("found module node")
         moduleNode: ModuleNode = node
         if moduleNode.is_conv():
             window_size = moduleNode.layer_type.get_subvalue("conv_window_size")
