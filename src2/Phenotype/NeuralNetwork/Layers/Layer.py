@@ -30,7 +30,7 @@ class Layer(BaseLayer):
             print("error passing shape", x.size(), "through ", self.sequential)
             raise e
 
-    def _create_regularisers(self) -> Tuple[nn.Module]:
+    def _create_regularisers(self, in_shape: List[int]) -> Tuple[nn.Module]:
         """Creates and returns regularisers given mutagens in self.module_node.layer_type"""
         regularisation: Optional[nn.Module] = None
         reduction: Optional[nn.Module] = None
@@ -43,12 +43,18 @@ class Layer(BaseLayer):
             neat_reduction = self.module_node.layer_type.get_submutagen('reduction')
 
         if neat_regularisation is not None and neat_regularisation.value is not None:
-            regularisation = neat_regularisation()(self.out_features)
+            # Can use either batchnorm 1D or 2D must decide based on input size
+            if neat_regularisation.value == 'batchnorm':
+                if len(in_shape) == 4:
+                    regularisation = nn.BatchNorm2d(in_shape[1])
+                else:
+                    regularisation = nn.BatchNorm1d(in_shape[1])
+            else:  # input size is known at the genome level
+                regularisation = neat_regularisation()(self.out_features)
 
         if neat_reduction is not None and neat_reduction.value is not None:
             pool_size = neat_reduction.get_subvalue('pool_size')
             if neat_reduction.value == nn.MaxPool2d or neat_reduction.value == nn.AvgPool2d:
-                # TODO only do padding if needed
                 reduction = neat_reduction.value(pool_size, pool_size, padding=pool_size // 2)  # TODO should be stride
             elif neat_reduction.value == nn.MaxPool1d or neat_reduction.value == nn.AvgPool1d:
                 reduction = neat_reduction.value(pool_size, padding=pool_size // 2)
@@ -105,13 +111,11 @@ class Layer(BaseLayer):
             # creating linear layer
             deep_layer = nn.Linear(img_flat_size, self.out_features)
         elif self.module_node.layer_type.value is None:  # No deep layer
-            # neat_regularisation = self.module_node.layer_type.get_submutagen('regularisation')
-            # if len(in_shape) == 4 and neat_regularisation is not None and neat_regularisation.value is not None:
-            #     reshape_layer = Reshape(batch, -1)
             deep_layer = nn.Identity()
 
         # packing reshape, deep layer and regularisers into a sequential
-        modules = [module for module in [reshape_layer, deep_layer, *self._create_regularisers()] if module is not None]
+        modules = [module for module in [reshape_layer, deep_layer, *self._create_regularisers(in_shape)] if
+                   module is not None]
         if not modules:
             modules = [nn.Identity()]
 

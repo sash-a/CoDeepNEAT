@@ -99,8 +99,31 @@ def get_new_conv_parameter_mutagens():
 
 def get_new_linear_parameter_mutagens():
     return {
-        "regularisation": Option("regularisation", None, nn.BatchNorm1d,  # TODO bn 2D?
+        "regularisation": Option("regularisation", None, nn.BatchNorm1d,
                                  current_value=nn.BatchNorm1d if random.random() < config.module_node_batchnorm_chance else None,
+                                 mutation_chance=0.15),
+
+        "dropout": Option("regularisation", None, nn.Dropout,
+                          current_value=nn.Dropout if random.random() < config.module_node_dropout_chance else None,
+                          submutagens=
+                          {
+                              nn.Dropout: {
+                                  "dropout_factor": ContinuousVariable("dropout_factor", current_value=0.15,
+                                                                       start_range=0, end_range=0.75,
+                                                                       mutation_chance=0.15)
+                              }
+                          }, mutation_chance=0.08),
+
+        "out_features": IntegerVariable("out_features", current_value=int(random.normalvariate(mu=200, sigma=50)),
+                                        start_range=10,
+                                        end_range=1024, mutation_chance=0.22)
+    }
+
+
+def get_new_none_parameter_mutagens():
+    return {
+        "regularisation": Option("regularisation", None, 'batchnorm',
+                                 current_value='batchnorm' if random.random() < config.module_node_batchnorm_chance else None,
                                  mutation_chance=0.15),
 
         "dropout": Option("regularisation", None, nn.Dropout,
@@ -133,7 +156,7 @@ def get_new_layer_submutagens():
     subs = {
         nn.Conv2d: get_new_conv_parameter_mutagens(),
         nn.Linear: get_new_linear_parameter_mutagens(),
-        None: get_new_linear_parameter_mutagens()
+        None: get_new_none_parameter_mutagens()
     }
     if config.use_depthwise_separable_convs:
         subs[DepthwiseSeparableConv] = get_new_depthwise_conv_parameter_mutagens()
