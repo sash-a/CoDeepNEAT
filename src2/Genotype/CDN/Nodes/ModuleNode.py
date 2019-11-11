@@ -86,7 +86,7 @@ def get_new_conv_parameter_mutagens():
                           },
                           mutation_chance=0.08),
 
-        "out_features": IntegerVariable("out_features", current_value=random.normalvariate(mu=50, sigma=20),
+        "out_features": IntegerVariable("out_features", current_value=int(random.normalvariate(mu=50, sigma=20)),
                                         start_range=1,
                                         end_range=100, mutation_chance=0.22),
 
@@ -112,7 +112,7 @@ def get_new_linear_parameter_mutagens():
                               }
                           }, mutation_chance=0.08),
 
-        "out_features": IntegerVariable("out_features", current_value=random.normalvariate(mu=200, sigma=50),
+        "out_features": IntegerVariable("out_features", current_value=int(random.normalvariate(mu=200, sigma=50)),
                                         start_range=10,
                                         end_range=1024, mutation_chance=0.22)
     }
@@ -121,7 +121,7 @@ def get_new_linear_parameter_mutagens():
 def get_new_depthwise_conv_parameter_mutagens():
     conv_params = get_new_conv_parameter_mutagens()
     conv_params["kernels_per_layer"] = IntegerVariable("kernels_per_layer",
-                                                       current_value=random.normalvariate(mu=15, sigma=2),
+                                                       current_value=int(random.normalvariate(mu=15, sigma=2)),
                                                        start_range=1, end_range=100, mutation_chance=0.15)
 
     return conv_params

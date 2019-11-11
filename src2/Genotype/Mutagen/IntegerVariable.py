@@ -10,6 +10,8 @@ class IntegerVariable(Variable):
 
     def __init__(self, name, current_value: int, start_range: int, end_range: int, mutation_chance):
         super().__init__(name, current_value, start_range, end_range, mutation_chance)
+        if current_value%1!=0:
+            raise Exception("cannot pass non natural number to int variable")
 
     def mutate(self) -> MutationReport:
         mutation_report = MutationReport()
@@ -37,6 +39,8 @@ class IntegerVariable(Variable):
             self.name + " changed from " + repr(self.current_value) + " to " + repr(new_current_value))
 
         self.current_value = self.start_range + ((new_current_value - self.start_range) % range)
+        if self.current_value%1 != 0:
+            raise Exception("non natural number mutated in int variable")
 
         return mutation_report
 
