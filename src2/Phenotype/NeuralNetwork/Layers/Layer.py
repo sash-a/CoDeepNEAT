@@ -61,9 +61,9 @@ class Layer(BaseLayer):
         Creates a layer of type nn.Linear or nn.Conv2d according to its module_node and gives it the correct shape.
         Populates the self.sequential attribute with created layers and values returned from self.create_regularisers.
         """
-        if len(in_shape) == 4:
+        if len(in_shape) == 4:  # parent node is a conv
             batch, channels, h, w = in_shape
-        elif len(in_shape) == 2:
+        elif len(in_shape) == 2:  # parent node  is a linear
             batch, channels = in_shape
         else:
             raise Exception('Invalid input with shape: ' + str(in_shape))
@@ -74,28 +74,32 @@ class Layer(BaseLayer):
         # Calculating out feature size, creating deep layer and reshaping if necessary
         if self.module_node.layer_type.value == nn.Conv2d:
             # todo apply pad output gene
-            if len(in_shape) == 2:
-                h = w = int(math.sqrt(img_flat_size / channels))
+            if len(in_shape) == 2:  # need a reshape if parent layer is linear because conv input needs 4 dims
+                h = w = math.ceil(math.sqrt(img_flat_size / channels))
                 reshape_layer = Reshape(batch, channels, h, w)
 
             # TODO make kernel size and stride a tuple
+            # gathering conv params from module
             window_size = self.module_node.layer_type.get_subvalue('conv_window_size')
             stride = self.module_node.layer_type.get_subvalue('conv_stride')
             padding = math.ceil((window_size - h) / 2)
             padding = padding if padding >= 0 else 0
 
+            # creating conv layer
             deep_layer = nn.Conv2d(channels, self.out_features, window_size, stride, padding)
         else:  # self.module_node.layer_type.value == nn.Linear:
-            if len(in_shape) != 2 or channels != img_flat_size:
+            if len(in_shape) != 2 or channels != img_flat_size:  # linear must be reshaped
                 reshape_layer = Reshape(batch, img_flat_size)
 
+            # creating linear layer
             deep_layer = nn.Linear(img_flat_size, self.out_features)
 
+        # packing reshape, deep layer and regularisers into a sequential
         self.sequential = nn.Sequential(*[module for module in
                                           [reshape_layer, deep_layer, *self._create_regularisers()]
                                           if module is not None])
 
-        # TODO: remove
+        # TODO: remove out shape
         #  doesn't look like out_shape is used anywhere else
         self.out_shape = list(self.forward(zeros(in_shape)).size())
 
