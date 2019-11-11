@@ -1,9 +1,10 @@
 from __future__ import annotations
+
+from functools import reduce
 from typing import Optional, List, Tuple, TYPE_CHECKING
 
-from torch import nn, zeros
 import math
-from functools import reduce
+from torch import nn, zeros
 
 from src2.Phenotype.NeuralNetwork.Layers.BaseLayer import BaseLayer
 from src2.Phenotype.NeuralNetwork.Layers.CustomLayerTypes.Reshape import Reshape
@@ -23,7 +24,11 @@ class Layer(BaseLayer):
         self.activation: Optional[nn.Module] = self.module_node.activation.value
 
     def forward(self, x):
-        return self.activation(self.sequential(x))
+        try:
+            return self.activation(self.sequential(x))
+        except Exception as e:
+            print("error passing shape", x.size(), "through ", self.sequential)
+            raise e
 
     def _create_regularisers(self) -> Tuple[nn.Module]:
         """Creates and returns regularisers given mutagens in self.module_node.layer_type"""
@@ -42,14 +47,11 @@ class Layer(BaseLayer):
             regularisation = neat_regularisation()(self.out_features)
 
         if neat_reduction is not None and neat_reduction.value is not None:
-            if neat_reduction.value == nn.MaxPool2d or neat_reduction.value == nn.MaxPool1d:
-                pool_size = neat_reduction.get_subvalue('pool_size')
-                if neat_reduction.value == nn.MaxPool2d:
-                    reduction = nn.MaxPool2d(pool_size, pool_size)  # TODO should be stride
-                elif neat_reduction.value == nn.MaxPool1d:
-                    reduction = nn.MaxPool1d(pool_size)
-            else:
-                raise Exception('Error unimplemented reduction ' + repr(neat_reduction()))
+            pool_size = neat_reduction.get_subvalue('pool_size')
+            if neat_reduction.value == nn.MaxPool2d or neat_reduction.value == nn.AvgPool2d:
+                reduction = neat_reduction.value(pool_size, pool_size, padding = pool_size//2)  # TODO should be stride
+            elif neat_reduction.value == nn.MaxPool1d or neat_reduction.value == nn.AvgPool1d:
+                reduction = neat_reduction.value(pool_size, padding = pool_size//2)
 
         if neat_dropout is not None and neat_dropout.value is not None:
             dropout = neat_dropout.value(neat_dropout.get_subvalue('dropout_factor'))
@@ -61,6 +63,11 @@ class Layer(BaseLayer):
         Creates a layer of type nn.Linear or nn.Conv2d according to its module_node and gives it the correct shape.
         Populates the self.sequential attribute with created layers and values returned from self.create_regularisers.
         """
+        if 0 in in_shape:
+            raise Exception("inshape contains 0: " + repr(in_shape))
+
+        # print("inshape:", in_shape)
+
         if len(in_shape) == 4:  # Parent node is a conv
             batch, channels, h, w = in_shape
         elif len(in_shape) == 2:  # Parent node  is a linear
@@ -73,9 +80,13 @@ class Layer(BaseLayer):
 
         # Calculating out feature size, creating deep layer and reshaping if necessary
         if self.module_node.layer_type.value == nn.Conv2d:
+            """is conv"""
             # todo apply pad output gene
             if len(in_shape) == 2:  # need a reshape if parent layer is linear because conv input needs 4 dims
                 h = w = math.ceil(math.sqrt(img_flat_size / channels))
+                if h * w != img_flat_size / channels:
+                    raise Exception("lossy reshape of linear output(" + repr(in_shape) + ")to conv input(" + str(
+                        batch) + "," + channels + ("," + h) * 2 + ")")
                 reshape_layer = Reshape(batch, channels, h, w)
 
             # TODO make kernel size and stride a tuple
@@ -88,6 +99,7 @@ class Layer(BaseLayer):
             # creating conv layer
             deep_layer = nn.Conv2d(channels, self.out_features, window_size, stride, padding)
         else:  # self.module_node.layer_type.value == nn.Linear:
+            """is linear"""
             if len(in_shape) != 2 or channels != img_flat_size:  # linear must be reshaped
                 reshape_layer = Reshape(batch, img_flat_size)
 
