@@ -1,15 +1,15 @@
 from __future__ import annotations
 
 import os
-from typing import Union, TYPE_CHECKING
+from typing import TYPE_CHECKING, Union, List, Dict
 
 from Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
 from Genotype.CDN.Nodes.ModuleNode import ModuleNode
+from test import StaticGenomes
+from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
 
 if TYPE_CHECKING:
-    from src2.Genotype.NEAT.Node import Node
     from src2.Genotype.NEAT.Genome import Genome
-    from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
 
 os.environ["PATH"] += os.pathsep + 'C:/Program Files (x86)/Graphviz2.38/bin/'
 
@@ -20,7 +20,8 @@ def get_graph_of(genome: Genome, sub_graph=False, cluster_style="filled", cluste
                  node_style="filled", node_colour="white", label="",
                  node_shape="", start_node_shape="Mdiamond", end_node_shape="Msquare",
                  node_names="", append_graph: Digraph = None,
-                 exclude_unconnected_nodes=True, exclude_non_fully_connected_nodes=True) -> Digraph:
+                 exclude_unconnected_nodes=True, exclude_non_fully_connected_nodes=True,
+                 **kwargs) -> Digraph:
     """
     :param genome:
     :param sub_graph: boolean, if this graph should be made a cluster, intended to be a sub_graph of another graph
@@ -63,11 +64,16 @@ def get_graph_of(genome: Genome, sub_graph=False, cluster_style="filled", cluste
         shape = start_node_shape if (node.is_input_node() and start_node_shape != "") else (
             end_node_shape if (node.is_output_node() and end_node_shape != "") else node_shape)
 
+        if "sample_map" in kwargs and kwargs["sample_map"] is not None:
+            meta_data = get_node_metadata(node, sample_map=kwargs["sample_map"])
+        else:
+            meta_data = get_node_metadata(node)
+
         if shape != "":
             # print("using shape ",shape)
-            g.node(name=node_names + "_v " + str(node.id), shape=shape, label=get_node_metadata(node))
+            g.node(name=node_names + "_v " + str(node.id), shape=shape, label=meta_data)
         else:
-            g.node(name=node_names + "_v " + str(node.id), label=get_node_metadata(node))
+            g.node(name=node_names + "_v " + str(node.id), label=meta_data)
 
         # print("created node: ", (node_names + ": " + str(node.id)) , " id: ", node.id )
 
@@ -91,25 +97,42 @@ def get_graph_of(genome: Genome, sub_graph=False, cluster_style="filled", cluste
     return g
 
 
-def visualise_blueprint_genome(genome: BlueprintGenome):
-    pass
+def visualise_blueprint_genome(genome: BlueprintGenome, sample_map=None):
+    blueprint_graph = get_graph_of(genome, node_names="blueprint", sample_map=sample_map)
 
 
-def get_node_metadata(node):
+def visualise_traversal_dict(traversal_dict: Dict[int, List[int]]):
+    g = Digraph(name="traversal_dict")
+
+    for from_id in traversal_dict.keys():
+        g.node(name=str(from_id))
+        for to_id in traversal_dict[from_id]:
+            g.node(name=str(to_id))
+            g.edge(str(from_id), str(to_id))
+
+    g.view()
+
+def get_node_metadata(node: Union[BlueprintNode, ModuleNode], **kwargs):
     meta = ""
     if isinstance(node, BlueprintNode):
         # print("found bp node")
         blueprintNode: BlueprintNode = node
         meta += "Species: " + str(blueprintNode.species_id)
         meta += "\nGene id: " + str(blueprintNode.id)
-        meta += "\nModule: " + str(blueprintNode.linked_module_id)
+
+        module_id = blueprintNode.linked_module_id
+        if "sample_map" in kwargs and kwargs["sample_map"] is not None:
+            if blueprintNode.species_id in kwargs["sample_map"]:
+                module_id = kwargs["sample_map"][blueprintNode.species_id]
+
+        meta += "\nModule: " + str(module_id)
         if blueprintNode.module_repeat_count() > 1:
             meta += "\nRepeat count: " + str(blueprintNode.module_repeat_count())
 
     if isinstance(node, ModuleNode):
         # print("found module node")
         moduleNode: ModuleNode = node
-        if  moduleNode.is_conv():
+        if moduleNode.is_conv():
             window_size = moduleNode.layer_type.get_subvalue("conv_window_size")
             meta += "Conv " + str(window_size) + "*" + str(window_size)
 
@@ -117,15 +140,15 @@ def get_node_metadata(node):
             out_features = moduleNode.layer_type.get_subvalue("out_features")
             meta += "Linear " + str(out_features)
 
-
-
     return meta
 
 
 if __name__ == "__main__":
-    # genome, record = StaticGenomes.get_small_tri_genome(BlueprintGenome, BlueprintNode)
+    genome, record = StaticGenomes.get_small_tri_genome(BlueprintGenome, BlueprintNode)
     # graph = get_graph_of(genome, node_colour="yellow")
     # print("genome ", genome, " parsed into graph: ", graph)
     # genome.has_cycle()
     # graph.view()
+    visualise_traversal_dict(genome.get_traversal_dictionary())
+
     pass
