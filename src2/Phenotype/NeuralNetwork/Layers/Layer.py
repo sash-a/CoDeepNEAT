@@ -1,12 +1,15 @@
-from typing import Optional, List, Tuple
+from __future__ import annotations
+from typing import Optional, List, Tuple, TYPE_CHECKING
 
 from torch import nn, zeros
 import math
 from functools import reduce
 
-from src2.Genotype.CDN.Nodes.ModuleNode import ModuleNode
 from src2.Phenotype.NeuralNetwork.Layers.BaseLayer import BaseLayer
 from src2.Phenotype.NeuralNetwork.Layers.CustomLayerTypes.Reshape import Reshape
+
+if TYPE_CHECKING:
+    from src2.Genotype.CDN.Nodes.ModuleNode import ModuleNode
 
 
 class Layer(BaseLayer):
@@ -14,7 +17,7 @@ class Layer(BaseLayer):
         super().__init__(name)
         self.module_node: ModuleNode = module
 
-        self.out_features = round(module.layer_type.get_sub_value('out_features') * feature_multiplier)
+        self.out_features = round(module.layer_type.get_subvalue('out_features') * feature_multiplier)
         self.sequential: Optional[nn.Sequential] = None
         # TODO make these nn.Module activations so they can be added to the sequential
         self.activation: Optional[nn.Module] = self.module_node.activation.value
@@ -28,16 +31,16 @@ class Layer(BaseLayer):
         reduction: Optional[nn.Module] = None
         dropout: Optional[nn.Module] = None
 
-        neat_regularisation = self.module_node.layer_type.get_sub_value('regularisation', return_mutagen=True)
-        neat_reduction = self.module_node.layer_type.get_sub_value('reduction', return_mutagen=True)
-        neat_dropout = self.module_node.layer_type.get_sub_value('dropout', return_mutagen=True)
+        neat_regularisation = self.module_node.layer_type.get_submutagen('regularisation')
+        neat_reduction = self.module_node.layer_type.get_submutagen('reduction')
+        neat_dropout = self.module_node.layer_type.get_submutagen('dropout')
 
         if neat_regularisation is not None and neat_regularisation.value is not None:
             regularisation = neat_regularisation()(self.out_features)
 
         if neat_reduction is not None and neat_reduction.value is not None:
             if neat_reduction.value == nn.MaxPool2d or neat_reduction.value == nn.MaxPool1d:
-                pool_size = neat_reduction.get_sub_value('pool_size')
+                pool_size = neat_reduction.get_subvalue('pool_size')
                 if neat_reduction.value == nn.MaxPool2d:
                     reduction = nn.MaxPool2d(pool_size, pool_size)  # TODO should be stride
                 elif neat_reduction.value == nn.MaxPool1d:
@@ -46,7 +49,7 @@ class Layer(BaseLayer):
                 raise Exception('Error unimplemented reduction ' + repr(neat_reduction()))
 
         if neat_dropout is not None and neat_dropout.value is not None:
-            dropout = neat_dropout.value(neat_dropout.get_sub_value('dropout_factor'))
+            dropout = neat_dropout.value(neat_dropout.get_subvalue('dropout_factor'))
 
         return tuple(r for r in [regularisation, reduction, dropout] if r is not None)
 
@@ -73,8 +76,8 @@ class Layer(BaseLayer):
                 reshape_layer = Reshape(batch, channels, h, w)
 
             # TODO make kernel size and stride a tuple
-            window_size = self.module_node.layer_type.get_sub_value('conv_window_size')
-            stride = self.module_node.layer_type.get_sub_value('conv_stride')
+            window_size = self.module_node.layer_type.get_subvalue('conv_window_size')
+            stride = self.module_node.layer_type.get_subvalue('conv_stride')
             padding = math.ceil((window_size - h) / 2)
             padding = padding if padding >= 0 else 0
 

@@ -13,7 +13,7 @@ class Config:
         self.module_node_batchnorm_chance = 0.65
         self.module_node_dropout_chance = 0.2
         self.module_node_max_pool_chance = 0.3
-        self.module_node_deep_layer_chance = 0.65
+        self.module_node_deep_layer_chance = 1  # TODO
         self.module_node_conv_layer_chance = 0.65  # chance of linear = 1-conv. not used if no deep layer
         # Layer types
         self.use_depthwise_separable_convs = True

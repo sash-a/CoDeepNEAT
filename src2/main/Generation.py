@@ -4,41 +4,51 @@
 """
 from __future__ import annotations
 from concurrent.futures import ThreadPoolExecutor
-
 import random
 
+import src2.main.Singleton as S
+from src2.Genotype.NEAT.Connection import Connection
+from src2.Genotype.NEAT.Node import NodeType
+from src2.Phenotype.NeuralNetwork.NeuralNetwork import Network
+from test.StaticGenomes import get_small_tri_genome
+from src2.Genotype.NEAT.Population import Population
 from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
 from src2.Genotype.CDN.Genomes.ModuleGenome import ModuleGenome
 from src2.Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
 from src2.Genotype.CDN.Nodes.ModuleNode import ModuleNode
 from src2.Genotype.NEAT.Operators.Speciators.NEATSpeciator import NEATSpeciator
-from src2.Phenotype.NeuralNetwork.NeuralNetwork import Network
-from test.StaticGenomes import get_small_linear_genome
-from src2.Genotype.NEAT.Population import Population
 from src2.main.ThreadManager import init_threads, reset_thread_name
 from src2.Phenotype.NeuralNetwork.PhenotypeEvaluator import evaluate_blueprint
 from src2.Configuration.Configuration import config
+from src2.Visualisation.GenomeVisualiser import get_graph_of
+
+instance: Generation
 
 
 class Generation:
-    instance: Generation
 
     def __init__(self):
+        global instance
         self.module_population: Population = None
         self.blueprint_population: Population = None
         self.da_population: Population = None
-        Generation.instance = self
+        instance = self
+        S.instance = self
 
-        mod, modmr = get_small_linear_genome(ModuleGenome, ModuleNode)
-        bp, bpmr = get_small_linear_genome(BlueprintGenome, BlueprintNode)
+        mod, modmr = get_small_tri_genome(ModuleGenome, ModuleNode)
+        bp, bpmr = get_small_tri_genome(BlueprintGenome, BlueprintNode)
         spctr = NEATSpeciator(3, 1)
+        for node in bp.nodes.values():
+            node.species_id = 0
         self.module_population = Population([mod], modmr, 1, spctr)
         self.blueprint_population = Population([bp], bpmr, 1, spctr)
 
         import src.Validation.DataLoader as DL
 
         x, target = DL.sample_data(config.get_device(), 2)
-        Network(bp, None, list(x.shape()))
+        n = Network(bp, None, list(x.shape))
+        n.visualize()
+        get_graph_of(bp).view()
 
     def evaluate_blueprints(self):
         """Evaluates all blueprints multiple times."""
@@ -64,4 +74,5 @@ class Generation:
         self.evaluate_blueprints()
 
 
-Generation()
+if __name__ == '__main__':
+    Generation()

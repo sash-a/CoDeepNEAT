@@ -3,7 +3,7 @@ import operator
 import torch
 import torch.multiprocessing as mp
 
-use_graph = False
+use_graph = True
 # --------------------------------------------------------------------------------------------------------------------#
 # Run state options
 run_name = "compare_test"

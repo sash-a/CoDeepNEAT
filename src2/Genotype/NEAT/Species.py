@@ -49,7 +49,7 @@ class Species:
 
     def sample_individual(self) -> Genome:
         """:return a random individual from the species"""
-        return random.choice(self.members.values())
+        return random.choice(list(self.members.values()))
 
     def _get_num_elite(self) -> int:
         """

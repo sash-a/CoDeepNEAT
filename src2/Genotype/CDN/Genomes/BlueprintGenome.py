@@ -4,7 +4,7 @@ from typing import List, Dict, TYPE_CHECKING, Optional, Set, Tuple
 
 from torch import nn
 
-from src2.Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
+import src2.Genotype.CDN.Nodes.BlueprintNode as BlueprintNode
 from src2.Genotype.Mutagen.ContinuousVariable import ContinuousVariable
 from src2.Genotype.Mutagen.Mutagen import Mutagen
 from src2.Genotype.NEAT.Connection import Connection
@@ -47,7 +47,7 @@ class BlueprintGenome(Genome):
         """
         for node in self.nodes.values():
             """node may be blueprint or module node"""
-            if isinstance(node, BlueprintNode):
+            if isinstance(node, BlueprintNode.BlueprintNode):
                 """updates the module id value of each node in the genome according to the sample map present"""
                 node.linked_module_id = self.best_module_sample_map[node.species_id]
 

@@ -1,9 +1,11 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Union, TYPE_CHECKING
 from torch import nn
 
-from src.Config import Config
+if TYPE_CHECKING:
+    from src2.Phenotype.NeuralNetwork.Layers.AggregationLayer import AggregationLayer
+    from src2.Phenotype.NeuralNetwork.Layers.Layer import Layer
 
 
 class BaseLayer(nn.Module, ABC):
@@ -11,15 +13,12 @@ class BaseLayer(nn.Module, ABC):
         super().__init__()
         self.name = name
         self.out_shape: List[int] = []
-        self.child_layers: List[BaseLayer] = []
 
     def add_child(self, name: str, child: BaseLayer) -> None:
-        if Config.use_graph:
-            self.child_layers.append(child)
-
         self.add_module(name, child)
 
-    # child_layers = property(lambda self: [child for child in self.children() if isinstance(child, BaseLayer)])
+    child_layers: List[Union[Layer, BaseLayer, AggregationLayer]] = \
+        property(lambda self: [child for child in self.children() if isinstance(child, BaseLayer)])
 
     @abstractmethod
     def create_layer(self, in_shape) -> List[int]:

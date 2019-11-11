@@ -5,9 +5,9 @@ from torch import nn, tensor, optim, squeeze
 import torch.nn.functional as F
 
 from src.Config import Config
-from src2.Phenotype.NeuralNetwork.Layers import Layer
-from src2.Phenotype.NeuralNetwork.Layers import AggregationLayer
-from src2.Phenotype.NeuralNetwork.Layers import BaseLayer
+from src2.Phenotype.NeuralNetwork.Layers.Layer import Layer
+from src2.Phenotype.NeuralNetwork.Layers.AggregationLayer import AggregationLayer
+from src2.Phenotype.NeuralNetwork.Layers.BaseLayer import BaseLayer
 
 from functools import reduce
 from typing import List, Union, Tuple, TYPE_CHECKING
@@ -43,10 +43,7 @@ class Network(nn.Module):
             x = layer(x)
             # input will be None if agg layer has not received all its inputs yet
             if x is not None:
-                if Config.use_graph:
-                    q.extend([(child, x) for child in list(layer.child_layers)])
-                else:
-                    q.extend([(child, x) for child in list(layer.children()) if isinstance(child, BaseLayer)])
+                q.extend([(child, x) for child in list(layer.child_layers)])
 
         # TODO final activation function should be evolvable
         # img_flat_size = int(reduce(lambda a, b: a * b, list(x.size())) / list(x.size())[0])
@@ -62,16 +59,12 @@ class Network(nn.Module):
             output_shape = layer.create_layer(input_shape)
             # out_shape will be None if agg layer has not received all its inputs yet
             if output_shape is not None:
-                if Config.use_graph:
-                    q.extend([(child, output_shape) for child in list(layer.child_layers)])
-                else:
-                    q.extend(
-                        [(child, output_shape) for child in list(layer.children()) if isinstance(child, BaseLayer)])
+                q.extend([(child, output_shape) for child in list(layer.child_layers)])
 
     def multiply_learning_rate(self, factor):
         pass
 
-    def visualize(self, filename='new', view=False):
+    def visualize(self, filename='new', view=True):
         graph = graphviz.Digraph(name='New graph', comment='New graph', filename=filename)
 
         q: List[BaseLayer] = [self.model]
@@ -86,7 +79,7 @@ class Network(nn.Module):
                 for child in layer.child_layers:
                     description = child.get_layer_info()
 
-                    graph.node(child.name, description)
+                    graph.node(child.name, child.name)
                     graph.edge(layer.name, child.name)
 
                     q.append(child)

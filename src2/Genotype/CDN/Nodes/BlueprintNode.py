@@ -4,7 +4,6 @@ import random
 from typing import Dict, List, TYPE_CHECKING, Tuple
 
 from src2.Phenotype.NeuralNetwork.Layers.Layer import Layer
-from src2.main.Generation import Generation
 from src2.Genotype.Mutagen.IntegerVariable import IntegerVariable
 from src2.Genotype.NEAT.Node import Node, NodeType
 
@@ -28,17 +27,23 @@ class BlueprintNode(Node):
         return [self.module_repeat_count]
 
     def pick_module(self, module_sample_map: Dict[int, int]) -> ModuleGenome:
+        # import src2.main.Generation as Generation  # TODO how slow is this
+        import src2.main.Singleton as S
+
         if self.linked_module_id != -1:
-            return Generation.instance.module_population[self.linked_module_id]
+            return S.instance.module_population[self.linked_module_id]
+
         if self.species_id not in module_sample_map:
-            species = Generation.instance.module_population.get_species_by_id(self.species_id)
+            species = S.instance.module_population.get_species_by_id(self.species_id)
             if species is None:
                 raise Exception('Species with ID = ' + str(self.species_id) + ' no longer exists')
 
             module_sample_map[self.species_id] = species.sample_individual().id
 
-        return Generation.instance.module_population[module_sample_map[self.species_id]]
+        self.linked_module_id = module_sample_map[self.species_id]
+        return S.instance.module_population[module_sample_map[self.species_id]]
 
     def convert_node(self, **kwargs) -> Tuple[Layer, Layer]:
-        module_sample_map = kwargs['module_sample_map']  # TODO module sampling needs to live long enough to be able to be committed
+        # TODO module sampling needs to live long enough to be able to be committed
+        module_sample_map = kwargs['module_sample_map']
         return self.pick_module(module_sample_map).to_phenotype()

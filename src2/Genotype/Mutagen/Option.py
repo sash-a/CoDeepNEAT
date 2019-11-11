@@ -6,12 +6,17 @@ from src2.Genotype.Mutagen.Mutagen import Mutagen
 from src2.Genotype.NEAT.Operators.Mutations.MutationReport import MutationReport
 
 
+class _Null:
+    """Default current value, allows for an option to be None"""
+    pass
+
+
 class Option(Mutagen):
 
-    def __init__(self, name: str, *options, current_value=None, submutagens: Dict[Any, Dict[str, Mutagen]] = None,
+    def __init__(self, name: str, *options, current_value=_Null, submutagens: Dict[Any, Dict[str, Mutagen]] = None,
                  mutation_chance: float = 0.3):
         super().__init__(name, mutation_chance)
-        if current_value is None:
+        if current_value is _Null:
             raise Exception('Must provide a current value')
 
         self.options = options
@@ -28,7 +33,8 @@ class Option(Mutagen):
 
     def get_submutagen(self, subvalue_name):
         if self.submutagens is None:
-            raise Exception("no submutagens on option: ", self.name, " " , self)
+            raise Exception("No submutagens on option: " + repr(self.name) + " " + repr(self))
+
         return self.submutagens[self.value][subvalue_name]
 
     def get_submutagens(self):
@@ -41,7 +47,6 @@ class Option(Mutagen):
         return self.current_value
 
     def mutate(self) -> MutationReport:
-
         mutation_report = MutationReport()
         if random.random() < self.mutation_chance:
             if len(self.options) < 2:
@@ -52,7 +57,7 @@ class Option(Mutagen):
             while new_value == self():
                 new_value = self.options[random.randint(0, len(self.options) - 1)]
 
-            mutation_report+= self.name + " changed from " + repr(self.current_value) + " to " + repr(new_value)
+            mutation_report += self.name + " changed from " + repr(self.current_value) + " to " + repr(new_value)
             self.current_value = new_value
 
         return mutation_report + self.mutate_sub_mutagens()
@@ -72,7 +77,6 @@ class Option(Mutagen):
         self.current_value = value
 
     def _interpolate(self, other: Mutagen):
-
         return Option(self.name, *self.options,
                       current_value=random.choice([self.current_value, other.get_current_value()]),
                       submutagens=interpolate_submutagens(self, other))

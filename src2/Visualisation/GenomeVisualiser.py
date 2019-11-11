@@ -1,12 +1,17 @@
-import os
-from typing import Union
+from __future__ import annotations
 
-from Genotype.CDN.Nodes.ModuleNode import ModuleNode
-from Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
-from Genotype.NEAT.Node import Node
-from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
-from src2.Genotype.NEAT.Genome import Genome
-from test import StaticGenomes
+import os
+from typing import Union, TYPE_CHECKING
+
+# from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
+# from test import StaticGenomes
+from src2.Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
+
+if TYPE_CHECKING:
+    from src2.Genotype.CDN.Nodes.ModuleNode import ModuleNode
+    from src2.Genotype.NEAT.Node import Node
+    from src2.Genotype.NEAT.Genome import Genome
+    from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
 
 os.environ["PATH"] += os.pathsep + 'C:/Program Files (x86)/Graphviz2.38/bin/'
 
@@ -98,15 +103,17 @@ def get_node_metadata(node: Union[Node, BlueprintGenome, ModuleNode]):
         blueprintNode: BlueprintNode = node
         meta += "Species: " + str(blueprintNode.species_id)
         meta += "\nGene id: " + str(blueprintNode.id)
-        meta +=  "\nModule: " + str(blueprintNode.linked_module_id)
+        meta += "\nModule: " + str(blueprintNode.linked_module_id)
         if blueprintNode.module_repeat_count() > 1:
             meta += "\nRepeat count: " + str(blueprintNode.module_repeat_count())
 
     return meta
 
+
 if __name__ == "__main__":
-    genome, record = StaticGenomes.get_small_tri_genome(BlueprintGenome, BlueprintNode)
-    graph = get_graph_of(genome, node_colour="yellow")
-    print("genome ", genome, " parsed into graph: ", graph)
-    genome.has_cycle()
-    graph.view()
+    # genome, record = StaticGenomes.get_small_tri_genome(BlueprintGenome, BlueprintNode)
+    # graph = get_graph_of(genome, node_colour="yellow")
+    # print("genome ", genome, " parsed into graph: ", graph)
+    # genome.has_cycle()
+    # graph.view()
+    pass
