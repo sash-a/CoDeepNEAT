@@ -5,8 +5,8 @@ from typing import TYPE_CHECKING, Union, List, Dict
 
 from Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
 from Genotype.CDN.Nodes.ModuleNode import ModuleNode
-from test import StaticGenomes
 from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
+from test import StaticGenomes
 
 if TYPE_CHECKING:
     from src2.Genotype.NEAT.Genome import Genome
@@ -97,8 +97,26 @@ def get_graph_of(genome: Genome, sub_graph=False, cluster_style="filled", cluste
     return g
 
 
-def visualise_blueprint_genome(genome: BlueprintGenome, sample_map=None):
+def visualise_blueprint_genome(genome: BlueprintGenome, sample_map: Dict[int, int] = None):
     blueprint_graph = get_graph_of(genome, node_names="blueprint", sample_map=sample_map)
+    module_ids = set()
+
+    for bp_node in genome.nodes.values():
+        if bp_node.linked_module_id != -1:
+            module_ids.add(bp_node.linked_module_id)
+
+    if sample_map is not None:
+        for module_id in sample_map.values():
+            module_ids.add(module_id)
+
+    import src2.main.Singleton as S
+
+    for module_id in module_ids:
+        module = S.instance.module_population[module_id]
+        blueprint_graph = get_graph_of(module, node_names="module_" + str(module_id), append_graph=blueprint_graph,
+                                       sub_graph=True, label="Module " + str(module_id))
+
+    blueprint_graph.view()
 
 
 def visualise_traversal_dict(traversal_dict: Dict[int, List[int]]):
@@ -111,6 +129,7 @@ def visualise_traversal_dict(traversal_dict: Dict[int, List[int]]):
             g.edge(str(from_id), str(to_id))
 
     g.view()
+
 
 def get_node_metadata(node: Union[BlueprintNode, ModuleNode], **kwargs):
     meta = ""
