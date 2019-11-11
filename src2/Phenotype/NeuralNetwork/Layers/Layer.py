@@ -61,9 +61,9 @@ class Layer(BaseLayer):
         Creates a layer of type nn.Linear or nn.Conv2d according to its module_node and gives it the correct shape.
         Populates the self.sequential attribute with created layers and values returned from self.create_regularisers.
         """
-        if len(in_shape) == 4:  # parent node is a conv
+        if len(in_shape) == 4:  # Parent node is a conv
             batch, channels, h, w = in_shape
-        elif len(in_shape) == 2:  # parent node  is a linear
+        elif len(in_shape) == 2:  # Parent node  is a linear
             batch, channels = in_shape
         else:
             raise Exception('Invalid input with shape: ' + str(in_shape))
