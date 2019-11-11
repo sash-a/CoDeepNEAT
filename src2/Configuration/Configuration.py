@@ -12,8 +12,8 @@ class Config:
         # Features chances
         self.module_node_batchnorm_chance = 0.65
         self.module_node_dropout_chance = 0.2
-        self.module_node_max_pool_chance = 0.3#0.3
-        self.module_node_deep_layer_chance = 1  # TODO
+        self.module_node_max_pool_chance = 0.3  # 0.3
+        self.module_node_deep_layer_chance = 0.1
         self.module_node_conv_layer_chance = 0.65  # chance of linear = 1-conv. not used if no deep layer
         # Layer types
         self.use_depthwise_separable_convs = True
@@ -31,7 +31,7 @@ class Config:
         self.species_distance_thresh_mod_base = 1
         self.species_distance_thresh_mod_min = 1
         self.species_distance_thresh_mod_max = 1
-
+        # Mutation chances
         self.blueprint_add_node_chance = 0.16
         self.blueprint_add_connection_chance = 0.12
         self.blueprint_node_type_switch_chance = 0

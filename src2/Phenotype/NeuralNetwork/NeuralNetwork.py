@@ -14,11 +14,10 @@ from typing import List, Union, Tuple, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
-    from src2.Genotype.NEAT.Species import Species
 
 
 class Network(nn.Module):
-    def __init__(self, blueprint: BlueprintGenome, module_species: List[Species], input_shape: list, output_dim=10):
+    def __init__(self, blueprint: BlueprintGenome, input_shape: list, output_dim=10):
         super().__init__()
         self.blueprint: BlueprintGenome = blueprint
         self.output_dim = output_dim
@@ -79,9 +78,7 @@ class Network(nn.Module):
                 for child_layer in parent_layer.child_layers:
                     description = child_layer.get_layer_info()
 
-                    # print("plotting layer node: " , child_layer.name)
-
-                    graph.node(child_layer.name, description)
+                    graph.node(child_layer.name, child_layer.name + '\n' + description)
                     graph.edge(parent_layer.name, child_layer.name)
 
                     q.append(child_layer)

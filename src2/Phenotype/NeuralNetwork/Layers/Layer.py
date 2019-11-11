@@ -37,11 +37,10 @@ class Layer(BaseLayer):
         dropout: Optional[nn.Module] = None
 
         neat_regularisation = self.module_node.layer_type.get_submutagen('regularisation')
+        neat_dropout = self.module_node.layer_type.get_submutagen('dropout')
+        neat_reduction = None
         if self.module_node.is_conv():
             neat_reduction = self.module_node.layer_type.get_submutagen('reduction')
-        else:
-            neat_reduction = None
-        neat_dropout = self.module_node.layer_type.get_submutagen('dropout')
 
         if neat_regularisation is not None and neat_regularisation.value is not None:
             regularisation = neat_regularisation()(self.out_features)
@@ -49,6 +48,7 @@ class Layer(BaseLayer):
         if neat_reduction is not None and neat_reduction.value is not None:
             pool_size = neat_reduction.get_subvalue('pool_size')
             if neat_reduction.value == nn.MaxPool2d or neat_reduction.value == nn.AvgPool2d:
+                # TODO only do padding if needed
                 reduction = neat_reduction.value(pool_size, pool_size, padding=pool_size // 2)  # TODO should be stride
             elif neat_reduction.value == nn.MaxPool1d or neat_reduction.value == nn.AvgPool1d:
                 reduction = neat_reduction.value(pool_size, padding=pool_size // 2)
@@ -64,9 +64,7 @@ class Layer(BaseLayer):
         Populates the self.sequential attribute with created layers and values returned from self.create_regularisers.
         """
         if 0 in in_shape:
-            raise Exception("inshape contains 0: " + repr(in_shape))
-
-        # print("inshape:", in_shape)
+            raise Exception("Parent shape contains has a dim of size 0: " + repr(in_shape))
 
         if len(in_shape) == 4:  # Parent node is a conv
             batch, channels, h, w = in_shape
@@ -76,17 +74,17 @@ class Layer(BaseLayer):
             raise Exception('Invalid input with shape: ' + str(in_shape))
 
         reshape_layer: Optional[Reshape] = None
+        deep_layer: Optional[nn.Module] = None
         img_flat_size = int(reduce(lambda x, y: x * y, in_shape) / batch)
 
         # Calculating out feature size, creating deep layer and reshaping if necessary
-        if self.module_node.is_conv():
-            """is conv"""
+        if self.module_node.is_conv():  # Conv layer
             # todo apply pad output gene
             if len(in_shape) == 2:  # need a reshape if parent layer is linear because conv input needs 4 dims
                 h = w = math.ceil(math.sqrt(img_flat_size / channels))
                 if h * w != img_flat_size / channels:
-                    raise Exception("lossy reshape of linear output(" + repr(in_shape) + ")to conv input(" + str(
-                        batch) + "," + channels + ("," + h) * 2 + ")")
+                    raise Exception("lossy reshape of linear output (" + repr(in_shape) + ") to conv input (" +
+                                    str(batch) + ", " + channels + ", " + str(h) * 2 + ")")
                 reshape_layer = Reshape(batch, channels, h, w)
 
             # TODO make kernel size and stride a tuple
@@ -95,25 +93,29 @@ class Layer(BaseLayer):
             stride = self.module_node.layer_type.get_subvalue('conv_stride')
             padding = math.ceil((window_size - h) / 2)  # just-in-time padding
             padding = padding if padding >= 0 else 0
-            if self.module_node.layer_type.get_subvalue("pad_output"):
-                """preemptive padding"""
-                # print("using preemptive padding")
-                padding = max(padding, (window_size-1)//2)
+            if self.module_node.layer_type.get_subvalue("pad_output"):  # Preemptive padding
+                padding = max(padding, (window_size - 1) // 2)
 
             # creating conv layer
             deep_layer = nn.Conv2d(channels, self.out_features, window_size, stride, padding)
-        else:  # self.module_node.layer_type.value == nn.Linear:
-            """is linear"""
+        elif self.module_node.is_linear():  # Linear layer
             if len(in_shape) != 2 or channels != img_flat_size:  # linear must be reshaped
                 reshape_layer = Reshape(batch, img_flat_size)
 
             # creating linear layer
             deep_layer = nn.Linear(img_flat_size, self.out_features)
+        elif self.module_node.layer_type.value is None:  # No deep layer
+            # neat_regularisation = self.module_node.layer_type.get_submutagen('regularisation')
+            # if len(in_shape) == 4 and neat_regularisation is not None and neat_regularisation.value is not None:
+            #     reshape_layer = Reshape(batch, -1)
+            deep_layer = nn.Identity()
 
         # packing reshape, deep layer and regularisers into a sequential
-        self.sequential = nn.Sequential(*[module for module in
-                                          [reshape_layer, deep_layer, *self._create_regularisers()]
-                                          if module is not None])
+        modules = [module for module in [reshape_layer, deep_layer, *self._create_regularisers()] if module is not None]
+        if not modules:
+            modules = [nn.Identity()]
+
+        self.sequential = nn.Sequential(*modules)
 
         # TODO: remove out shape
         #  doesn't look like out_shape is used anywhere else

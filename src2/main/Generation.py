@@ -22,6 +22,7 @@ from src2.Phenotype.NeuralNetwork.PhenotypeEvaluator import evaluate_blueprint
 from src2.Configuration.Configuration import config
 from src2.Visualisation.GenomeVisualiser import get_graph_of
 from src2.Visualisation import GenomeVisualiser
+
 instance: Generation
 
 
@@ -46,10 +47,11 @@ class Generation:
         import src.Validation.DataLoader as DL
 
         x, target = DL.sample_data(config.get_device(), 2)
-        n = Network(bp, None, list(x.shape))
+        n = Network(bp, list(x.shape))
         n.visualize()
-        # get_graph_of(bp).view()
-        GenomeVisualiser.visualise_blueprint_genome(bp)
+        # print(n)
+        # # get_graph_of(bp).view()
+        # GenomeVisualiser.visualise_blueprint_genome(bp)
 
     def evaluate_blueprints(self):
         """Evaluates all blueprints multiple times."""

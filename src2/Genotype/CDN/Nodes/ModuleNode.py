@@ -37,19 +37,19 @@ class ModuleNode(Node):
 
     def convert_node(self, **kwargs) -> Tuple[Layer, Layer]:
         bp_node_id = kwargs['node_id']
-        name = str(bp_node_id) if bp_node_id >= 0 else "agg(" + str(-1*bp_node_id)+")"
-        name += "_" + (str(self.id) if self.id >= 0 else "agg(" + str(-1*self.id) + ")")
+        name = str(bp_node_id) if bp_node_id >= 0 else "agg(" + str(-1 * bp_node_id) + ")"
+        name += "_" + (str(self.id) if self.id >= 0 else "agg(" + str(-1 * self.id) + ")")
         pheno = Layer(self, name)
         return pheno, pheno
 
     def is_conv(self):
-        return self.layer_type() == nn.Conv2d
+        return self.layer_type.value == nn.Conv2d
 
     def is_linear(self):
-        return self.layer_type() == nn.Linear
+        return self.layer_type.value == nn.Linear
 
     def is_depthwise_sep(self):
-        return self.layer_type() == DepthwiseSeparableConv
+        return self.layer_type.value == DepthwiseSeparableConv
 
 
 def get_new_conv_parameter_mutagens():
@@ -99,7 +99,7 @@ def get_new_conv_parameter_mutagens():
 
 def get_new_linear_parameter_mutagens():
     return {
-        "regularisation": Option("regularisation", None, nn.BatchNorm1d,
+        "regularisation": Option("regularisation", None, nn.BatchNorm1d,  # TODO bn 2D?
                                  current_value=nn.BatchNorm1d if random.random() < config.module_node_batchnorm_chance else None,
                                  mutation_chance=0.15),
 
@@ -132,7 +132,8 @@ def get_new_depthwise_conv_parameter_mutagens():
 def get_new_layer_submutagens():
     subs = {
         nn.Conv2d: get_new_conv_parameter_mutagens(),
-        nn.Linear: get_new_linear_parameter_mutagens()
+        nn.Linear: get_new_linear_parameter_mutagens(),
+        None: get_new_linear_parameter_mutagens()
     }
     if config.use_depthwise_separable_convs:
         subs[DepthwiseSeparableConv] = get_new_depthwise_conv_parameter_mutagens()
