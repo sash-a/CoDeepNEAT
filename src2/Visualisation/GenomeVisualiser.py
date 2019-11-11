@@ -3,9 +3,9 @@ from __future__ import annotations
 import os
 from typing import TYPE_CHECKING, Union, List, Dict
 
+from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
 from src2.Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
 from src2.Genotype.CDN.Nodes.ModuleNode import ModuleNode
-from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
 from test import StaticGenomes
 
 if TYPE_CHECKING:
@@ -98,7 +98,7 @@ def get_graph_of(genome: Genome, sub_graph=False, cluster_style="filled", cluste
 
 
 def visualise_blueprint_genome(genome: BlueprintGenome, sample_map: Dict[int, int] = None):
-    blueprint_graph = get_graph_of(genome, node_names="blueprint", sample_map=sample_map, node_colour= "yellow")
+    blueprint_graph = get_graph_of(genome, node_names="blueprint", sample_map=sample_map, node_colour="yellow")
     module_ids = set()
 
     for bp_node in genome.nodes.values():
@@ -151,17 +151,30 @@ def get_node_metadata(node: Union[BlueprintNode, ModuleNode], **kwargs):
             meta += "\nRepeat count: " + str(blueprintNode.module_repeat_count())
 
     if isinstance(node, ModuleNode):
-        print("found module node")
+        # print("found module node")
         moduleNode: ModuleNode = node
         if moduleNode.is_conv():
             window_size = moduleNode.layer_type.get_subvalue("conv_window_size")
             meta += "Conv " + str(window_size) + "*" + str(window_size)
+            if moduleNode.layer_type.get_subvalue("reduction") is not None:
+                meta += "\nReduction: " + pretty(repr(moduleNode.layer_type.get_subvalue("reduction")))
 
         if moduleNode.is_linear():
             out_features = moduleNode.layer_type.get_subvalue("out_features")
             meta += "Linear " + str(out_features)
 
+        if moduleNode.layer_type.get_subvalue("regularisation") is not None:
+            meta += "\nRegularisation: " + pretty(repr(moduleNode.layer_type.get_subvalue("regularisation")))
+
+        if moduleNode.layer_type.get_subvalue("dropout") is not None:
+            fac = moduleNode.layer_type.get_submutagen("dropout").get_subvalue("dropout_factor")
+            meta += "\nDropout: " + pretty(repr(moduleNode.layer_type.get_subvalue("dropout"))) + " p = " + repr(fac)
+
     return meta
+
+
+def pretty(full_object_name: str):
+    return full_object_name.split(".")[-1].split("'")[0]
 
 
 if __name__ == "__main__":
