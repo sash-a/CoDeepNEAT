@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import random
-from typing import Tuple, TYPE_CHECKING
+from typing import Tuple
 
 import torch
 from torch import nn
@@ -39,6 +39,15 @@ class ModuleNode(Node):
         bp_node_id = kwargs['node_id']
         pheno = Layer(self, str(bp_node_id) + '_' + str(self.id))
         return pheno, pheno
+
+    def is_conv(self):
+        return self.layer_type() == nn.Conv2d
+
+    def is_linear(self):
+        return self.layer_type() == nn.Linear
+
+    def is_depthwise_sep(self):
+        return self.layer_type() == DepthwiseSeparableConv
 
 
 def get_new_conv_parameter_mutagens():

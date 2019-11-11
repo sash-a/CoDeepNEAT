@@ -77,5 +77,5 @@ if __name__ == "__main__":
     # three_chain_genome, record3 = StaticGenomes.get_small_linear_genome(BlueprintGenome, BlueprintNode)
     # large_genome, record4 = StaticGenomes.get_large_genome(BlueprintGenome, BlueprintNode)
 
-    visualise_mutation([triangle_genome], BlueprintGenomeMutator(), record2, num_mutations=800, count=1)
+    visualise_mutation([triangle_genome], BlueprintGenomeMutator(), record2, num_mutations=200, count=1)
     # visualise_crossover([triangle_genome, trivial_genome], count=5)

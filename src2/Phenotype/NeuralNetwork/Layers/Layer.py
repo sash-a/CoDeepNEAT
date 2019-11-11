@@ -32,7 +32,10 @@ class Layer(BaseLayer):
         dropout: Optional[nn.Module] = None
 
         neat_regularisation = self.module_node.layer_type.get_submutagen('regularisation')
-        neat_reduction = self.module_node.layer_type.get_submutagen('reduction')
+        if self.module_node.is_conv():
+            neat_reduction = self.module_node.layer_type.get_submutagen('reduction')
+        else:
+            neat_reduction = None
         neat_dropout = self.module_node.layer_type.get_submutagen('dropout')
 
         if neat_regularisation is not None and neat_regularisation.value is not None:

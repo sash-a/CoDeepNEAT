@@ -3,12 +3,10 @@ from __future__ import annotations
 import os
 from typing import Union, TYPE_CHECKING
 
-# from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
-# from test import StaticGenomes
-from src2.Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
+from Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
+from Genotype.CDN.Nodes.ModuleNode import ModuleNode
 
 if TYPE_CHECKING:
-    from src2.Genotype.CDN.Nodes.ModuleNode import ModuleNode
     from src2.Genotype.NEAT.Node import Node
     from src2.Genotype.NEAT.Genome import Genome
     from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
@@ -97,15 +95,29 @@ def visualise_blueprint_genome(genome: BlueprintGenome):
     pass
 
 
-def get_node_metadata(node: Union[Node, BlueprintGenome, ModuleNode]):
+def get_node_metadata(node):
     meta = ""
     if isinstance(node, BlueprintNode):
+        # print("found bp node")
         blueprintNode: BlueprintNode = node
         meta += "Species: " + str(blueprintNode.species_id)
         meta += "\nGene id: " + str(blueprintNode.id)
         meta += "\nModule: " + str(blueprintNode.linked_module_id)
         if blueprintNode.module_repeat_count() > 1:
             meta += "\nRepeat count: " + str(blueprintNode.module_repeat_count())
+
+    if isinstance(node, ModuleNode):
+        # print("found module node")
+        moduleNode: ModuleNode = node
+        if  moduleNode.is_conv():
+            window_size = moduleNode.layer_type.get_subvalue("conv_window_size")
+            meta += "Conv " + str(window_size) + "*" + str(window_size)
+
+        if moduleNode.is_linear():
+            out_features = moduleNode.layer_type.get_subvalue("out_features")
+            meta += "Linear " + str(out_features)
+
+
 
     return meta
 

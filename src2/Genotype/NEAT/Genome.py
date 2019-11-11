@@ -120,8 +120,8 @@ class Genome:
 
             found_next_id = True
 
-        if count > 0:
-            print("using count =", count)
+        # if count > 0:
+        #     print("using count =", count)
         return count
 
     def get_traversal_dictionary(self, exclude_disabled_connection=False, reverse=False) -> Dict[int, List[int]]:
