@@ -10,6 +10,7 @@ from src2.Genotype.Mutagen.Mutagen import Mutagen
 from src2.Genotype.NEAT.Connection import Connection
 from src2.Genotype.NEAT.Genome import Genome
 from src2.Genotype.NEAT.Node import Node
+from src2.Visualisation.GenomeVisualiser import visualise_blueprint_genome
 from src2.Phenotype.NeuralNetwork.Layers.AggregationLayer import AggregationLayer
 
 if TYPE_CHECKING:
@@ -53,3 +54,6 @@ class BlueprintGenome(Genome):
 
     def to_phenotype(self, **kwargs) -> Tuple[Layer, Layer]:
         return super().to_phenotype(module_sample_map={})
+
+    def visualize(self):
+        visualise_blueprint_genome(self, self.best_module_sample_map)

@@ -33,7 +33,7 @@ def _create_individual(Node: Union[Type[ModuleNode], Type[BlueprintNode], Type[D
     out_node = Node(1, NodeType.OUTPUT)
 
     # Making the in and out nodes of modules blank
-    if Node == type(ModuleNode) and config.blank_io_nodes:
+    if Node == ModuleNode and config.blank_io_nodes:
         _blank_node(in_node)
         _blank_node(out_node)
 

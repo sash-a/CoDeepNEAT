@@ -19,8 +19,6 @@ from src2.Genotype.NEAT.Operators.Speciators.NEATSpeciator import NEATSpeciator
 from src2.main.ThreadManager import init_threads, reset_thread_name
 from src2.Phenotype.NeuralNetwork.PhenotypeEvaluator import evaluate_blueprint
 from src2.Configuration import config
-from src2.Visualisation.GenomeVisualiser import get_graph_of
-from src2.Visualisation import GenomeVisualiser
 
 
 class Generation:
@@ -32,6 +30,7 @@ class Generation:
         self.da_population: Optional[Population] = None
 
         self.initialise_populations()
+        self.module_population[0].visualize()
 
     def evaluate_blueprints(self):
         """Evaluates all blueprints multiple times."""

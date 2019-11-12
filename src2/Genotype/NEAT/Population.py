@@ -1,4 +1,5 @@
-from typing import List, Iterable, Optional
+from __future__ import annotations
+from typing import List, Iterable, Optional, Union, TYPE_CHECKING
 
 from src2.Genotype.NEAT.Genome import Genome
 from src2.Genotype.NEAT.MutationRecord import MutationRecords
@@ -6,13 +7,18 @@ from src2.Genotype.NEAT.Operators.PopulationRankers.PopulationRanker import Popu
 from src2.Genotype.NEAT.Operators.Speciators.Speciator import Speciator
 from src2.Genotype.NEAT.Species import Species
 
+if TYPE_CHECKING:
+    from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
+    from src2.Genotype.CDN.Genomes.DAGenome import DAGenome
+    from src2.Genotype.CDN.Genomes.ModuleGenome import ModuleGenome
+
 
 class Population:
     """Holds species, which hold individuals. Runs a single generation of the CoDeepNEAT evolutionary process."""
     ranker: PopulationRanker
 
-    def __init__(self, individuals: List[Genome], mutation_record: MutationRecords, pop_size: int,
-                 speciator: Speciator):
+    def __init__(self, individuals: List[Union[Genome, ModuleGenome, BlueprintGenome, DAGenome]],
+                 mutation_record: MutationRecords, pop_size: int, speciator: Speciator):
         # initial speciation process
         self.species: List[Species] = [Species(individuals[0])]
         for individual in individuals[1:]:

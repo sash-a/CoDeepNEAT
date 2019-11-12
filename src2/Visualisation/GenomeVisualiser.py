@@ -3,13 +3,13 @@ from __future__ import annotations
 import os
 from typing import TYPE_CHECKING, Union, List, Dict
 
-from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
 from src2.Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
 from src2.Genotype.CDN.Nodes.ModuleNode import ModuleNode
 from test import StaticGenomes
 
 if TYPE_CHECKING:
     from src2.Genotype.NEAT.Genome import Genome
+    from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
 
 os.environ["PATH"] += os.pathsep + 'C:/Program Files (x86)/Graphviz2.38/bin/'
 
@@ -109,11 +109,11 @@ def visualise_blueprint_genome(genome: BlueprintGenome, sample_map: Dict[int, in
         for module_id in sample_map.values():
             module_ids.add(module_id)
 
-    import src2.main.Singleton as S
+    import src2.main.Singleton as Singleton
 
     for module_id in module_ids:
         print("found module node")
-        module = S.instance.module_population[module_id]
+        module = Singleton.instance.module_population[module_id]
         module_graph = get_graph_of(module, node_names="module_" + str(module_id),
                                     sub_graph=True, label="Module " + str(module_id), node_colour="blue")
         blueprint_graph.subgraph(module_graph)
@@ -178,11 +178,11 @@ def pretty(full_object_name: str):
 
 
 if __name__ == "__main__":
-    genome, record = StaticGenomes.get_small_tri_genome(BlueprintGenome, BlueprintNode)
+    # genome, record = StaticGenomes.get_small_tri_genome(BlueprintGenome, BlueprintNode)
     # graph = get_graph_of(genome, node_colour="yellow")
     # print("genome ", genome, " parsed into graph: ", graph)
     # genome.has_cycle()
     # graph.view()
-    visualise_traversal_dict(genome.get_traversal_dictionary())
+    # visualise_traversal_dict(genome.get_traversal_dictionary())
 
     pass
