@@ -157,6 +157,7 @@ def get_node_metadata(node: Union[BlueprintNode, ModuleNode], **kwargs):
             window_size = moduleNode.layer_type.get_subvalue("conv_window_size")
             meta += "Conv " + str(window_size) + "*" + str(window_size)
             if moduleNode.layer_type.get_subvalue("reduction") is not None:
+                print('found reduction:' , moduleNode.layer_type.get_subvalue("reduction"), "pretty:", pretty(repr(moduleNode.layer_type.get_subvalue("reduction"))) )
                 meta += "\nReduction: " + pretty(repr(moduleNode.layer_type.get_subvalue("reduction")))
 
         if moduleNode.is_linear():
@@ -164,16 +165,25 @@ def get_node_metadata(node: Union[BlueprintNode, ModuleNode], **kwargs):
             meta += "Linear " + str(out_features)
 
         if moduleNode.layer_type.get_subvalue("regularisation") is not None:
+            print("found reg",moduleNode.layer_type.get_subvalue("regularisation"),"pretty:",pretty(repr(moduleNode.layer_type.get_subvalue("regularisation"))))
             meta += "\nRegularisation: " + pretty(repr(moduleNode.layer_type.get_subvalue("regularisation")))
 
         if moduleNode.layer_type.get_subvalue("dropout") is not None:
             fac = moduleNode.layer_type.get_submutagen("dropout").get_subvalue("dropout_factor")
             meta += "\nDropout: " + pretty(repr(moduleNode.layer_type.get_subvalue("dropout"))) + " p = " + repr(fac)
 
+        if len(meta) == 0:
+            """is identiy node"""
+            meta += "Identity"
+
+    print("labeling node", meta)
+
     return meta
 
 
 def pretty(full_object_name: str):
+    if "." not in full_object_name or "'" not in full_object_name:
+        return full_object_name
     return full_object_name.split(".")[-1].split("'")[0]
 
 

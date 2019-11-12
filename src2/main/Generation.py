@@ -57,9 +57,9 @@ class Generation:
             Runs CDN for one generation. Calls the evaluation of all individuals. Prepares population objects for the
             next step.
         """
-        print("step")
+        # print("step")
         self.evaluate_blueprints()
-        print("evaluated blueprints")
+        # print("evaluated blueprints")
         self.module_population.step()
         self.blueprint_population.step()
 

@@ -120,7 +120,7 @@ def get_new_linear_parameter_mutagens():
     }
 
 
-def get_new_none_parameter_mutagens():
+def get_new_regulariser_only_parameter_mutagens():
     return {
         "regularisation": Option("regularisation", None, 'batchnorm',
                                  current_value='batchnorm' if random.random() < config.module_node_batchnorm_chance else None,
@@ -156,7 +156,7 @@ def get_new_layer_submutagens():
     subs = {
         nn.Conv2d: get_new_conv_parameter_mutagens(),
         nn.Linear: get_new_linear_parameter_mutagens(),
-        None: get_new_none_parameter_mutagens()
+        None: get_new_regulariser_only_parameter_mutagens()
     }
     if config.use_depthwise_separable_convs:
         subs[DepthwiseSeparableConv] = get_new_depthwise_conv_parameter_mutagens()

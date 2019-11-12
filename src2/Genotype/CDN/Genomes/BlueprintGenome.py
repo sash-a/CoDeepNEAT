@@ -53,7 +53,7 @@ class BlueprintGenome(Genome):
                 node.linked_module_id = self.best_module_sample_map[node.species_id]
 
     def to_phenotype(self, **kwargs) -> Tuple[Layer, Layer]:
-        print("making blueprint pheno")
+        # print("making blueprint pheno")
         return super().to_phenotype(module_sample_map={})
 
     def visualize(self):

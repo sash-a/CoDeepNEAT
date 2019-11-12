@@ -16,12 +16,10 @@ def evaluate_blueprint(blueprint: BlueprintGenome):
     parses the blueprint into its phenotype NN
     handles the assignment of the single/multi obj finesses to the blueprint
     """
-    print("evaling bps")
+    # print("evaling bps")
     inputs, targets = DataLoader.sample_data(config.get_device())
-    print("loaded data")
-    print('received bp: ', blueprint)
     model: Network = Network(blueprint, list(inputs.size())).to(config.get_device())
-    print("created model")
+    # print("created model")
     model.visualize()
 
 
