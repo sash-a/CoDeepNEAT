@@ -6,7 +6,7 @@ from __future__ import annotations
 from concurrent.futures import ThreadPoolExecutor
 import random
 
-import src2.main.Singleton as S
+import src2.main.Singleton as Singleton
 from src2.Genotype.NEAT.Connection import Connection
 from src2.Genotype.NEAT.Node import NodeType
 from src2.Phenotype.NeuralNetwork.NeuralNetwork import Network
@@ -23,18 +23,13 @@ from src2.Configuration.Configuration import config
 from src2.Visualisation.GenomeVisualiser import get_graph_of
 from src2.Visualisation import GenomeVisualiser
 
-instance: Generation
-
 
 class Generation:
-
     def __init__(self):
-        global instance
         self.module_population: Population = None
         self.blueprint_population: Population = None
         self.da_population: Population = None
-        instance = self
-        S.instance = self
+        Singleton.instance = self
 
         mod, modmr = get_small_tri_genome(ModuleGenome, ModuleNode)
         bp, bpmr = get_small_tri_genome(BlueprintGenome, BlueprintNode)
@@ -45,10 +40,9 @@ class Generation:
         self.blueprint_population = Population([bp], bpmr, 1, spctr)
 
         import src.Validation.DataLoader as DL
-
         x, target = DL.sample_data(config.get_device(), 2)
         n = Network(bp, list(x.shape))
-        n.visualize()
+        # n.visualize()
         # print(n)
         # # get_graph_of(bp).view()
         # GenomeVisualiser.visualise_blueprint_genome(bp)
@@ -70,9 +64,8 @@ class Generation:
 
     def step(self):
         """
-            Runs CDN for one generation
-            calls the evaluation of all individuals
-            prepares population objects for the next step
+            Runs CDN for one generation. Calls the evaluation of all individuals. Prepares population objects for the
+            next step.
         """
         self.evaluate_blueprints()
 

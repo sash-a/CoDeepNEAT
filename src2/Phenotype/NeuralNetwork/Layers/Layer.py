@@ -43,7 +43,7 @@ class Layer(BaseLayer):
             neat_reduction = self.module_node.layer_type.get_submutagen('reduction')
 
         if neat_regularisation is not None and neat_regularisation.value is not None:
-            # Can use either batchnorm 1D or 2D must decide based on input size
+            # Can use either batchnorm 1D or 2D must decide based on input shape
             if neat_regularisation.value == 'batchnorm':
                 if len(in_shape) == 4:
                     regularisation = nn.BatchNorm2d(in_shape[1])
@@ -72,9 +72,9 @@ class Layer(BaseLayer):
         if 0 in in_shape:
             raise Exception("Parent shape contains has a dim of size 0: " + repr(in_shape))
 
-        if len(in_shape) == 4:  # Parent node is a conv
+        if len(in_shape) == 4:  # parent node is a conv
             batch, channels, h, w = in_shape
-        elif len(in_shape) == 2:  # Parent node  is a linear
+        elif len(in_shape) == 2:  # parent node  is a linear
             batch, channels = in_shape
         else:
             raise Exception('Invalid input with shape: ' + str(in_shape))
@@ -84,7 +84,7 @@ class Layer(BaseLayer):
         img_flat_size = int(reduce(lambda x, y: x * y, in_shape) / batch)
 
         # Calculating out feature size, creating deep layer and reshaping if necessary
-        if self.module_node.is_conv():  # Conv layer
+        if self.module_node.is_conv():  # conv layer
             # todo apply pad output gene
             if len(in_shape) == 2:  # need a reshape if parent layer is linear because conv input needs 4 dims
                 h = w = math.ceil(math.sqrt(img_flat_size / channels))
