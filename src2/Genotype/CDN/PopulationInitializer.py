@@ -49,9 +49,10 @@ def create_mr() -> MutationRecords:
 
 def _blank_node(node: ModuleNode):
     """Makes a module node only return its input and doesn't allow it to change"""
+    node.layer_type.set_value(None)
+
     dropout = node.layer_type.get_submutagen('dropout')
     regularisation = node.layer_type.get_submutagen('regularisation')
-    node.layer_type.set_value(None)
     dropout.set_value(None)
     regularisation.set_value(None)
     node.layer_type.mutation_chance = 0
