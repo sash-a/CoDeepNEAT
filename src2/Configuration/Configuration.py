@@ -61,10 +61,11 @@ class Config:
 
     def _add_cfg_dict(self, options: Dict[str, any]):
         for option_name, option_value in options.items():
+            if isinstance(option_value, dict):  # If an option value is a dict, then check the dict for sub options
+                self._add_cfg_dict(option_value)
+                continue
             if option_name in self.__dict__:  # Only add an option if it has exactly the same name as a variable
                 self.__dict__[option_name] = option_value
-            if isinstance(option_value, dict):
-                self._add_cfg_dict(option_value)
 
 
 config: Config = Config()
