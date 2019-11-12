@@ -85,7 +85,6 @@ class Layer(BaseLayer):
 
         # Calculating out feature size, creating deep layer and reshaping if necessary
         if self.module_node.is_conv():  # conv layer
-            # todo apply pad output gene
             if len(in_shape) == 2:  # need a reshape if parent layer is linear because conv input needs 4 dims
                 h = w = math.ceil(math.sqrt(img_flat_size / channels))
                 if h * w != img_flat_size / channels:

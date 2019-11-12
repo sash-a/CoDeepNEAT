@@ -13,6 +13,7 @@ class Config:
         self.n_gpus = 1
         self.device = 'gpu'  # cpu
         self.batch_size = 64
+        self.epochs_in_evolution = 5
         self.evaluations = 4  # TODO: how are we gonna do this? num bps or evals per bp
         # ----------------------------------------------- Dataset stuff -----------------------------------------------
         self.dataset = 'cifar10'  # mnist | cifar10 | custom

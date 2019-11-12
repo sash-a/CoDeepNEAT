@@ -213,6 +213,7 @@ class Genome:
         return found_output
 
     def to_phenotype(self, **kwargs) -> Tuple[Layer, Layer]:
+        print("making genome pheno")
         multi_input_map: Dict[int, int] = self.get_multi_input_nodes()
         node_traversal: Dict[int, List[int]] = self.get_reachable_nodes(False)
         connected_nodes: Set[int] = self.get_fully_connected_node_ids()
