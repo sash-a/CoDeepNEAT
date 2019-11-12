@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 from src2.Configuration.Configuration import config
@@ -17,9 +18,7 @@ def evaluate_blueprint(blueprint: BlueprintGenome):
     """
     inputs, targets = DataLoader.sample_data(config.get_device())
 
-    model = Network(blueprint, self.module_population.species, list(inputs.size())).to(Config.get_device())
-    s_train = time.time()
-    new_acc = Validation.get_accuracy_estimate_for_network(n2, da_scheme=None, batch_size=Config.batch_size)
+    model = Network(blueprint, list(inputs.size())).to(config.get_device())
 
 
 def propagate_fitnesses_to_co_genomes(blueprint: BlueprintGenome):

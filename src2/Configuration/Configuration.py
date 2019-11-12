@@ -12,6 +12,10 @@ class Config:
         self.n_generations = 10
         self.n_gpus = 1
         self.device = 'gpu'  # cpu
+        self.batch_size = 64
+        # ----------------------------------------------- Dataset stuff -----------------------------------------------
+        self.dataset = 'cifar10'  # mnist | cifar10 | custom
+        self.custom_dataset_root = ''
         # ------------------------------------------------- CDN stuff -------------------------------------------------
         # Features chances
         self.module_node_batchnorm_chance = 0.65
