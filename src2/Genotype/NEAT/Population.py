@@ -27,7 +27,7 @@ class Population:
         return iter([member for spc in self.species for member in spc])
 
     def __len__(self):
-        return len(list(self))
+        return len([member for spc in self.species for member in spc])
 
     def __getitem__(self, item):
         for species in self.species:

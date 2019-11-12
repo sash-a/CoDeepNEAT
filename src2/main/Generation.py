@@ -5,12 +5,11 @@
 from __future__ import annotations
 from concurrent.futures import ThreadPoolExecutor
 import random
+from typing import Optional
 
 import src2.main.Singleton as Singleton
-from src2.Genotype.NEAT.Connection import Connection
-from src2.Genotype.NEAT.Node import NodeType
+from src2.Genotype.CDN.PopulationInitializer import create_population, create_mr
 from src2.Phenotype.NeuralNetwork.NeuralNetwork import Network
-from test.StaticGenomes import get_small_tri_genome
 from src2.Genotype.NEAT.Population import Population
 from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
 from src2.Genotype.CDN.Genomes.ModuleGenome import ModuleGenome
@@ -19,40 +18,25 @@ from src2.Genotype.CDN.Nodes.ModuleNode import ModuleNode
 from src2.Genotype.NEAT.Operators.Speciators.NEATSpeciator import NEATSpeciator
 from src2.main.ThreadManager import init_threads, reset_thread_name
 from src2.Phenotype.NeuralNetwork.PhenotypeEvaluator import evaluate_blueprint
-from src2.Configuration.Configuration import config
+from src2.Configuration import config
 from src2.Visualisation.GenomeVisualiser import get_graph_of
 from src2.Visualisation import GenomeVisualiser
 
 
 class Generation:
     def __init__(self):
-        self.module_population: Population = None
-        self.blueprint_population: Population = None
-        self.da_population: Population = None
         Singleton.instance = self
 
-        mod, modmr = get_small_tri_genome(ModuleGenome, ModuleNode)
-        bp, bpmr = get_small_tri_genome(BlueprintGenome, BlueprintNode)
-        spctr = NEATSpeciator(3, 1)
-        for node in bp.nodes.values():
-            node.species_id = 0
-        self.module_population = Population([mod], modmr, 1, spctr)
-        self.blueprint_population = Population([bp], bpmr, 1, spctr)
+        self.module_population: Optional[Population] = None
+        self.blueprint_population: Optional[Population] = None
+        self.da_population: Optional[Population] = None
 
-        import src.Validation.DataLoader as DL
-        x, target = DL.sample_data(config.get_device(), 2)
-        n = Network(bp, list(x.shape))
-        # n.visualize()
-        # print(n)
-        # # get_graph_of(bp).view()
-        # GenomeVisualiser.visualise_blueprint_genome(bp)
+        self.initialise_populations()
 
     def evaluate_blueprints(self):
         """Evaluates all blueprints multiple times."""
         # Multiplying and shuffling the blueprints so that config.evaluations number of blueprints is evaluated
-        blueprints = list(self.blueprint_population) * config.evaluations / len(self.blueprint_population)
-        random.shuffle(blueprints)
-        blueprints = blueprints[:config.evaluations]
+        blueprints = list(self.blueprint_population) * config.evaluations
 
         with ThreadPoolExecutor(max_workers=config.n_gpus, initializer=init_threads()) as ex:
             ex.map(evaluate_blueprint, blueprints)
@@ -60,7 +44,13 @@ class Generation:
 
     def initialise_populations(self):
         """Starts off the populations of a new evolutionary run"""
-        pass
+        self.module_population = Population(create_population(config.module_pop_size, ModuleNode, ModuleGenome),
+                                            create_mr(), config.module_pop_size,
+                                            NEATSpeciator(config.species_distance_thresh_mod_base,
+                                                          config.n_module_species))
+        self.blueprint_population = Population(create_population(config.bp_pop_size, BlueprintNode, BlueprintGenome),
+                                               create_mr(), config.bp_pop_size, NEATSpeciator(1000, 1))
+        # TODO DA pop
 
     def step(self):
         """
@@ -68,6 +58,8 @@ class Generation:
             next step.
         """
         self.evaluate_blueprints()
+        self.module_population.step()
+        self.blueprint_population.step()
 
 
 if __name__ == '__main__':

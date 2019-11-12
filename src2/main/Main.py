@@ -2,7 +2,7 @@ from __future__ import annotations
 import argparse
 from typing import TYPE_CHECKING
 
-from src2.Configuration.Configuration import config
+from src2.Configuration import config
 from src2.main.Generation import Generation
 
 if TYPE_CHECKING:

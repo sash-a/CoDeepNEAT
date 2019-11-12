@@ -3,7 +3,7 @@ from typing import Dict, Any
 
 from src2.Genotype.Mutagen import Mutagen as MutagenFile
 from src2.Genotype.Mutagen.Mutagen import Mutagen
-from src2.Genotype.NEAT.Operators.Mutations.MutationReport import MutationReport
+from src2.Genotype.NEAT.Operators.Mutators.MutationReport import MutationReport
 
 
 class _Null:

@@ -2,7 +2,7 @@ from torch import nn
 
 import src.Validation.DataLoader as DL
 from src.Validation.Validation import get_accuracy_estimate_for_network
-from src2.Configuration.Configuration import config
+from src2.Configuration import config
 from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
 from src2.Genotype.CDN.Genomes.ModuleGenome import ModuleGenome
 

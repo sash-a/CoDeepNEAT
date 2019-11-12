@@ -1,4 +1,4 @@
-from src2.Genotype.NEAT.Operators.Mutations.MutationReport import MutationReport
+from src2.Genotype.NEAT.Operators.Mutators.MutationReport import MutationReport
 
 
 class Mutagen:

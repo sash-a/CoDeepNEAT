@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from typing import List, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from Genotype.NEAT.Species import Species
+    from src2.Genotype.NEAT.Species import Species
 
 
 class Speciator(ABC):

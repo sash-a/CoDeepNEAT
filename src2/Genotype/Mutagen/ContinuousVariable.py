@@ -3,7 +3,7 @@ import random
 import math
 
 from src2.Genotype.Mutagen.Variable import Variable
-from src2.Genotype.NEAT.Operators.Mutations.MutationReport import MutationReport
+from src2.Genotype.NEAT.Operators.Mutators.MutationReport import MutationReport
 
 
 class ContinuousVariable(Variable):

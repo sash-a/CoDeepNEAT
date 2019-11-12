@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from src2.Configuration.Configuration import config
+from src2.Configuration import config
 from src.Validation import DataLoader
 from src2.Phenotype.NeuralNetwork.NeuralNetwork import Network
 

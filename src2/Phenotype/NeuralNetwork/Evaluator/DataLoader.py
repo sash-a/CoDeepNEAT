@@ -5,7 +5,7 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 from os import path
 
-from src2.Configuration.Configuration import config
+from src2.Configuration import config
 
 
 def load_data(composed_transforms: transforms.Compose) -> Tuple[DataLoader, DataLoader]:

@@ -8,15 +8,22 @@ import json
 class Config:
     def __init__(self):
         print('loading config')
-        # ----------------------------------------------- General stuff -----------------------------------------------
+        # ---------------------------------------------- Important stuff ----------------------------------------------
         self.n_generations = 10
         self.n_gpus = 1
         self.device = 'gpu'  # cpu
         self.batch_size = 64
+        self.evaluations = 4  # TODO: how are we gonna do this? num bps or evals per bp
         # ----------------------------------------------- Dataset stuff -----------------------------------------------
         self.dataset = 'cifar10'  # mnist | cifar10 | custom
         self.custom_dataset_root = ''
         # ------------------------------------------------- CDN stuff -------------------------------------------------
+        # Population sizes
+        self.module_pop_size = 10
+        self.bp_pop_size = 5
+        self.da_pop_size = 5
+
+        self.n_module_species = 4
         # Features chances
         self.module_node_batchnorm_chance = 0.65
         self.module_node_dropout_chance = 0.2
@@ -28,7 +35,7 @@ class Config:
         #
         self.fitness_aggregation = 'avg'  # max
         #
-        self.evaluations = 30  # TODO: how are we gonna do this? num bps or evals per bp
+        self.blank_io_nodes = True  # If true input and output nodes are left blank
         # ------------------------------------------------- NEAT stuff -------------------------------------------------
         # Used when calculating distance between genomes
         self.disjoint_coefficient = 3
@@ -70,6 +77,3 @@ class Config:
                 continue
             if option_name in self.__dict__:  # Only add an option if it has exactly the same name as a variable
                 self.__dict__[option_name] = option_value
-
-
-config: Config = Config()

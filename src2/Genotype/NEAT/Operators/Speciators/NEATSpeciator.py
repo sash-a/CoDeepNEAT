@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import List, TYPE_CHECKING
 
 from src2.Genotype.NEAT.Operators.Speciators.Speciator import Speciator
-from src2.Configuration.Configuration import config
+from src2.Configuration import config
 
 if TYPE_CHECKING:
     from src2.Genotype.NEAT.Species import Species
