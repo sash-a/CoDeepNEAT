@@ -32,7 +32,7 @@ class Species:
         self.max_fitness_ties: int = 0  # a count of how many ties there are for the top accuracy
 
     def __iter__(self):
-        return iter(self.members)
+        return iter(self.members.values())
 
     def __len__(self):
         return len(self.members)

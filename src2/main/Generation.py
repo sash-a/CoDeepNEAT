@@ -36,6 +36,7 @@ class Generation:
         """Evaluates all blueprints multiple times."""
         # Multiplying and shuffling the blueprints so that config.evaluations number of blueprints is evaluated
         blueprints = list(self.blueprint_population) * config.evaluations
+        print(blueprints)
 
         with ThreadPoolExecutor(max_workers=config.n_gpus, initializer=init_threads()) as ex:
             ex.map(evaluate_blueprint, blueprints)

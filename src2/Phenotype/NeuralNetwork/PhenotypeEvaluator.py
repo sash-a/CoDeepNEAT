@@ -19,6 +19,7 @@ def evaluate_blueprint(blueprint: BlueprintGenome):
     print("evaling bps")
     inputs, targets = DataLoader.sample_data(config.get_device())
     print("loaded data")
+    print('received bp: ', blueprint)
     model: Network = Network(blueprint, list(inputs.size())).to(config.get_device())
     print("created model")
     model.visualize()
