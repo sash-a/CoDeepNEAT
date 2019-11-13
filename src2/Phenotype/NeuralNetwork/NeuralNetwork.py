@@ -10,7 +10,7 @@ from src2.Phenotype.NeuralNetwork.Layers.AggregationLayer import AggregationLaye
 from src2.Phenotype.NeuralNetwork.Layers.BaseLayer import BaseLayer
 
 from functools import reduce
-from typing import List, Union, Tuple, TYPE_CHECKING
+from typing import List, Union, Tuple, TYPE_CHECKING, Dict
 
 if TYPE_CHECKING:
     from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
@@ -23,7 +23,8 @@ class Network(nn.Module):
         self.output_dim = output_dim
 
         self.model: Layer
-        self.model, output_layer = blueprint.to_phenotype()
+        (self.model, output_layer), self.sample_map = blueprint.to_phenotype()
+
         self.shape_layers(input_shape)
 
         # shaping the final layer
@@ -33,7 +34,6 @@ class Network(nn.Module):
         self.loss_fn = nn.NLLLoss()  # TODO mutagen
         self.optimizer: optim.adam = optim.Adam(self.parameters(), lr=self.blueprint.learning_rate.value,
                                                 betas=(self.blueprint.beta1.value, self.blueprint.beta2.value))
-
 
     def forward(self, x):
         q: List[Tuple[Union[Layer, AggregationLayer], tensor]] = [(self.model, x)]
@@ -61,7 +61,6 @@ class Network(nn.Module):
             if output_shape is not None:
                 q.extend([(child, output_shape) for child in list(layer.child_layers)])
 
-
     def multiply_learning_rate(self, factor):
         pass
 
@@ -84,5 +83,4 @@ class Network(nn.Module):
                     graph.edge(parent_layer.name, child_layer.name)
 
                     q.append(child_layer)
-        print("viz")
         graph.view()

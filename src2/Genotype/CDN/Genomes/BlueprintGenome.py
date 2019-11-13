@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 from typing import List, Dict, TYPE_CHECKING, Optional, Set, Tuple
 
 from torch import nn
@@ -32,7 +33,7 @@ class BlueprintGenome(Genome):
 
         # mapping from species id to the genome id of the module sampled from that species
         self.best_module_sample_map: Optional[Dict[int, int]] = None  # todo empty this at the end of evaluation
-        self.best_sample_map_fitness: float = 0
+        self.best_sample_map_accuracy: float = -1
 
     def get_modules_used(self):
         """:returns all module ids currently being used by this blueprint. returns duplicates"""
@@ -46,15 +47,58 @@ class BlueprintGenome(Genome):
             commits whatever species->module mapping is in the sample map
             this should be the best sampling found this step
         """
+        import src2.main.Singleton as S
+
+        if self.best_module_sample_map is None:
+            raise Exception("no sample map attached to blueprint " + repr(self) + " cannot commit")
+
         for node in self.nodes.values():
             """node may be blueprint or module node"""
             if isinstance(node, BlueprintNode.BlueprintNode):
                 """updates the module id value of each node in the genome according to the sample map present"""
-                node.linked_module_id = self.best_module_sample_map[node.species_id]
+
+                if node.species_id in self.best_module_sample_map:
+                    """best parent had a node with this spc id"""
+                    module_id = self.best_module_sample_map[node.species_id]
+                    module = S.instance.module_population[module_id]
+                else:
+                    """best parent did not have a node with this spc id"""
+                    module = None
+                    module_id = -1
+
+                node.linked_module_id = module_id if module is not None else -1
 
     def to_phenotype(self, **kwargs) -> Tuple[Layer, Layer]:
         # print("making blueprint pheno")
-        return super().to_phenotype(module_sample_map={})
+        sample_map = {}
+        return super().to_phenotype(module_sample_map=sample_map), sample_map
 
     def visualize(self):
         visualise_blueprint_genome(self, self.best_module_sample_map)
+
+    def end_step(self):
+        super().end_step()
+        self.commit_sample_maps()
+        self.best_module_sample_map = None
+        self.best_sample_map_accuracy = -1
+
+    def report_fitness(self, fitnesses, **kwargs):
+        # todo thread lock
+        super().report_fitness(fitnesses, **kwargs)
+        import src2.main.Singleton as S
+
+        sample_map = kwargs["module_sample_map"]
+
+        for node in self.nodes.values():
+            module_id = sample_map[node.species_id]
+            module = S.instance.module_population[module_id]
+            module.report_fitness(fitnesses, **kwargs)
+
+    def update_best_sample_map(self, candidate_map: Dict[int, int], accuracy: int):
+        # todo with self.lock:
+        if self.best_sample_map_accuracy < accuracy:
+            self.best_module_sample_map = candidate_map
+            self.best_sample_map_accuracy = accuracy
+
+    def inherit(self, parent: BlueprintGenome):
+        self.best_module_sample_map = copy.deepcopy(parent.best_module_sample_map)

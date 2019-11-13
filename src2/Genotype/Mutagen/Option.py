@@ -35,10 +35,16 @@ class Option(Mutagen):
         if self.submutagens is None:
             raise Exception("No submutagens on option: " + repr(self.name) + " " + repr(self))
 
+        if subvalue_name not in self.submutagens[self.value]:
+            raise Exception(self.name + " does not have the submutagen " + subvalue_name + " for value " + repr(self.value))
+
         return self.submutagens[self.value][subvalue_name]
 
     def get_submutagens(self):
         if self.submutagens is None:
+            return []
+
+        if self.value not in self.submutagens:
             return []
 
         return self.submutagens[self.value].values()

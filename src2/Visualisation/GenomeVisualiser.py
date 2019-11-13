@@ -112,7 +112,6 @@ def visualise_blueprint_genome(genome: BlueprintGenome, sample_map: Dict[int, in
     import src2.main.Singleton as Singleton
 
     for module_id in module_ids:
-        print("found module node")
         module = Singleton.instance.module_population[module_id]
         module_graph = get_graph_of(module, node_names="module_" + str(module_id),
                                     sub_graph=True, label="Module " + str(module_id), node_colour="blue")

@@ -14,8 +14,6 @@ class Node(Gene):
 
     def __init__(self, id, type: NodeType = NodeType.HIDDEN):
         super().__init__(id)
-
-        self.height = -1
         self.node_type: NodeType = type
 
     def is_output_node(self):

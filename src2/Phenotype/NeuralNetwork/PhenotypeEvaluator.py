@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 from src2.Configuration import config
 from src.Validation import DataLoader
 from src2.Phenotype.NeuralNetwork.NeuralNetwork import Network
+from src2.Phenotype.NeuralNetwork.Evaluator.Evaluator import evaluate
 
 if TYPE_CHECKING:
     from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
@@ -18,7 +19,13 @@ def evaluate_blueprint(blueprint: BlueprintGenome):
     """
     inputs, targets = DataLoader.sample_data(config.get_device())
     model: Network = Network(blueprint, list(inputs.size())).to(config.get_device())
-    # model.visualize()
+    accuracy = evaluate(model)
+    blueprint.update_best_sample_map(model.sample_map, accuracy)
+    blueprint.report_fitness([accuracy], module_sample_map=model.sample_map)
+
+    model.visualize()
+    blueprint.visualize()
+
     return blueprint
 
 

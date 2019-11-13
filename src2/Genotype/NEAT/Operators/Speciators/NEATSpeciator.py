@@ -3,9 +3,9 @@ from typing import List, TYPE_CHECKING
 
 from src2.Genotype.NEAT.Operators.Speciators.Speciator import Speciator
 from src2.Configuration import config
+from src2.Genotype.NEAT.Species import Species
 
 if TYPE_CHECKING:
-    from src2.Genotype.NEAT.Species import Species
     from src2.Genotype.NEAT.Genome import Genome
 
 
@@ -13,6 +13,8 @@ class NEATSpeciator(Speciator):
     def speciate(self, species: List[Species]) -> None:
         self.adjust_speciation_threshold(len(species))
         individuals: List[Genome] = [member for spc in species for member in spc.members.values()]
+        for spc in species:
+            spc.clear()
 
         for individual in individuals:
             found = False
@@ -23,7 +25,9 @@ class NEATSpeciator(Speciator):
                     break
 
             if not found:
-                species.append(Species(individual))
+                species.append(Species(individual, self.mutator))
+
+        individuals: List[Genome] = [member for spc in species for member in spc.members.values()]
 
     def adjust_speciation_threshold(self, n_species: int):
         if self.target_num_species == 1:

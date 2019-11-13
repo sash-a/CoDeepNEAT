@@ -3,6 +3,7 @@ from typing import List, Dict
 import math
 import random
 
+from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
 from src2.Genotype.NEAT.Operators.RepresentativeSelectors.RepresentativeSelector import RepresentativeSelector
 from src2.Genotype.NEAT.Genome import Genome
 from src2.Genotype.NEAT import MutationRecord
@@ -17,12 +18,13 @@ class Species:
 
     # These are set in the populations init method
     selector: Selector
-    mutator: Mutator
     representative_selector: RepresentativeSelector
 
-    def __init__(self, representative: Genome):
+    def __init__(self, representative: Genome, mutator: Mutator):
         self.id: int = Species.species_id_counter
         Species.species_id_counter += 1
+
+        self.mutator: Mutator = mutator
 
         self.representative: Genome = representative
         self.members: Dict[int, Genome] = {representative.id: representative}
@@ -49,7 +51,10 @@ class Species:
 
     def sample_individual(self) -> Genome:
         """:return a random individual from the species"""
-        return random.choice(list(self.members.values()))
+        member = random.choice(list(self.members.values()))
+        if member is None:
+            raise Exception("none member in species")
+        return member
 
     def _get_num_elite(self) -> int:
         """
@@ -78,11 +83,13 @@ class Species:
         children: List[Genome] = []
         num_elite = self._get_num_elite()
         # Species.selector.before_selection(self.members) todo do we need this
-
         while len(children) < self.next_species_size - num_elite:
             p1, p2 = Species.selector.select(ranked_genomes=self.ranked_members, genomes=self.members)
             child = Cross.over(p1, p2)
-            Species.mutator.mutate(child, mutation_record)
+            self.mutator.mutate(child, mutation_record)
+            if isinstance(child, BlueprintGenome):
+                print(child.best_module_sample_map)
+
             children.append(child)
 
         self.members = {id: self.members[id] for id in self.ranked_members[:num_elite]}  # adds in elite
@@ -107,3 +114,7 @@ class Species:
 
         self.representative = Species.representative_selector.select_representative(self.members)
         print('done step')
+
+    def clear(self):
+        self.members: Dict[int, Genome] = {}
+        self.ranked_members: List[int] = []

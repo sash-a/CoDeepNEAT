@@ -30,7 +30,7 @@ class ContinuousVariable(Variable):
         else:
             # random deviation
             deviation_magnitude = math.pow(random.random(), 4)  # TODO find best value
-            deviation_dir = (1 if random.choice(True, False) else -1)
+            deviation_dir = (1 if random.choice([True, False]) else -1)
 
             new_current_value = self.current_value + deviation_dir * deviation_magnitude * range
             mutation_report += self.name + " changed from " + repr(self.current_value) + " to " + repr(

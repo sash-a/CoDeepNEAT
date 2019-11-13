@@ -1,18 +1,21 @@
 import math
 from typing import List, TYPE_CHECKING
 
-from Genotype.NEAT.Operators.Speciators.Speciator import Speciator
+from src2.Genotype.NEAT.Operators.Speciators.Speciator import Speciator
 from src2.Configuration import config
+from src2.Genotype.NEAT.Species import Species
 
 if TYPE_CHECKING:
-    from Genotype.NEAT.Species import Species
-    from Genotype.NEAT.Genome import Genome
+    from src2.Genotype.NEAT.Genome import Genome
 
 
 class MostSimilarSpeciator(Speciator):
     def speciate(self, species: List[Species]) -> None:
         self.adjust_speciation_threshold(len(species))
         individuals: List[Genome] = [member for spc in species for member in spc.members.values()]
+
+        for spc in species:
+            spc.clear()
 
         for individual in individuals:
             best_fit_species = None
@@ -31,7 +34,7 @@ class MostSimilarSpeciator(Speciator):
                 # none of the existing species were close enough for this individual
                 # create a new species only if it is not more than the max number of species
                 if len(species) < self.target_num_species:
-                    species.append(Species(individual))
+                    species.append(Species(individual, self.mutator))
                 else:
                     # Add individual to closest species
                     best_fit_species.add(individual)

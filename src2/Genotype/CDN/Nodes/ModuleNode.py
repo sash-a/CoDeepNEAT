@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import random
 from typing import Tuple
 
@@ -12,7 +13,7 @@ from src2.Genotype.Mutagen.ContinuousVariable import ContinuousVariable
 from src2.Genotype.Mutagen.IntegerVariable import IntegerVariable
 from src2.Genotype.Mutagen.Option import Option
 from src2.Genotype.NEAT.Node import Node, NodeType
-from src2.Phenotype.NeuralNetwork.Layers.CustomLayerTypes import DepthwiseSeparableConv
+from src2.Phenotype.NeuralNetwork.Layers.CustomLayerTypes.DepthwiseSeparableConv import DepthwiseSeparableConv
 from src2.Phenotype.NeuralNetwork.Layers.Layer import Layer
 
 

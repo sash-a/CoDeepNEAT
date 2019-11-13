@@ -1,4 +1,7 @@
 from __future__ import annotations
+
+import random
+
 import torch
 from typing import TYPE_CHECKING
 
@@ -12,6 +15,7 @@ if TYPE_CHECKING:
 
 def evaluate(model: Network, num_epochs=config.epochs_in_evolution, batch_size=config.batch_size):
     """trains model on training data, test on testing and returns test acc"""
+    return random.random()
 
     for epoch in range(num_epochs):
         train_epoch(model)

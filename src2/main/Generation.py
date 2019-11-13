@@ -3,11 +3,15 @@
     It is also responsible for stepping the evolutionary cycle.
 """
 from __future__ import annotations
+
+import copy
 from concurrent.futures import ThreadPoolExecutor
 import random
 from typing import Optional
 
 import src2.main.Singleton as Singleton
+from src2.Genotype.CDN.Operators.Mutators.BlueprintGenomeMutator import BlueprintGenomeMutator
+from src2.Genotype.CDN.Operators.Mutators.ModuleGenomeMutator import ModuleGenomeMutator
 from src2.Genotype.CDN.PopulationInitializer import create_population, create_mr
 from src2.Genotype.NEAT.Operators.PopulationRankers.SingleObjectiveRank import SingleObjectiveRank
 from src2.Genotype.NEAT.Operators.RepresentativeSelectors.RandomRepSelector import RandomRepSelector
@@ -27,6 +31,7 @@ from src2.Configuration import config
 
 class Generation:
     def __init__(self):
+
         Singleton.instance = self
 
         if not config.multiobjective:
@@ -59,12 +64,15 @@ class Generation:
 
     def initialise_populations(self):
         """Starts off the populations of a new evolutionary run"""
+        module_speciator = NEATSpeciator(config.species_distance_thresh_mod_base, config.n_module_species,
+                                         ModuleGenomeMutator())
+        bp_speciator = NEATSpeciator(config.species_distance_thresh_mod_base, config.n_module_species,
+                                     BlueprintGenomeMutator())
+
         self.module_population = Population(create_population(config.module_pop_size, ModuleNode, ModuleGenome),
-                                            create_mr(), config.module_pop_size,
-                                            NEATSpeciator(config.species_distance_thresh_mod_base,
-                                                          config.n_module_species))
+                                            create_mr(), config.module_pop_size, module_speciator)
         self.blueprint_population = Population(create_population(config.bp_pop_size, BlueprintNode, BlueprintGenome),
-                                               create_mr(), config.bp_pop_size, NEATSpeciator(1000, 1))
+                                               create_mr(), config.bp_pop_size, bp_speciator)
         # TODO DA pop
 
     def step(self):
@@ -72,13 +80,9 @@ class Generation:
             Runs CDN for one generation. Calls the evaluation of all individuals. Prepares population objects for the
             next step.
         """
-        print('Started step')
-        self.evaluate_blueprints()
-        print('done eval')
+        self.evaluate_blueprints()  # may be parallel
         self.module_population.step()
-        print('done module step')
         self.blueprint_population.step()
-        print('done bp step')
 
 
 if __name__ == '__main__':

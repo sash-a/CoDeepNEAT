@@ -6,11 +6,12 @@ from src2.Genotype.NEAT.MutationRecord import MutationRecords
 from src2.Genotype.NEAT.Operators.PopulationRankers.PopulationRanker import PopulationRanker
 from src2.Genotype.NEAT.Operators.Speciators.Speciator import Speciator
 from src2.Genotype.NEAT.Species import Species
+from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
 
 if TYPE_CHECKING:
-    from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
     from src2.Genotype.CDN.Genomes.DAGenome import DAGenome
     from src2.Genotype.CDN.Genomes.ModuleGenome import ModuleGenome
+    from src2.Genotype.NEAT.Operators.Mutators.Mutator import Mutator
 
 
 class Population:
@@ -20,15 +21,15 @@ class Population:
     def __init__(self, individuals: List[Union[Genome, ModuleGenome, BlueprintGenome, DAGenome]],
                  mutation_record: MutationRecords, pop_size: int, speciator: Speciator):
         # initial speciation process
-        self.species: List[Species] = [Species(individuals[0])]
+        self.speciator: Speciator = speciator
+
+        self.species: List[Species] = [Species(individuals[0], speciator.mutator)]
         for individual in individuals[1:]:
             self.species[0].add(individual)
-        speciator.speciate(self.species)
+        self.speciator.speciate(self.species)
 
         self.pop_size: int = pop_size
         self.mutation_record: MutationRecords = mutation_record
-        # TODO should this be static (will bps and mods ever have different speciators?)
-        self.speciator: Speciator = speciator
 
     def __iter__(self) -> Iterable[Genome]:
         return iter([member for spc in self.species for member in spc])
@@ -68,12 +69,19 @@ class Population:
     def step(self):
         Population.ranker.rank(iter(self))
         self._update_species_sizes()
-        self.species = [species for species in self.species if species.next_species_size != 0]  # Removing empty species
+        self.species: List[Species] = [species for species in self.species if
+                                       species.next_species_size != 0]  # Removing empty species
 
         for spc in self.species:
             spc.step(self.mutation_record)
 
         self.speciator.speciate(self.species)
+        self.end_step()
+
+    def end_step(self):
+        """calls the end step of each member"""
+        for member in self:
+            member.end_step()
 
     def is_alive(self, genome_id) -> bool:
 

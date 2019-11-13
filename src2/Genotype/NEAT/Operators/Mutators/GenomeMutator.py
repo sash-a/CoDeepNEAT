@@ -4,9 +4,9 @@ import random
 from src2.Genotype.NEAT.Connection import Connection
 from src2.Genotype.NEAT.Genome import Genome
 from src2.Genotype.NEAT.Node import Node, NodeType
-from Genotype.NEAT.MutationRecord import MutationRecords
-from src2.Genotype.NEAT.Operators.Mutations.MutationReport import MutationReport
-from src2.Genotype.NEAT.Operators.Mutations.Mutator import Mutator
+from src2.Genotype.NEAT.MutationRecord import MutationRecords
+from src2.Genotype.NEAT.Operators.Mutators.MutationReport import MutationReport
+from src2.Genotype.NEAT.Operators.Mutators.Mutator import Mutator
 
 
 class GenomeMutator(Mutator):

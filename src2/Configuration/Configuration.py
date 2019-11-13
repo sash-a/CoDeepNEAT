@@ -14,18 +14,18 @@ class Config:
         self.device = 'gpu'  # cpu
         self.batch_size = 64
         self.epochs_in_evolution = 5
-        self.evaluations = 4
+        self.evaluations = 2
         # ----------------------------------------------- Dataset stuff -----------------------------------------------
         self.dataset = 'cifar10'  # mnist | cifar10 | custom
         self.custom_dataset_root = ''
         # ------------------------------------------------- CDN stuff -------------------------------------------------
         self.multiobjective = False
         # Population sizes
-        self.module_pop_size = 5
-        self.bp_pop_size = 1
+        self.module_pop_size = 10
+        self.bp_pop_size = 3
         self.da_pop_size = 5
 
-        self.n_module_species = 4
+        self.n_module_species = 1
         # Features chances
         self.module_node_batchnorm_chance = 0.65
         self.module_node_dropout_chance = 0.2
