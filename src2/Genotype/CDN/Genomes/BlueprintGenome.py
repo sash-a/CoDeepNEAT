@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import random
 from typing import List, Dict, TYPE_CHECKING, Optional, Set, Tuple
 
 from torch import nn
@@ -56,6 +57,10 @@ class BlueprintGenome(Genome):
             """node may be blueprint or module node"""
             if isinstance(node, BlueprintNode.BlueprintNode):
                 """updates the module id value of each node in the genome according to the sample map present"""
+                living_speciies = [spc.id for spc in S.instance.module_population.species]
+                if node.species_id not in living_speciies:
+                    """this species died during the last speciation step"""
+                    node.species_id = random.choice(living_speciies)
 
                 if node.species_id in self.best_module_sample_map:
                     """best parent had a node with this spc id"""
