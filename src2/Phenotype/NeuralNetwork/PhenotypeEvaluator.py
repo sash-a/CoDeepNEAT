@@ -16,11 +16,10 @@ def evaluate_blueprint(blueprint: BlueprintGenome):
     parses the blueprint into its phenotype NN
     handles the assignment of the single/multi obj finesses to the blueprint
     """
-    print('in eval')
     inputs, targets = DataLoader.sample_data(config.get_device())
     model: Network = Network(blueprint, list(inputs.size())).to(config.get_device())
     # model.visualize()
-    print('done eval with', blueprint)
+    return blueprint
 
 
 def propagate_fitnesses_to_co_genomes(blueprint: BlueprintGenome):

@@ -23,9 +23,7 @@ class Network(nn.Module):
         self.output_dim = output_dim
 
         self.model: Layer
-        print('starting topheno')
         self.model, output_layer = blueprint.to_phenotype()
-        print('done topheno')
         self.shape_layers(input_shape)
 
         # shaping the final layer

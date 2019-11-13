@@ -1,7 +1,13 @@
+from __future__ import annotations
 import torch
+from typing import TYPE_CHECKING
+
+from torch.utils.data import DataLoader
 
 from src2.Configuration import config
-from src2.Phenotype.NeuralNetwork.NeuralNetwork import Network
+
+if TYPE_CHECKING:
+    from src2.Phenotype.NeuralNetwork.NeuralNetwork import Network
 
 
 def evaluate(model: Network, num_epochs=config.epochs_in_evolution, batch_size=config.batch_size):
@@ -12,7 +18,8 @@ def evaluate(model: Network, num_epochs=config.epochs_in_evolution, batch_size=c
 
     return get_test_acc(model)
 
-def train_epoch(model: Network):
+
+def train_epoch(model: Network, train_loader: DataLoader):
     model.train()
     loss = 0
     for batch_idx, (inputs, targets) in enumerate(train_loader):
@@ -29,9 +36,9 @@ def train_batch(model: Network, input: torch.tensor, labels: torch.tensor):
     return m_loss.item()
 
 
-def get_test_acc(model: Network):
+def get_test_acc(model: Network, test_loader: DataLoader):
     model.eval()
 
     with torch.no_grad():
         pass
-        #todo find proper way to do this. manual counting logic is slow
+        # todo find proper way to do this. manual counting logic is slow

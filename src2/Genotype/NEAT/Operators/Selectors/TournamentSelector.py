@@ -14,9 +14,9 @@ class TournamentSelector(Selector):
         self.k = k
 
     def select(self, ranked_genomes: List[int], genomes: Dict[int:Genome]) -> Tuple[Genome, Genome]:
-        tournament = random.choices(genomes.values(), k=self.k)
+        tournament = random.choices(list(genomes.values()), k=self.k)
         parent1 = max(tournament, key=lambda genome: genome.rank)
 
-        tournament = random.choices(genomes.values(), k=self.k)
+        tournament = random.choices(list(genomes.values()), k=self.k)
         parent2 = max(tournament, key=lambda genome: genome.rank)
         return parent1, parent2

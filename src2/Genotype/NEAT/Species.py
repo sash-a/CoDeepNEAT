@@ -13,7 +13,7 @@ import src2.Genotype.NEAT.Operators.Cross as Cross
 
 
 class Species:
-    species_id = 0
+    species_id_counter = 0
 
     # These are set in the populations init method
     selector: Selector
@@ -21,8 +21,8 @@ class Species:
     representative_selector: RepresentativeSelector
 
     def __init__(self, representative: Genome):
-        self.id: int = Species.species_id
-        Species.species_id += 1
+        self.id: int = Species.species_id_counter
+        Species.species_id_counter += 1
 
         self.representative: Genome = representative
         self.members: Dict[int, Genome] = {representative.id: representative}
@@ -56,7 +56,7 @@ class Species:
         Finds the number of elite this population should have, given the desired number of elite, population size and
         number of ties there are for members with the best fitness
         """
-        elite = min(config.elite, len(self.members))
+        elite = min(config.n_elite, len(self.members))
         highest_acc = self.members[self.ranked_members[0]].fitness_values[0]
         self.max_fitness_ties = sum(
             genome.fitness_values[0] == highest_acc for genome in self.members.values())  # TODO test
@@ -101,7 +101,7 @@ class Species:
 
         # note original CoDeepNEAT checks for equal fitness's and prioritizes genomes with more genes
         self.ranked_members = [id for id in self.members.keys()]
-        self.ranked_members.sort(key=lambda id: self.members[id].rank, reverse=True)
+        self.ranked_members.sort(key=lambda id: self.members[id].rank, reverse=True)  # Higher rank = better
         self._unfill()
         self._fill(mutation_record)
 

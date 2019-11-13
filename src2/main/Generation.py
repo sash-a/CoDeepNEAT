@@ -9,6 +9,10 @@ from typing import Optional
 
 import src2.main.Singleton as Singleton
 from src2.Genotype.CDN.PopulationInitializer import create_population, create_mr
+from src2.Genotype.NEAT.Operators.PopulationRankers.SingleObjectiveRank import SingleObjectiveRank
+from src2.Genotype.NEAT.Operators.RepresentativeSelectors.RandomRepSelector import RandomRepSelector
+from src2.Genotype.NEAT.Operators.Selectors.TournamentSelector import TournamentSelector
+from src2.Genotype.NEAT.Species import Species
 from src2.Phenotype.NeuralNetwork.NeuralNetwork import Network
 from src2.Genotype.NEAT.Population import Population
 from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
@@ -24,6 +28,15 @@ from src2.Configuration import config
 class Generation:
     def __init__(self):
         Singleton.instance = self
+
+        if not config.multiobjective:
+            Population.ranker = SingleObjectiveRank()
+        else:
+            # TODO multiobjective rank
+            raise NotImplemented('Multi-objectivity is not yet implemented')
+
+        Species.selector = TournamentSelector(5)  # TODO config options
+        Species.representative_selector = RandomRepSelector()
 
         self.module_population: Optional[Population] = None
         self.blueprint_population: Optional[Population] = None

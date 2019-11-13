@@ -27,6 +27,7 @@ class Population:
 
         self.pop_size: int = pop_size
         self.mutation_record: MutationRecords = mutation_record
+        # TODO should this be static (will bps and mods ever have different speciators?)
         self.speciator: Speciator = speciator
 
     def __iter__(self) -> Iterable[Genome]:

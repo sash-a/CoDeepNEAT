@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import random
 from typing import Dict, TYPE_CHECKING, Tuple
 
 from src2.Genotype.Mutagen.IntegerVariable import IntegerVariable
@@ -11,14 +12,18 @@ if TYPE_CHECKING:
 
 
 class BlueprintNode(Node):
-
     def __init__(self, id: int, type: NodeType):
         super().__init__(id, type)
+
+        import src2.main.Singleton as Singleton
 
         self.linked_module_id: int = -1
         self.module_repeat_count = IntegerVariable("module_repeat_count", start_range=1, current_value=1, end_range=4,
                                                    mutation_chance=0.1)
-        self.species_id: int = -1
+
+        # TODO pick again when more species are created
+        possible_species_ids = [spc.id for spc in Singleton.instance.module_population.species]
+        self.species_id: int = random.choice(possible_species_ids)
 
     def get_all_mutagens(self):
         return [self.module_repeat_count]
