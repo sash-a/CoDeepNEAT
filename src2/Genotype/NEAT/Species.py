@@ -94,16 +94,16 @@ class Species:
             raise Exception('Cannot step empty species')
 
         if self.next_species_size == 0:
-            """this species has been extincted"""
+            # this species has been extincted
             self.members = {}
             self.ranked_members = []
             return
 
         # note original CoDeepNEAT checks for equal fitness's and prioritizes genomes with more genes
         self.ranked_members = [id for id in self.members.keys()]
-        self.ranked_members.sort(
-            key=lambda id: self.members[id].rank)  # TODO might need to reverse depends how we set rank
+        self.ranked_members.sort(key=lambda id: self.members[id].rank, reverse=True)
         self._unfill()
         self._fill(mutation_record)
 
         self.representative = Species.representative_selector.select_representative(self.members)
+        print('done step')

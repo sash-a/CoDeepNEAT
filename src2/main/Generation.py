@@ -30,16 +30,18 @@ class Generation:
         self.da_population: Optional[Population] = None
 
         self.initialise_populations()
-        self.module_population[0].visualize()
+        # self.module_population[0].visualize()
 
     def evaluate_blueprints(self):
         """Evaluates all blueprints multiple times."""
         # Multiplying and shuffling the blueprints so that config.evaluations number of blueprints is evaluated
         blueprints = list(self.blueprint_population) * config.evaluations
-        print(blueprints)
 
         with ThreadPoolExecutor(max_workers=config.n_gpus, initializer=init_threads()) as ex:
-            ex.map(evaluate_blueprint, blueprints)
+            results = ex.map(evaluate_blueprint, blueprints)
+            for result in results:
+                print(result)
+
         reset_thread_name()
 
     def initialise_populations(self):
@@ -57,11 +59,13 @@ class Generation:
             Runs CDN for one generation. Calls the evaluation of all individuals. Prepares population objects for the
             next step.
         """
-        # print("step")
+        print('Started step')
         self.evaluate_blueprints()
-        # print("evaluated blueprints")
+        print('done eval')
         self.module_population.step()
+        print('done module step')
         self.blueprint_population.step()
+        print('done bp step')
 
 
 if __name__ == '__main__':

@@ -43,4 +43,4 @@ class BlueprintNode(Node):
     def convert_node(self, **kwargs) -> Tuple[Layer, Layer]:
         # TODO module sampling needs to live long enough to be able to be committed
         module_sample_map = kwargs['module_sample_map']
-        return self.pick_module(module_sample_map).to_phenotype(blueprint_node_id = self.id)
+        return self.pick_module(module_sample_map).to_phenotype(blueprint_node_id=self.id)

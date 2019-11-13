@@ -3,7 +3,7 @@ from __future__ import annotations
 import random
 from typing import List, TYPE_CHECKING, Tuple, Dict
 
-from Genotype.NEAT.Operators.Selectors.Selector import Selector
+from src2.Genotype.NEAT.Operators.Selectors.Selector import Selector
 
 if TYPE_CHECKING:
     from src2.Genotype.NEAT.Genome import Genome
