@@ -89,7 +89,14 @@ class BlueprintGenome(Genome):
 
         sample_map = kwargs["module_sample_map"]
 
-        for node in self.nodes.values():
+        for node_id in self.get_fully_connected_node_ids():
+            node: Node = self.nodes[node_id]
+            if not isinstance(node, BlueprintNode.BlueprintNode):
+                continue
+
+            if node.species_id not in sample_map:
+                raise Exception("sample map"+repr(sample_map)+"doesn't cover all species in blueprint - missing: " + repr(node.species_id))
+
             module_id = sample_map[node.species_id]
             module = S.instance.module_population[module_id]
             module.report_fitness(fitnesses, **kwargs)

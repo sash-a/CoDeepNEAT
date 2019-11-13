@@ -110,7 +110,8 @@ class Genome(GraphGenome):
 
         agg_layers: Dict[int, AggregationLayer] = {}  # map from node marked as agg to the agg layer pheno
 
-        blueprint_node_id = kwargs["blueprint_node_id"] if "blueprint_node_id" in kwargs else None
+        """if blueprint node id given, this must be module, else blueprint so bp id is self.id"""
+        blueprint_node_id = kwargs["blueprint_node_id"] if "blueprint_node_id" in kwargs else self.id
 
         # input node of the input module and output node of the input module
         first_layer, starting_layer = self.get_input_node().convert_node(**kwargs, node_id=blueprint_node_id)

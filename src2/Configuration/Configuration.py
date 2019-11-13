@@ -1,20 +1,20 @@
+import json
+from threading import current_thread
 from typing import Dict
 
 from torch import device
-from threading import current_thread
-import json
 
 
 class Config:
     def __init__(self):
         print('loading config')
         # ---------------------------------------------- Important stuff ----------------------------------------------
-        self.n_generations = 10
+        self.n_generations = 100
         self.n_gpus = 1
         self.device = 'gpu'  # cpu
         self.batch_size = 64
         self.epochs_in_evolution = 5
-        self.evaluations = 2
+        self.evaluations = 1
         # ----------------------------------------------- Dataset stuff -----------------------------------------------
         self.dataset = 'cifar10'  # mnist | cifar10 | custom
         self.custom_dataset_root = ''
@@ -43,17 +43,17 @@ class Config:
         self.disjoint_coefficient = 3
         self.excess_coefficient = 5
         # Speciation
-        self.n_elite = 1
+        self.n_elite = 0
         self.reproduce_percent = 0.5  # Percent of species members that are allowed to reproduce
         self.species_distance_thresh_mod_base = 1
         self.species_distance_thresh_mod_min = 1
         self.species_distance_thresh_mod_max = 1
         # Mutation chances
-        self.blueprint_add_node_chance = 0.16
-        self.blueprint_add_connection_chance = 0.12
-        self.blueprint_node_type_switch_chance = 0
-        self.module_add_node_chance = 0.08
-        self.module_add_connection_chance = 0.08
+        self.blueprint_add_node_chance = 0.3  # 0.16
+        self.blueprint_add_connection_chance = 0.25  # 0.12
+        self.blueprint_node_type_switch_chance = 0.2  # 0.1
+        self.module_add_node_chance = 0.2  # 0.08
+        self.module_add_connection_chance = 0.2  # 0.08
         # -------------------------------------------------------------------------------------------------------------
 
     def get_device(self):

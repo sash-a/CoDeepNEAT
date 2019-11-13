@@ -32,7 +32,7 @@ class BlueprintGenomeMutator(GenomeMutator):
 
         if random.random() < config.blueprint_node_type_switch_chance:
             """chose 1 node to change type"""
-            node: Node = random.choice(genome.nodes.values())
+            node: Node = random.choice(list(genome.nodes.values()))
             if type(node) == BlueprintNode:
                 """change node to a module node"""
                 module_node = ModuleNode(node.id,node.node_type)

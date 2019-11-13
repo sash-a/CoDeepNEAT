@@ -59,7 +59,13 @@ class Population:
         already in the species
         """
         # TODO NEAT speciates based on fitness, how does rank (the way I am doing it) affect the sharing function?
-        species_adj_ranks = [sum([mem.rank for mem in species]) / len(species) for species in self.species]
+        if len(self.species) == 0:
+            raise Exception("no living species")
+
+        try:
+            species_adj_ranks = [sum([mem.rank for mem in species]) / len(species) for species in self.species]
+        except ZeroDivisionError as ze:
+            raise Exception("dead species in population")
 
         pop_adj_rank = sum(species_adj_ranks)
         for spc_adj_rank, species in zip(species_adj_ranks, self.species):
@@ -70,12 +76,15 @@ class Population:
         Population.ranker.rank(iter(self))
         self._update_species_sizes()
         self.species: List[Species] = [species for species in self.species if
-                                       species.next_species_size != 0]  # Removing empty species
+                                       species.next_species_size > 0]  # Removing empty species
 
         for spc in self.species:
             spc.step(self.mutation_record)
 
         self.speciator.speciate(self.species)
+        self.species: List[Species] = [species for species in self.species if
+                                       len(species) > 0]  # Removing empty species
+        # print(list(self.__iter__()))
         self.end_step()
 
     def end_step(self):

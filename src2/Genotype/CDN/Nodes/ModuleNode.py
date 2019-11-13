@@ -69,6 +69,13 @@ def get_new_conv_parameter_mutagens():
                                                                  current_value=2,
                                                                  start_range=2,
                                                                  end_range=5,
+                                                                 mutation_chance=0.1)},
+
+                                nn.AvgPool2d: {
+                                    "pool_size": IntegerVariable("pool_size",
+                                                                 current_value=2,
+                                                                 start_range=2,
+                                                                 end_range=5,
                                                                  mutation_chance=0.1)}
                             }
                             , mutation_chance=0.15),
