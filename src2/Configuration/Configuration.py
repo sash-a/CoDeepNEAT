@@ -9,7 +9,7 @@ class Config:
     def __init__(self):
         print('loading config')
         # ---------------------------------------------- Important stuff ----------------------------------------------
-        self.n_generations = 100
+        self.n_generations = 1000
         self.n_gpus = 1
         self.device = 'gpu'  # cpu
         self.batch_size = 64

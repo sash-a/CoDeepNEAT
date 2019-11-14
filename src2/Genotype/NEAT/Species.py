@@ -51,6 +51,9 @@ class Species:
 
     def sample_individual(self) -> Genome:
         """:return a random individual from the species"""
+        if len(self.members.values()) == 0:
+            raise Exception("cannot sample from empty species")
+
         member = random.choice(list(self.members.values()))
         if member is None:
             raise Exception("none member in species")
@@ -87,10 +90,10 @@ class Species:
             p1, p2 = Species.selector.select(ranked_genomes=self.ranked_members, genomes=self.members)
             child = Cross.over(p1, p2)
             self.mutator.mutate(child, mutation_record)
-            if isinstance(child, BlueprintGenome):
-                print(child.best_module_sample_map)
-
-            children.append(child)
+            # if isinstance(child, BlueprintGenome):
+            #     print(child.best_module_sample_map)
+            if child.validate():
+                children.append(child)
 
         self.members = {id: self.members[id] for id in self.ranked_members[:num_elite]}  # adds in elite
         self.members = {**self.members, **{child.id: child for child in children}}  # adds in children
@@ -113,7 +116,7 @@ class Species:
         self._fill(mutation_record)
 
         self.representative = Species.representative_selector.select_representative(self.members)
-        print('done step')
+        # print('done step')
 
     def clear(self):
         self.members: Dict[int, Genome] = {}

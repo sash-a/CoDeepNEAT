@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import random
 import time
 from typing import TYPE_CHECKING, List
 
@@ -22,8 +23,10 @@ def evaluate_blueprint(blueprint: BlueprintGenome, input_size: List[int]):
     accuracy = evaluate(model)
     blueprint.update_best_sample_map(model.sample_map, accuracy)
     blueprint.report_fitness([accuracy], module_sample_map=model.sample_map)
-    # model.visualize()
-    # blueprint.visualize()
+
+    if random.random() < 0.1:
+        model.visualize()
+        blueprint.visualize()
 
     return blueprint
 

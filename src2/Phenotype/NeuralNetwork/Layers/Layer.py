@@ -47,7 +47,7 @@ class Layer(BaseLayer):
         if neat_regularisation is not None and neat_regularisation.value is not None:
             # Can use either batchnorm 1D or 2D must decide based on input shape
             if neat_regularisation.value == 'batchnorm':
-                print('received in shape of:', in_shape, 'chose value for bn:', in_shape[1])
+                # print('received in shape of:', in_shape, 'chose value for bn:', in_shape[1])
                 if len(in_shape) == 4:
                     regularisation = nn.BatchNorm2d(in_shape[1])
                 else:
