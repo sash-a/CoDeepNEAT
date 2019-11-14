@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from src2.Phenotype.NeuralNetwork.NeuralNetwork import Network
 
 
-def evaluate(model: Network, num_epochs=config.epochs_in_evolution, batch_size=config.batch_size):
+def evaluate(model: Network, num_epochs=config.epochs_in_evolution):
     """trains model on training data, test on testing and returns test acc"""
 
     # TODO add in augmentations
@@ -38,8 +38,11 @@ def train_epoch(model: Network, train_loader: DataLoader):
         loss += train_batch(model, inputs, targets)
 
 
-def train_batch(model: Network, input: torch.tensor, labels: torch.tensor):
-    output = model(input)
+def train_batch(model: Network, inputs: torch.tensor, labels: torch.tensor):
+    device = config.get_device()
+    inputs, labels = inputs.to(device), labels.to(device)
+
+    output = model(inputs)
     m_loss = model.loss_fn(output, labels)
     m_loss.backward()
     model.optimizer.step()

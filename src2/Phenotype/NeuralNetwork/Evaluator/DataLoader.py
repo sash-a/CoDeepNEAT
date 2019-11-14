@@ -34,7 +34,7 @@ def load_data(composed_transforms: transforms.Compose, split: str) -> DataLoader
 
     if train:
         # Splitting the train set into a train and valid set
-        train_size = len(dataset) * (1 - config.validation_split)
+        train_size = int(len(dataset) * (1 - config.validation_split))
         validation_size = len(dataset) - train_size
 
         train, valid = random_split(dataset, [train_size, validation_size])
