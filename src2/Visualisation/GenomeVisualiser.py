@@ -102,6 +102,9 @@ def visualise_blueprint_genome(genome: BlueprintGenome, sample_map: Dict[int, in
     module_ids = set()
 
     for bp_node in genome.nodes.values():
+        if not isinstance(bp_node, BlueprintNode):
+            continue
+
         if bp_node.linked_module_id != -1:
             module_ids.add(bp_node.linked_module_id)
 

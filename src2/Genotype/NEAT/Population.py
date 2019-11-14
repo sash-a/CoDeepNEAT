@@ -58,7 +58,13 @@ class Population:
         Setting the number of children that each species will produce. Based on its rank and how many members are
         already in the species
         """
-        species_adj_ranks = [sum([mem.rank for mem in species]) / len(species) for species in self.species]
+        if len(self.species) == 0:
+            raise Exception("no living species")
+
+        try:
+            species_adj_ranks = [sum([mem.rank for mem in species]) / len(species) for species in self.species]
+        except ZeroDivisionError as ze:
+            raise Exception("dead species in population")
 
         pop_adj_rank = sum(species_adj_ranks)
         for spc_adj_rank, species in zip(species_adj_ranks, self.species):

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import random
 from typing import List, Dict, TYPE_CHECKING, Optional, Set, Tuple
 
 from torch import nn
@@ -72,6 +73,10 @@ class BlueprintGenome(Genome):
             """node may be blueprint or module node"""
             if isinstance(node, BlueprintNode.BlueprintNode):
                 """updates the module id value of each node in the genome according to the sample map present"""
+                living_speciies = [spc.id for spc in S.instance.module_population.species]
+                if node.species_id not in living_speciies:
+                    """this species died during the last speciation step"""
+                    node.species_id = random.choice(living_speciies)
 
                 if node.species_id in self.best_module_sample_map:
                     """best parent had a node with this spc id"""
@@ -105,10 +110,17 @@ class BlueprintGenome(Genome):
         with self.lock:
             sample_map = kwargs["module_sample_map"]
 
-            for node in self.nodes.values():
-                module_id = sample_map[node.species_id]
-                module = S.instance.module_population[module_id]
-                module.report_fitness(fitnesses)
+        for node_id in self.get_fully_connected_node_ids():
+            node: Node = self.nodes[node_id]
+            if not isinstance(node, BlueprintNode.BlueprintNode):
+                continue
+
+            if node.species_id not in sample_map:
+                raise Exception("sample map"+repr(sample_map)+"doesn't cover all species in blueprint - missing: " + repr(node.species_id))
+
+            module_id = sample_map[node.species_id]
+            module = S.instance.module_population[module_id]
+            module.report_fitness(fitnesses, **kwargs)
 
     def update_best_sample_map(self, candidate_map: Dict[int, int], accuracy: int):
         with self.lock:

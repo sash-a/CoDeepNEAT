@@ -35,6 +35,9 @@ class Option(Mutagen):
         if self.submutagens is None:
             raise Exception("No submutagens on option: " + repr(self.name) + " " + repr(self))
 
+        if self.value not in self.submutagens:
+            print(self.name, "does not have the submutagen", subvalue_name,"does not have any submutagens")
+
         if subvalue_name not in self.submutagens[self.value]:
             raise Exception(self.name + " does not have the submutagen " + subvalue_name + " for value " + repr(self.value))
 
