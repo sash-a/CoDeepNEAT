@@ -6,8 +6,8 @@ import pickle
 def create_runs_folder():
     # print("creating runs folder at:", get_run_folder())
 
-    if not os.path.exists(get_Datasets_folder()):
-        os.makedirs(get_Datasets_folder())
+    if not os.path.exists(get_datasets_folder()):
+        os.makedirs(get_datasets_folder())
 
     if not os.path.exists(get_run_folder()):
         os.makedirs(get_run_folder())
@@ -34,7 +34,7 @@ def get_results_file(run_name=None):
     return os.path.join(get_run_folder(run_name=run_name), "fully train_" + Config.run_name + ".txt")
 
 
-def get_Datasets_folder():
+def get_datasets_folder():
     if Config.data_path == "":
         return os.path.join(get_data_folder(), "Datasets")
     else:

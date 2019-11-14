@@ -5,7 +5,6 @@ import time
 from typing import TYPE_CHECKING, List
 
 from src2.Configuration import config
-from src.Validation import DataLoader
 from src2.Phenotype.NeuralNetwork.NeuralNetwork import Network
 from src2.Phenotype.NeuralNetwork.Evaluator.Evaluator import evaluate
 

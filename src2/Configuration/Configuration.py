@@ -12,12 +12,13 @@ class Config:
         self.n_generations = 1000
         self.n_gpus = 1
         self.device = 'gpu'  # cpu
-        self.batch_size = 64
+        self.batch_size = 256
         self.epochs_in_evolution = 5
         self.evaluations = 1
         # ----------------------------------------------- Dataset stuff -----------------------------------------------
         self.dataset = 'cifar10'  # mnist | cifar10 | custom
         self.custom_dataset_root = ''
+        self.validation_split = 0.05  # Percent of the train set that becomes the validation set
         # ------------------------------------------------- CDN stuff -------------------------------------------------
         self.multiobjective = False
         # Population sizes

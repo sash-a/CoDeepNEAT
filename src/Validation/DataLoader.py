@@ -12,7 +12,7 @@ def load_data(batch_size=Config.batch_size, dataset=""):
     """loads a dataset using the torch dataloader and and the settings in Config"""
 
     data_loader_args = {'num_workers': Config.num_workers, 'pin_memory': False if Config.device != 'cpu' else False}
-    data_path = DataManager.get_Datasets_folder()
+    data_path = DataManager.get_datasets_folder()
 
     colour_image_transform = transforms.Compose([
         #image transform goes here

@@ -1,19 +1,61 @@
-from typing import Tuple
+from typing import Tuple, List
 
-from torchvision.datasets import ImageFolder
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Dataset, random_split
 from torchvision import transforms
+from torchvision.datasets import MNIST, CIFAR10, ImageFolder
 from os import path
 
+from data import DataManager
 from src2.Configuration import config
 
 
-def load_data(composed_transforms: transforms.Compose) -> Tuple[DataLoader, DataLoader]:
+def load_data(composed_transforms: transforms.Compose, split: str) -> DataLoader:
     """Loads the data given the config.dataset"""
-    pass
+    if split not in ['train', 'test', 'validation']:
+        raise ValueError('Parameter split can be one of train, test or validation, but received: ' + str(split))
+
+    train: bool = True if split == 'train' or split == 'validation' else False
+
+    dataset_args = {
+        'root': DataManager.get_datasets_folder(),
+        'train': train,
+        'download': True,
+        'transform': composed_transforms
+    }
+
+    if config.dataset == 'mnist':
+        dataset = MNIST(**dataset_args)
+    elif config.dataset == 'cifar10':
+        dataset = CIFAR10(**dataset_args)
+    elif config.dataset == 'custom':
+        dataset = get_generic_dataset(composed_transforms, train)
+    else:
+        raise ValueError('config.dataset can be one of mnist, cifar10 or custom, but received: ' + str(config.dataset))
+
+    if train:
+        # Splitting the train set into a train and valid set
+        train_size = len(dataset) * (1 - config.validation_split)
+        validation_size = len(dataset) - train_size
+
+        train, valid = random_split(dataset, [train_size, validation_size])
+        if split == 'train':
+            dataset = train
+        else:
+            dataset = valid
+
+    # TODO: test num workers and pin memory
+    return DataLoader(dataset, batch_size=config.batch_size, shuffle=True, num_workers=0, pin_memory=False)
 
 
-def generic_dataloader(composed_transforms: transforms.Compose) -> Tuple[DataLoader, DataLoader]:
+def get_data_shape() -> List[int]:
+    composed_transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+    ])
+    return list(next(iter(load_data(composed_transform, 'test')))[0].size())
+
+
+def get_generic_dataset(composed_transforms: transforms.Compose, train: bool) -> Dataset:
     """
     Loads data from custom_dataset_root, given that the data is structured as follows:
     root/train/dog/xxx.png
@@ -23,10 +65,9 @@ def generic_dataloader(composed_transforms: transforms.Compose) -> Tuple[DataLoa
     root/test/cat/nsdf3.png
     :return: a train and test dataloader
     """
-    train_data = ImageFolder(root=path.join(config.custom_dataset_root, 'train'), transform=composed_transforms)
-    test_data = ImageFolder(root=path.join(config.custom_dataset_root, 'test'), transform=composed_transforms)
+    if train:
+        data = ImageFolder(root=path.join(config.custom_dataset_root, 'train'), transform=composed_transforms)
+    else:
+        data = ImageFolder(root=path.join(config.custom_dataset_root, 'test'), transform=composed_transforms)
 
-    train_loader = DataLoader(train_data, batch_size=config.batch_size, shuffle=True)
-    test_loader = DataLoader(test_data, batch_size=config.batch_size, shuffle=True)
-
-    return train_loader, test_loader
+    return data

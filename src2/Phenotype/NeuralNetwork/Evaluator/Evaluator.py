@@ -6,8 +6,10 @@ import torch
 from typing import TYPE_CHECKING
 
 from torch.utils.data import DataLoader
+from torchvision.transforms import transforms
 
 from src2.Configuration import config
+from src2.Phenotype.NeuralNetwork.Evaluator.DataLoader import load_data
 
 if TYPE_CHECKING:
     from src2.Phenotype.NeuralNetwork.NeuralNetwork import Network
@@ -15,12 +17,17 @@ if TYPE_CHECKING:
 
 def evaluate(model: Network, num_epochs=config.epochs_in_evolution, batch_size=config.batch_size):
     """trains model on training data, test on testing and returns test acc"""
-    return random.random()
+
+    # TODO add in augmentations
+    composed_transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+    ])
 
     for epoch in range(num_epochs):
-        train_epoch(model)
+        train_epoch(model, load_data(composed_transform, 'train'))
 
-    return get_test_acc(model)
+    return get_test_acc(model, load_data(composed_transform, 'test'))
 
 
 def train_epoch(model: Network, train_loader: DataLoader):
@@ -46,3 +53,5 @@ def get_test_acc(model: Network, test_loader: DataLoader):
     with torch.no_grad():
         pass
         # todo find proper way to do this. manual counting logic is slow
+
+    return random.random()

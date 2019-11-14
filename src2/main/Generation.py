@@ -10,7 +10,7 @@ import random
 from typing import Optional
 
 import src2.main.Singleton as Singleton
-from src.Validation import DataLoader
+from src2.Phenotype.NeuralNetwork.Evaluator.DataLoader import get_data_shape
 from src2.Genotype.CDN.Operators.Mutators.BlueprintGenomeMutator import BlueprintGenomeMutator
 from src2.Genotype.CDN.Operators.Mutators.ModuleGenomeMutator import ModuleGenomeMutator
 from src2.Genotype.CDN.PopulationInitializer import create_population, create_mr
@@ -41,7 +41,8 @@ class Generation:
             # TODO multiobjective rank
             raise NotImplemented('Multi-objectivity is not yet implemented')
 
-        Species.selector = TournamentSelector(5)  # TODO config options
+        # TODO config options
+        Species.selector = TournamentSelector(5)
         Species.representative_selector = RandomRepSelector()
 
         self.module_population: Optional[Population] = None
@@ -55,8 +56,7 @@ class Generation:
         """Evaluates all blueprints multiple times."""
         # Multiplying and shuffling the blueprints so that config.evaluations number of blueprints is evaluated
         blueprints = list(self.blueprint_population) * config.evaluations
-        inputs, _ = DataLoader.sample_data(config.get_device())
-        input_size = list(inputs.size())
+        input_size = get_data_shape()
 
         with ThreadPoolExecutor(max_workers=config.n_gpus, initializer=init_threads()) as ex:
             results = ex.map(lambda x: evaluate_blueprint(*x), list(zip(blueprints, [input_size] * len(blueprints))))
