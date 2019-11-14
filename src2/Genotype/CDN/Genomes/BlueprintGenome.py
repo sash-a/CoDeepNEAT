@@ -35,6 +35,22 @@ class BlueprintGenome(Genome):
         self.best_module_sample_map: Optional[Dict[int, int]] = None  # todo empty this at the end of evaluation
         self.best_sample_map_accuracy: float = -1
 
+    def __deepcopy__(self, memodict={}):
+        cp = super().__deepcopy__()
+
+        cp.learning_rate = copy.deepcopy(self.learning_rate)
+        cp.beta1 = copy.deepcopy(self.beta1)
+        cp.beta2 = copy.deepcopy(self.beta2)
+        cp.best_module_sample_map = copy.deepcopy(self.best_module_sample_map)
+        cp.best_sample_map_accuracy = copy.deepcopy(self.best_sample_map_accuracy)
+
+        return cp
+
+    def __repr__(self):
+        return '\n'.join([str(self.learning_rate.value), str(self.beta1.value), str(self.beta2.value),
+                          str(self.best_module_sample_map), str(self.nodes.keys()), str(self.nodes.values()),
+                          str(id(self))])
+
     def get_modules_used(self):
         """:returns all module ids currently being used by this blueprint. returns duplicates"""
         pass
@@ -83,22 +99,22 @@ class BlueprintGenome(Genome):
         self.best_sample_map_accuracy = -1
 
     def report_fitness(self, fitnesses, **kwargs):
-        # todo thread lock
-        super().report_fitness(fitnesses, **kwargs)
+        super().report_fitness(fitnesses)
         import src2.main.Singleton as S
 
-        sample_map = kwargs["module_sample_map"]
+        with self.lock:
+            sample_map = kwargs["module_sample_map"]
 
-        for node in self.nodes.values():
-            module_id = sample_map[node.species_id]
-            module = S.instance.module_population[module_id]
-            module.report_fitness(fitnesses, **kwargs)
+            for node in self.nodes.values():
+                module_id = sample_map[node.species_id]
+                module = S.instance.module_population[module_id]
+                module.report_fitness(fitnesses)
 
     def update_best_sample_map(self, candidate_map: Dict[int, int], accuracy: int):
-        # todo with self.lock:
-        if self.best_sample_map_accuracy < accuracy:
-            self.best_module_sample_map = candidate_map
-            self.best_sample_map_accuracy = accuracy
+        with self.lock:
+            if self.best_sample_map_accuracy < accuracy:
+                self.best_module_sample_map = candidate_map
+                self.best_sample_map_accuracy = accuracy
 
     def inherit(self, parent: BlueprintGenome):
         self.best_module_sample_map = copy.deepcopy(parent.best_module_sample_map)

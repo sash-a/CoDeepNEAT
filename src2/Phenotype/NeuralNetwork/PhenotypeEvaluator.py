@@ -23,8 +23,8 @@ def evaluate_blueprint(blueprint: BlueprintGenome):
     blueprint.update_best_sample_map(model.sample_map, accuracy)
     blueprint.report_fitness([accuracy], module_sample_map=model.sample_map)
 
-    model.visualize()
-    blueprint.visualize()
+    # model.visualize()
+    # blueprint.visualize()
 
     return blueprint
 

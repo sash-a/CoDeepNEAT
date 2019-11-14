@@ -58,7 +58,7 @@ class Generation:
         with ThreadPoolExecutor(max_workers=config.n_gpus, initializer=init_threads()) as ex:
             results = ex.map(evaluate_blueprint, blueprints)
             for result in results:
-                print(result)
+                r = result
 
         reset_thread_name()
 

@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+import copy
 from typing import Dict, List, AbstractSet, Union, TYPE_CHECKING, Set, Tuple
 
 import sys
@@ -31,15 +33,17 @@ class Genome(GraphGenome):
         self.uses = 0  # The numbers of times this genome is used
         self.fitness_values: List[int] = [-(sys.maxsize - 1)]
 
-        # self.lock = threading.Lock()
+        self.lock = threading.RLock()
 
-    # def __deepcopy__(self, memodict={}):
-    #     cp = type(self)(list(self.nodes.values()), list(self.connections.values()))
-    #     cp.id = self.id
-    #
-    #     cp.rank = self.rank
-    #     cp.uses = self.uses
-    #     self.fitness_values = cp.fitness_values
+    def __deepcopy__(self, memodict={}):
+        cp = type(self)(copy.deepcopy(list(self.nodes.values())), copy.deepcopy(list(self.connections.values())))
+
+        cp.id = self.id
+        cp.rank = self.rank
+        cp.uses = self.uses
+        cp.fitness_values = self.fitness_values
+
+        return cp
 
     def __eq__(self, other):
         return self.id == other.id
@@ -55,23 +59,23 @@ class Genome(GraphGenome):
 
     def report_fitness(self, fitnesses, **kwargs):
         """updates the fitnesses stored with a new given fitness"""
-        # todo with self.lock:
-        if self.fitness_values is None or not self.fitness_values:
-            self.fitness_values = [0 for _ in fitnesses]
+        with self.lock:
+            if self.fitness_values is None or not self.fitness_values:
+                self.fitness_values = [0 for _ in fitnesses]
 
-        if config.fitness_aggregation == 'avg':
-            for i, fitness in enumerate(fitnesses):
-                if self.fitness_values[i] is None:
-                    self.fitness_values[i] = 0
-                self.fitness_values[i] = (self.fitness_values[i] * self.uses + fitness) / (self.uses + 1)
-            self.uses += 1
-        elif config.fitness_aggregation == 'max':
-            for i, fitness in enumerate(fitnesses):
-                if self.fitness_values[i] is None:
-                    self.fitness_values[i] = 0
-                self.fitness_values[i] = max(self.fitness_values[i], fitness)
-        else:
-            raise Exception("Unexpected fitness aggregation type: " + repr(config.fitness_aggregation))
+            if config.fitness_aggregation == 'avg':
+                for i, fitness in enumerate(fitnesses):
+                    if self.fitness_values[i] is None:
+                        self.fitness_values[i] = 0
+                    self.fitness_values[i] = (self.fitness_values[i] * self.uses + fitness) / (self.uses + 1)
+                self.uses += 1
+            elif config.fitness_aggregation == 'max':
+                for i, fitness in enumerate(fitnesses):
+                    if self.fitness_values[i] is None:
+                        self.fitness_values[i] = 0
+                    self.fitness_values[i] = max(self.fitness_values[i], fitness)
+            else:
+                raise Exception("Unexpected fitness aggregation type: " + repr(config.fitness_aggregation))
 
     def end_step(self):
         """Resets all necessary values for next the generation"""
