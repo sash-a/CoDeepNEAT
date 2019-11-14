@@ -75,11 +75,14 @@ class Population:
         Population.ranker.rank(iter(self))
         self.species: List[Species] = [species for species in self.species if species]  # Removing empty species
         self._update_species_sizes()
+        # Removing empty species
+        # self.species: List[Species] = [species for species in self.species if species.next_species_size == 0]
 
         for spc in self.species:
             spc.step(self.mutation_record)
 
         self.speciator.speciate(self.species)
+        self.species: List[Species] = [species for species in self.species if species]  # Removing empty species
         self.end_step()
 
     def end_step(self):

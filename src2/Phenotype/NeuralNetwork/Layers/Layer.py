@@ -7,6 +7,7 @@ import math
 from torch import nn, zeros
 
 from src2.Phenotype.NeuralNetwork.Layers.BaseLayer import BaseLayer
+from src2.Phenotype.NeuralNetwork.Layers.CustomLayerTypes.DepthwiseSeparableConv import DepthwiseSeparableConv
 from src2.Phenotype.NeuralNetwork.Layers.CustomLayerTypes.Reshape import Reshape
 
 if TYPE_CHECKING:
@@ -27,7 +28,8 @@ class Layer(BaseLayer):
         try:
             return self.activation(self.sequential(x))
         except Exception as e:
-            print("error passing shape", x.size(), "through ", self.sequential)
+            print("error passing shape", x.size(), "through ", self.sequential, '\nModule layer type',
+                  self.module_node.layer_type.value)
             raise e
 
     def _create_regularisers(self, in_shape: List[int]) -> Tuple[nn.Module]:
@@ -45,6 +47,7 @@ class Layer(BaseLayer):
         if neat_regularisation is not None and neat_regularisation.value is not None:
             # Can use either batchnorm 1D or 2D must decide based on input shape
             if neat_regularisation.value == 'batchnorm':
+                print('received in shape of:', in_shape, 'chose value for bn:', in_shape[1])
                 if len(in_shape) == 4:
                     regularisation = nn.BatchNorm2d(in_shape[1])
                 else:
@@ -109,6 +112,10 @@ class Layer(BaseLayer):
 
             # creating linear layer
             deep_layer = nn.Linear(img_flat_size, self.out_features)
+        elif self.module_node.layer_type.value == DepthwiseSeparableConv:
+            pass
+            # TODO
+            # deep_layer = DepthwiseSeparableConv()
         elif self.module_node.layer_type.value is None:  # No deep layer
             deep_layer = nn.Identity()
 

@@ -14,7 +14,9 @@ def main():
 
     generation = Generation()
     for _ in range(config.n_generations):
+        print(_)
         evolve_generation(generation)
+
 
 def parse_config():
     parser = argparse.ArgumentParser(description='CoDeepNEAT')

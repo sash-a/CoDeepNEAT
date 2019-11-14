@@ -33,7 +33,7 @@ class Config:
         self.module_node_deep_layer_chance = 0.95
         self.module_node_conv_layer_chance = 0.65  # chance of linear = 1-conv. not used if no deep layer
         # Layer types
-        self.use_depthwise_separable_convs = True
+        self.use_depthwise_separable_convs = False
         #
         self.fitness_aggregation = 'avg'  # max
         #

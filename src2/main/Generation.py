@@ -10,6 +10,7 @@ import random
 from typing import Optional
 
 import src2.main.Singleton as Singleton
+from src.Validation import DataLoader
 from src2.Genotype.CDN.Operators.Mutators.BlueprintGenomeMutator import BlueprintGenomeMutator
 from src2.Genotype.CDN.Operators.Mutators.ModuleGenomeMutator import ModuleGenomeMutator
 from src2.Genotype.CDN.PopulationInitializer import create_population, create_mr
@@ -54,9 +55,12 @@ class Generation:
         """Evaluates all blueprints multiple times."""
         # Multiplying and shuffling the blueprints so that config.evaluations number of blueprints is evaluated
         blueprints = list(self.blueprint_population) * config.evaluations
+        inputs, _ = DataLoader.sample_data(config.get_device())
+        input_size = list(inputs.size())
 
         with ThreadPoolExecutor(max_workers=config.n_gpus, initializer=init_threads()) as ex:
-            results = ex.map(evaluate_blueprint, blueprints)
+            results = ex.map(lambda x: evaluate_blueprint(*x), list(zip(blueprints, [input_size] * len(blueprints))))
+            # results = ex.map(evaluate_blueprint, blueprints, input_size)
             for result in results:
                 r = result
 
