@@ -13,8 +13,8 @@ def main():
     parse_config()
 
     generation = Generation()
-    for _ in range(config.n_generations):
-        print(_)
+    for i in range(config.n_generations):
+        print('Started generation:', i)
         evolve_generation(generation)
 
 

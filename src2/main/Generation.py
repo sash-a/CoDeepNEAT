@@ -9,6 +9,8 @@ from concurrent.futures import ThreadPoolExecutor
 import random
 from typing import Optional
 
+import wandb
+
 import src2.main.Singleton as Singleton
 from src2.Phenotype.NeuralNetwork.Evaluator.DataLoader import get_data_shape
 from src2.Genotype.CDN.Operators.Mutators.BlueprintGenomeMutator import BlueprintGenomeMutator
@@ -50,12 +52,38 @@ class Generation:
         self.da_population: Optional[Population] = None
 
         self.initialise_populations()
-        # self.module_population[0].visualize()
+
+        if config.use_wandb:
+            tags = []  # TODO: add in module retention, speciation, DA
+
+            if not tags:
+                tags = ['base']
+
+            wandb.init(name=config.run_name, project='cdn_test', tags=tags, dir='../../results')
+            wandb.config.dataset = config.dataset
+            wandb.config.evolution_epochs = config.epochs_in_evolution
+            wandb.config.generations = config.n_generations
+
+    def step(self):
+        """
+            Runs CDN for one generation. Calls the evaluation of all individuals. Prepares population objects for the
+            next step.
+        """
+        self.evaluate_blueprints()  # may be parallel
+
+        if config.use_wandb:
+            self.wandb_report()
+
+        self.module_population.step()
+        self.blueprint_population.step()
+
+        print('Step ended')
+        print('Module species:', [len(spc.members) for spc in self.module_population.species])
 
     def evaluate_blueprints(self):
-        """Evaluates all blueprints multiple times."""
-        # Multiplying and shuffling the blueprints so that config.evaluations number of blueprints is evaluated
-        blueprints = list(self.blueprint_population) * config.evaluations
+        """Evaluates all blueprints"""
+        # Multiplying the blueprints so that each blueprint is evaluated config.n_evaluations_per_bp times
+        blueprints = list(self.blueprint_population) * config.n_evaluations_per_bp
         input_size = get_data_shape()
 
         with ThreadPoolExecutor(max_workers=config.n_gpus, initializer=init_threads()) as ex:
@@ -79,15 +107,17 @@ class Generation:
                                                create_mr(), config.bp_pop_size, bp_speciator)
         # TODO DA pop
 
-    def step(self):
-        """
-            Runs CDN for one generation. Calls the evaluation of all individuals. Prepares population objects for the
-            next step.
-        """
-        self.evaluate_blueprints()  # may be parallel
-        self.module_population.step()
-        self.blueprint_population.step()
+    def wandb_report(self):
+        module_accs = sorted([module.fitness_values[0] for module in self.module_population])
+        bp_accs = sorted([bp.fitness_values[0] for bp in self.blueprint_population])
 
+        mod_acc_tbl = wandb.Table(['module accuracies'], data=module_accs)
+        bp_acc_tbl = wandb.Table(['blueprint accuracies'], data=bp_accs)
 
-if __name__ == '__main__':
-    Generation()
+        wandb.log({'module accuracy table': mod_acc_tbl, 'blueprint accuracy table': bp_acc_tbl,
+                   'module accuracies raw': module_accs, 'blueprint accuracies raw': bp_accs,
+                   'avg module accuracy': sum(module_accs) / len(module_accs),
+                   'avg blueprint accuracy': sum(bp_accs) / len(bp_accs),
+                   'best module accuracy': module_accs[-1], 'best blueprint accuracy': bp_accs[-1],
+                   'num module species': len(self.module_population.species),
+                   'species sizes': [len(spc.members) for spc in self.module_population.species]})

@@ -9,12 +9,14 @@ class Config:
     def __init__(self):
         print('loading config')
         # ---------------------------------------------- Important stuff ----------------------------------------------
+        self.run_name = 'test_src2_cluster'
+        self.dummy_run = False
         self.n_generations = 1000
         self.n_gpus = 1
         self.device = 'gpu'  # cpu
         self.batch_size = 256
-        self.epochs_in_evolution = 5
-        self.evaluations = 1
+        self.epochs_in_evolution = 8
+        self.n_evaluations_per_bp = 4
         # ----------------------------------------------- Dataset stuff -----------------------------------------------
         self.dataset = 'cifar10'  # mnist | cifar10 | custom
         self.custom_dataset_root = ''
@@ -22,15 +24,15 @@ class Config:
         # ------------------------------------------------- CDN stuff -------------------------------------------------
         self.multiobjective = False
         # Population sizes
-        self.module_pop_size = 10
-        self.bp_pop_size = 3
+        self.module_pop_size = 50
+        self.bp_pop_size = 20
         self.da_pop_size = 5
 
-        self.n_module_species = 1
+        self.n_module_species = 4
         # Features chances
         self.module_node_batchnorm_chance = 0.65
         self.module_node_dropout_chance = 0.2
-        self.module_node_max_pool_chance = 0.3  # 0.3
+        self.module_node_max_pool_chance = 0.3
         self.module_node_deep_layer_chance = 0.95
         self.module_node_conv_layer_chance = 0.65  # chance of linear = 1-conv. not used if no deep layer
         # Layer types
@@ -55,6 +57,8 @@ class Config:
         self.blueprint_node_type_switch_chance = 0.2  # 0.1
         self.module_add_node_chance = 0.2  # 0.08
         self.module_add_connection_chance = 0.2  # 0.08
+        # ------------------------------------------------ wandb stuff ------------------------------------------------
+        self.use_wandb = True
         # -------------------------------------------------------------------------------------------------------------
 
     def get_device(self):

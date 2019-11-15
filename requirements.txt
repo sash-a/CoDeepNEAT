@@ -18,10 +18,7 @@ torchvision
 matplotlib
 matplotlib-base
 numpy
-
-ipython
-
-pytest
+scikit-learn
 
 graphviz
 python-graphviz

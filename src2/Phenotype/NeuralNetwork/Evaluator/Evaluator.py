@@ -14,13 +14,14 @@ from src2.Phenotype.NeuralNetwork.Evaluator.DataLoader import load_data
 from sklearn.metrics import accuracy_score
 import numpy as np
 
-
 if TYPE_CHECKING:
     from src2.Phenotype.NeuralNetwork.NeuralNetwork import Network
 
 
 def evaluate(model: Network, num_epochs=config.epochs_in_evolution):
     """trains model on training data, test on testing and returns test acc"""
+    if config.dummy_run:
+        return random.random()
 
     # TODO add in augmentations
     composed_transform = transforms.Compose([
@@ -36,7 +37,7 @@ def evaluate(model: Network, num_epochs=config.epochs_in_evolution):
     return get_test_acc(model, load_data(composed_transform, 'test'))
 
 
-def train_epoch(model: Network, train_loader: DataLoader, max_batches = -1):
+def train_epoch(model: Network, train_loader: DataLoader, max_batches=-1):
     model.train()
     loss = 0
     for batch_idx, (inputs, targets) in enumerate(train_loader):
@@ -76,7 +77,7 @@ def get_test_acc(model: Network, test_loader: DataLoader):
             predictions = np.argmax(prob, axis=1)
 
             acc = accuracy_score(targets.cpu(), predictions)
-            total_acc+=acc
+            total_acc += acc
             count = batch_idx
 
-    return total_acc/count
+    return total_acc / count

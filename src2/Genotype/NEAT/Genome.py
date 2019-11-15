@@ -3,7 +3,6 @@ from __future__ import annotations
 import copy
 from typing import Dict, List, AbstractSet, Union, TYPE_CHECKING, Set, Tuple
 
-import sys
 import threading
 from torch import nn
 
@@ -31,7 +30,7 @@ class Genome(GraphGenome):
 
         self.rank = 0  # The order of this genome when ranked by fitness values
         self.uses = 0  # The numbers of times this genome is used
-        self.fitness_values: List[int] = [-(sys.maxsize - 1)]
+        self.fitness_values: List[int] = [0]
 
         self.lock = threading.RLock()
 
