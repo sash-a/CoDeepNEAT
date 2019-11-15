@@ -11,6 +11,10 @@ from torchvision.transforms import transforms
 from src2.Configuration import config
 from src2.Phenotype.NeuralNetwork.Evaluator.DataLoader import load_data
 
+from sklearn.metrics import accuracy_score
+import numpy as np
+
+
 if TYPE_CHECKING:
     from src2.Phenotype.NeuralNetwork.NeuralNetwork import Network
 
@@ -23,17 +27,21 @@ def evaluate(model: Network, num_epochs=config.epochs_in_evolution):
         transforms.ToTensor(),
         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
     ])
+    # print("training model:",model)
 
     for epoch in range(num_epochs):
+        # print("training epoch")
         train_epoch(model, load_data(composed_transform, 'train'))
 
     return get_test_acc(model, load_data(composed_transform, 'test'))
 
 
-def train_epoch(model: Network, train_loader: DataLoader):
+def train_epoch(model: Network, train_loader: DataLoader, max_batches = -1):
     model.train()
     loss = 0
     for batch_idx, (inputs, targets) in enumerate(train_loader):
+        if max_batches != -1 and batch_idx > max_batches:
+            break
         model.optimizer.zero_grad()
         loss += train_batch(model, inputs, targets)
 
@@ -52,9 +60,23 @@ def train_batch(model: Network, inputs: torch.tensor, labels: torch.tensor):
 
 def get_test_acc(model: Network, test_loader: DataLoader):
     model.eval()
+    # print("testing")
+
+    count = 0
+    total_acc = 0
 
     with torch.no_grad():
-        pass
-        # todo find proper way to do this. manual counting logic is slow
+        for batch_idx, (inputs, targets) in enumerate(test_loader):
+            inputs, targets = inputs.to(config.get_device()), targets.to(config.get_device())
 
-    return random.random()
+            output = model(inputs)
+
+            softmax = torch.exp(output).cpu()
+            prob = list(softmax.numpy())
+            predictions = np.argmax(prob, axis=1)
+
+            acc = accuracy_score(targets.cpu(), predictions)
+            total_acc+=acc
+            count = batch_idx
+
+    return total_acc/count

@@ -30,7 +30,7 @@ class Layer(BaseLayer):
         except Exception as e:
             print("error passing shape", x.size(), "through ", self.sequential, '\nModule layer type',
                   self.module_node.layer_type.value)
-            raise e
+            raise Exception(e)
 
     def _create_regularisers(self, in_shape: List[int]) -> Tuple[nn.Module]:
         """Creates and returns regularisers given mutagens in self.module_node.layer_type"""

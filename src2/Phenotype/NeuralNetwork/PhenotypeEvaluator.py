@@ -23,9 +23,12 @@ def evaluate_blueprint(blueprint: BlueprintGenome, input_size: List[int]):
     blueprint.update_best_sample_map(model.sample_map, accuracy)
     blueprint.report_fitness([accuracy], module_sample_map=model.sample_map)
 
-    if random.random() < 0.1:
+    # print("evaluated, acc:",accuracy)
+
+    if random.random() < 1.1:
         model.visualize()
         blueprint.visualize()
+        # print("acc:",accuracy)
 
     return blueprint
 
