@@ -1,17 +1,20 @@
-import math
-from typing import List
+from __future__ import annotations
 
-from torch import tensor
-from torch import nn
+from typing import List, TYPE_CHECKING
+
+from torch import tensor, nn
 import torch.nn.functional as F
+
+if TYPE_CHECKING:
+    from src2.Phenotype.NeuralNetwork.Layers.AggregationLayer import AggregationLayer
 
 
 def homogenise_xy(conv_inputs: List[tensor]):
     """Homogenises the x, y dims of a conv output. Assumes that the output is square i.e x = y"""
-    for conv_input in conv_inputs:  # Checks that all inputs are square
-        _, _, x, y = list(conv_input.size())
+    for i in range(len(conv_inputs)):  # Checks that all inputs are square
+        _, _, x, y = list(conv_inputs[i].size())
         if x != y:
-            pad_to_square(conv_input)
+            conv_inputs[i] = pad_to_square(conv_inputs[i].size())
 
     # Try to get all tensors as close to the average size of each tensor passed in
     target_size = round(sum([list(conv_input.size())[2] for conv_input in conv_inputs]) / len(conv_inputs))
@@ -33,22 +36,30 @@ def homogenise_xy(conv_inputs: List[tensor]):
         conv_inputs[i] = F.pad(conv_inputs[i], [left_pad, right_pad, left_pad, right_pad])
 
 
-def homogenise_channel(conv_inputs: List[tensor]):
-    pass
+def homogenise_channel(conv_inputs: List[tensor], agg_layer: AggregationLayer):
+    """This will only be used when merging using a lossy strategy"""
+    # TODO test!
+    if not agg_layer.channel_resizers:  # If 1x1 convs not yet created then create them
+        print('No 1x1 convs found for channel resizing, creating them')
+        target_size = round(sum([list(conv_input.size())[1] for conv_input in conv_inputs]) / len(conv_inputs))
+
+        for conv_input in conv_inputs:  # creating 1x1 convs
+            channel = list(conv_input.size())[1]
+            agg_layer.channel_resizers.append(nn.Conv2d(channel, target_size, 1))
+
+    for i in range(len(conv_inputs)):  # passing inputs through 1x1 convs
+        conv_inputs[i] = agg_layer.channel_resizers[i](conv_inputs[i])
 
 
-def pad_to_square(conv_input: tensor):
-    pass
+def pad_to_square(conv_input: tensor) -> tensor:
+    _, _, x, y = list(conv_input.size())
+    if x > y:
+        left = (x - y) // 2
+        right = x - y - left
+        conv_input = F.pad(conv_input, [left, right])
+    else:
+        left = (y - x) // 2
+        right = y - x - left
+        conv_input = F.pad(conv_input, [0, 0, left, right])
 
-
-import torch
-
-l = [
-    torch.randn(5, 4, 10, 10),
-    torch.randn(5, 4, 20, 20),
-    torch.randn(5, 4, 50, 50),
-    torch.randn(5, 4, 5, 5)
-]
-
-homogenise_xy(l)
-print([list(conv_input.size()) for conv_input in l])
+    return conv_input

@@ -1,7 +1,7 @@
 from typing import List
 
 import torch
-from torch import tensor
+from torch import tensor, nn
 
 from src.Config import Config
 from src.Phenotype import AggregatorOperations
@@ -14,6 +14,7 @@ class AggregationLayer(BaseLayer):
 
         self.n_inputs_expected: int = num_inputs
         self.n_inputs_received: int = 0
+        self.channel_resizers: List[nn.Conv2d] = []
         self.inputs: List[tensor] = []
 
     def forward(self, input):
