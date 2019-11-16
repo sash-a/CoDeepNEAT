@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from src2.Phenotype.NeuralNetwork.Layers.AggregationLayer import AggregationLayer
 
 
-def homogenise_xy(conv_inputs: List[tensor]):
+def homogenise_xy(conv_inputs: List[tensor]) -> List[tensor]:
     """Homogenises the x, y dims of a conv output. Assumes that the output is square i.e x = y"""
     for i in range(len(conv_inputs)):  # Checks that all inputs are square
         _, _, x, y = list(conv_inputs[i].size())
@@ -35,8 +35,10 @@ def homogenise_xy(conv_inputs: List[tensor]):
         right_pad = (target_size - size) - left_pad
         conv_inputs[i] = F.pad(conv_inputs[i], [left_pad, right_pad, left_pad, right_pad])
 
+    return conv_inputs
 
-def homogenise_channel(conv_inputs: List[tensor], agg_layer: AggregationLayer):
+
+def homogenise_channel(conv_inputs: List[tensor], agg_layer: AggregationLayer) -> List[tensor]:
     """This will only be used when merging using a lossy strategy"""
     # TODO test!
     if not agg_layer.channel_resizers:  # If 1x1 convs not yet created then create them
@@ -49,6 +51,8 @@ def homogenise_channel(conv_inputs: List[tensor], agg_layer: AggregationLayer):
 
     for i in range(len(conv_inputs)):  # passing inputs through 1x1 convs
         conv_inputs[i] = agg_layer.channel_resizers[i](conv_inputs[i])
+
+    return conv_inputs
 
 
 def pad_to_square(conv_input: tensor) -> tensor:

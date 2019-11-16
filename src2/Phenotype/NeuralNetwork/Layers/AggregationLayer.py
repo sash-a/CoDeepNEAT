@@ -9,13 +9,21 @@ from src2.Phenotype.NeuralNetwork.Layers.BaseLayer import BaseLayer
 
 
 class AggregationLayer(BaseLayer):
-    def __init__(self, num_inputs: int, name):
+    def __init__(self, num_inputs: int, name: str, lossy: bool, try_output_conv: bool):
+        """
+        :param lossy: choice between summing or catting to merge
+        :param try_output_conv: determines whether the agg layer outputs a conv or linear
+            in the case where both are provided as inputs
+        """
         super().__init__(name)
 
         self.n_inputs_expected: int = num_inputs
         self.n_inputs_received: int = 0
         self.channel_resizers: List[nn.Conv2d] = []
         self.inputs: List[tensor] = []
+
+        self.lossy: bool = lossy
+        self.try_output_conv: bool = try_output_conv
 
     def forward(self, input):
         self.n_inputs_received += 1
