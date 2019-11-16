@@ -24,3 +24,7 @@ graphviz
 python-graphviz
 
 imgaug
+
+# No conda packages for the following, use pip install:
+# wandb
+# tarjan

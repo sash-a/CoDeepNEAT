@@ -132,8 +132,7 @@ def merge_conv_outputs(previous_inputs, new_input):
             the two shapes will be concatenated along the channel dimension
         """
 
-        previous_inputs = [
-            merge_differing_channel_convs(new_input, torch.sum(torch.stack(previous_inputs, dim=0), dim=0))]
+        previous_inputs = [merge_differing_channel_convs(new_input, torch.sum(torch.stack(previous_inputs, dim=0), dim=0))]
     else:
         previous_inputs.append(new_input)
 
@@ -157,7 +156,7 @@ def max_pool_conv_input(x1, x2, y1, y2, new_input, previous_inputs):
         size_ratio = 1 / size_ratio
 
     if (x1 + y1) > (x2 + y2):
-        "homogeneous inputs must be reduced"
+        """homogeneous inputs must be reduced"""
         for i in range(len(previous_inputs)):
             previous_inputs[i] = F.max_pool2d(previous_inputs[i], kernel_size=(round(size_ratio), round(size_ratio)))
 
