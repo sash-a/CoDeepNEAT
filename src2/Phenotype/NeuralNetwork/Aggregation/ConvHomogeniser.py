@@ -49,7 +49,9 @@ def homogenise_channel(conv_inputs: List[tensor], agg_layer: AggregationLayer) -
 
         for conv_input in conv_inputs:  # creating 1x1 convs
             channel = list(conv_input.size())[1]
-            agg_layer.channel_resizers.append(nn.Conv2d(channel, target_size, 1).to(config.get_device()))
+            agg_layer.channel_resizers.append(nn.Conv2d(channel, target_size, 1))
+
+        agg_layer.channel_resizers.to(config.get_device())
 
     for i in range(len(conv_inputs)):  # passing inputs through 1x1 convs
         print('using 1x1 conv for passing input through an agg node with ', len(agg_layer.inputs), 'inputs')
