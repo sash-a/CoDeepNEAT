@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING, Union, List, Dict
 
 from src2.Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
 from src2.Genotype.CDN.Nodes.ModuleNode import ModuleNode
-from test import StaticGenomes
 
 if TYPE_CHECKING:
     from src2.Genotype.NEAT.Genome import Genome

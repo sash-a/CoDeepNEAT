@@ -19,7 +19,7 @@ def load_data(composed_transforms: transforms.Compose, split: str) -> DataLoader
     dataset_args = {
         'root': DataManager.get_datasets_folder(),
         'train': train,
-        'download': False,
+        'download': True,
         'transform': composed_transforms
     }
 

@@ -11,6 +11,9 @@ dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
 dir_path_2 = os.path.split(dir_path)[0]
 sys.path.append(dir_path_1)
 sys.path.append(dir_path_2)
+print(os.path.join(dir_path_1, 'test'))
+sys.path.append(os.path.join(dir_path_1, 'test'))
+sys.path.append(os.path.join(dir_path_1, 'src'))
 
 from src2.Configuration import config
 from src2.main.Generation import Generation
