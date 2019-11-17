@@ -35,6 +35,8 @@ class Network(nn.Module):
         self.optimizer: optim.adam = optim.Adam(self.parameters(), lr=self.blueprint.learning_rate.value,
                                                 betas=(self.blueprint.beta1.value, self.blueprint.beta2.value))
 
+        print('Network created')
+
     def forward(self, x):
         q: List[Tuple[Union[Layer, AggregationLayer], tensor]] = [(self.model, x)]
 
@@ -56,10 +58,16 @@ class Network(nn.Module):
 
         while q:
             layer, input_shape = q.pop()
+            print('creating layer...')
             output_shape = layer.create_layer(input_shape)
+            print('...layer created')
             # out_shape will be None if agg layer has not received all its inputs yet
             if output_shape is not None:
+                print('extending q for shape layer')
                 q.extend([(child, output_shape) for child in list(layer.child_layers)])
+                print('shape layer q extended')
+
+        print('done shape layers')
 
     def multiply_learning_rate(self, factor):
         pass

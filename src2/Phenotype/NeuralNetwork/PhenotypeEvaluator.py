@@ -19,10 +19,23 @@ def evaluate_blueprint(blueprint: BlueprintGenome, input_size: List[int]):
     handles the assignment of the single/multi obj finesses to the blueprint
     """
     print('Starting bp eval')
-    model: Network = Network(blueprint, input_size).to(config.get_device())
+    model: Network = Network(blueprint, input_size)
+    print('net created in eval bp')
+    device = config.get_device()
+    print('got device')
+    s = time.time()
+    model.to(device)
+
+    print('time taken for .to(device): ', time.time() - s)
+    print('trainable model params', sum(p.numel() for p in model.parameters() if p.requires_grad))
+
+    print('Net created and on gpu')
     accuracy = evaluate(model)
+    print('network evaluated')
     blueprint.update_best_sample_map(model.sample_map, accuracy)
+    print('updated sample map')
     blueprint.report_fitness([accuracy], module_sample_map=model.sample_map)
+    print('fitness reported')
 
     print("Evaluation complete with accuracy:", accuracy)
 

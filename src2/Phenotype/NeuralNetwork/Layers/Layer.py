@@ -72,6 +72,7 @@ class Layer(BaseLayer):
         Creates a layer of type nn.Linear or nn.Conv2d according to its module_node and gives it the correct shape.
         Populates the self.sequential attribute with created layers and values returned from self.create_regularisers.
         """
+        print('creating normal layer')
         if 0 in in_shape:
             raise Exception("Parent shape contains has a dim of size 0: " + repr(in_shape))
 

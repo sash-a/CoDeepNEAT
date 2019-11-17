@@ -20,27 +20,40 @@ def merge(inputs: List[tensor], agg_layer: AggregationLayer) -> tensor:
     lossy = agg_layer.lossy
 
     if linear_inputs and conv_inputs:
+        print('both inputs')
         linear = merge_layers(homogenise_linear(linear_inputs, lossy), lossy)
+        print('linears merged')
         conv = merge_layers(homogenise_conv(conv_inputs, agg_layer), lossy)
+        print('convs merged')
 
         if agg_layer.try_output_conv:
             lossy = False  # cannot do lossy merging of a conv produced from a linear and another conv
+            print('constructing conv from linear')
             conv_construct = ConvLinearHomogeniser.reshape_linear_to_conv(linear, conv)
+            print('conv constructed')
             homos = ConvHomogeniser.homogenise_xy([conv, conv_construct])
-
+            print('convs homogenised')
         else:
+            print('flattening conv')
             flat_conv = ConvLinearHomogeniser.flatten_conv(conv)
+            print('conv flattened')
             homos = homogenise_linear([flat_conv, linear], lossy)
+            print('linears homogenised')
 
     elif linear_inputs and not conv_inputs:
+        print('only linears')
         homos = homogenise_linear(inputs, lossy)
+        print('linears homogenised')
 
     elif conv_inputs and not linear_inputs:
+        print('only convs')
         homos = homogenise_conv(inputs, agg_layer)
+        print('convs homogenised')
 
     else:
         raise Exception("erroneous or empty inputs passed to agg layer")
 
+    print('done merging...')
     return merge_layers(homos, lossy)
 
 
@@ -55,6 +68,7 @@ def homogenise_conv(inputs: List[tensor], agg_layer: AggregationLayer):
     homos = ConvHomogeniser.homogenise_xy(inputs)
     if agg_layer.lossy:
         homos = ConvHomogeniser.homogenise_channel(homos, agg_layer)
+
     return homos
 
 

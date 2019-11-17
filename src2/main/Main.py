@@ -27,7 +27,7 @@ def main():
 
     generation = Generation()
     for i in range(config.n_generations):
-        print('Started generation:', i)
+        print('\n\nStarted generation:', i)
         evolve_generation(generation)
 
 

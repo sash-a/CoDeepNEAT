@@ -17,8 +17,9 @@ class Node(Gene):
     def __init__(self, id, type: NodeType = NodeType.HIDDEN):
         super().__init__(id)
         self.node_type: NodeType = type
-        self.lossy_aggregation = Option('lossy', True, False, current_value=random.choice([True, False]))
-        self.try_conv_aggregation = Option('conv_aggregation', True, False, current_value=random.choice([True, False]))
+        # TODO
+        self.lossy_aggregation = Option('lossy', False, True, current_value=random.choice([False, True]))
+        self.try_conv_aggregation = Option('conv_aggregation', False, True, current_value=random.choice([False, True]))
 
     def is_output_node(self):
         return self.node_type == NodeType.OUTPUT

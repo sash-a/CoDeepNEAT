@@ -13,12 +13,14 @@ class BaseLayer(nn.Module, ABC):
         super().__init__()
         self.name = name
         self.out_shape: List[int] = []
+        self.child_layers: List[BaseLayer] = []
 
     def add_child(self, name: str, child: BaseLayer) -> None:
         self.add_module(name, child)
+        self.child_layers.append(child)
 
-    child_layers: List[Union[Layer, BaseLayer, AggregationLayer]] = \
-        property(lambda self: [child for child in self.children() if isinstance(child, BaseLayer)])
+    # child_layers: List[Union[Layer, BaseLayer, AggregationLayer]] = \
+    #     property(lambda self: [child for child in self.children() if isinstance(child, BaseLayer)])
 
     @abstractmethod
     def create_layer(self, in_shape) -> List[int]:

@@ -57,6 +57,7 @@ def homogenise_channel(conv_inputs: List[tensor], agg_layer: AggregationLayer) -
         print('using 1x1 conv for passing input through an agg node with ', len(agg_layer.inputs), 'inputs')
         conv_inputs[i] = agg_layer.channel_resizers[i](conv_inputs[i])
 
+    print('done passing through 1x1s')
     return conv_inputs
 
 
