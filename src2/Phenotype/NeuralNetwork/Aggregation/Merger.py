@@ -21,7 +21,7 @@ def merge(inputs: List[tensor], agg_layer: AggregationLayer) -> tensor:
 
     if linear_inputs and conv_inputs:
         linear = merge_layers(homogenise_linear(linear_inputs, lossy), lossy)
-        conv = merge_layers(homogenise_conv(linear_inputs, agg_layer), lossy)
+        conv = merge_layers(homogenise_conv(conv_inputs, agg_layer), lossy)
 
         if agg_layer.try_output_conv:
             lossy = False  # cannot do lossy merging of a conv produced from a linear and another conv

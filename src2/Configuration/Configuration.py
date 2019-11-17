@@ -9,14 +9,14 @@ class Config:
     def __init__(self):
         print('loading config')
         # ---------------------------------------------- Important stuff ----------------------------------------------
-        self.run_name = 'test_src2_cluster'
-        self.dummy_run = False
+        self.run_name = 'test'
+        self.dummy_run = True
         self.n_generations = 1000
         self.n_gpus = 1
         self.device = 'gpu'  # cpu
         self.batch_size = 256
         self.epochs_in_evolution = 8
-        self.n_evaluations_per_bp = 4
+        self.n_evaluations_per_bp = 1
         # ----------------------------------------------- Dataset stuff -----------------------------------------------
         self.dataset = 'cifar10'  # mnist | cifar10 | custom
         self.custom_dataset_root = ''
@@ -58,7 +58,7 @@ class Config:
         self.module_add_node_chance = 0.2  # 0.08
         self.module_add_connection_chance = 0.2  # 0.08
         # ------------------------------------------------ wandb stuff ------------------------------------------------
-        self.use_wandb = True
+        self.use_wandb = False
         # -------------------------------------------------------------------------------------------------------------
 
     def get_device(self):

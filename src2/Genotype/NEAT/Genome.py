@@ -90,7 +90,6 @@ class Genome(GraphGenome):
         return connected and not self.has_cycle()
 
     def to_phenotype(self, **kwargs) -> Tuple[Layer, Layer]:
-        # print("making genome pheno")
         multi_input_map: Dict[int, int] = self.get_multi_input_nodes()
         node_traversal: Dict[int, List[int]] = self.get_reachable_nodes(False)
         connected_nodes: Set[int] = self.get_fully_connected_node_ids()
@@ -153,12 +152,15 @@ class Genome(GraphGenome):
                     # Create aggregation layer if not already created and node_id is negative
                     if blueprint_node_id is not None:
                         """this is a module agg node"""
-                        name = str(blueprint_node_id) + "_agg(" + str(-1 * child_node_id) + ")"
+                        name = str(blueprint_node_id) + "_agg (" + str(-1 * child_node_id) + ")"
                     else:
                         """blueprint level agg node"""
-                        name = "agg(" + str(-1 * child_node_id) + ")"
+                        name = "agg (" + str(-1 * child_node_id) + ")"
 
-                    input_layer = AggregationLayer(multi_input_map[child_node_id * -1], name)
+                    node: Node = self.nodes[-child_node_id]
+                    input_layer = AggregationLayer(multi_input_map[child_node_id * -1], name,
+                                                   node.lossy_aggregation.value,
+                                                   node.try_conv_aggregation.value)
                     agg_layers[child_node_id] = input_layer
                     create_and_link_layers(input_layer, child_node_id)
 

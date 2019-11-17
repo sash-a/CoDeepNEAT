@@ -5,6 +5,8 @@ from typing import List, TYPE_CHECKING
 from torch import tensor, nn
 import torch.nn.functional as F
 
+from src2.Configuration import config
+
 if TYPE_CHECKING:
     from src2.Phenotype.NeuralNetwork.Layers.AggregationLayer import AggregationLayer
 
@@ -47,9 +49,10 @@ def homogenise_channel(conv_inputs: List[tensor], agg_layer: AggregationLayer) -
 
         for conv_input in conv_inputs:  # creating 1x1 convs
             channel = list(conv_input.size())[1]
-            agg_layer.channel_resizers.append(nn.Conv2d(channel, target_size, 1))
+            agg_layer.channel_resizers.append(nn.Conv2d(channel, target_size, 1).to(config.get_device()))
 
     for i in range(len(conv_inputs)):  # passing inputs through 1x1 convs
+        print('using 1x1 conv for passing input through an agg node with ', len(agg_layer.inputs), 'inputs')
         conv_inputs[i] = agg_layer.channel_resizers[i](conv_inputs[i])
 
     return conv_inputs

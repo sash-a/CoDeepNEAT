@@ -23,18 +23,19 @@ def reshape_linear_to_conv(linear_input: tensor, conv_input_stencil: tensor, ) -
     linear_features = list(linear_input.size())[1]
     conv_xy = list(conv_input_stencil.size())[2] ** 2
 
+    # how much bigger are the linear out features when compared to the area of the conv xy plane
     ratio = linear_features / conv_xy
     channel_size_options = [floor(ratio), ceil(ratio)]
 
     if ratio > 1:
         min_pad_value = 10000
         best_channel_option = -1
-        for c in channel_size_options:
-            adjusted_ratio = ratio / c
-            pad_value = abs(1 - adjusted_ratio)
+        for channel_size in channel_size_options:
+            adjusted_ratio = ratio / channel_size
+            pad_value = abs(1 - adjusted_ratio)  # how close is the adjusted ratio to 1
             if pad_value < min_pad_value:
                 min_pad_value = pad_value
-                best_channel_option = c
+                best_channel_option = channel_size
     else:
         best_channel_option = 1
 
@@ -44,10 +45,11 @@ def reshape_linear_to_conv(linear_input: tensor, conv_input_stencil: tensor, ) -
     """
     x = ceil(pow(linear_features / best_channel_option, 0.5))
 
-    constructed_conv_features = x ** 2 * best_channel_option
+    constructed_conv_features = (x ** 2) * best_channel_option
     required_linear_pad = constructed_conv_features - linear_features
     left_pad = required_linear_pad // 2
     right_pad = required_linear_pad - left_pad
+    # Padding the linear so that it can be reshaped to the desired size
     linear_input = F.pad(input=linear_input, pad=[left_pad, right_pad])
 
     return linear_input.view(list(linear_input.size())[0], best_channel_option, x, x)

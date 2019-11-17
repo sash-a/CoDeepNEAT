@@ -18,6 +18,7 @@ def evaluate_blueprint(blueprint: BlueprintGenome, input_size: List[int]):
     parses the blueprint into its phenotype NN
     handles the assignment of the single/multi obj finesses to the blueprint
     """
+    print('Starting bp eval')
     model: Network = Network(blueprint, input_size).to(config.get_device())
     accuracy = evaluate(model)
     blueprint.update_best_sample_map(model.sample_map, accuracy)
