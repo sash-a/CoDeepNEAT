@@ -9,14 +9,14 @@ class Config:
     def __init__(self):
         print('loading config')
         # ---------------------------------------------- Important stuff ----------------------------------------------
-        self.run_name = 'test'
-        self.dummy_run = True
+        self.run_name = 'test_cluster_slowdown'
+        self.dummy_run = False
         self.n_generations = 1000
-        self.n_gpus = 1
+        self.n_gpus = 2
         self.device = 'gpu'  # cpu
         self.batch_size = 256
         self.epochs_in_evolution = 8
-        self.n_evaluations_per_bp = 1
+        self.n_evaluations_per_bp = 4
         # ----------------------------------------------- Dataset stuff -----------------------------------------------
         self.dataset = 'cifar10'  # mnist | cifar10 | custom
         self.custom_dataset_root = ''
@@ -38,7 +38,7 @@ class Config:
         # Layer types
         self.use_depthwise_separable_convs = False
         #
-        self.fitness_aggregation = 'avg'  # max
+        self.fitness_aggregation = 'max'  # max
         #
         self.blank_io_nodes = True  # If true input and output nodes are left blank
         # ------------------------------------------------- NEAT stuff -------------------------------------------------
@@ -46,11 +46,11 @@ class Config:
         self.disjoint_coefficient = 3
         self.excess_coefficient = 5
         # Speciation
-        self.n_elite = 0
+        self.n_elite = 1
         self.reproduce_percent = 0.5  # Percent of species members that are allowed to reproduce
         self.species_distance_thresh_mod_base = 1
-        self.species_distance_thresh_mod_min = 1
-        self.species_distance_thresh_mod_max = 1
+        self.species_distance_thresh_mod_min = 0.001
+        self.species_distance_thresh_mod_max = 100
         # Mutation chances
         self.blueprint_add_node_chance = 0.3  # 0.16
         self.blueprint_add_connection_chance = 0.25  # 0.12
@@ -58,7 +58,7 @@ class Config:
         self.module_add_node_chance = 0.2  # 0.08
         self.module_add_connection_chance = 0.2  # 0.08
         # ------------------------------------------------ wandb stuff ------------------------------------------------
-        self.use_wandb = False
+        self.use_wandb = True
         # -------------------------------------------------------------------------------------------------------------
 
     def get_device(self):
