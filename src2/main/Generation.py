@@ -84,15 +84,20 @@ class Generation:
         """Evaluates all blueprints"""
         # Multiplying the blueprints so that each blueprint is evaluated config.n_evaluations_per_bp times
         blueprints = list(self.blueprint_population) * config.n_evaluations_per_bp
-        input_size = get_data_shape()
+        in_size = get_data_shape()
 
-        with ThreadPoolExecutor(max_workers=config.n_gpus, initializer=init_threads()) as ex:
-            results = ex.map(lambda x: evaluate_blueprint(*x), list(zip(blueprints, [input_size] * len(blueprints))))
-            # results = ex.map(evaluate_blueprint, blueprints, input_size)
-            for result in results:
-                r = result
+        if config.n_gpus > 1:
+            with ThreadPoolExecutor(max_workers=config.n_gpus, initializer=init_threads()) as ex:
+                results = ex.map(lambda x: evaluate_blueprint(*x), list(zip(blueprints, [in_size] * len(blueprints))))
+                # results = ex.map(evaluate_blueprint, blueprints, input_size)
+                for result in results:
+                    r = result
 
-        reset_thread_name()
+            reset_thread_name()
+        else:
+            for bp in blueprints:
+                print('running in series')
+                evaluate_blueprint(bp, in_size)
 
     def initialise_populations(self):
         """Starts off the populations of a new evolutionary run"""

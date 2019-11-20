@@ -12,7 +12,7 @@ class Config:
         self.run_name = 'test_cluster_slowdown'
         self.dummy_run = False
         self.n_generations = 1000
-        self.n_gpus = 2
+        self.n_gpus = 1
         self.device = 'gpu'  # cpu
         self.batch_size = 256
         self.epochs_in_evolution = 8
@@ -58,7 +58,7 @@ class Config:
         self.module_add_node_chance = 0.2  # 0.08
         self.module_add_connection_chance = 0.2  # 0.08
         # ------------------------------------------------ wandb stuff ------------------------------------------------
-        self.use_wandb = True
+        self.use_wandb = False
         # -------------------------------------------------------------------------------------------------------------
 
     def get_device(self):
