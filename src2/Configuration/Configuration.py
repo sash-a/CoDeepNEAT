@@ -67,9 +67,9 @@ class Config:
         gpu = 'cuda:'
         gpu += current_thread().name
         if current_thread().name == 'MainThread':
-            print('No threading detected supplying main thread with cuda:0')
+            # print('No threading detected supplying main thread with cuda:0')
+            gpu = 'cuda:0'
 
-        gpu = 'cuda:0'
         return device('cpu') if self.device == 'cpu' else device(gpu)
 
     def read(self, file: str):

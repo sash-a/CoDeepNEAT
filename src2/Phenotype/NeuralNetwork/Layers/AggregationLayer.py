@@ -20,7 +20,7 @@ class AggregationLayer(BaseLayer):
 
         self.n_inputs_expected: int = num_inputs
         self.n_inputs_received: int = 0
-        self.channel_resizers: nn.ModuleList[nn.Conv2d] = nn.ModuleList()
+        self.channel_resizers: nn.ModuleList = nn.ModuleList()
         self.inputs: List[tensor] = []
 
         self.lossy: bool = lossy

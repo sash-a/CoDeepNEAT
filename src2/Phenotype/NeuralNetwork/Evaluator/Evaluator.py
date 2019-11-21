@@ -28,11 +28,10 @@ def evaluate(model: Network, num_epochs=config.epochs_in_evolution):
         transforms.ToTensor(),
         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
     ])
-    # print("training model:",model)
 
+    train_loader = load_data(composed_transform, 'train')
     for epoch in range(num_epochs):
-        # print("training epoch")
-        train_epoch(model, load_data(composed_transform, 'train'))
+        train_epoch(model, train_loader)
 
     return get_test_acc(model, load_data(composed_transform, 'test'))
 
