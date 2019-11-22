@@ -43,6 +43,8 @@ class Species:
         return self.members[id]
 
     def __repr__(self):
+        if len(self.members) == 0:
+            return "Species empty"
         return 'Species has ' + repr(len(self.members)) + ' members of type: ' + repr(
             type(list(self.members.values())[0]))
 

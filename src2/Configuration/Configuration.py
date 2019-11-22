@@ -15,12 +15,17 @@ class Config:
         self.n_gpus = 1
         self.device = 'gpu'  # cpu
         self.batch_size = 128
-        self.epochs_in_evolution = 8
-        self.n_evaluations_per_bp = 4
+        self.epochs_in_evolution = 2
+        self.n_evaluations_per_bp = 1
+        # ---------------------------------------------- Debug Options ----------------------------------------------
+        self.dummy_run = False
+        self.plot_best_genotypes = False
+
         # ----------------------------------------------- Dataset stuff -----------------------------------------------
         self.dataset = 'cifar10'  # mnist | cifar10 | custom
         self.custom_dataset_root = ''
         self.validation_split = 0.05  # Percent of the train set that becomes the validation set
+        self.download_dataset = True
         # ------------------------------------------------- CDN stuff -------------------------------------------------
         self.multiobjective = False
         # Population sizes
@@ -42,8 +47,8 @@ class Config:
         #
         self.fitness_aggregation = 'max'  # max
         self.use_module_retention = True
-        self.parent_selector = ""  # uniform | roulette | tournament
-        self.representative_selector = ""  # best | centroid | random
+        self.parent_selector = "tournament"  # uniform | roulette | tournament
+        self.representative_selector = "centroid"  # best | centroid | random
 
         #
         self.blank_io_nodes = True  # If true input and output nodes are left blank

@@ -23,9 +23,15 @@ class Population:
         # initial speciation process
         self.speciator: Speciator = speciator
 
+        # print("given ", len(individuals))
+
         self.species: List[Species] = [Species(individuals[0], speciator.mutator)]
         for individual in individuals[1:]:
+            # print("adding mem",individual)
             self.species[0].add(individual)
+
+        # print("mems in spc:",len(self.species[0]))
+
         self.speciator.speciate(self.species)
 
         self.pop_size: int = pop_size

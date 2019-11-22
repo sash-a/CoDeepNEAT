@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import List, TYPE_CHECKING, Dict
 
 from src2.Genotype.NEAT.Operators.RepresentativeSelectors.RepresentativeSelector import RepresentativeSelector

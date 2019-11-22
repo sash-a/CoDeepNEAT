@@ -10,19 +10,26 @@ if TYPE_CHECKING:
 
 
 class MostSimilarSpeciator(Speciator):
-    def speciate(self, species: List[Species]) -> None:
-        self.adjust_speciation_threshold(len(species))
-        individuals: List[Genome] = [member for spc in species for member in spc.members.values()]
+    def speciate(self, specieses: List[Species]) -> None:
+        self.adjust_speciation_threshold(len(specieses))
+        individuals: List[Genome] = [member for spc in specieses for member in spc.members.values()]
 
-        for spc in species:
+        # print("rep:",specieses[0].representative)
+
+        for spc in specieses:
             spc.clear()
+
+        # if species[0].representative is None:
+        # print("num species", len(specieses))
+        # print("num members in spc[0]", len(specieses[0]))
+        # print(specieses)
 
         for individual in individuals:
             best_fit_species = None
-            best_distance = individual.distance_to(species[0].representative) + 1
+            best_distance = individual.distance_to(specieses[0].representative) + 1
 
             # find best species
-            for species in species:
+            for species in specieses:
                 distance = individual.distance_to(species.representative)
                 if distance < best_distance:
                     best_distance = distance
@@ -33,8 +40,8 @@ class MostSimilarSpeciator(Speciator):
             else:
                 # none of the existing species were close enough for this individual
                 # create a new species only if it is not more than the max number of species
-                if len(species) < self.target_num_species:
-                    species.append(Species(individual, self.mutator))
+                if len(specieses) < self.target_num_species:
+                    specieses.append(Species(individual, self.mutator))
                 else:
                     # Add individual to closest species
                     best_fit_species.add(individual)

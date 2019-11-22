@@ -92,7 +92,8 @@ class Generation:
         if config.use_wandb:
             self.wandb_report()
 
-        # self.blueprint_population.get_most_accurate().visualize()
+        if config.plot_best_genotypes:
+            self.blueprint_population.get_most_accurate().visualize()
         print("maxacc:", self.blueprint_population.get_most_accurate().fitness_values)
 
         self.module_population.step()
@@ -117,7 +118,7 @@ class Generation:
             reset_thread_name()
         else:
             for bp in blueprints:
-                print('running in series')
+                # print('running in series')
                 evaluate_blueprint(bp, in_size)
 
     def initialise_populations(self):
