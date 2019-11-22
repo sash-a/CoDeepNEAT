@@ -12,6 +12,7 @@ if TYPE_CHECKING:
 
 
 class BlueprintNode(Node):
+
     def __init__(self, id: int, type: NodeType):
         super().__init__(id, type)
 
