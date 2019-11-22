@@ -97,3 +97,12 @@ class Population:
                 return True
 
         return False
+
+    def get_most_accurate(self):
+        best_fitness = 0
+        best_mem = None
+        for mem in self:
+            if mem.fitness_values[0] > best_fitness:
+                best_fitness = mem.fitness_values[0]
+                best_mem = mem
+        return best_mem

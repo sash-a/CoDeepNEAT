@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import copy
 import random
 from typing import Tuple
 
@@ -155,8 +154,9 @@ def get_new_depthwise_conv_parameter_mutagens():
     conv_params = get_new_conv_parameter_mutagens()
     conv_params["kernels_per_layer"] = IntegerVariable("kernels_per_layer",
                                                        current_value=int(random.normalvariate(mu=15, sigma=2)),
-                                                       start_range=1, end_range=100, mutation_chance=0.15)
-
+                                                       start_range=1, end_range=50, mutation_chance=0.15)
+    conv_params["conv_window_size"] = Option("conv_window_size", 3, 5, 7, current_value=random.choice([3, 5, 7]),
+                                             mutation_chance=0.13)
     return conv_params
 
 

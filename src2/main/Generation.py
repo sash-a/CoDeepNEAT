@@ -74,6 +74,9 @@ class Generation:
         if config.use_wandb:
             self.wandb_report()
 
+        # self.blueprint_population.get_most_accurate().visualize()
+        print("maxacc:",self.blueprint_population.get_most_accurate().fitness_values)
+
         self.module_population.step()
         self.blueprint_population.step()
 

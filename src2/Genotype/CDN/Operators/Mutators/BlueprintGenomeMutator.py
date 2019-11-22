@@ -21,6 +21,7 @@ class BlueprintGenomeMutator(GenomeMutator):
                                 add_connection_chance=config.blueprint_add_connection_chance)
 
         mutation_report += self.mutate_node_types(genome)
+        mutation_report += self.mutate_species_numbers(genome)
 
         return genome
 
@@ -46,3 +47,14 @@ class BlueprintGenomeMutator(GenomeMutator):
                 mutation_report += "swapped module node for a blueprint node"
 
         return mutation_report
+
+    def mutate_species_numbers(self, genome):
+        mutation_report = MutationReport()
+        import src2.main.Singleton as Singleton
+
+        for node in genome.nodes.values():
+            if type(node) != BlueprintNode:
+                continue
+            if random.random() < config.blueprint_node_species_switch_chance:
+                possible_species_ids = [spc.id for spc in Singleton.instance.module_population.species]
+                node.species_id: int = random.choice(possible_species_ids)

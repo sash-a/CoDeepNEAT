@@ -14,7 +14,7 @@ class Config:
         self.n_generations = 1000
         self.n_gpus = 1
         self.device = 'gpu'  # cpu
-        self.batch_size = 256
+        self.batch_size = 128
         self.epochs_in_evolution = 8
         self.n_evaluations_per_bp = 4
         # ----------------------------------------------- Dataset stuff -----------------------------------------------
@@ -34,9 +34,9 @@ class Config:
         self.module_node_dropout_chance = 0.2
         self.module_node_max_pool_chance = 0.3
         self.module_node_deep_layer_chance = 0.95
-        self.module_node_conv_layer_chance = 0.65  # chance of linear = 1-conv. not used if no deep layer
+        self.module_node_conv_layer_chance = 0.7  # chance of linear = 1-conv. not used if no deep layer
         # Layer types
-        self.use_depthwise_separable_convs = False
+        self.use_depthwise_separable_convs = True
         #
         self.fitness_aggregation = 'max'  # max
         #
@@ -54,7 +54,8 @@ class Config:
         # Mutation chances
         self.blueprint_add_node_chance = 0.3  # 0.16
         self.blueprint_add_connection_chance = 0.25  # 0.12
-        self.blueprint_node_type_switch_chance = 0.2  # 0.1
+        self.blueprint_node_type_switch_chance = 0.1  # 0.1
+        self.blueprint_node_species_switch_chance = 0.15
         self.module_add_node_chance = 0.2  # 0.08
         self.module_add_connection_chance = 0.2  # 0.08
         # ------------------------------------------------ wandb stuff ------------------------------------------------

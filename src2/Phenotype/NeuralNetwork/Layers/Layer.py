@@ -72,7 +72,7 @@ class Layer(BaseLayer):
         Creates a layer of type nn.Linear or nn.Conv2d according to its module_node and gives it the correct shape.
         Populates the self.sequential attribute with created layers and values returned from self.create_regularisers.
         """
-        print('creating normal layer')
+        # print('creating normal layer')
         if 0 in in_shape:
             raise Exception("Parent shape contains has a dim of size 0: " + repr(in_shape))
 
@@ -114,9 +114,17 @@ class Layer(BaseLayer):
             # creating linear layer
             deep_layer = nn.Linear(img_flat_size, self.out_features)
         elif self.module_node.layer_type.value == DepthwiseSeparableConv:
-            pass
-            # TODO
-            # deep_layer = DepthwiseSeparableConv()
+            if len(in_shape) == 2:  # need a reshape if parent layer is linear because conv input needs 4 dims
+                h = w = math.ceil(math.sqrt(img_flat_size / channels))
+                if h * w != img_flat_size / channels:
+                    raise Exception("lossy reshape of linear output (" + repr(in_shape) + ") to conv input (" +
+                                    str(batch) + ", " + channels + ", " + str(h) * 2 + ")")
+                reshape_layer = Reshape(batch, channels, h, w)
+
+            window_size = self.module_node.layer_type.get_subvalue('conv_window_size')
+            kernels_per_layer = self.module_node.layer_type.get_subvalue('conv_window_size')
+
+            deep_layer = DepthwiseSeparableConv(channels, self.out_features,kernels_per_layer,window_size)
         elif self.module_node.layer_type.value is None:  # No deep layer
             deep_layer = nn.Identity()
 

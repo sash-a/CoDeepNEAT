@@ -39,10 +39,10 @@ def evaluate_blueprint(blueprint: BlueprintGenome, input_size: List[int]):
 
     print("Evaluation complete with accuracy:", accuracy)
 
-    # if random.random() < 1.1:
+    # if random.random() < 0.05:
     #     model.visualize()
     #     blueprint.visualize()
-    #     print("acc:",accuracy)
+        # print("acc:",accuracy)
 
     return blueprint
 

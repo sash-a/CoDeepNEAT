@@ -44,7 +44,7 @@ def homogenise_channel(conv_inputs: List[tensor], agg_layer: AggregationLayer) -
     """This will only be used when merging using a lossy strategy"""
     # TODO test!
     if not agg_layer.channel_resizers:  # If 1x1 convs not yet created then create them
-        print('No 1x1 convs found for channel resizing, creating them')
+        # print('No 1x1 convs found for channel resizing, creating them')
         target_size = round(sum([list(conv_input.size())[1] for conv_input in conv_inputs]) / len(conv_inputs))
 
         for conv_input in conv_inputs:  # creating 1x1 convs
@@ -54,10 +54,10 @@ def homogenise_channel(conv_inputs: List[tensor], agg_layer: AggregationLayer) -
         agg_layer.channel_resizers.to(config.get_device())
 
     for i in range(len(conv_inputs)):  # passing inputs through 1x1 convs
-        print('using 1x1 conv for passing input through an agg node with ', len(agg_layer.inputs), 'inputs')
+        # print('using 1x1 conv for passing input through an agg node with ', len(agg_layer.inputs), 'inputs')
         conv_inputs[i] = agg_layer.channel_resizers[i](conv_inputs[i])
 
-    print('done passing through 1x1s')
+    # print('done passing through 1x1s')
     return conv_inputs
 
 
