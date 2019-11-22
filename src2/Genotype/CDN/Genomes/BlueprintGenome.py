@@ -7,6 +7,7 @@ from typing import List, Dict, TYPE_CHECKING, Optional, Set, Tuple
 from torch import nn
 
 import src2.Genotype.CDN.Nodes.BlueprintNode as BlueprintNode
+from src2.Configuration import config
 from src2.Genotype.Mutagen.ContinuousVariable import ContinuousVariable
 from src2.Genotype.Mutagen.Mutagen import Mutagen
 from src2.Genotype.NEAT.Connection import Connection
@@ -87,7 +88,8 @@ class BlueprintGenome(Genome):
                     module = None
                     module_id = -1
 
-                node.linked_module_id = module_id if module is not None else -1
+                if config.use_module_retention:
+                    node.linked_module_id = module_id if module is not None else -1
 
     def to_phenotype(self, **kwargs) -> Tuple[Layer, Layer]:
         # print("making blueprint pheno")

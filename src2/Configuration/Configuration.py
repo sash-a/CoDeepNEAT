@@ -29,6 +29,8 @@ class Config:
         self.da_pop_size = 5
 
         self.n_module_species = 4
+        self.n_blueprint_species = 1
+
         # Features chances
         self.module_node_batchnorm_chance = 0.65
         self.module_node_dropout_chance = 0.2
@@ -39,6 +41,10 @@ class Config:
         self.use_depthwise_separable_convs = True
         #
         self.fitness_aggregation = 'max'  # max
+        self.use_module_retention = True
+        self.parent_selector = ""  # uniform | roulette | tournament
+        self.representative_selector = ""  # best | centroid | random
+
         #
         self.blank_io_nodes = True  # If true input and output nodes are left blank
         # ------------------------------------------------- NEAT stuff -------------------------------------------------
@@ -46,6 +52,7 @@ class Config:
         self.disjoint_coefficient = 3
         self.excess_coefficient = 5
         # Speciation
+        self.module_speciation = "similar" # similar | neat
         self.n_elite = 1
         self.reproduce_percent = 0.5  # Percent of species members that are allowed to reproduce
         self.species_distance_thresh_mod_base = 1

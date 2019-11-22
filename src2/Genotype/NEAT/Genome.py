@@ -28,7 +28,7 @@ class Genome(GraphGenome):
         self.id = Genome._id_counter
         Genome._id_counter += 1
 
-        self.rank = 0  # The order of this genome when ranked by fitness values
+        self.rank = 0  # The order of this genome when ranked by fitness values, high rank is more fit
         self.uses = 0  # The numbers of times this genome is used
         self.fitness_values: List[int] = [0]
 

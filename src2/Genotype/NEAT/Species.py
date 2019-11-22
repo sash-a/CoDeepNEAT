@@ -8,7 +8,7 @@ from src2.Genotype.NEAT.Operators.RepresentativeSelectors.RepresentativeSelector
 from src2.Genotype.NEAT.Genome import Genome
 from src2.Genotype.NEAT import MutationRecord
 from src2.Configuration import config
-from src2.Genotype.NEAT.Operators.Selectors import Selector
+from src2.Genotype.NEAT.Operators.ParentSelectors import Selector
 from src2.Genotype.NEAT.Operators.Mutators import Mutator
 import src2.Genotype.NEAT.Operators.Cross as Cross
 

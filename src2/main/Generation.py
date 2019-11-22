@@ -4,32 +4,34 @@
 """
 from __future__ import annotations
 
-import copy
 from concurrent.futures import ThreadPoolExecutor
-import random
 from typing import Optional
 
 import wandb
 
 import src2.main.Singleton as Singleton
-from src2.Phenotype.NeuralNetwork.Evaluator.DataLoader import get_data_shape
-from src2.Genotype.CDN.Operators.Mutators.BlueprintGenomeMutator import BlueprintGenomeMutator
-from src2.Genotype.CDN.Operators.Mutators.ModuleGenomeMutator import ModuleGenomeMutator
-from src2.Genotype.CDN.PopulationInitializer import create_population, create_mr
-from src2.Genotype.NEAT.Operators.PopulationRankers.SingleObjectiveRank import SingleObjectiveRank
-from src2.Genotype.NEAT.Operators.RepresentativeSelectors.RandomRepSelector import RandomRepSelector
-from src2.Genotype.NEAT.Operators.Selectors.TournamentSelector import TournamentSelector
-from src2.Genotype.NEAT.Species import Species
-from src2.Phenotype.NeuralNetwork.NeuralNetwork import Network
-from src2.Genotype.NEAT.Population import Population
+from src2.Configuration import config
 from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
 from src2.Genotype.CDN.Genomes.ModuleGenome import ModuleGenome
 from src2.Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
 from src2.Genotype.CDN.Nodes.ModuleNode import ModuleNode
+from src2.Genotype.CDN.Operators.Mutators.BlueprintGenomeMutator import BlueprintGenomeMutator
+from src2.Genotype.CDN.Operators.Mutators.ModuleGenomeMutator import ModuleGenomeMutator
+from src2.Genotype.CDN.PopulationInitializer import create_population, create_mr
+from src2.Genotype.NEAT.Operators.PopulationRankers.SingleObjectiveRank import SingleObjectiveRank
+from src2.Genotype.NEAT.Operators.RepresentativeSelectors.BestRepSelector import BestRepSelector
+from src2.Genotype.NEAT.Operators.RepresentativeSelectors.MostSimilarRepSelector import MostSimilarRepSelector
+from src2.Genotype.NEAT.Operators.RepresentativeSelectors.RandomRepSelector import RandomRepSelector
+from src2.Genotype.NEAT.Operators.ParentSelectors.RouletteSelector import RouletteSelector
+from src2.Genotype.NEAT.Operators.ParentSelectors.TournamentSelector import TournamentSelector
+from src2.Genotype.NEAT.Operators.ParentSelectors.UniformSelector import UniformSelector
+from src2.Genotype.NEAT.Operators.Speciators.MostSimilarSpeciator import MostSimilarSpeciator
 from src2.Genotype.NEAT.Operators.Speciators.NEATSpeciator import NEATSpeciator
-from src2.main.ThreadManager import init_threads, reset_thread_name
+from src2.Genotype.NEAT.Population import Population
+from src2.Genotype.NEAT.Species import Species
+from src2.Phenotype.NeuralNetwork.Evaluator.DataLoader import get_data_shape
 from src2.Phenotype.NeuralNetwork.PhenotypeEvaluator import evaluate_blueprint
-from src2.Configuration import config
+from src2.main.ThreadManager import init_threads, reset_thread_name
 
 
 class Generation:
@@ -43,9 +45,25 @@ class Generation:
             # TODO multiobjective rank
             raise NotImplemented('Multi-objectivity is not yet implemented')
 
-        # TODO config options
-        Species.selector = TournamentSelector(5)
-        Species.representative_selector = RandomRepSelector()
+        if config.parent_selector.lower() == "uniform":
+            Species.selector = UniformSelector()
+        elif config.parent_selector.lower() == "roulette":
+            Species.selector = RouletteSelector()
+        elif config.parent_selector.lower() == "tournament":
+            Species.selector = TournamentSelector(5)
+        else:
+            raise Exception("unrecognised parent selector in config: " + config.parent_selector.lower() +
+                            " expected uniform | roulette | tournament")
+
+        if config.representative_selector.lower() == "centroid":
+            Species.representative_selector = MostSimilarRepSelector()
+        elif config.representative_selector.lower() == "random":
+            Species.representative_selector = RandomRepSelector()
+        elif config.representative_selector.lower() == "best":
+            Species.representative_selector = BestRepSelector()
+        else:
+            raise Exception("unrecognised representative selector in config: " + config.representative_selector.lower()
+                            + " expected centroid | random | best")
 
         self.module_population: Optional[Population] = None
         self.blueprint_population: Optional[Population] = None
@@ -75,7 +93,7 @@ class Generation:
             self.wandb_report()
 
         # self.blueprint_population.get_most_accurate().visualize()
-        print("maxacc:",self.blueprint_population.get_most_accurate().fitness_values)
+        print("maxacc:", self.blueprint_population.get_most_accurate().fitness_values)
 
         self.module_population.step()
         self.blueprint_population.step()
@@ -104,9 +122,19 @@ class Generation:
 
     def initialise_populations(self):
         """Starts off the populations of a new evolutionary run"""
-        module_speciator = NEATSpeciator(config.species_distance_thresh_mod_base, config.n_module_species,
-                                         ModuleGenomeMutator())
-        bp_speciator = NEATSpeciator(config.species_distance_thresh_mod_base, config.n_module_species,
+
+        if config.module_speciation.lower() == "similar":
+            module_speciator = MostSimilarSpeciator(config.species_distance_thresh_mod_base, config.n_module_species,
+                                                    ModuleGenomeMutator())
+        elif config.module_speciation.lower() == "neat":
+            module_speciator = NEATSpeciator(config.species_distance_thresh_mod_base, config.n_module_species,
+                                             ModuleGenomeMutator())
+        else:
+            raise Exception(
+                "speciation method in config not recognised: " + config.module_speciation.lower()
+                + " expecting similar | neat")
+
+        bp_speciator = NEATSpeciator(config.species_distance_thresh_mod_base, config.n_blueprint_species,
                                      BlueprintGenomeMutator())
 
         self.module_population = Population(create_population(config.module_pop_size, ModuleNode, ModuleGenome),
