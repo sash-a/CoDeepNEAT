@@ -30,10 +30,12 @@ def evaluate(model: Network, num_epochs=config.epochs_in_evolution):
     ])
 
     train_loader = load_data(composed_transform, 'train')
+    test_loader = load_data(composed_transform, 'test')
+
     for epoch in range(num_epochs):
         train_epoch(model, train_loader)
 
-    return get_test_acc(model, load_data(composed_transform, 'test'))
+    return get_test_acc(model, test_loader)
 
 
 def train_epoch(model: Network, train_loader: DataLoader, max_batches=20):

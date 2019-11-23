@@ -31,7 +31,6 @@ from src2.Genotype.NEAT.Population import Population
 from src2.Genotype.NEAT.Species import Species
 from src2.Phenotype.NeuralNetwork.Evaluator.DataLoader import get_data_shape
 from src2.Phenotype.NeuralNetwork.PhenotypeEvaluator import evaluate_blueprint
-from src2.main.ThreadManager import init_threads, reset_thread_name
 
 
 class Generation:
@@ -52,8 +51,8 @@ class Generation:
         elif config.parent_selector.lower() == "tournament":
             Species.selector = TournamentSelector(5)
         else:
-            raise Exception("unrecognised parent selector in config: " + config.parent_selector.lower() +
-                            " expected uniform | roulette | tournament")
+            raise Exception("unrecognised parent selector in config: " + str(config.parent_selector).lower() +
+                            " expected either: uniform | roulette | tournament")
 
         if config.representative_selector.lower() == "centroid":
             Species.representative_selector = MostSimilarRepSelector()
@@ -109,13 +108,13 @@ class Generation:
         in_size = get_data_shape()
 
         if config.n_gpus > 1:
-            with ThreadPoolExecutor(max_workers=config.n_gpus, initializer=init_threads()) as ex:
+            with ThreadPoolExecutor(max_workers=config.n_gpus, thread_name_prefix='thread') as ex:
                 results = ex.map(lambda x: evaluate_blueprint(*x), list(zip(blueprints, [in_size] * len(blueprints))))
                 # results = ex.map(evaluate_blueprint, blueprints, input_size)
                 for result in results:
                     r = result
 
-            reset_thread_name()
+            # reset_thread_name()
         else:
             for bp in blueprints:
                 # print('running in series')
@@ -132,8 +131,8 @@ class Generation:
                                              ModuleGenomeMutator())
         else:
             raise Exception(
-                "speciation method in config not recognised: " + config.module_speciation.lower()
-                + " expecting similar | neat")
+                "speciation method in config not recognised: " + str(config.module_speciation).lower()
+                + " expected: similar | neat")
 
         bp_speciator = NEATSpeciator(config.species_distance_thresh_mod_base, config.n_blueprint_species,
                                      BlueprintGenomeMutator())

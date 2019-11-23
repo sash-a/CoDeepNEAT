@@ -10,15 +10,14 @@ class Config:
         print('loading config')
         # ---------------------------------------------- Important stuff ----------------------------------------------
         self.run_name = 'test_cluster_slowdown'
-        self.dummy_run = False
         self.n_generations = 1000
-        self.n_gpus = 1
+        self.n_gpus = 2
         self.device = 'gpu'  # cpu
         self.batch_size = 128
         self.epochs_in_evolution = 2
         self.n_evaluations_per_bp = 1
         # ---------------------------------------------- Debug Options ----------------------------------------------
-        self.dummy_run = False
+        self.dummy_run = True
         self.plot_best_genotypes = False
 
         # ----------------------------------------------- Dataset stuff -----------------------------------------------
@@ -57,7 +56,7 @@ class Config:
         self.disjoint_coefficient = 3
         self.excess_coefficient = 5
         # Speciation
-        self.module_speciation = "similar" # similar | neat
+        self.module_speciation = "similar"  # similar | neat
         self.n_elite = 1
         self.reproduce_percent = 0.5  # Percent of species members that are allowed to reproduce
         self.species_distance_thresh_mod_base = 1
@@ -76,13 +75,9 @@ class Config:
 
     def get_device(self):
         """Used to obtain the correct device taking into account multiple GPUs"""
-
         gpu = 'cuda:'
-        gpu += current_thread().name
-        if current_thread().name == 'MainThread':
-            # print('No threading detected supplying main thread with cuda:0')
-            gpu = 'cuda:0'
-
+        gpu_idx = 0 if current_thread().name == 'MainThread' else str(int(current_thread().name[-1]) % self.n_gpus)
+        gpu += gpu_idx
         return device('cpu') if self.device == 'cpu' else device(gpu)
 
     def read(self, file: str):
