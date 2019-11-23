@@ -20,7 +20,7 @@ from src2.Genotype.CDN.Operators.Mutators.ModuleGenomeMutator import ModuleGenom
 from src2.Genotype.CDN.PopulationInitializer import create_population, create_mr
 from src2.Genotype.NEAT.Operators.PopulationRankers.SingleObjectiveRank import SingleObjectiveRank
 from src2.Genotype.NEAT.Operators.RepresentativeSelectors.BestRepSelector import BestRepSelector
-from src2.Genotype.NEAT.Operators.RepresentativeSelectors.MostSimilarRepSelector import MostSimilarRepSelector
+from src2.Genotype.NEAT.Operators.RepresentativeSelectors.CentroidRepSelector import CentroidRepSelector
 from src2.Genotype.NEAT.Operators.RepresentativeSelectors.RandomRepSelector import RandomRepSelector
 from src2.Genotype.NEAT.Operators.ParentSelectors.RouletteSelector import RouletteSelector
 from src2.Genotype.NEAT.Operators.ParentSelectors.TournamentSelector import TournamentSelector
@@ -55,7 +55,7 @@ class Generation:
                             " expected either: uniform | roulette | tournament")
 
         if config.representative_selector.lower() == "centroid":
-            Species.representative_selector = MostSimilarRepSelector()
+            Species.representative_selector = CentroidRepSelector()
         elif config.representative_selector.lower() == "random":
             Species.representative_selector = RandomRepSelector()
         elif config.representative_selector.lower() == "best":

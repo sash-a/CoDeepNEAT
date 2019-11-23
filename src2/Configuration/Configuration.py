@@ -8,18 +8,19 @@ from torch import device
 class Config:
     def __init__(self):
         print('loading config')
-        # ---------------------------------------------- Important stuff ----------------------------------------------
+        # ----------------------------------------------- General stuff -----------------------------------------------
         self.run_name = 'test_cluster_slowdown'
         self.n_generations = 1000
-        self.n_gpus = 2
+        # ------------------------------------------------ Model stuff ------------------------------------------------
         self.device = 'gpu'  # cpu
+        self.n_gpus = 1
         self.batch_size = 128
-        self.epochs_in_evolution = 2
-        self.n_evaluations_per_bp = 1
+        self.epochs_in_evolution = 8
+        self.n_evaluations_per_bp = 4
+        self.max_model_params = 50e6
         # ---------------------------------------------- Debug Options ----------------------------------------------
         self.dummy_run = True
         self.plot_best_genotypes = False
-
         # ----------------------------------------------- Dataset stuff -----------------------------------------------
         self.dataset = 'cifar10'  # mnist | cifar10 | custom
         self.custom_dataset_root = ''
@@ -76,7 +77,7 @@ class Config:
     def get_device(self):
         """Used to obtain the correct device taking into account multiple GPUs"""
         gpu = 'cuda:'
-        gpu_idx = 0 if current_thread().name == 'MainThread' else str(int(current_thread().name[-1]) % self.n_gpus)
+        gpu_idx = '0' if current_thread().name == 'MainThread' else str(int(current_thread().name[-1]) % self.n_gpus)
         gpu += gpu_idx
         return device('cpu') if self.device == 'cpu' else device(gpu)
 

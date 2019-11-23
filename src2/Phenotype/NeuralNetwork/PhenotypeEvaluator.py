@@ -18,31 +18,25 @@ def evaluate_blueprint(blueprint: BlueprintGenome, input_size: List[int]):
     parses the blueprint into its phenotype NN
     handles the assignment of the single/multi obj finesses to the blueprint
     """
-    # print('Starting bp eval')
     model: Network = Network(blueprint, input_size)
-    # print('net created in eval bp')
     device = config.get_device()
-    # print('got device')
-    s = time.time()
     model.to(device)
 
-    # print('time taken for .to(device): ', time.time() - s)
-    print('trainable model params', sum(p.numel() for p in model.parameters() if p.requires_grad))
+    model_size = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    print('trainable model params', model_size)
 
-    # print('Net created and on gpu')
-    accuracy = evaluate(model)
-    # print('network evaluated')
+    if model_size > config.max_model_params:
+        accuracy = 0
+    else:
+        accuracy = evaluate(model)
+
     blueprint.update_best_sample_map(model.sample_map, accuracy)
-    # print('updated sample map')
     blueprint.report_fitness([accuracy], module_sample_map=model.sample_map)
-    # print('fitness reported')
-
     print("Evaluation complete with accuracy:", accuracy)
 
     # if random.random() < 0.05:
     #     model.visualize()
     #     blueprint.visualize()
-        # print("acc:",accuracy)
 
     return blueprint
 

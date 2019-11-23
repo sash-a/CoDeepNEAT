@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     from src2.Genotype.NEAT.Genome import Genome
 
 
-class MostSimilarRepSelector(RepresentativeSelector):
+class CentroidRepSelector(RepresentativeSelector):
     """Finds the member that is most similar to all other members of the species"""
 
     def select_representative(self, genomes: Dict[int:Genome]) -> Genome:
