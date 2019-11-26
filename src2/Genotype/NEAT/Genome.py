@@ -1,32 +1,30 @@
 from __future__ import annotations
 
 import copy
-from typing import Dict, List, AbstractSet, Union, TYPE_CHECKING, Set, Tuple
-
 import threading
+from typing import Dict, List, TYPE_CHECKING, Set, Tuple
+
 from torch import nn
 
-from src2.Genotype.NEAT.GraphGenome import GraphGenome
-from src2.Genotype.NEAT.MutationRecord import MutationRecords
-from src2.Phenotype.NeuralNetwork.Layers.AggregationLayer import AggregationLayer
-from src2.Phenotype.NeuralNetwork.Layers.Layer import Layer
 from src2.Configuration import config
 from src2.Genotype.Mutagen.Mutagen import Mutagen
+from src2.Genotype.NEAT.GraphGenome import GraphGenome
+from src2.Phenotype.NeuralNetwork.Layers.AggregationLayer import AggregationLayer
+from src2.Phenotype.NeuralNetwork.Layers.Layer import Layer
 
 if TYPE_CHECKING:
     from src2.Genotype.NEAT.Connection import Connection
     from src2.Genotype.NEAT.Node import Node
-    from src2.Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
-    from src2.Genotype.CDN.Nodes.ModuleNode import ModuleNode
 
 
 class Genome(GraphGenome):
-    _id_counter = 0
 
     def __init__(self, nodes: List[Node], connections: List[Connection]):
         super().__init__(nodes, connections)
-        self.id = Genome._id_counter
-        Genome._id_counter += 1
+        import src2.main.Singleton as Singleton
+
+        self.id = Singleton.instance.genome_id_counter
+        Singleton.instance.genome_id_counter += 1
 
         self.rank = 0  # The order of this genome when ranked by fitness values, high rank is more fit
         self.uses = 0  # The numbers of times this genome is used

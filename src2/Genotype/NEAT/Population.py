@@ -1,17 +1,17 @@
 from __future__ import annotations
+
 from typing import List, Iterable, Optional, Union, TYPE_CHECKING
 
+from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
 from src2.Genotype.NEAT.Genome import Genome
 from src2.Genotype.NEAT.MutationRecord import MutationRecords
 from src2.Genotype.NEAT.Operators.PopulationRankers.PopulationRanker import PopulationRanker
 from src2.Genotype.NEAT.Operators.Speciators.Speciator import Speciator
 from src2.Genotype.NEAT.Species import Species
-from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
 
 if TYPE_CHECKING:
     from src2.Genotype.CDN.Genomes.DAGenome import DAGenome
     from src2.Genotype.CDN.Genomes.ModuleGenome import ModuleGenome
-    from src2.Genotype.NEAT.Operators.Mutators.Mutator import Mutator
 
 
 class Population:

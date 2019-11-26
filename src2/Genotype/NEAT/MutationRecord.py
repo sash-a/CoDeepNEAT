@@ -1,6 +1,4 @@
-from typing import Dict, Union, Tuple
-
-from src2.Genotype.NEAT.Gene import Gene
+from typing import Dict, Tuple
 
 
 class MutationRecords:

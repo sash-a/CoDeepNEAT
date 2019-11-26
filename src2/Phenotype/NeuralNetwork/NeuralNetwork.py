@@ -11,6 +11,7 @@ from src2.Phenotype.NeuralNetwork.Layers.BaseLayer import BaseLayer
 
 from functools import reduce
 from typing import List, Union, Tuple, TYPE_CHECKING, Dict
+from runs import RunsManager
 
 if TYPE_CHECKING:
     from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
@@ -91,4 +92,4 @@ class Network(nn.Module):
                     graph.edge(parent_layer.name, child_layer.name)
 
                     q.append(child_layer)
-        graph.view(quiet=False, quiet_view=False)
+        graph.view(quiet=False, quiet_view=False, directory=RunsManager.get_graphs_folder_path())

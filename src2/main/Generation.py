@@ -27,6 +27,10 @@ from src2.Phenotype.NeuralNetwork.PhenotypeEvaluator import evaluate_blueprint
 class Generation:
     def __init__(self):
 
+        self.genome_id_counter = 0 # max genome id of all genomes contained in this generation obj
+        import src2.main.Singleton as Singleton
+        Singleton.instance = self
+
         self.module_population: Optional[Population] = None
         self.blueprint_population: Optional[Population] = None
         self.da_population: Optional[Population] = None

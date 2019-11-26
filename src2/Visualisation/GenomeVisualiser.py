@@ -5,6 +5,8 @@ from typing import TYPE_CHECKING, Union, List, Dict
 
 from src2.Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
 from src2.Genotype.CDN.Nodes.ModuleNode import ModuleNode
+from runs import RunsManager
+
 
 if TYPE_CHECKING:
     from src2.Genotype.NEAT.Genome import Genome
@@ -114,12 +116,13 @@ def visualise_blueprint_genome(genome: BlueprintGenome, sample_map: Dict[int, in
         for species_id in sample_map.keys():
             module_id = sample_map[species_id]
             sub_graph_label = "Species: " + str(species_id)+"\nModule: " + str(module_id)
+            node_names = "module_" + str(species_id)+ "_"+str(module_id)
             module = Singleton.instance.module_population[module_id]
-            module_graph = get_graph_of(module, node_names="module_" + str(module_id),
+            module_graph = get_graph_of(module, node_names=node_names,
                                         sub_graph=True, label=sub_graph_label, node_colour="blue")
             blueprint_graph.subgraph(module_graph)
 
-    blueprint_graph.view()
+    blueprint_graph.view(directory=RunsManager.get_graphs_folder_path())
 
 
 def visualise_traversal_dict(traversal_dict: Dict[int, List[int]]):
@@ -131,7 +134,7 @@ def visualise_traversal_dict(traversal_dict: Dict[int, List[int]]):
             g.node(name=str(to_id))
             g.edge(str(from_id), str(to_id))
 
-    g.view()
+    g.view(directory=RunsManager.get_graphs_folder_path())
 
 
 def get_node_metadata(node: Union[BlueprintNode, ModuleNode], **kwargs):

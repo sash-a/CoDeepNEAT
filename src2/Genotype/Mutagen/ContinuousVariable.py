@@ -33,14 +33,15 @@ class ContinuousVariable(Variable):
             deviation_dir = (1 if random.choice([True, False]) else -1)
 
             new_current_value = self.current_value + deviation_dir * deviation_magnitude * range
-            mutation_report += self.name + " changed from " + repr(self.current_value) + " to " + repr(
+            new_current_value = self.start_range + ((new_current_value - self.start_range) % range)
+            mutation_report += self.name + " deviated from " + repr(self.current_value) + " to " + repr(
                 new_current_value)
-            self.current_value = self.start_range + ((new_current_value - self.start_range) % range)
+            self.current_value = new_current_value
 
         if mutation_report is None:
             raise Exception("none mutation report in " + self.name)
 
-        print("returning: ", mutation_report)
+        print("returning from cont var mutagen: ", mutation_report)
 
         return mutation_report
 

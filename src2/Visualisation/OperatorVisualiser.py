@@ -2,15 +2,15 @@ import copy
 import random
 from typing import List, Union
 
-from Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
-from Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
-from Genotype.NEAT.Genome import Genome
-from Genotype.NEAT.Operators import Cross
-from Genotype.NEAT import MutationRecord
-from Genotype.CDN.Operators.Mutators.BlueprintGenomeMutator import BlueprintGenomeMutator
-from Genotype.NEAT.Operators.Mutations.GenomeMutator import GenomeMutator
-from Genotype.CDN.Operators.Mutators.ModuleGenomeMutator import ModuleGenomeMutator
-from Visualisation.GenomeVisualiser import get_graph_of
+from runs import RunsManager
+from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
+from src2.Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
+from src2.Genotype.NEAT.Genome import Genome
+from src2.Genotype.NEAT.Operators import Cross
+from src2.Genotype.NEAT import MutationRecord
+from src2.Genotype.CDN.Operators.Mutators.BlueprintGenomeMutator import BlueprintGenomeMutator
+from src2.Genotype.CDN.Operators.Mutators.ModuleGenomeMutator import ModuleGenomeMutator
+from src2.Visualisation.GenomeVisualiser import get_graph_of
 from test import StaticGenomes
 
 """
@@ -19,7 +19,7 @@ from test import StaticGenomes
 
 
 def visualise_mutation(genomes: List[Genome],
-                       mutator: Union[GenomeMutator, ModuleGenomeMutator, BlueprintGenomeMutator],
+                       mutator: Union[ ModuleGenomeMutator, BlueprintGenomeMutator],
                        mutation_record: MutationRecord, count=1, num_mutations=1):
     """
     samples genomes and plots them before and after mutation
@@ -38,7 +38,7 @@ def visualise_mutation(genomes: List[Genome],
         # print("mutated genome")
 
         both_graph = get_graph_of(mutant_genome, node_names="after", append_graph=before_graph, node_colour="yellow")
-        both_graph.view()
+        both_graph.view(directory=RunsManager.get_graphs_folder_path())
 
 
 def visualise_crossover(genomes: List[Genome], count=1, parent_mutation_count = 1):
@@ -68,7 +68,7 @@ def visualise_crossover(genomes: List[Genome], count=1, parent_mutation_count = 
         full_graph.subgraph(parent1_graph)
         full_graph.subgraph(parent2_graph)
 
-        full_graph.view()
+        full_graph.view(directory=RunsManager.get_graphs_folder_path())
 
 
 if __name__ == "__main__":
