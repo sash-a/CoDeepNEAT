@@ -2,9 +2,8 @@ from __future__ import annotations
 
 import copy
 import random
-from typing import List, Dict, TYPE_CHECKING, Optional, Set, Tuple
-
-from torch import nn
+import threading
+from typing import List, Dict, TYPE_CHECKING, Optional, Tuple
 
 import src2.Genotype.CDN.Nodes.BlueprintNode as BlueprintNode
 from src2.Configuration import config
@@ -14,12 +13,9 @@ from src2.Genotype.NEAT.Connection import Connection
 from src2.Genotype.NEAT.Genome import Genome
 from src2.Genotype.NEAT.Node import Node
 from src2.Visualisation.GenomeVisualiser import visualise_blueprint_genome
-from src2.Phenotype.NeuralNetwork.Layers.AggregationLayer import AggregationLayer
 
 if TYPE_CHECKING:
-    from src2.Genotype.NEAT.Species import Species
     from src2.Phenotype.NeuralNetwork.Layers import Layer
-    from src2.Genotype.CDN.Genomes.ModuleGenome import ModuleGenome
 
 
 class BlueprintGenome(Genome):
@@ -52,6 +48,16 @@ class BlueprintGenome(Genome):
         return '\n'.join([str(self.learning_rate.value), str(self.beta1.value), str(self.beta2.value),
                           str(self.best_module_sample_map), str(self.nodes.keys()), str(self.nodes.values()),
                           str(id(self))])
+
+    def __getstate__(self):
+        d = dict(self.__dict__)
+        if 'lock' in d:
+            del d['lock']
+        return d
+
+    def __setstate__(self, state):
+        self.__dict__ = state
+        self.__dict__['lock'] = threading.RLock()
 
     def get_modules_used(self):
         """:returns all module ids currently being used by this blueprint. returns duplicates"""
@@ -118,7 +124,9 @@ class BlueprintGenome(Genome):
                 continue
 
             if node.species_id not in sample_map:
-                raise Exception("sample map"+repr(sample_map)+"doesn't cover all species in blueprint - missing: " + repr(node.species_id))
+                raise Exception(
+                    "sample map" + repr(sample_map) + "doesn't cover all species in blueprint - missing: " + repr(
+                        node.species_id))
 
             module_id = sample_map[node.species_id]
             module = S.instance.module_population[module_id]

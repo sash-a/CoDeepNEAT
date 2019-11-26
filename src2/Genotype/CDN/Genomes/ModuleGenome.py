@@ -1,3 +1,4 @@
+import threading
 from typing import List, Tuple
 
 from src2.Phenotype.NeuralNetwork.Layers.Layer import Layer
@@ -16,3 +17,13 @@ class ModuleGenome(Genome):
 
     def visualize(self):
         get_graph_of(self).view()
+
+    def __getstate__(self):
+        d = dict(self.__dict__)
+        if 'lock' in d:
+            del d['lock']
+        return d
+
+    def __setstate__(self, state):
+        self.__dict__ = state
+        self.__dict__['lock'] = threading.RLock()

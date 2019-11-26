@@ -9,7 +9,6 @@ from typing import Optional
 
 import wandb
 
-import src2.main.Singleton as Singleton
 from src2.Configuration import config
 from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
 from src2.Genotype.CDN.Genomes.ModuleGenome import ModuleGenome
@@ -18,17 +17,9 @@ from src2.Genotype.CDN.Nodes.ModuleNode import ModuleNode
 from src2.Genotype.CDN.Operators.Mutators.BlueprintGenomeMutator import BlueprintGenomeMutator
 from src2.Genotype.CDN.Operators.Mutators.ModuleGenomeMutator import ModuleGenomeMutator
 from src2.Genotype.CDN.PopulationInitializer import create_population, create_mr
-from src2.Genotype.NEAT.Operators.PopulationRankers.SingleObjectiveRank import SingleObjectiveRank
-from src2.Genotype.NEAT.Operators.RepresentativeSelectors.BestRepSelector import BestRepSelector
-from src2.Genotype.NEAT.Operators.RepresentativeSelectors.CentroidRepSelector import CentroidRepSelector
-from src2.Genotype.NEAT.Operators.RepresentativeSelectors.RandomRepSelector import RandomRepSelector
-from src2.Genotype.NEAT.Operators.ParentSelectors.RouletteSelector import RouletteSelector
-from src2.Genotype.NEAT.Operators.ParentSelectors.TournamentSelector import TournamentSelector
-from src2.Genotype.NEAT.Operators.ParentSelectors.UniformSelector import UniformSelector
 from src2.Genotype.NEAT.Operators.Speciators.MostSimilarSpeciator import MostSimilarSpeciator
 from src2.Genotype.NEAT.Operators.Speciators.NEATSpeciator import NEATSpeciator
 from src2.Genotype.NEAT.Population import Population
-from src2.Genotype.NEAT.Species import Species
 from src2.Phenotype.NeuralNetwork.Evaluator.DataLoader import get_data_shape
 from src2.Phenotype.NeuralNetwork.PhenotypeEvaluator import evaluate_blueprint
 
@@ -36,39 +27,12 @@ from src2.Phenotype.NeuralNetwork.PhenotypeEvaluator import evaluate_blueprint
 class Generation:
     def __init__(self):
 
-        Singleton.instance = self
-
-        if not config.multiobjective:
-            Population.ranker = SingleObjectiveRank()
-        else:
-            # TODO multiobjective rank
-            raise NotImplemented('Multi-objectivity is not yet implemented')
-
-        if config.parent_selector.lower() == "uniform":
-            Species.selector = UniformSelector()
-        elif config.parent_selector.lower() == "roulette":
-            Species.selector = RouletteSelector()
-        elif config.parent_selector.lower() == "tournament":
-            Species.selector = TournamentSelector(5)
-        else:
-            raise Exception("unrecognised parent selector in config: " + str(config.parent_selector).lower() +
-                            " expected either: uniform | roulette | tournament")
-
-        if config.representative_selector.lower() == "centroid":
-            Species.representative_selector = CentroidRepSelector()
-        elif config.representative_selector.lower() == "random":
-            Species.representative_selector = RandomRepSelector()
-        elif config.representative_selector.lower() == "best":
-            Species.representative_selector = BestRepSelector()
-        else:
-            raise Exception("unrecognised representative selector in config: " + config.representative_selector.lower()
-                            + " expected centroid | random | best")
-
         self.module_population: Optional[Population] = None
         self.blueprint_population: Optional[Population] = None
         self.da_population: Optional[Population] = None
 
         self.initialise_populations()
+        self.generation_number = 0
 
         if config.use_wandb:
             tags = []  # TODO: add in module retention, speciation, DA
@@ -97,6 +61,8 @@ class Generation:
 
         self.module_population.step()
         self.blueprint_population.step()
+
+        self.generation_number +=1
 
         print('Step ended')
         print('Module species:', [len(spc.members) for spc in self.module_population.species])

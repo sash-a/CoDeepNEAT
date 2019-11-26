@@ -91,4 +91,4 @@ class Network(nn.Module):
                     graph.edge(parent_layer.name, child_layer.name)
 
                     q.append(child_layer)
-        graph.view()
+        graph.view(quiet=False, quiet_view=False)

@@ -72,6 +72,7 @@ class Config:
         self.blueprint_node_species_switch_chance = 0.15
         self.module_add_node_chance = 0.2  # 0.08
         self.module_add_connection_chance = 0.2  # 0.08
+        self.module_node_layer_type_change_chance = 0.15
         # ------------------------------------------------ wandb stuff ------------------------------------------------
         self.use_wandb = False
         # -------------------------------------------------------------------------------------------------------------

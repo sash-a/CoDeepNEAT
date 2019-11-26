@@ -4,7 +4,13 @@
 **/env/*
 
 **/Datasets/*
+
+!**/runs/
 **/runs/*
+!**/runs/RunsManager.py
+!**/runs/__init__.py
+
+
 **/Graphs/*
 **/clusterbackup*/*
 **/wandb/*

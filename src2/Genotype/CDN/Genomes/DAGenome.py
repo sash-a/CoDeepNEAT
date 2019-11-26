@@ -1,6 +1,7 @@
 
 from __future__ import annotations
 
+import threading
 from typing import List, Dict, TYPE_CHECKING, Optional
 
 from src2.Genotype.CDN.Nodes.DANode import DANode
@@ -22,3 +23,13 @@ class DAGenome(Genome):
 
         augmentation_scheme = AugmentationScheme(data_augmentations)
         return augmentation_scheme
+
+    def __getstate__(self):
+        d = dict(self.__dict__)
+        if 'lock' in d:
+            del d['lock']
+        return d
+
+    def __setstate__(self, state):
+        self.__dict__ = state
+        self.__dict__['lock'] = threading.RLock()
