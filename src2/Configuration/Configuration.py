@@ -21,6 +21,8 @@ class Config:
         # ---------------------------------------------- Debug Options ----------------------------------------------
         self.dummy_run = True
         self.plot_best_genotypes = False
+        self.plt_every_genotype = False
+
         # ----------------------------------------------- Dataset stuff -----------------------------------------------
         self.dataset = 'cifar10'  # mnist | cifar10 | custom
         self.custom_dataset_root = ''

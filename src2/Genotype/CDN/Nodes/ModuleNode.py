@@ -27,7 +27,7 @@ class ModuleNode(Node):
             layer_types.append(DepthwiseSeparableConv)
 
         self.layer_type: Option = Option("layer_type", *layer_types, current_value=layer_type,
-                                         submutagens=get_new_layer_submutagens())  # todo add in separable convs
+                                         submutagens=get_new_layer_submutagens(), mutation_chance=config.module_node_layer_type_change_chance)  # todo add in separable convs
 
         self.activation: Option = Option("activation", F.relu, F.leaky_relu, torch.sigmoid, F.relu6,
                                          current_value=F.leaky_relu, mutation_chance=0.15)  # TODO try add in Selu, Elu

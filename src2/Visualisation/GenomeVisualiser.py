@@ -107,17 +107,17 @@ def visualise_blueprint_genome(genome: BlueprintGenome, sample_map: Dict[int, in
         if bp_node.linked_module_id != -1:
             module_ids.add(bp_node.linked_module_id)
 
-    if sample_map is not None:
-        for module_id in sample_map.values():
-            module_ids.add(module_id)
-
     import src2.main.Singleton as Singleton
 
-    for module_id in module_ids:
-        module = Singleton.instance.module_population[module_id]
-        module_graph = get_graph_of(module, node_names="module_" + str(module_id),
-                                    sub_graph=True, label="Module " + str(module_id), node_colour="blue")
-        blueprint_graph.subgraph(module_graph)
+    if sample_map is not None:
+
+        for species_id in sample_map.keys():
+            module_id = sample_map[species_id]
+            sub_graph_label = "Species: " + str(species_id)+"\nModule: " + str(module_id)
+            module = Singleton.instance.module_population[module_id]
+            module_graph = get_graph_of(module, node_names="module_" + str(module_id),
+                                        sub_graph=True, label=sub_graph_label, node_colour="blue")
+            blueprint_graph.subgraph(module_graph)
 
     blueprint_graph.view()
 

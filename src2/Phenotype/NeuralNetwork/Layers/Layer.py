@@ -124,7 +124,7 @@ class Layer(BaseLayer):
             window_size = self.module_node.layer_type.get_subvalue('conv_window_size')
             kernels_per_layer = self.module_node.layer_type.get_subvalue('conv_window_size')
 
-            deep_layer = DepthwiseSeparableConv(channels, self.out_features,kernels_per_layer,window_size)
+            deep_layer = DepthwiseSeparableConv(channels, self.out_features, kernels_per_layer, window_size)
         elif self.module_node.layer_type.value is None:  # No deep layer
             deep_layer = nn.Identity()
 
