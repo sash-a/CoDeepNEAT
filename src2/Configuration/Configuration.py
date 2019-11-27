@@ -14,14 +14,14 @@ class Config:
         # ------------------------------------------------ Model stuff ------------------------------------------------
         self.device = 'gpu'  # cpu
         self.n_gpus = 1
-        self.batch_size = 64
+        self.batch_size = 128
         self.epochs_in_evolution = 8
         self.n_evaluations_per_bp = 4
         self.max_model_params = 50e6
         # ---------------------------------------------- Debug Options ----------------------------------------------
-        self.dummy_run = True
+        self.dummy_run = False
         self.plot_best_genotypes = False
-        self.plt_every_genotype = True
+        self.plt_every_genotype = False
 
         # ----------------------------------------------- Dataset stuff -----------------------------------------------
         self.dataset = 'cifar10'  # mnist | cifar10 | custom
