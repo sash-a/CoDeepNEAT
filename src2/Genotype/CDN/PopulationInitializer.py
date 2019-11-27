@@ -6,13 +6,13 @@ from src2.Configuration import config
 from src2.Genotype.NEAT.Connection import Connection
 from src2.Genotype.NEAT.MutationRecord import MutationRecords
 from src2.Genotype.CDN.Nodes.ModuleNode import ModuleNode, NodeType
+from src2.Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
 
 if TYPE_CHECKING:
     from src2.Genotype.CDN.Genomes.ModuleGenome import ModuleGenome
     from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
     from src2.Genotype.CDN.Genomes.DAGenome import DAGenome
 
-    from src2.Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
     from src2.Genotype.CDN.Nodes.DANode import DANode
 
 
@@ -33,9 +33,19 @@ def _create_individual(Node: Union[Type[ModuleNode], Type[BlueprintNode], Type[D
     out_node = Node(1, NodeType.OUTPUT)
 
     # Making the in and out nodes of modules blank
-    if Node == ModuleNode and config.blank_io_nodes:
-        _blank_node(in_node)
-        _blank_node(out_node)
+    if Node == ModuleNode :
+        if config.blank_module_input_nodes:
+            _blank_node(in_node)
+
+        if config.blank_module_input_nodes:
+            _blank_node(out_node)
+
+    if Node == BlueprintNode :
+        if config.blank_blueprint_input_nodes:
+            _blank_node(in_node)
+
+        if config.blank_blueprint_output_nodes:
+            _blank_node(out_node)
 
     return Genome(
         [in_node, Node(2, NodeType.HIDDEN), out_node],

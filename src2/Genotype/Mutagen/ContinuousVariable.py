@@ -41,7 +41,7 @@ class ContinuousVariable(Variable):
         if mutation_report is None:
             raise Exception("none mutation report in " + self.name)
 
-        print("returning from cont var mutagen: ", mutation_report)
+        # print("returning from cont var mutagen: ", mutation_report)
 
         return mutation_report
 

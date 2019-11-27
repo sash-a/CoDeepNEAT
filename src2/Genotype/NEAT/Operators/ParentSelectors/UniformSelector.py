@@ -11,4 +11,4 @@ if TYPE_CHECKING:
 
 class UniformSelector(Selector):
     def select(self, ranked_genomes: List[int], genomes: Dict[int:Genome]) -> Tuple[Genome, Genome]:
-        return tuple(random.choices(genomes.values(), k=2))
+        return tuple(random.choices(list(genomes.values()), k=2))

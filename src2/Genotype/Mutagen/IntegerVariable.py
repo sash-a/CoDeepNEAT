@@ -37,14 +37,15 @@ class IntegerVariable(Variable):
         if new_current_value == self.current_value:
             new_current_value = self.current_value + random.choice([0, 1])
 
-        self.current_value = self.start_range + ((new_current_value - self.start_range) % range)
-        if self.current_value % 1 != 0:
+        new_current_value = self.start_range + ((new_current_value - self.start_range) % range)
+        if new_current_value % 1 != 0:
             raise Exception("non natural number mutated in int variable")
 
         mutation_report += self.name + change_type + " from " + repr(self.current_value) + " to " + repr(
             new_current_value)
+        self.current_value = new_current_value
 
-        print("returning from int var mutagen: ", mutation_report)
+        # print("returning from int var mutagen: ", mutation_report)
 
         return mutation_report
 

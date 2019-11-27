@@ -27,7 +27,7 @@ class Genome(GraphGenome):
         Singleton.instance.genome_id_counter += 1
 
         self.rank = 0  # The order of this genome when ranked by fitness values, high rank is more fit
-        self.uses = 0  # The numbers of times this genome is used
+        self.uses_this_generation = 0  # The numbers of times was genome is used
         self.fitness_values: List[int] = [0]
 
         self.lock = threading.RLock()
@@ -37,7 +37,7 @@ class Genome(GraphGenome):
 
         cp.id = self.id
         cp.rank = self.rank
-        cp.uses = self.uses
+        cp.uses_this_generation = self.uses_this_generation
         cp.fitness_values = self.fitness_values
 
         return cp
@@ -74,8 +74,8 @@ class Genome(GraphGenome):
                 for i, fitness in enumerate(fitnesses):
                     if self.fitness_values[i] is None:
                         self.fitness_values[i] = 0
-                    self.fitness_values[i] = (self.fitness_values[i] * self.uses + fitness) / (self.uses + 1)
-                self.uses += 1
+                    self.fitness_values[i] = (self.fitness_values[i] * self.uses_this_generation + fitness) / (self.uses_this_generation + 1)
+                self.uses_this_generation += 1
             elif config.fitness_aggregation == 'max':
                 for i, fitness in enumerate(fitnesses):
                     if self.fitness_values[i] is None:
@@ -86,7 +86,7 @@ class Genome(GraphGenome):
 
     def end_step(self):
         """Resets all necessary values for next the generation"""
-        self.uses = 0
+        self.uses_this_generation = 0
         if self.fitness_values is not None:
             self.fitness_values = [0 for _ in self.fitness_values]
 

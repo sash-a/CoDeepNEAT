@@ -18,6 +18,7 @@ sys.path.append(os.path.join(dir_path_1, 'test'))
 sys.path.append(os.path.join(dir_path_1, 'src'))
 
 from src2.Configuration import config
+import src2.Configuration as Configuration
 from src2.main.Generation import Generation
 import src2.main.Singleton as Singleton
 
@@ -26,12 +27,18 @@ if TYPE_CHECKING:
 
 
 def main():
-    parse_config()
     if not RunsManager.does_run_folder_exist():
+        """"fresh run"""
+        parse_config()
         RunsManager.set_up_run_folder()
+        RunsManager.save_config(config)
         generation = Generation()
     else:
+        """continuing run"""
         generation = RunsManager.load_latest_generation()
+        loaded_config = RunsManager.load_config()
+        if loaded_config is not None:
+            Configuration.config = loaded_config
 
     set_up_operators()
     Singleton.instance = generation

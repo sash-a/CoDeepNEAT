@@ -9,7 +9,7 @@ class Config:
     def __init__(self):
         print('loading config')
         # ----------------------------------------------- General stuff -----------------------------------------------
-        self.run_name = 'test'
+        self.run_name = 'base'
         self.n_generations = 1000
         # ------------------------------------------------ Model stuff ------------------------------------------------
         self.device = 'gpu'  # cpu
@@ -45,34 +45,39 @@ class Config:
         self.module_node_deep_layer_chance = 0.95
         self.module_node_conv_layer_chance = 0.7  # chance of linear = 1-conv. not used if no deep layer
         # Layer types
-        self.use_depthwise_separable_convs = True
+        self.use_depthwise_separable_convs = False
         #
-        self.fitness_aggregation = 'max'  # max
-        self.use_module_retention = True
-        self.parent_selector = "tournament"  # uniform | roulette | tournament
-        self.representative_selector = "centroid"  # best | centroid | random
+        self.fitness_aggregation = 'avg'  # max | avg
+        self.use_module_retention = False
+        self.parent_selector = "uniform"  # uniform | roulette | tournament
+        self.representative_selector = "random"  # best | centroid | random
 
-        #
-        self.blank_io_nodes = True  # If true input and output nodes are left blank
+        #  blank node settings - if true input/output nodes are left blank perpetually
+        self.blank_blueprint_input_nodes = False
+        self.blank_blueprint_output_nodes = False
+        self.blank_module_input_nodes = False
+        self.blank_module_output_nodes = False
+
         # ------------------------------------------------- NEAT stuff -------------------------------------------------
         # Used when calculating distance between genomes
         self.disjoint_coefficient = 3
         self.excess_coefficient = 5
         # Speciation
-        self.module_speciation = "similar"  # similar | neat
+        self.module_speciation = "neat"  # similar | neat
         self.n_elite = 1
-        self.reproduce_percent = 0.5  # Percent of species members that are allowed to reproduce
+        self.reproduce_percent = 0.3  # Percent of species members that are allowed to reproduce
+        # used for neat speciation
         self.species_distance_thresh_mod_base = 1
         self.species_distance_thresh_mod_min = 0.001
         self.species_distance_thresh_mod_max = 100
         # Mutation chances
-        self.blueprint_add_node_chance = 0.3  # 0.16
-        self.blueprint_add_connection_chance = 0.25  # 0.12
-        self.blueprint_node_type_switch_chance = 0.1  # 0.1
+        self.blueprint_add_node_chance = 0.16  # 0.16
+        self.blueprint_add_connection_chance = 0.12  # 0.12
+        self.blueprint_node_type_switch_chance = 0  # 0.1     chance to switch to a module node
         self.blueprint_node_species_switch_chance = 0.15
-        self.module_add_node_chance = 0.2  # 0.08
-        self.module_add_connection_chance = 0.2  # 0.08
-        self.module_node_layer_type_change_chance = 0.15
+        self.module_add_node_chance = 0.1  # 0.08
+        self.module_add_connection_chance = 0.1  # 0.08
+        self.module_node_layer_type_change_chance = 0.1
         # ------------------------------------------------ wandb stuff ------------------------------------------------
         self.use_wandb = False
         # -------------------------------------------------------------------------------------------------------------

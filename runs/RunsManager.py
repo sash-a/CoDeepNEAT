@@ -15,14 +15,14 @@ if TYPE_CHECKING:
 def load_latest_generation(run_name=config.run_name):
     latest_generation = _get_latest_generation(run_name)
     file_name = _get_generation_file_path(latest_generation, run_name)
-    if latest_generation <0:
+    if latest_generation < 0:
         raise Exception("run folder, but no generation pickle. run may not have completed gen 0 - delete it")
     print("loading", file_name)
     pickle_in = open(file_name, "rb")
     try:
         gen = pickle.load(pickle_in)
     except:
-        print("failed to load",file_name)
+        print("failed to load", file_name)
         return None
 
     pickle_in.close()
@@ -34,6 +34,17 @@ def save_generation(generation: Generation, run_name=config.run_name):
     pickle_out = open(file_name, "wb")
     pickle.dump(generation, pickle_out)
     pickle_out.close()
+
+
+def load_config(config_name="config", run_name=config.run_name):
+    file_path = join(get_run_folder_path(run_name), config_name)
+    # load and return config
+    return None
+
+
+def save_config(conf=config, config_name="config", run_name=config.run_name):
+    file_path = join(get_run_folder_path(run_name), config_name)
+    # save config file at file path
 
 
 def _get_generation_name(generation_number):
