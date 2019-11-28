@@ -5,7 +5,6 @@ import os
 import sys
 from typing import TYPE_CHECKING
 
-from runs import RunsManager
 
 # For importing project files
 dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -18,6 +17,7 @@ sys.path.append(os.path.join(dir_path_1, 'test'))
 sys.path.append(os.path.join(dir_path_1, 'src'))
 sys.path.append(os.path.join(dir_path_1, 'runs'))
 
+from runs import RunsManager
 
 from src2.Configuration import config
 import src2.Configuration as Configuration

@@ -19,7 +19,7 @@ class Config:
         self.n_evaluations_per_bp = 4
         self.max_model_params = 50e6
         # ---------------------------------------------- Debug Options ----------------------------------------------
-        self.dummy_run = False
+        self.dummy_run = True
         self.plot_best_genotypes = False
         self.plt_every_genotype = False
 
