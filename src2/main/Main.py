@@ -16,6 +16,8 @@ sys.path.append(dir_path_2)
 print(os.path.join(dir_path_1, 'test'))
 sys.path.append(os.path.join(dir_path_1, 'test'))
 sys.path.append(os.path.join(dir_path_1, 'src'))
+sys.path.append(os.path.join(dir_path_1, 'runs'))
+
 
 from src2.Configuration import config
 import src2.Configuration as Configuration
