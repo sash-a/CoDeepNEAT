@@ -3,6 +3,7 @@ from __future__ import annotations
 import inspect
 import os
 import pickle
+import json
 from os.path import join, exists, dirname, abspath
 from typing import TYPE_CHECKING
 
@@ -37,14 +38,17 @@ def save_generation(generation: Generation, run_name=config.run_name):
 
 
 def load_config(config_name="config", run_name=config.run_name):
-    file_path = join(get_run_folder_path(run_name), config_name)
+    file_path = join(get_run_folder_path(run_name), config_name + '.json')
     # load and return config
-    return None
+    config.read(file_path)
+    return config
 
 
 def save_config(conf=config, config_name="config", run_name=config.run_name):
-    file_path = join(get_run_folder_path(run_name), config_name)
+    file_path = join(get_run_folder_path(run_name), config_name + '.json')
     # save config file at file path
+    with open(file_path, 'w+') as f:
+        json.dump(conf.__dict__, f)
 
 
 def _get_generation_name(generation_number):
@@ -81,7 +85,7 @@ def get_run_folder_path(run_name=config.run_name):
     return join(get_runs_folder_path(), run_name)
 
 
-def does_run_folder_exist(run_name=config.run_name):
+def does_run_folder_exist(run_name=config.run_name) -> bool:
     return exists(get_run_folder_path(run_name))
 
 

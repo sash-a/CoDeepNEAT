@@ -26,8 +26,7 @@ from src2.Phenotype.NeuralNetwork.PhenotypeEvaluator import evaluate_blueprint
 
 class Generation:
     def __init__(self):
-
-        self.genome_id_counter = 0 # max genome id of all genomes contained in this generation obj
+        self.genome_id_counter = 0  # max genome id of all genomes contained in this generation obj
         import src2.main.Singleton as Singleton
         Singleton.instance = self
 
@@ -37,17 +36,6 @@ class Generation:
 
         self.initialise_populations()
         self.generation_number = 0
-
-        if config.use_wandb:
-            tags = []  # TODO: add in module retention, speciation, DA
-
-            if not tags:
-                tags = ['base']
-
-            wandb.init(name=config.run_name, project='cdn_test', tags=tags, dir='../../results')
-            wandb.config.dataset = config.dataset
-            wandb.config.evolution_epochs = config.epochs_in_evolution
-            wandb.config.generations = config.n_generations
 
     def step(self):
         """
@@ -66,7 +54,7 @@ class Generation:
         self.module_population.step()
         self.blueprint_population.step()
 
-        self.generation_number +=1
+        self.generation_number += 1
 
         print('Step ended')
         print('Module species:', [len(spc.members) for spc in self.module_population.species])

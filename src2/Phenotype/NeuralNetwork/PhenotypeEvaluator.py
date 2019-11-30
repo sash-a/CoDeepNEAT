@@ -33,11 +33,10 @@ def evaluate_blueprint(blueprint: BlueprintGenome, input_size: List[int]):
     blueprint.update_best_sample_map(model.sample_map, accuracy)
     blueprint.report_fitness([accuracy], module_sample_map=model.sample_map)
 
-    print("Evaluation of genome:",blueprint.id,"complete with accuracy:", accuracy)
+    print("Evaluation of genome:", blueprint.id, "complete with accuracy:", accuracy)
 
     if config.plt_every_genotype:
         blueprint.visualize()
-        # print("acc:",accuracy)
 
     return blueprint
 

@@ -5,16 +5,15 @@ import os
 import sys
 from typing import TYPE_CHECKING
 
+import wandb
 
 # For importing project files
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
-dir_path_2 = os.path.split(dir_path)[0]
 sys.path.append(dir_path_1)
-sys.path.append(dir_path_2)
-print(os.path.join(dir_path_1, 'test'))
-sys.path.append(os.path.join(dir_path_1, 'test'))
 sys.path.append(os.path.join(dir_path_1, 'src'))
+sys.path.append(os.path.join(dir_path_1, 'src2'))
+sys.path.append(os.path.join(dir_path_1, 'test'))
 sys.path.append(os.path.join(dir_path_1, 'runs'))
 
 from runs import RunsManager
@@ -29,21 +28,11 @@ if TYPE_CHECKING:
 
 
 def main():
-    if not RunsManager.does_run_folder_exist():
-        """"fresh run"""
-        parse_config()
-        RunsManager.set_up_run_folder()
-        RunsManager.save_config(config)
-        generation = Generation()
-    else:
-        """continuing run"""
-        generation = RunsManager.load_latest_generation()
-        loaded_config = RunsManager.load_config()
-        if loaded_config is not None:
-            Configuration.config = loaded_config
-
-    set_up_operators()
+    generation = init_generation()
     Singleton.instance = generation
+
+    init_operators()
+    init_wandb()
 
     while generation.generation_number < config.n_generations:
         print('\n\nStarted generation:', generation.generation_number)
@@ -51,7 +40,15 @@ def main():
         evolve_generation(generation)
 
 
-def parse_config():
+def evolve_generation(generation: Generation):
+    generation.step()
+
+
+def fully_train_nn(model: NeuralNetwork):
+    pass
+
+
+def arg_parse():
     parser = argparse.ArgumentParser(description='CoDeepNEAT')
     parser.add_argument('-c', '--configs', nargs='+', type=str,
                         help='Path to all config files that will be used. (Earlier configs are given preference)',
@@ -65,15 +62,35 @@ def parse_config():
         config.read(cfg_file)
 
 
-def evolve_generation(generation: Generation):
-    generation.step()
+def init_generation() -> Generation:
+    if not RunsManager.does_run_folder_exist():
+        """"fresh run"""
+        arg_parse()
+        RunsManager.set_up_run_folder()
+        RunsManager.save_config(config)
+        generation: Generation = Generation()
+    else:
+        """continuing run"""
+        Configuration.config = RunsManager.load_config()
+        generation: Generation = RunsManager.load_latest_generation()
+
+    return generation
 
 
-def fully_train_nn(model: NeuralNetwork):
-    pass
+def init_wandb():
+    if config.use_wandb:
+        tags = []  # TODO: add in module retention, speciation, DA
+
+        if not tags:
+            tags = ['base']
+
+        wandb.init(name=config.run_name, project='cdn_test', tags=tags, dir='../../results')
+        wandb.config.dataset = config.dataset
+        wandb.config.evolution_epochs = config.epochs_in_evolution
+        wandb.config.generations = config.n_generations
 
 
-def set_up_operators():
+def init_operators():
     from src2.Genotype.NEAT.Operators.PopulationRankers.SingleObjectiveRank import SingleObjectiveRank
     from src2.Genotype.NEAT.Operators.RepresentativeSelectors.BestRepSelector import BestRepSelector
     from src2.Genotype.NEAT.Operators.RepresentativeSelectors.CentroidRepSelector import CentroidRepSelector
@@ -108,7 +125,7 @@ def set_up_operators():
         Species.representative_selector = BestRepSelector()
     else:
         raise Exception("unrecognised representative selector in config: " + config.representative_selector.lower()
-                        + " expected centroid | random | best")
+                        + " expected either: centroid | random | best")
 
 
 if __name__ == '__main__':
