@@ -7,7 +7,7 @@ from torch import device
 
 class Config:
     def __init__(self):
-        print('loading config')
+        print('loading config...')
         # ----------------------------------------------- General stuff -----------------------------------------------
         self.run_name = 'base'
         self.n_generations = 1000
@@ -22,7 +22,6 @@ class Config:
         self.dummy_run = True
         self.plot_best_genotypes = False
         self.plt_every_genotype = False
-
         # ----------------------------------------------- Dataset stuff -----------------------------------------------
         self.dataset = 'cifar10'  # mnist | cifar10 | custom
         self.custom_dataset_root = ''
@@ -30,14 +29,13 @@ class Config:
         self.download_dataset = True
         # ------------------------------------------------- CDN stuff -------------------------------------------------
         self.multiobjective = False
-        # Population sizes
+        # Population and species sizes
         self.module_pop_size = 50
         self.bp_pop_size = 20
         self.da_pop_size = 5
 
         self.n_module_species = 4
         self.n_blueprint_species = 1
-
         # Features chances
         self.module_node_batchnorm_chance = 0.65
         self.module_node_dropout_chance = 0.2
@@ -46,24 +44,22 @@ class Config:
         self.module_node_conv_layer_chance = 0.7  # chance of linear = 1-conv. not used if no deep layer
         # Layer types
         self.use_depthwise_separable_convs = False
-        #
+        # Module retention/elitism
         self.fitness_aggregation = 'avg'  # max | avg
         self.use_module_retention = False
         self.parent_selector = "uniform"  # uniform | roulette | tournament
-        self.representative_selector = "random"  # best | centroid | random
-
+        self.representative_selector = 'random'  # best | centroid | random
         #  blank node settings - if true input/output nodes are left blank perpetually
         self.blank_blueprint_input_nodes = False
         self.blank_blueprint_output_nodes = False
         self.blank_module_input_nodes = False
         self.blank_module_output_nodes = False
-
         # ------------------------------------------------- NEAT stuff -------------------------------------------------
         # Used when calculating distance between genomes
         self.disjoint_coefficient = 3
         self.excess_coefficient = 5
         # Speciation
-        self.module_speciation = "neat"  # similar | neat
+        self.module_speciation = 'neat'  # similar | neat
         self.n_elite = 1
         self.reproduce_percent = 0.3  # Percent of species members that are allowed to reproduce
         # used for neat speciation
@@ -90,6 +86,7 @@ class Config:
         return device('cpu') if self.device == 'cpu' else device(gpu)
 
     def read(self, file: str):
+        print('reading config from file:', file)
         with open(file) as cfg_file:
             options: dict = json.load(cfg_file)
             self._add_cfg_dict(options)

@@ -17,13 +17,15 @@ def load_latest_generation(run_name=config.run_name):
     latest_generation = _get_latest_generation(run_name)
     file_name = _get_generation_file_path(latest_generation, run_name)
     if latest_generation < 0:
-        raise Exception("run folder, but no generation pickle. run may not have completed gen 0 - delete it")
-    print("loading", file_name)
+        raise FileNotFoundError('Run folder exists, but no generation.pickle file. '
+                                'Run may not have completed generation 0 - delete the whole folder')
+    print('loading', file_name)
     pickle_in = open(file_name, "rb")
     try:
         gen = pickle.load(pickle_in)
-    except:
-        print("failed to load", file_name)
+    except Exception as e:
+        print('failed to load', file_name)
+        print('with error:\n', repr(e))
         return None
 
     pickle_in.close()
@@ -39,14 +41,11 @@ def save_generation(generation: Generation, run_name=config.run_name):
 
 def load_config(config_name="config", run_name=config.run_name):
     file_path = join(get_run_folder_path(run_name), config_name + '.json')
-    # load and return config
     config.read(file_path)
-    return config
 
 
 def save_config(conf=config, config_name="config", run_name=config.run_name):
     file_path = join(get_run_folder_path(run_name), config_name + '.json')
-    # save config file at file path
     with open(file_path, 'w+') as f:
         json.dump(conf.__dict__, f)
 

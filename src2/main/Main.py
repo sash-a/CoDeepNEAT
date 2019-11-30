@@ -71,7 +71,7 @@ def init_generation() -> Generation:
         generation: Generation = Generation()
     else:
         """continuing run"""
-        Configuration.config = RunsManager.load_config()
+        RunsManager.load_config()
         generation: Generation = RunsManager.load_latest_generation()
 
     return generation
