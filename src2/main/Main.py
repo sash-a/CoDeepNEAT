@@ -9,6 +9,8 @@ import wandb
 from typing import TYPE_CHECKING
 
 # For importing project files
+from torchvision.transforms import transforms
+
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
 sys.path.append(dir_path_1)
@@ -138,3 +140,13 @@ def init_operators():
 
 if __name__ == '__main__':
     main()
+    # For test random validation/train split
+    # from src2.Phenotype.NeuralNetwork.Evaluator.DataLoader import load_data
+    #
+    # composed_transform = transforms.Compose([
+    #     transforms.ToTensor(),
+    #     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+    # ])
+    # load_data(composed_transform, 'train')
+    # load_data(composed_transform, 'test')
+    # load_data(composed_transform, 'validation')

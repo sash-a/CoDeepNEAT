@@ -12,7 +12,7 @@
   "plt_every_genotype": false,
   "dataset": "cifar10",
   "custom_dataset_root": "",
-  "validation_split": 0.05,
+  "validation_split": 0.15,
   "download_dataset": true,
   "multiobjective": false,
   "module_pop_size": 50,
