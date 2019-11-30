@@ -30,6 +30,7 @@ if TYPE_CHECKING:
 
 
 def main():
+    _force_cuda_init_device()
     generation = init_generation()
     Singleton.instance = generation
     init_operators()
@@ -136,6 +137,12 @@ def init_operators():
     else:
         raise Exception("unrecognised representative selector in config: " + config.representative_selector.lower()
                         + " expected either: centroid | random | best")
+    
+    def _force_cuda_init_device():
+    import torch
+    for i in range(config.n_gpus):
+        with torch.cuda.device(i):
+            torch.tensor([1.]).cuda()
 
 
 if __name__ == '__main__':
