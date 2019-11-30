@@ -45,10 +45,10 @@ def load_data(composed_transforms: transforms.Compose, split: str) -> DataLoader
 
         # TODO is this the best way to do it, should it be unseeded at the end? should we just manual seed at the start of the program?
         # seeding and unseeding pytorch so that the 'random split' is deterministic
-        initial = torch.initial_seed()
+ #       initial = torch.initial_seed()
         torch.manual_seed(0)
         train, valid = random_split(dataset, [train_size, validation_size])
-        torch.manual_seed(initial)
+  #      torch.manual_seed(initial)
 
         if split == 'train':
             dataset = train

@@ -139,10 +139,10 @@ def init_operators():
                         + " expected either: centroid | random | best")
     
     def _force_cuda_init_device():
-    import torch
-    for i in range(config.n_gpus):
-        with torch.cuda.device(i):
-            torch.tensor([1.]).cuda()
+        import torch
+        for i in range(config.n_gpus):
+            with torch.cuda.device(i):
+                torch.tensor([1.]).cuda()
 
 
 if __name__ == '__main__':
