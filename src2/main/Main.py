@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import argparse
 import os
+import random
 import sys
-from typing import TYPE_CHECKING
-
+import datetime
 import wandb
+from typing import TYPE_CHECKING
 
 # For importing project files
 dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -29,11 +30,8 @@ if TYPE_CHECKING:
 def main():
     generation = init_generation()
     Singleton.instance = generation
-
-    print(config.__dict__)
-
     init_operators()
-    init_wandb()
+    init_wandb(generation.generation_number)
 
     while generation.generation_number < config.n_generations:
         print('\n\nStarted generation:', generation.generation_number)
@@ -78,17 +76,24 @@ def init_generation() -> Generation:
     return generation
 
 
-def init_wandb():
+def init_wandb(gen_num: int):
     if config.use_wandb:
-        tags = []  # TODO: add in module retention, speciation, DA
+        if gen_num == 0:  # this is the first generation, need to initialize wandb
+            config.wandb_run_id = config.run_name + str(datetime.date.today()) + '_' + str(random.randint(1E5, 1E6))
+            tags = []  # TODO: add in module retention, speciation, DA
 
-        if not tags:
-            tags = ['base']
+            if not tags:
+                tags = ['base']
 
-        wandb.init(name=config.run_name, project='cdn_test', tags=tags, dir='../../results')
-        wandb.config.dataset = config.dataset
-        wandb.config.evolution_epochs = config.epochs_in_evolution
-        wandb.config.generations = config.n_generations
+            wandb.init(project='cdn_test', name=config.run_name, tags=tags, dir='../../results', id=config.wandb_run_id)
+            wandb.config.dataset = config.dataset
+            wandb.config.evolution_epochs = config.epochs_in_evolution
+            wandb.config.generations = config.n_generations
+
+            RunsManager.save_config(config)  # need to re-add the new wandb_run_id into the saved config
+
+        else:  # this is not the first generation, need to resume wandb
+            wandb.init(project='cdn_test', resume=config.wandb_run_id)
 
 
 def init_operators():

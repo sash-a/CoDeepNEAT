@@ -9,8 +9,8 @@ class Config:
     def __init__(self):
         print('loading config...')
         # ----------------------------------------------- General stuff -----------------------------------------------
-        self.run_name = 'base'
-        self.n_generations = 1000
+        self.run_name = 'test'
+        self.n_generations = 50
         # ------------------------------------------------ Model stuff ------------------------------------------------
         self.device = 'gpu'  # cpu
         self.n_gpus = 1
@@ -75,7 +75,8 @@ class Config:
         self.module_add_connection_chance = 0.1  # 0.08
         self.module_node_layer_type_change_chance = 0.1
         # ------------------------------------------------ wandb stuff ------------------------------------------------
-        self.use_wandb = False
+        self.use_wandb = True
+        self.wandb_run_id = ''
         # -------------------------------------------------------------------------------------------------------------
 
     def get_device(self):
