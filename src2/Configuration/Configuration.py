@@ -1,4 +1,5 @@
 import json
+import os
 from threading import current_thread
 from typing import Dict
 
@@ -25,7 +26,7 @@ class Config:
         # ----------------------------------------------- Dataset stuff -----------------------------------------------
         self.dataset = 'cifar10'  # mnist | cifar10 | custom
         self.custom_dataset_root = ''
-        self.validation_split = 0.05  # Percent of the train set that becomes the validation set
+        self.validation_split = 0.15  # Percent of the train set that becomes the validation set
         self.download_dataset = True
         # ------------------------------------------------- CDN stuff -------------------------------------------------
         self.multiobjective = False
@@ -88,6 +89,10 @@ class Config:
 
     def read(self, file: str):
         print('reading config from file:', file)
+        # If the path is not absolute (i.e starts at root) then search in Configs dir
+        if not file.startswith("/"):
+            file = os.path.join(os.path.dirname(__file__), 'Configs', file)
+
         with open(file) as cfg_file:
             options: dict = json.load(cfg_file)
             self._add_cfg_dict(options)

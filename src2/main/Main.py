@@ -33,6 +33,8 @@ def main():
     init_operators()
     init_wandb(generation.generation_number)
 
+    print(config.__dict__)
+
     while generation.generation_number < config.n_generations:
         print('\n\nStarted generation:', generation.generation_number)
         RunsManager.save_generation(generation)

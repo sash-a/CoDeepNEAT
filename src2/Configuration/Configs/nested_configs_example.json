@@ -1,7 +1,0 @@
-{
-  "configs": [
-    "/home/sasha/Documents/CoDeepNEAT/src2/Configuration/Configs/elitism.json",
-    "/home/sasha/Documents/CoDeepNEAT/src2/Configuration/Configs/base.json"
-  ],
-  "module_node_max_pool_chance": 0.31
-}

@@ -1,5 +1,8 @@
-from typing import Tuple, List
+import random
+from typing import List
 
+import torch
+import torchvision
 from torch.utils.data import DataLoader, Dataset, random_split
 from torchvision import transforms
 from torchvision.datasets import MNIST, CIFAR10, ImageFolder
@@ -7,6 +10,9 @@ from os import path
 
 from data import DataManager
 from src2.Configuration import config
+
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 def load_data(composed_transforms: transforms.Compose, split: str) -> DataLoader:
@@ -37,14 +43,23 @@ def load_data(composed_transforms: transforms.Compose, split: str) -> DataLoader
         train_size = int(len(dataset) * (1 - config.validation_split))
         validation_size = len(dataset) - train_size
 
+        # TODO is this the best way to do it, should it be unseeded at the end? should we just manual seed at the start of the program?
+        # seeding and unseeding pytorch so that the 'random split' is deterministic
+        initial = torch.initial_seed()
+        torch.manual_seed(0)
         train, valid = random_split(dataset, [train_size, validation_size])
+        torch.manual_seed(initial)
+
         if split == 'train':
             dataset = train
         else:
             dataset = valid
-
     # TODO: test num workers and pin memory
-    return DataLoader(dataset, batch_size=config.batch_size, shuffle=True, num_workers=0, pin_memory=False)
+    dl = DataLoader(dataset, batch_size=config.batch_size, shuffle=False, num_workers=0, pin_memory=False)
+    images, _ = next(iter(dl))
+    imshow(torchvision.utils.make_grid(images))
+
+    return dl
 
 
 def get_data_shape() -> List[int]:
@@ -71,3 +86,10 @@ def get_generic_dataset(composed_transforms: transforms.Compose, train: bool) ->
         data = ImageFolder(root=path.join(config.custom_dataset_root, 'test'), transform=composed_transforms)
 
     return data
+
+
+def imshow(img):
+    img = img / 2 + 0.5  # unnormalize
+    npimg = img.numpy()
+    plt.imshow(np.transpose(npimg, (1, 2, 0)))
+    plt.show()
