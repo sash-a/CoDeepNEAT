@@ -19,7 +19,6 @@ sys.path.append(os.path.join(dir_path_1, 'runs'))
 from runs import RunsManager
 
 from src2.Configuration import config
-import src2.Configuration as Configuration
 from src2.main.Generation import Generation
 import src2.main.Singleton as Singleton
 
@@ -30,6 +29,8 @@ if TYPE_CHECKING:
 def main():
     generation = init_generation()
     Singleton.instance = generation
+
+    print(config.__dict__)
 
     init_operators()
     init_wandb()

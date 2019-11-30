@@ -92,9 +92,21 @@ class Config:
             self._add_cfg_dict(options)
 
     def _add_cfg_dict(self, options: Dict[str, any]):
+        self._load_inner_configs(options)
+
         for option_name, option_value in options.items():
             if isinstance(option_value, dict):  # If an option value is a dict, then check the dict for sub options
                 self._add_cfg_dict(option_value)
                 continue
             if option_name in self.__dict__:  # Only add an option if it has exactly the same name as a variable
                 self.__dict__[option_name] = option_value
+
+    def _load_inner_configs(self, options: Dict[str, any]):
+        inner_configs_key = 'configs'
+        if inner_configs_key in options:
+            inner_configs = options[inner_configs_key]
+            if isinstance(inner_configs, list):
+                for config in reversed(inner_configs):
+                    self.read(config)
+            else:
+                raise TypeError('Expected a list of other config options, received: ' + str(type(inner_configs)))
