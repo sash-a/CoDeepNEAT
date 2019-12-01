@@ -78,7 +78,6 @@ class Population:
             species.next_species_size = species_size
 
     def step(self):
-        self._aggregate_fitness()
         Population.ranker.rank(iter(self))
         self.species: List[Species] = [species for species in self.species if species]  # Removing empty species
         self._update_species_sizes()
@@ -97,7 +96,7 @@ class Population:
         for member in self:
             member.end_step()
 
-    def _aggregate_fitness(self):
+    def aggregate_fitness(self):
         for individual in self:
             individual.aggregate_fitness()
 
@@ -109,4 +108,4 @@ class Population:
         return False
 
     def get_most_accurate(self):
-        return max(iter(self), key=lambda x: x.fitness_values[0])
+        return max(iter(self), key=lambda x: x.accuracy)

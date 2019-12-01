@@ -70,9 +70,9 @@ class Species:
         if elite == 0:  # don't want to count ties if there are no elite anyways
             return elite
 
-        highest_acc = self.members[self.ranked_members[0]].fitness_values[0]
+        highest_acc = self.members[self.ranked_members[0]].accuracy
         self.max_fitness_ties = \
-            sum(genome.fitness_values[0] == highest_acc for genome in self.members.values())  # TODO test
+            sum(genome.accuracy == highest_acc for genome in self.members.values())  # TODO test
         return max(elite, self.max_fitness_ties)
 
     def _unfill(self):

@@ -43,6 +43,9 @@ class Generation:
             next step.
         """
         self.evaluate_blueprints()  # may be parallel
+        # Aggregate the fitnesses immediately after they have all been recorded
+        self.module_population.aggregate_fitness()
+        self.blueprint_population.aggregate_fitness()
 
         if config.use_wandb:
             self.wandb_report()
@@ -102,8 +105,8 @@ class Generation:
         # TODO DA pop
 
     def wandb_report(self):
-        module_accs = sorted([module.fitness_values[0] for module in self.module_population])
-        bp_accs = sorted([bp.fitness_values[0] for bp in self.blueprint_population])
+        module_accs = sorted([module.accuracy for module in self.module_population])
+        bp_accs = sorted([bp.accuracy for bp in self.blueprint_population])
 
         mod_acc_tbl = wandb.Table(['module accuracies'], data=module_accs)
         bp_acc_tbl = wandb.Table(['blueprint accuracies'], data=bp_accs)

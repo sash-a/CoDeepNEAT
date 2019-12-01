@@ -32,6 +32,8 @@ class Genome(GraphGenome):
 
         self.lock = threading.RLock()
 
+    accuracy = property(lambda self: self.fitness_values[0])
+
     def __deepcopy__(self, memodict={}):
         cp = type(self)(copy.deepcopy(list(self.nodes.values())), copy.deepcopy(list(self.connections.values())))
 
