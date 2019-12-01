@@ -8,6 +8,7 @@ from src2.Genotype.NEAT.MutationRecord import MutationRecords
 from src2.Genotype.NEAT.Operators.PopulationRankers.PopulationRanker import PopulationRanker
 from src2.Genotype.NEAT.Operators.Speciators.Speciator import Speciator
 from src2.Genotype.NEAT.Species import Species
+from src2.Visualisation import SpeciationVisualiser
 
 if TYPE_CHECKING:
     from src2.Genotype.CDN.Genomes.DAGenome import DAGenome
@@ -87,7 +88,8 @@ class Population:
         for spc in self.species:
             spc.step(self.mutation_record)
 
-        self.speciator.speciate(self.species)
+        if self.speciator.target_num_species >1:
+            self.speciator.speciate(self.species)
         self.species: List[Species] = [species for species in self.species if species]  # Removing empty species
         self.end_step()
 
@@ -109,3 +111,6 @@ class Population:
 
     def get_most_accurate(self):
         return max(iter(self), key=lambda x: x.accuracy)
+
+    def visualise(self, suffix=""):
+        SpeciationVisualiser.visualise_specieses(self.species, suffix=suffix)

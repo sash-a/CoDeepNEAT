@@ -57,10 +57,16 @@ class Generation:
             model: Network = Network(self.blueprint_population.get_most_accurate(), get_data_shape())
             model.visualize(prefix="best_g" + str(self.generation_number) + "_")
 
+        print("num blueprint species:",len(self.blueprint_population.species), self.blueprint_population.species)
+
         print("maxacc:", self.blueprint_population.get_most_accurate().fitness_values)
 
         self.module_population.step()
         self.blueprint_population.step()
+
+        if True:
+            self.module_population.visualise(suffix="_"+str(self.generation_number)+"_module_species")
+            self.blueprint_population.visualise(suffix="_"+str(self.generation_number)+"blueprint_species")
 
         self.generation_number += 1
 

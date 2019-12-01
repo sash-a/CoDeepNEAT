@@ -27,6 +27,7 @@ class Config:
         self.plot_every_genotype = True
         self.plot_best_phenotype = True
         self.plot_every_phenotype = True
+        self.plot_module_species = False
         # ----------------------------------------------- Dataset stuff -----------------------------------------------
         self.dataset = 'cifar10'  # mnist | cifar10 | custom
         self.custom_dataset_root = ''
