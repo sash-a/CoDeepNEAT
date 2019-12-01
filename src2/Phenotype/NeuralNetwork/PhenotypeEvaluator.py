@@ -17,7 +17,7 @@ def evaluate_blueprint(blueprint: BlueprintGenome, input_size: List[int]):
     parses the blueprint into its phenotype NN
     handles the assignment of the single/multi obj finesses to the blueprint
     """
-    parse_number = get_parse_num(blueprint)
+    parse_number, generation_number = get_parse_gen_num(blueprint)
 
     model: Network = Network(blueprint, input_size)
     device = config.get_device()
@@ -37,20 +37,20 @@ def evaluate_blueprint(blueprint: BlueprintGenome, input_size: List[int]):
     print("Evaluation of genome:", blueprint.id, "complete with accuracy:", accuracy)
 
     if config.plot_every_genotype:
-        blueprint.visualize(parse_number= parse_number)
+        blueprint.visualize(parse_number= parse_number, prefix= "g" + str(generation_number) + "_")
     if config.plot_every_phenotype:
-        model.visualize(parse_number=parse_number)
+        model.visualize(parse_number=parse_number, prefix= "g" + str(generation_number) + "_")
 
     return blueprint
 
 
-def get_parse_num(blueprint: BlueprintGenome):
+def get_parse_gen_num(blueprint: BlueprintGenome):
     import src2.main.Singleton as Singleton
 
     key = (Singleton.instance.generation_number, blueprint.id)
     if key not in parse_number_map.keys():
         parse_number_map[key] = 0
-        return 0
+        return 0, Singleton.instance.generation_number
 
     parse_number_map[key] += 1
-    return parse_number_map[key]
+    return parse_number_map[key], Singleton.instance.generation_number

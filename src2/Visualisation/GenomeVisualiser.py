@@ -42,7 +42,12 @@ def get_graph_of(genome: Genome, sub_graph=False, cluster_style="filled", cluste
         raise Exception("null genome passed to grapher")
 
     if append_graph is None:
-        g = Digraph(name=graph_title_prefix +( "cluster_" if sub_graph else "") + "genome_" + str(genome.id) + graph_title_suffix)
+        if graph_title_prefix == "":
+            name = ("cluster_" if sub_graph else "") + "genome_i" + str(genome.id) + graph_title_suffix
+        else:
+            name = graph_title_prefix + "i" + str(genome.id) + "_genome" + graph_title_suffix
+
+        g = Digraph(name=name)
         # print("created graph ", g)
     else:
         g = append_graph
