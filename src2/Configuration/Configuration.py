@@ -15,7 +15,7 @@ class Config:
         # ------------------------------------------------ Model stuff ------------------------------------------------
         self.device = 'gpu'  # cpu
         self.n_gpus = 1
-        self.batch_size = 128
+        self.batch_size = 256
         self.epochs_in_evolution = 8
         self.n_evaluations_per_bp = 4
         self.max_model_params = 50e6
@@ -61,8 +61,8 @@ class Config:
         self.excess_coefficient = 5
         # Speciation
         self.module_speciation = 'neat'  # similar | neat
-        self.n_elite = 1
-        self.reproduce_percent = 0.3  # Percent of species members that are allowed to reproduce
+        self.elite_percent = 0.1
+        self.reproduce_percent = 0.2  # Percent of species members that are allowed to reproduce
         # used for neat speciation
         self.species_distance_thresh_mod_base = 1
         self.species_distance_thresh_mod_min = 0.001

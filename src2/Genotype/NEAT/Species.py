@@ -66,10 +66,13 @@ class Species:
         Finds the number of elite this population should have, given the desired number of elite, population size and
         number of ties there are for members with the best fitness
         """
-        elite = min(config.n_elite, len(self.members))
+        elite = math.ceil(config.elite_percent * self.next_species_size)
+        if elite == 0:  # don't want to count ties if there are no elite anyways
+            return elite
+
         highest_acc = self.members[self.ranked_members[0]].fitness_values[0]
-        self.max_fitness_ties = sum(
-            genome.fitness_values[0] == highest_acc for genome in self.members.values())  # TODO test
+        self.max_fitness_ties = \
+            sum(genome.fitness_values[0] == highest_acc for genome in self.members.values())  # TODO test
         return max(elite, self.max_fitness_ties)
 
     def _unfill(self):
@@ -92,8 +95,6 @@ class Species:
             p1, p2 = Species.selector.select(ranked_genomes=self.ranked_members, genomes=self.members)
             child = Cross.over(p1, p2)
             self.mutator.mutate(child, mutation_record)
-            # if isinstance(child, BlueprintGenome):
-            #     print(child.best_module_sample_map)
             if child.validate():
                 children.append(child)
 
