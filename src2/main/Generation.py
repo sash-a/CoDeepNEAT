@@ -21,6 +21,7 @@ from src2.Genotype.NEAT.Operators.Speciators.MostSimilarSpeciator import MostSim
 from src2.Genotype.NEAT.Operators.Speciators.NEATSpeciator import NEATSpeciator
 from src2.Genotype.NEAT.Population import Population
 from src2.Phenotype.NeuralNetwork.Evaluator.DataLoader import get_data_shape
+from src2.Phenotype.NeuralNetwork.NeuralNetwork import Network
 from src2.Phenotype.NeuralNetwork.PhenotypeEvaluator import evaluate_blueprint
 
 
@@ -51,7 +52,11 @@ class Generation:
             self.wandb_report()
 
         if config.plot_best_genotypes:
-            self.blueprint_population.get_most_accurate().visualize()
+            self.blueprint_population.get_most_accurate().visualize(prefix="best_g" + str(self.generation_number) + "_")
+        if config.plot_best_phenotype:
+            model: Network = Network(self.blueprint_population.get_most_accurate(), get_data_shape())
+            model.visualize(prefix="best_g" + str(self.generation_number) + "_")
+
         print("maxacc:", self.blueprint_population.get_most_accurate().fitness_values)
 
         self.module_population.step()

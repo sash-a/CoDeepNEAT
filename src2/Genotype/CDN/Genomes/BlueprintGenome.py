@@ -102,8 +102,8 @@ class BlueprintGenome(Genome):
         sample_map = {}
         return super().to_phenotype(module_sample_map=sample_map), sample_map
 
-    def visualize(self):
-        visualise_blueprint_genome(self, self.best_module_sample_map)
+    def visualize(self, parse_number=-1, prefix=""):
+        visualise_blueprint_genome(self, self.best_module_sample_map, parse_number=parse_number, prefix=prefix)
 
     def end_step(self):
         super().end_step()

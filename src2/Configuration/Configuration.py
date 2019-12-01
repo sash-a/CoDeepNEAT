@@ -21,8 +21,12 @@ class Config:
         self.max_model_params = 50e6
         # ---------------------------------------------- Debug Options ----------------------------------------------
         self.dummy_run = True
-        self.plot_best_genotypes = False
-        self.plt_every_genotype = False
+        # ---------------------------------------------- Graphing Options ----------------------------------------------
+        self.view_graph_plots = False  # if true, any plotted graphs will be viewed
+        self.plot_best_genotypes = True
+        self.plot_every_genotype = True
+        self.plot_best_phenotype = True
+        self.plot_every_phenotype = True
         # ----------------------------------------------- Dataset stuff -----------------------------------------------
         self.dataset = 'cifar10'  # mnist | cifar10 | custom
         self.custom_dataset_root = ''

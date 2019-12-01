@@ -1,17 +1,17 @@
 from __future__ import annotations
 
-import graphviz
-from torch import nn, tensor, optim, squeeze
-import torch.nn.functional as F
+from functools import reduce
+from typing import List, Union, Tuple, TYPE_CHECKING
 
-from src.Config import Config
-from src2.Phenotype.NeuralNetwork.Layers.Layer import Layer
+import graphviz
+import torch.nn.functional as F
+from torch import nn, tensor, optim, squeeze
+
+from runs import RunsManager
+from src2.Configuration import config
 from src2.Phenotype.NeuralNetwork.Layers.AggregationLayer import AggregationLayer
 from src2.Phenotype.NeuralNetwork.Layers.BaseLayer import BaseLayer
-
-from functools import reduce
-from typing import List, Union, Tuple, TYPE_CHECKING, Dict
-from runs import RunsManager
+from src2.Phenotype.NeuralNetwork.Layers.Layer import Layer
 
 if TYPE_CHECKING:
     from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
@@ -73,8 +73,9 @@ class Network(nn.Module):
     def multiply_learning_rate(self, factor):
         pass
 
-    def visualize(self, filename='new', view=True):
-        graph = graphviz.Digraph(name='Phenotype', comment='Phenotype', filename=filename)
+    def visualize(self, parse_number=-1, prefix=""):
+        graph = graphviz.Digraph(name=prefix + "Phenotype_" + str(self.blueprint.id) + (
+            "p" + str(parse_number) + "_" if parse_number >= 0 else ""), comment='Phenotype')
 
         q: List[BaseLayer] = [self.model]
         graph.node(self.model.name, self.model.get_layer_info())
@@ -92,4 +93,5 @@ class Network(nn.Module):
                     graph.edge(parent_layer.name, child_layer.name)
 
                     q.append(child_layer)
-        graph.view(quiet=False, quiet_view=False, directory=RunsManager.get_graphs_folder_path())
+        graph.render(quiet=False, quiet_view=False, directory=RunsManager.get_graphs_folder_path(),
+                     view=config.view_graph_plots)

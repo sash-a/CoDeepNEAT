@@ -1,16 +1,15 @@
 from __future__ import annotations
 
-import random
-import time
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Dict, Tuple
 
 from src2.Configuration import config
-from src2.Phenotype.NeuralNetwork.NeuralNetwork import Network
 from src2.Phenotype.NeuralNetwork.Evaluator.Evaluator import evaluate
+from src2.Phenotype.NeuralNetwork.NeuralNetwork import Network
 
 if TYPE_CHECKING:
     from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
-    from src2.Genotype.NEAT import Population
+
+parse_number_map: Dict[Tuple[int, int], int] = {}  # maps from (gen,genoID) to parseNum
 
 
 def evaluate_blueprint(blueprint: BlueprintGenome, input_size: List[int]):
@@ -18,6 +17,8 @@ def evaluate_blueprint(blueprint: BlueprintGenome, input_size: List[int]):
     parses the blueprint into its phenotype NN
     handles the assignment of the single/multi obj finesses to the blueprint
     """
+    parse_number = get_parse_num(blueprint)
+
     model: Network = Network(blueprint, input_size)
     device = config.get_device()
     model.to(device)
@@ -35,33 +36,21 @@ def evaluate_blueprint(blueprint: BlueprintGenome, input_size: List[int]):
 
     print("Evaluation of genome:", blueprint.id, "complete with accuracy:", accuracy)
 
-    if config.plt_every_genotype:
-        blueprint.visualize()
+    if config.plot_every_genotype:
+        blueprint.visualize(parse_number= parse_number)
+    if config.plot_every_phenotype:
+        model.visualize(parse_number=parse_number)
 
     return blueprint
 
 
-def propagate_fitnesses_to_co_genomes(blueprint: BlueprintGenome):
-    """
-    passes the blueprints accuracy to the modules and da_individuals it used
-    """
+def get_parse_num(blueprint: BlueprintGenome):
+    import src2.main.Singleton as Singleton
 
+    key = (Singleton.instance.generation_number, blueprint.id)
+    if key not in parse_number_map.keys():
+        parse_number_map[key] = 0
+        return 0
 
-def assign_accuracy(phenotype: Network):
-    """
-    runs the NN training and testing to determine its test accuracy
-    """
-    pass
-
-
-def assign_blueprint_complexity(phenotype: Network):
-    """
-    collects the complexities of the phenotypes and assigns them to the blueprint
-    """
-    pass
-
-
-def assign_module_complexities(module_pop: Population):
-    """
-    collects the module complexities and assigns them
-    """
+    parse_number_map[key] += 1
+    return parse_number_map[key]

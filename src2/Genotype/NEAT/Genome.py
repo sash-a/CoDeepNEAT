@@ -180,9 +180,6 @@ class Genome(GraphGenome):
         create_and_link_layers(starting_layer, self.get_input_node().id)
         return first_layer, output_layers[1]  # return first and last layer in the full NN
 
-    def visualize(self):
-        pass
-
     def get_all_mutagens(self) -> List[Mutagen]:
         return []
 

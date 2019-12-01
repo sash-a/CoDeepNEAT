@@ -3,10 +3,10 @@ from __future__ import annotations
 import os
 from typing import TYPE_CHECKING, Union, List, Dict
 
+from runs import RunsManager
+from src2.Configuration import config
 from src2.Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
 from src2.Genotype.CDN.Nodes.ModuleNode import ModuleNode
-from runs import RunsManager
-
 
 if TYPE_CHECKING:
     from src2.Genotype.NEAT.Genome import Genome
@@ -20,7 +20,7 @@ from graphviz import Digraph
 def get_graph_of(genome: Genome, sub_graph=False, cluster_style="filled", cluster_colour="lightgrey",
                  node_style="filled", node_colour="white", label="",
                  node_shape="", start_node_shape="Mdiamond", end_node_shape="Msquare",
-                 node_names="", append_graph: Digraph = None,
+                 node_names="", graph_title_prefix="", graph_title_suffix = "", append_graph: Digraph = None,
                  exclude_unconnected_nodes=True, exclude_non_fully_connected_nodes=True,
                  **kwargs) -> Digraph:
     """
@@ -42,7 +42,7 @@ def get_graph_of(genome: Genome, sub_graph=False, cluster_style="filled", cluste
         raise Exception("null genome passed to grapher")
 
     if append_graph is None:
-        g = Digraph(name=("cluster_" if sub_graph else "") + "genome_" + str(genome.id))
+        g = Digraph(name=graph_title_prefix +( "cluster_" if sub_graph else "") + "genome_" + str(genome.id) + graph_title_suffix)
         # print("created graph ", g)
     else:
         g = append_graph
@@ -98,8 +98,9 @@ def get_graph_of(genome: Genome, sub_graph=False, cluster_style="filled", cluste
     return g
 
 
-def visualise_blueprint_genome(genome: BlueprintGenome, sample_map: Dict[int, int] = None):
-    blueprint_graph = get_graph_of(genome, node_names="blueprint", sample_map=sample_map, node_colour="yellow")
+def visualise_blueprint_genome(genome: BlueprintGenome, sample_map: Dict[int, int] = None, parse_number = -1, prefix = ""):
+    blueprint_graph = get_graph_of(genome, node_names="blueprint", sample_map=sample_map, node_colour="yellow",
+                                   graph_title_prefix=prefix + "blueprint_", graph_title_suffix = ("_p"+str(parse_number) + "_" if parse_number >=0 else ""))
     module_ids = set()
 
     for bp_node in genome.nodes.values():
@@ -115,14 +116,14 @@ def visualise_blueprint_genome(genome: BlueprintGenome, sample_map: Dict[int, in
 
         for species_id in sample_map.keys():
             module_id = sample_map[species_id]
-            sub_graph_label = "Species: " + str(species_id)+"\nModule: " + str(module_id)
-            node_names = "module_" + str(species_id)+ "_"+str(module_id)
+            sub_graph_label = "Species: " + str(species_id) + "\nModule: " + str(module_id)
+            node_names = "module_" + str(species_id) + "_" + str(module_id)
             module = Singleton.instance.module_population[module_id]
             module_graph = get_graph_of(module, node_names=node_names,
                                         sub_graph=True, label=sub_graph_label, node_colour="blue")
             blueprint_graph.subgraph(module_graph)
 
-    blueprint_graph.view(directory=RunsManager.get_graphs_folder_path())
+    blueprint_graph.render(directory=RunsManager.get_graphs_folder_path(), view=config.view_graph_plots)
 
 
 def visualise_traversal_dict(traversal_dict: Dict[int, List[int]]):
@@ -134,7 +135,7 @@ def visualise_traversal_dict(traversal_dict: Dict[int, List[int]]):
             g.node(name=str(to_id))
             g.edge(str(from_id), str(to_id))
 
-    g.view(directory=RunsManager.get_graphs_folder_path())
+    g.render(directory=RunsManager.get_graphs_folder_path(), view=config.view_graph_plots)
 
 
 def get_node_metadata(node: Union[BlueprintNode, ModuleNode], **kwargs):
@@ -191,14 +192,3 @@ def pretty(full_object_name: str):
     if "." not in full_object_name or "'" not in full_object_name:
         return full_object_name
     return full_object_name.split(".")[-1].split("'")[0]
-
-
-if __name__ == "__main__":
-    # genome, record = StaticGenomes.get_small_tri_genome(BlueprintGenome, BlueprintNode)
-    # graph = get_graph_of(genome, node_colour="yellow")
-    # print("genome ", genome, " parsed into graph: ", graph)
-    # genome.has_cycle()
-    # graph.view()
-    # visualise_traversal_dict(genome.get_traversal_dictionary())
-
-    pass
