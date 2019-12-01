@@ -42,24 +42,15 @@ def load_data(composed_transforms: transforms.Compose, split: str) -> DataLoader
         # Splitting the train set into a train and valid set
         train_size = int(len(dataset) * (1 - config.validation_split))
         validation_size = len(dataset) - train_size
-
-        # TODO is this the best way to do it, should it be unseeded at the end? should we just manual seed at the start of the program?
-        # seeding and unseeding pytorch so that the 'random split' is deterministic
- #       initial = torch.initial_seed()
-        torch.manual_seed(0)
         train, valid = random_split(dataset, [train_size, validation_size])
-  #      torch.manual_seed(initial)
 
         if split == 'train':
             dataset = train
         else:
             dataset = valid
     # TODO: test num workers and pin memory
-    dl = DataLoader(dataset, batch_size=config.batch_size, shuffle=False, num_workers=0, pin_memory=False)
-    images, _ = next(iter(dl))
-    imshow(torchvision.utils.make_grid(images))
 
-    return dl
+    return DataLoader(dataset, batch_size=config.batch_size, shuffle=False, num_workers=0, pin_memory=False)
 
 
 def get_data_shape() -> List[int]:

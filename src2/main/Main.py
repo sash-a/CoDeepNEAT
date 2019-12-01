@@ -5,6 +5,8 @@ import os
 import random
 import sys
 import datetime
+
+import torch
 import wandb
 from typing import TYPE_CHECKING
 
@@ -30,6 +32,10 @@ if TYPE_CHECKING:
 
 
 def main():
+    # seeding and unseeding pytorch so that the 'random split' is deterministic
+    # TODO is this the best way to enforce a deterministic split? Do we want torch to be seeded?
+    torch.manual_seed(0)
+
     _force_cuda_init_device()
     generation = init_generation()
     Singleton.instance = generation
@@ -137,7 +143,8 @@ def init_operators():
     else:
         raise Exception("unrecognised representative selector in config: " + config.representative_selector.lower()
                         + " expected either: centroid | random | best")
-    
+
+
 def _force_cuda_init_device():
     import torch
     for i in range(config.n_gpus):
