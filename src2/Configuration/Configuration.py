@@ -20,7 +20,7 @@ class Config:
         self.n_evaluations_per_bp = 4
         self.max_model_params = 50e6
         # ---------------------------------------------- Debug Options ----------------------------------------------
-        self.dummy_run = True
+        self.dummy_run = False
         # ---------------------------------------------- Graphing Options ----------------------------------------------
         self.view_graph_plots = False  # if true, any plotted graphs will be viewed
         self.plot_best_genotypes = True
@@ -80,7 +80,7 @@ class Config:
         self.module_add_connection_chance = 0.1  # 0.08
         self.module_node_layer_type_change_chance = 0.1
         # ------------------------------------------------ wandb stuff ------------------------------------------------
-        self.use_wandb = False
+        self.use_wandb = True
         self.wandb_run_id = ''
         # -------------------------------------------------------------------------------------------------------------
 
