@@ -71,9 +71,10 @@ class Genome(GraphGenome):
                 self.fitness_raw[i].append(fitness)
 
     def aggregate_fitness(self):
-        print('agg fitness')
         for i, raw_fitness_values in enumerate(self.fitness_raw):
-            if config.fitness_aggregation == 'avg':
+            if not raw_fitness_values:
+                aggregated_fitness = 0
+            elif config.fitness_aggregation == 'avg':
                 aggregated_fitness = sum(raw_fitness_values) / len(raw_fitness_values)
             elif config.fitness_aggregation == 'max':
                 aggregated_fitness = max(raw_fitness_values)
