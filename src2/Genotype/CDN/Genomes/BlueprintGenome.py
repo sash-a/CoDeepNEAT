@@ -23,6 +23,7 @@ class BlueprintGenome(Genome):
     def __init__(self, nodes: List[Node], connections: List[Connection]):
         super().__init__(nodes, connections)
 
+        # TODO mutate, CDN has ranges in 2017 paper
         self.learning_rate = ContinuousVariable("learning rate", start_range=0.0006, current_value=0.001,
                                                 end_range=0.003, mutation_chance=0)
         self.beta1 = ContinuousVariable("beta1", start_range=0.88, current_value=0.9, end_range=0.92, mutation_chance=0)
@@ -98,7 +99,6 @@ class BlueprintGenome(Genome):
                     node.linked_module_id = module_id if module is not None else -1
 
     def to_phenotype(self, **kwargs) -> Tuple[Layer, Layer]:
-        # print("making blueprint pheno")
         sample_map = {}
         return super().to_phenotype(module_sample_map=sample_map), sample_map
 
@@ -111,26 +111,26 @@ class BlueprintGenome(Genome):
         self.best_module_sample_map = None
         self.best_sample_map_accuracy = -1
 
-    def report_fitness(self, fitnesses, **kwargs):
+    def report_fitness(self, fitnesses: List[float], **kwargs):
         super().report_fitness(fitnesses)
-        import src2.main.Singleton as S
+        import src2.main.Singleton as Singleton
 
         with self.lock:
             sample_map = kwargs["module_sample_map"]
 
-        for node_id in self.get_fully_connected_node_ids():
-            node: Node = self.nodes[node_id]
-            if not isinstance(node, BlueprintNode.BlueprintNode):
-                continue
+            for node_id in self.get_fully_connected_node_ids():
+                node: Node = self.nodes[node_id]
+                if not isinstance(node, BlueprintNode.BlueprintNode):
+                    continue
 
-            if node.species_id not in sample_map:
-                raise Exception(
-                    "sample map" + repr(sample_map) + "doesn't cover all species in blueprint - missing: " + repr(
-                        node.species_id))
+                if node.species_id not in sample_map:
+                    raise Exception(
+                        "sample map" + repr(sample_map) + "doesn't cover all species in blueprint - missing: " + repr(
+                            node.species_id))
 
-            module_id = sample_map[node.species_id]
-            module = S.instance.module_population[module_id]
-            module.report_fitness(fitnesses, **kwargs)
+                module_id = sample_map[node.species_id]
+                module = Singleton.instance.module_population[module_id]
+                module.report_fitness(fitnesses, **kwargs)
 
     def update_best_sample_map(self, candidate_map: Dict[int, int], accuracy: int):
         with self.lock:

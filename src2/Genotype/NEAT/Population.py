@@ -78,6 +78,7 @@ class Population:
             species.next_species_size = species_size
 
     def step(self):
+        self._aggregate_fitness()
         Population.ranker.rank(iter(self))
         self.species: List[Species] = [species for species in self.species if species]  # Removing empty species
         self._update_species_sizes()
@@ -96,8 +97,11 @@ class Population:
         for member in self:
             member.end_step()
 
-    def is_alive(self, genome_id) -> bool:
+    def _aggregate_fitness(self):
+        for individual in self:
+            individual.aggregate_fitness()
 
+    def is_alive(self, genome_id) -> bool:
         for spc in self.species:
             if genome_id in spc.members.keys():
                 return True

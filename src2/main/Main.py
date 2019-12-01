@@ -36,7 +36,7 @@ def main():
     # TODO is this the best way to enforce a deterministic split? Do we want torch to be seeded?
     torch.manual_seed(0)
 
-    _force_cuda_init_device()
+    _force_cuda_device_init()
     generation = init_generation()
     Singleton.instance = generation
     init_operators()
@@ -145,8 +145,8 @@ def init_operators():
                         + " expected either: centroid | random | best")
 
 
-def _force_cuda_init_device():
-    import torch
+def _force_cuda_device_init():
+    """Needed because of a bug in pytorch/cuda: https://github.com/pytorch/pytorch/issues/16559"""
     for i in range(config.n_gpus):
         with torch.cuda.device(i):
             torch.tensor([1.]).cuda()

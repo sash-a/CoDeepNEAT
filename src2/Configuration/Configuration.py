@@ -76,7 +76,7 @@ class Config:
         self.module_add_connection_chance = 0.1  # 0.08
         self.module_node_layer_type_change_chance = 0.1
         # ------------------------------------------------ wandb stuff ------------------------------------------------
-        self.use_wandb = True
+        self.use_wandb = False
         self.wandb_run_id = ''
         # -------------------------------------------------------------------------------------------------------------
 

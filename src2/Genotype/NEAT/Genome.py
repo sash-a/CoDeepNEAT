@@ -27,8 +27,8 @@ class Genome(GraphGenome):
         Singleton.instance.genome_id_counter += 1
 
         self.rank = 0  # The order of this genome when ranked by fitness values, high rank is more fit
-        self.uses_this_generation = 0  # The numbers of times was genome is used
-        self.fitness_values: List[int] = [0]
+        self.fitness_values: List[float] = [0]
+        self.fitness_raw: List[List[float]] = [[]]
 
         self.lock = threading.RLock()
 
@@ -37,8 +37,8 @@ class Genome(GraphGenome):
 
         cp.id = self.id
         cp.rank = self.rank
-        cp.uses_this_generation = self.uses_this_generation
         cp.fitness_values = self.fitness_values
+        cp.fitness_raw = self.fitness_raw
 
         return cp
 
@@ -64,29 +64,27 @@ class Genome(GraphGenome):
     def __lt__(self, other):
         return self.rank < other.rank
 
-    def report_fitness(self, fitnesses, **kwargs):
+    def report_fitness(self, fitnesses: List[float], **kwargs):
         """updates the fitnesses stored with a new given fitness"""
         with self.lock:
-            if self.fitness_values is None or not self.fitness_values:
-                self.fitness_values = [0 for _ in fitnesses]
+            for i, fitness in enumerate(fitnesses):
+                self.fitness_raw[i].append(fitness)
 
+    def aggregate_fitness(self):
+        print('agg fitness')
+        for i, raw_fitness_values in enumerate(self.fitness_raw):
             if config.fitness_aggregation == 'avg':
-                for i, fitness in enumerate(fitnesses):
-                    if self.fitness_values[i] is None:
-                        self.fitness_values[i] = 0
-                    self.fitness_values[i] = (self.fitness_values[i] * self.uses_this_generation + fitness) / (self.uses_this_generation + 1)
-                self.uses_this_generation += 1
+                aggregated_fitness = sum(raw_fitness_values) / len(raw_fitness_values)
             elif config.fitness_aggregation == 'max':
-                for i, fitness in enumerate(fitnesses):
-                    if self.fitness_values[i] is None:
-                        self.fitness_values[i] = 0
-                    self.fitness_values[i] = max(self.fitness_values[i], fitness)
+                aggregated_fitness = max(raw_fitness_values)
             else:
-                raise Exception("Unexpected fitness aggregation type: " + repr(config.fitness_aggregation))
+                raise ValueError("Unexpected fitness aggregation type: " + repr(config.fitness_aggregation))
+
+            self.fitness_values[i] = aggregated_fitness
 
     def end_step(self):
         """Resets all necessary values for next the generation"""
-        self.uses_this_generation = 0
+        self.fitness_raw = [[]]
         if self.fitness_values is not None:
             self.fitness_values = [0 for _ in self.fitness_values]
 
