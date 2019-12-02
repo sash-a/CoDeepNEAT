@@ -20,7 +20,7 @@ from graphviz import Digraph
 def get_graph_of(genome: Genome, sub_graph=False, cluster_style="filled", cluster_colour="lightgrey",
                  node_style="filled", node_colour="white", label="",
                  node_shape="", start_node_shape="Mdiamond", end_node_shape="Msquare",
-                 node_names="", graph_title_prefix="", graph_title_suffix = "", append_graph: Digraph = None,
+                 node_names="", graph_title_prefix="", graph_title_suffix="", append_graph: Digraph = None,
                  exclude_unconnected_nodes=True, exclude_non_fully_connected_nodes=True,
                  **kwargs) -> Digraph:
     """
@@ -103,9 +103,10 @@ def get_graph_of(genome: Genome, sub_graph=False, cluster_style="filled", cluste
     return g
 
 
-def visualise_blueprint_genome(genome: BlueprintGenome, sample_map: Dict[int, int] = None, parse_number = -1, prefix = ""):
+def visualise_blueprint_genome(genome: BlueprintGenome, sample_map: Dict[int, int] = None, parse_number=-1, prefix=""):
     blueprint_graph = get_graph_of(genome, node_names="blueprint", sample_map=sample_map, node_colour="yellow",
-                                   graph_title_prefix=prefix + "blueprint_", graph_title_suffix = ("_p"+str(parse_number) + "_" if parse_number >=0 else ""))
+                                   graph_title_prefix=prefix + "blueprint_",
+                                   graph_title_suffix=("_p" + str(parse_number) + "_" if parse_number >= 0 else ""))
     module_ids = set()
 
     for bp_node in genome.nodes.values():

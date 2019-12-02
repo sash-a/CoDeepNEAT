@@ -29,6 +29,7 @@ class Genome(GraphGenome):
         self.rank = 0  # The order of this genome when ranked by fitness values, high rank is more fit
         self.fitness_values: List[float] = [0]
         self.fitness_raw: List[List[float]] = [[]]
+        self.n_evaluations = 0
 
         self.lock = threading.RLock()
 
@@ -69,6 +70,7 @@ class Genome(GraphGenome):
     def report_fitness(self, fitnesses: List[float], **kwargs):
         """updates the fitnesses stored with a new given fitness"""
         with self.lock:
+            self.n_evaluations += 1
             for i, fitness in enumerate(fitnesses):
                 self.fitness_raw[i].append(fitness)
 
@@ -87,6 +89,7 @@ class Genome(GraphGenome):
 
     def end_step(self):
         """Resets all necessary values for next the generation"""
+        self.n_evaluations = 0
         self.fitness_raw = [[]]
         if self.fitness_values is not None:
             self.fitness_values = [0 for _ in self.fitness_values]

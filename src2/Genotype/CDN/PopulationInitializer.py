@@ -68,10 +68,10 @@ def create_mr() -> MutationRecords:
 
 
 def _blank_node(node: Union[ModuleNode, BlueprintNode, DANode]) -> ModuleNode:
-    """Makes a module node only return its input and doesn't allow it to change"""
+    """Makes a module node that only return its input and doesn't allow it to change"""
     new_node = ModuleNode(node.id, node.node_type)
-    new_node.layer_type.set_value(None)
 
+    new_node.layer_type.set_value(None)
     dropout = new_node.layer_type.get_submutagen('dropout')
     regularisation = new_node.layer_type.get_submutagen('regularisation')
     dropout.set_value(None)

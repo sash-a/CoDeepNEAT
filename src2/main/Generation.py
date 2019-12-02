@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor
-from typing import Optional
+from typing import Optional, List
 
 import wandb
 
@@ -43,13 +43,13 @@ class Generation:
             Runs CDN for one generation. Calls the evaluation of all individuals. Prepares population objects for the
             next step.
         """
-        self.evaluate_blueprints()  # may be parallel
+        model_sizes = self.evaluate_blueprints()  # may be parallel
         # Aggregate the fitnesses immediately after they have all been recorded
         self.module_population.aggregate_fitness()
         self.blueprint_population.aggregate_fitness()
 
         if config.use_wandb:
-            self.wandb_report()
+            self.wandb_report(model_sizes)
 
         if config.plot_best_genotypes:
             self.blueprint_population.get_most_accurate().visualize(prefix="best_g" + str(self.generation_number) + "_")
@@ -57,44 +57,44 @@ class Generation:
             model: Network = Network(self.blueprint_population.get_most_accurate(), get_data_shape())
             model.visualize(prefix="best_g" + str(self.generation_number) + "_")
 
-        print("num blueprint species:",len(self.blueprint_population.species), self.blueprint_population.species)
-
-        print("maxacc:", self.blueprint_population.get_most_accurate().fitness_values)
+        print("Num blueprint species:", len(self.blueprint_population.species), self.blueprint_population.species)
+        print("Most accurate graph:", self.blueprint_population.get_most_accurate().fitness_values)
 
         self.module_population.step()
         self.blueprint_population.step()
 
-        if True:
-            self.module_population.visualise(suffix="_"+str(self.generation_number)+"_module_species")
-            self.blueprint_population.visualise(suffix="_"+str(self.generation_number)+"blueprint_species")
+        # self.module_population.visualise(suffix="_" + str(self.generation_number) + "_module_species")
+        # self.blueprint_population.visualise(suffix="_" + str(self.generation_number) + "blueprint_species")
 
         self.generation_number += 1
 
         print('Step ended')
         print('Module species:', [len(spc.members) for spc in self.module_population.species])
 
-    def evaluate_blueprints(self):
+    def evaluate_blueprints(self) -> List[int]:
         """Evaluates all blueprints"""
         # Multiplying the blueprints so that each blueprint is evaluated config.n_evaluations_per_bp times
         blueprints = list(self.blueprint_population) * config.n_evaluations_per_bp
         in_size = get_data_shape()
+        model_sizes: List[int] = []
 
         if config.n_gpus > 1:
             with ThreadPoolExecutor(max_workers=config.n_gpus, thread_name_prefix='thread') as ex:
-                results = ex.map(lambda x: evaluate_blueprint(*x), list(zip(blueprints, [in_size] * len(blueprints))))
-                # results = ex.map(evaluate_blueprint, blueprints, input_size)
+                results = ex.map(
+                    lambda x: evaluate_blueprint(*x),
+                    list(zip(blueprints, [in_size] * len(blueprints), [self.generation_number] * len(blueprints)))
+                )
                 for result in results:
-                    r = result
+                    model_sizes.append(result)
 
-            # reset_thread_name()
         else:
             for bp in blueprints:
-                # print('running in series')
-                evaluate_blueprint(bp, in_size)
+                model_sizes.append(evaluate_blueprint(bp, in_size, self.generation_number))
+
+        return model_sizes
 
     def initialise_populations(self):
         """Starts off the populations of a new evolutionary run"""
-
         if config.module_speciation.lower() == "similar":
             module_speciator = MostSimilarSpeciator(config.species_distance_thresh_mod_base, config.n_module_species,
                                                     ModuleGenomeMutator())
@@ -115,17 +115,35 @@ class Generation:
                                                create_mr(), config.bp_pop_size, bp_speciator)
         # TODO DA pop
 
-    def wandb_report(self):
+    def wandb_report(self, model_sizes: List[int]):
         module_accs = sorted([module.accuracy for module in self.module_population])
         bp_accs = sorted([bp.accuracy for bp in self.blueprint_population])
 
-        mod_acc_tbl = wandb.Table(['module accuracies'], data=module_accs)
-        bp_acc_tbl = wandb.Table(['blueprint accuracies'], data=bp_accs)
+        n_unevaluated_bps = 0
+        raw_bp_accs = []
+        for bp in self.blueprint_population:
+            n_unevaluated_bps += sum(fitness[0] == 0 for fitness in bp.fitness_raw)
+            raw_bp_accs.extend(bp.fitness_raw[0])
+
+        n_unevaluated_mods = 0
+        raw_mod_accs = []
+        for mod in self.module_population:
+            n_unevaluated_mods += 1 if mod.n_evaluations == 0 else 0
+            raw_mod_accs.extend(mod.fitness_raw[0])
+
+        mod_acc_tbl = wandb.Table(['module accuracies'],
+                                  data=raw_mod_accs)
+        bp_acc_tbl = wandb.Table(['blueprint accuracies'],
+                                 data=raw_bp_accs)
 
         wandb.log({'module accuracy table': mod_acc_tbl, 'blueprint accuracy table': bp_acc_tbl,
-                   'module accuracies raw': module_accs, 'blueprint accuracies raw': bp_accs,
+                   'module accuracies aggregated': module_accs, 'blueprint accuracies aggregated': bp_accs,
+                   'module accuracies raw': raw_mod_accs, 'blueprint accuracies raw': raw_bp_accs,
                    'avg module accuracy': sum(module_accs) / len(module_accs),
                    'avg blueprint accuracy': sum(bp_accs) / len(bp_accs),
-                   'best module accuracy': module_accs[-1], 'best blueprint accuracy': bp_accs[-1],
+                   'best module accuracy': max(raw_mod_accs), 'best blueprint accuracy': max(raw_bp_accs),
                    'num module species': len(self.module_population.species),
-                   'species sizes': [len(spc.members) for spc in self.module_population.species]})
+                   'species sizes': [len(spc.members) for spc in self.module_population.species],
+                   'unevaluated blueprints': n_unevaluated_bps, 'n_unevaluated_mods': n_unevaluated_mods,
+                   'speciation threshold': self.module_population.speciator.threshold,
+                   'model sizes': model_sizes})

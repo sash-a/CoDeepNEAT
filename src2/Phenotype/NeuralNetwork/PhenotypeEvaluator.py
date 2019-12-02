@@ -9,23 +9,16 @@ from src2.Phenotype.NeuralNetwork.NeuralNetwork import Network
 if TYPE_CHECKING:
     from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
 
-parse_number_map: Dict[Tuple[int, int], int] = {}  # maps from (gen,genoID) to parseNum
 
-
-def evaluate_blueprint(blueprint: BlueprintGenome, input_size: List[int]):
+def evaluate_blueprint(blueprint: BlueprintGenome, input_size: List[int], generation: int) -> int:
     """
     parses the blueprint into its phenotype NN
     handles the assignment of the single/multi obj finesses to the blueprint
     """
-    parse_number, generation_number = get_parse_gen_num(blueprint)
-
-    model: Network = Network(blueprint, input_size)
     device = config.get_device()
-    model.to(device)
+    model: Network = Network(blueprint, input_size).to(device)
 
     model_size = sum(p.numel() for p in model.parameters() if p.requires_grad)
-    print('trainable model params', model_size)
-
     if model_size > config.max_model_params:
         accuracy = 0
     else:
@@ -37,20 +30,11 @@ def evaluate_blueprint(blueprint: BlueprintGenome, input_size: List[int]):
     print("Evaluation of genome:", blueprint.id, "complete with accuracy:", accuracy)
 
     if config.plot_every_genotype:
-        blueprint.visualize(parse_number= parse_number, prefix= "g" + str(generation_number) + "_")
+        blueprint.visualize(parse_number=blueprint.n_evaluations,
+                            prefix="g" + str(generation) + "_" + str(blueprint.id))
+
     if config.plot_every_phenotype:
-        model.visualize(parse_number=parse_number, prefix= "g" + str(generation_number) + "_")
+        model.visualize(parse_number=blueprint.n_evaluations,
+                        prefix="g" + str(generation) + "_" + str(blueprint.id))
 
-    return blueprint
-
-
-def get_parse_gen_num(blueprint: BlueprintGenome):
-    import src2.main.Singleton as Singleton
-
-    key = (Singleton.instance.generation_number, blueprint.id)
-    if key not in parse_number_map.keys():
-        parse_number_map[key] = 0
-        return 0, Singleton.instance.generation_number
-
-    parse_number_map[key] += 1
-    return parse_number_map[key], Singleton.instance.generation_number
+    return model_size
