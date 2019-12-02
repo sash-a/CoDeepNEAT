@@ -15,6 +15,7 @@
 **/clusterbackup*/*
 **/wandb/*
 
+src2/Configuration/Configs/homeconf.json
 
 __pycache__/
 *.py[cod]
@@ -22,3 +23,6 @@ __pycache__/
 
 *.so
 Runs_fetcher.bat
+
+wandb-metadata.json
+wandb/run-*

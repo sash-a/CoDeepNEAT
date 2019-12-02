@@ -74,7 +74,7 @@ class Network(nn.Module):
         pass
 
     def visualize(self, parse_number=-1, prefix=""):
-        graph = graphviz.Digraph(name=prefix + "blueprint_i" +str(self.blueprint.id)+ "_phenotype"  + (
+        graph = graphviz.Digraph(name=prefix + "blueprint_i" + str(self.blueprint.id) + "_phenotype" + (
             "_p" + str(parse_number) + "_" if parse_number >= 0 else ""), comment='Phenotype')
 
         q: List[BaseLayer] = [self.model]
@@ -93,5 +93,5 @@ class Network(nn.Module):
                     graph.edge(parent_layer.name, child_layer.name)
 
                     q.append(child_layer)
-        graph.render(quiet=False, quiet_view=False, directory=RunsManager.get_graphs_folder_path(),
-                     view=config.view_graph_plots)
+
+        graph.render(quiet=False, directory=RunsManager.get_graphs_folder_path(), view=config.view_graph_plots)

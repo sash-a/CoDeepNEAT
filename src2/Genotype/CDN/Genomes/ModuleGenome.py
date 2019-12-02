@@ -1,6 +1,8 @@
 import threading
 from typing import List, Tuple
 
+from runs import RunsManager
+from src2.Configuration import config
 from src2.Phenotype.NeuralNetwork.Layers.Layer import Layer
 from src2.Genotype.NEAT.Connection import Connection
 from src2.Genotype.NEAT.Genome import Genome
@@ -16,7 +18,7 @@ class ModuleGenome(Genome):
         return super().to_phenotype(**kwargs)
 
     def visualize(self):
-        get_graph_of(self).view()
+        get_graph_of(self).render(directory=RunsManager.get_graphs_folder_path(), view=config.view_graph_plots)
 
     def __getstate__(self):
         d = dict(self.__dict__)

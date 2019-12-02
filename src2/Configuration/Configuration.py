@@ -56,10 +56,8 @@ class Config:
         self.parent_selector = "uniform"  # uniform | roulette | tournament
         self.representative_selector = 'random'  # best | centroid | random
         #  blank node settings - if true input/output nodes are left blank perpetually
-        self.blank_blueprint_input_nodes = False
-        self.blank_blueprint_output_nodes = False
-        self.blank_module_input_nodes = False
-        self.blank_module_output_nodes = False
+        self.blank_input_nodes = False
+        self.blank_output_nodes = False
         # ------------------------------------------------- NEAT stuff -------------------------------------------------
         # Used when calculating distance between genomes
         self.disjoint_coefficient = 3

@@ -20,51 +20,64 @@ def create_population(pop_size: int, Node: Union[Type[ModuleNode], Type[Blueprin
                       Genome: Union[Type[ModuleGenome], Type[BlueprintGenome], Type[DAGenome]]) -> \
         List[Union[ModuleGenome, BlueprintGenome, DAGenome]]:
     pop = []
-    for _ in range(pop_size):
-        pop.append(_create_individual(Node, Genome))
+    for _ in range(pop_size // 3 + 1):
+        pop.extend(_create_individual(Node, Genome))
 
     return pop
 
 
 def _create_individual(Node: Union[Type[ModuleNode], Type[BlueprintNode], Type[DANode]],
                        Genome: Union[Type[ModuleGenome], Type[BlueprintGenome], Type[DAGenome]]) -> \
-        Union[ModuleGenome, BlueprintGenome, DAGenome]:
-    in_node = Node(0, NodeType.INPUT)
-    out_node = Node(1, NodeType.OUTPUT)
+        List[Union[ModuleGenome, BlueprintGenome, DAGenome]]:
+    in_node_params = (0, NodeType.INPUT)
+    out_node_params = (1, NodeType.OUTPUT)
+    mid_node_params = (2, NodeType.HIDDEN)
+
+    linear = Genome(
+        ([Node(*in_node_params), Node(*mid_node_params), Node(*out_node_params)]),
+        [Connection(1, 0, 2), Connection(2, 2, 1)]  # TODO should this have the connection from 0 -> 1?
+    )
+
+    tri = Genome(
+        ([Node(*in_node_params), Node(*mid_node_params), Node(*out_node_params)]),
+        [Connection(0, 0, 1), Connection(1, 0, 2), Connection(2, 2, 1)]
+    )
+
+    dia = Genome(
+        ([Node(*in_node_params), Node(*mid_node_params), Node(3, NodeType.HIDDEN), Node(*out_node_params)]),
+        [Connection(1, 0, 2), Connection(3, 0, 3), Connection(4, 3, 1), Connection(2, 2, 1)]
+    )
 
     # Making the in and out nodes of modules blank
-    if Node == ModuleNode :
-        if config.blank_module_input_nodes:
-            _blank_node(in_node)
+    genomes = [linear, tri, dia]
+    if config.blank_input_nodes:
+        for genome in genomes:
+            genome.nodes[0] = _blank_node(genome.get_input_node())
 
-        if config.blank_module_input_nodes:
-            _blank_node(out_node)
+    if config.blank_output_nodes:
+        for genome in genomes:
+            genome.nodes[1] = _blank_node(genome.get_output_node())
 
-    if Node == BlueprintNode :
-        if config.blank_blueprint_input_nodes:
-            _blank_node(in_node)
-
-        if config.blank_blueprint_output_nodes:
-            _blank_node(out_node)
-
-    return Genome(
-        [in_node, Node(2, NodeType.HIDDEN), out_node],
-        [Connection(0, 0, 2), Connection(1, 2, 1)]  # TODO should this have the connection from 0 -> 1?
-    )
+    return genomes
 
 
 def create_mr() -> MutationRecords:
-    return MutationRecords({(0, 2): 0, (2, 1): 1}, {}, 2, 2)  # TODO should we add in the connection from 0 -> 1?
+    return MutationRecords({(0, 1): 0, (0, 2): 1, (2, 1): 2, (0, 3): 3, (3, 1): 4},
+                           {(0, 0): 2, (0, 1): 3},
+                           3, 4)
 
 
-def _blank_node(node: ModuleNode):
+def _blank_node(node: Union[ModuleNode, BlueprintNode, DANode]) -> ModuleNode:
     """Makes a module node only return its input and doesn't allow it to change"""
-    node.layer_type.set_value(None)
+    new_node = ModuleNode(node.id, node.node_type)
+    new_node.layer_type.set_value(None)
 
-    dropout = node.layer_type.get_submutagen('dropout')
-    regularisation = node.layer_type.get_submutagen('regularisation')
+    dropout = new_node.layer_type.get_submutagen('dropout')
+    regularisation = new_node.layer_type.get_submutagen('regularisation')
     dropout.set_value(None)
     regularisation.set_value(None)
-    node.layer_type.mutation_chance = 0
+    new_node.layer_type.mutation_chance = 0
     dropout.mutation_chance = 0
     regularisation.mutation_chance = 0
+
+    return new_node
