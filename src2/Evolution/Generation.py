@@ -23,7 +23,7 @@ from src2.Genotype.NEAT.Operators.Speciators.NEATSpeciator import NEATSpeciator
 from src2.Genotype.NEAT.Population import Population
 from src2.Phenotype.NeuralNetwork.Evaluator.DataLoader import get_data_shape
 from src2.Phenotype.NeuralNetwork.NeuralNetwork import Network
-from src2.Phenotype.NeuralNetwork.PhenotypeEvaluator import evaluate_blueprint
+from src2.Phenotype.PhenotypeEvaluator import evaluate_blueprint
 
 
 class Generation:
@@ -69,12 +69,19 @@ class Generation:
 
         self.generation_number += 1
 
+        self.module_population.end_step()
+        self.blueprint_population.end_step()
+
         print('Step ended')
         print('Module species:', [len(spc.members) for spc in self.module_population.species])
 
     def evaluate_blueprints(self) -> List[int]:
         """Evaluates all blueprints"""
         # Multiplying the blueprints so that each blueprint is evaluated config.n_evaluations_per_bp times
+
+        self.module_population.before_step()
+        self.blueprint_population.before_step()
+
         blueprints = list(self.blueprint_population) * config.n_evaluations_per_bp
         in_size = get_data_shape()
         model_sizes: List[int] = []
@@ -150,3 +157,12 @@ class Generation:
                    'unevaluated blueprints': n_unevaluated_bps, 'n_unevaluated_mods': n_unevaluated_mods,
                    'speciation threshold': self.module_population.speciator.threshold,
                    'model sizes': model_sizes})
+
+    def __getitem__(self, genome_id: int):
+        populations: List[Population] = [self.blueprint_population,self.module_population] #todo add DA
+        for pop in populations:
+            mem = pop[genome_id]
+            if mem is not None:
+                return mem
+
+        return None

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List, Dict, Tuple
+from typing import TYPE_CHECKING, List
 
 from src2.Configuration import config
 from src2.Phenotype.NeuralNetwork.Evaluator.Evaluator import evaluate
@@ -10,7 +10,8 @@ if TYPE_CHECKING:
     from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
 
 
-def evaluate_blueprint(blueprint: BlueprintGenome, input_size: List[int], generation: int) -> int:
+def evaluate_blueprint(blueprint: BlueprintGenome, input_size: List[int], generation_num: int,
+                       num_epochs=config.epochs_in_evolution) -> int:
     """
     parses the blueprint into its phenotype NN
     handles the assignment of the single/multi obj finesses to the blueprint
@@ -22,7 +23,7 @@ def evaluate_blueprint(blueprint: BlueprintGenome, input_size: List[int], genera
     if model_size > config.max_model_params:
         accuracy = 0
     else:
-        accuracy = evaluate(model)
+        accuracy = evaluate(model, num_epochs=num_epochs)
 
     blueprint.update_best_sample_map(model.sample_map, accuracy)
     blueprint.report_fitness([accuracy], module_sample_map=model.sample_map)
@@ -31,10 +32,10 @@ def evaluate_blueprint(blueprint: BlueprintGenome, input_size: List[int], genera
 
     if config.plot_every_genotype:
         blueprint.visualize(parse_number=blueprint.n_evaluations,
-                            prefix="g" + str(generation) + "_" + str(blueprint.id))
+                            prefix="g" + str(generation_num) + "_" + str(blueprint.id))
 
     if config.plot_every_phenotype:
         model.visualize(parse_number=blueprint.n_evaluations,
-                        prefix="g" + str(generation) + "_" + str(blueprint.id))
+                        prefix="g" + str(generation_num) + "_" + str(blueprint.id))
 
     return model_size

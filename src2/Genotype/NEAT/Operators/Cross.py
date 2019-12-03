@@ -29,5 +29,6 @@ def over(genome_a: Genome, genome_b: Genome) -> Genome:
         child.add_connection(new_connection)  # child heights not meaningful at this stage
 
     child.inherit(best)
+    child.parents = [best.id,worst.id]
 
     return child

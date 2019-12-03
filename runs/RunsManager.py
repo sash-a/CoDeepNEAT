@@ -1,24 +1,29 @@
 from __future__ import annotations
 
 import inspect
+import json
 import os
 import pickle
-import json
 from os.path import join, exists, dirname, abspath
 from typing import TYPE_CHECKING
 
 from src2.Configuration import config
 
 if TYPE_CHECKING:
-    from src2.main.Generation import Generation
+    from src2.Evolution.Generation import Generation
 
 
 def load_latest_generation(run_name):
-    latest_generation = _get_latest_generation(run_name)
-    file_name = get_generation_file_path(latest_generation, run_name)
-    if latest_generation < 0:
+    latest = get_latest_generation(run_name)
+    if latest < 0:
         raise FileNotFoundError('Run folder exists, but no generation.pickle file. '
                                 'Run may not have completed generation 0 - delete the whole folder')
+    return load_generation(latest, run_name)
+
+
+def load_generation(generation_number, run_name):
+    file_name = get_generation_file_path(generation_number, run_name)
+
     print('loading', file_name)
     pickle_in = open(file_name, "rb")
     try:
@@ -44,7 +49,7 @@ def load_config(run_name, config_name="config"):
     config.read(file_path)
 
 
-def save_config(run_name, conf=config, config_name="config"):
+def save_config(run_name, conf=config,config_name="config"):
     file_path = join(get_run_folder_path(run_name), config_name + '.json')
     with open(file_path, 'w+') as f:
         json.dump(conf.__dict__, f)
@@ -58,7 +63,7 @@ def get_generation_file_path(generation_number, run_name):
     return join(get_generations_folder_path(run_name), _get_generation_name(generation_number))
 
 
-def _get_latest_generation(run_name):
+def get_latest_generation(run_name):
     latest = 0
     while exists(get_generation_file_path(latest, run_name)):
         latest += 1

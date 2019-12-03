@@ -45,10 +45,10 @@ class BlueprintGenome(Genome):
 
         return cp
 
-    def __repr__(self):
-        return '\n'.join([str(self.learning_rate.value), str(self.beta1.value), str(self.beta2.value),
-                          str(self.best_module_sample_map), str(self.nodes.keys()), str(self.nodes.values()),
-                          str(id(self))])
+    # def __repr__(self):
+    #     return '\n'.join([str(self.learning_rate.value), str(self.beta1.value), str(self.beta2.value),
+    #                       str(self.best_module_sample_map), str(self.nodes.keys()), str(self.nodes.values()),
+    #                       str(id(self))])
 
     def __getstate__(self):
         d = dict(self.__dict__)
@@ -75,7 +75,7 @@ class BlueprintGenome(Genome):
         import src2.main.Singleton as S
 
         if self.best_module_sample_map is None:
-            raise Exception("no sample map attached to blueprint " + repr(self) + " cannot commit")
+            return
 
         for node in self.nodes.values():
             """node may be blueprint or module node"""
@@ -105,10 +105,13 @@ class BlueprintGenome(Genome):
     def visualize(self, parse_number=-1, prefix=""):
         visualise_blueprint_genome(self, self.best_module_sample_map, parse_number=parse_number, prefix=prefix)
 
+    def before_step(self):
+        super().before_step()
+        self.best_module_sample_map = None
+
     def end_step(self):
         super().end_step()
         self.commit_sample_maps()
-        self.best_module_sample_map = None
         self.best_sample_map_accuracy = -1
 
     def report_fitness(self, fitnesses: List[float], **kwargs):
@@ -121,6 +124,7 @@ class BlueprintGenome(Genome):
             for node_id in self.get_fully_connected_node_ids():
                 node: Node = self.nodes[node_id]
                 if not isinstance(node, BlueprintNode.BlueprintNode):
+                    """module node"""
                     continue
 
                 if node.species_id not in sample_map:

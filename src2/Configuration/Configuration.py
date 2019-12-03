@@ -24,9 +24,9 @@ class Config:
         # ---------------------------------------------- Graphing Options ----------------------------------------------
         self.view_graph_plots = False  # if true, any plotted graphs will be viewed
         self.plot_best_genotypes = True
-        self.plot_every_genotype = True
+        self.plot_every_genotype = False
         self.plot_best_phenotype = True
-        self.plot_every_phenotype = True
+        self.plot_every_phenotype = False
         self.plot_module_species = False
         # ----------------------------------------------- Dataset stuff -----------------------------------------------
         self.dataset = 'cifar10'  # mnist | cifar10 | custom
