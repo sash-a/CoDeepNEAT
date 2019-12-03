@@ -1,0 +1,6 @@
+{
+  "run_name": "lossy_off",
+  "n_gpus": 4,
+  "lossy_chance" : 0,
+  "mutate_lossy_values" : false
+}
