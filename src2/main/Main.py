@@ -11,7 +11,6 @@ import torch
 import wandb
 
 # For importing project files
-from src2.main import FullTraining
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
@@ -26,6 +25,8 @@ from runs import RunsManager
 from src2.Configuration import config
 from src2.Evolution.Generation import Generation
 import src2.main.Singleton as Singleton
+from src2.main import FullTraining
+
 
 if TYPE_CHECKING:
     pass
