@@ -76,14 +76,14 @@ def init_generation() -> Generation:
     arg_parse()
     print('args parsed', config.run_name)
 
-    if not RunsManager.does_run_folder_exist():
+    if not RunsManager.does_run_folder_exist(config.run_name):
         """"fresh run"""
         RunsManager.set_up_run_folder(config.run_name)
-        RunsManager.save_config(config, run_name=config.run_name)
+        RunsManager.save_config(config.run_name, config)
         generation: Generation = Generation()
     else:
         """continuing run"""
-        RunsManager.load_config()
+        RunsManager.load_config(config.run_name)
         generation: Generation = RunsManager.load_latest_generation(config.run_name)
 
     return generation
@@ -93,17 +93,17 @@ def init_wandb(gen_num: int):
     if config.use_wandb:
         if gen_num == 0:  # this is the first generation, need to initialize wandb
             config.wandb_run_id = config.run_name + str(datetime.date.today()) + '_' + str(random.randint(1E5, 1E6))
-            tags = []  # TODO: add in module retention, speciation, DA
 
+            tags = config.wandb_tags
             if not tags:
-                tags = ['base']
+                tags = ['no_tag']
 
             wandb.init(project='cdn_test', name=config.run_name, tags=tags, dir='../../results', id=config.wandb_run_id)
             for key, val in config.__dict__.items():
                 wandb.config[key] = val
+
             # need to re-add the new wandb_run_id into the saved config
-            print(config.run_name)
-            RunsManager.save_config(config, run_name=config.run_name)
+            RunsManager.save_config(config.run_name, config)
 
         else:  # this is not the first generation, need to resume wandb
             wandb.init(project='cdn_test', resume=config.wandb_run_id)

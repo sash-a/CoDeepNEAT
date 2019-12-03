@@ -94,4 +94,5 @@ class Network(nn.Module):
 
                     q.append(child_layer)
 
-        graph.render(quiet=False, directory=RunsManager.get_graphs_folder_path(), view=config.view_graph_plots)
+        graph.render(quiet=False, directory=RunsManager.get_graphs_folder_path(config.run_name),
+                     view=config.view_graph_plots)

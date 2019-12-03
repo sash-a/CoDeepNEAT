@@ -9,6 +9,7 @@ from typing import Optional, List
 
 import wandb
 
+from runs import RunsManager
 from src2.Configuration import config
 from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
 from src2.Genotype.CDN.Genomes.ModuleGenome import ModuleGenome
@@ -135,6 +136,8 @@ class Generation:
                                   data=raw_mod_accs)
         bp_acc_tbl = wandb.Table(['blueprint accuracies'],
                                  data=raw_bp_accs)
+        # Saving the pickle file for further inspection
+        wandb.save(RunsManager.get_generation_file_path(self.generation_number, config.run_name))
 
         wandb.log({'module accuracy table': mod_acc_tbl, 'blueprint accuracy table': bp_acc_tbl,
                    'module accuracies aggregated': module_accs, 'blueprint accuracies aggregated': bp_accs,

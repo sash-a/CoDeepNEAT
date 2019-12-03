@@ -1,5 +1,8 @@
 {
   "run_name": "module_retention",
   "fitness_aggregation": "max",
-  "use_module_retention": true
+  "use_module_retention": true,
+  "wandb_tags": [
+    "module retention"
+  ]
 }

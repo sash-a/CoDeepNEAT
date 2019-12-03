@@ -4,5 +4,10 @@
     "module_retention.json",
     "speciation.json",
     "base.json"
+  ],
+  "wandb_tags": [
+    "module retention",
+    "speciation",
+    "elite CDN"
   ]
 }

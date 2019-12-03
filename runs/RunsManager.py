@@ -13,9 +13,9 @@ if TYPE_CHECKING:
     from src2.main.Generation import Generation
 
 
-def load_latest_generation(run_name=config.run_name):
+def load_latest_generation(run_name):
     latest_generation = _get_latest_generation(run_name)
-    file_name = _get_generation_file_path(latest_generation, run_name)
+    file_name = get_generation_file_path(latest_generation, run_name)
     if latest_generation < 0:
         raise FileNotFoundError('Run folder exists, but no generation.pickle file. '
                                 'Run may not have completed generation 0 - delete the whole folder')
@@ -32,19 +32,19 @@ def load_latest_generation(run_name=config.run_name):
     return gen
 
 
-def save_generation(generation: Generation, run_name=config.run_name):
-    file_name = _get_generation_file_path(generation.generation_number, run_name)
+def save_generation(generation: Generation, run_name):
+    file_name = get_generation_file_path(generation.generation_number, run_name)
     pickle_out = open(file_name, "wb")
     pickle.dump(generation, pickle_out)
     pickle_out.close()
 
 
-def load_config(config_name="config", run_name=config.run_name):
+def load_config(run_name, config_name="config"):
     file_path = join(get_run_folder_path(run_name), config_name + '.json')
     config.read(file_path)
 
 
-def save_config(conf=config, config_name="config", run_name=config.run_name):
+def save_config(run_name, conf=config, config_name="config"):
     file_path = join(get_run_folder_path(run_name), config_name + '.json')
     with open(file_path, 'w+') as f:
         json.dump(conf.__dict__, f)
@@ -54,37 +54,37 @@ def _get_generation_name(generation_number):
     return "generation_" + str(generation_number) + ".pickle"
 
 
-def _get_generation_file_path(generation_number, run_name):
+def get_generation_file_path(generation_number, run_name):
     return join(get_generations_folder_path(run_name), _get_generation_name(generation_number))
 
 
 def _get_latest_generation(run_name):
     latest = 0
-    while exists(_get_generation_file_path(latest, run_name)):
+    while exists(get_generation_file_path(latest, run_name)):
         latest += 1
     return latest - 1
 
 
-def set_up_run_folder(run_name=config.run_name):
+def set_up_run_folder(run_name):
     if not does_run_folder_exist(run_name):
         os.makedirs(get_run_folder_path(run_name))
         os.makedirs(get_graphs_folder_path(run_name))
         os.makedirs(get_generations_folder_path(run_name))
 
 
-def get_graphs_folder_path(run_name=config.run_name):
+def get_graphs_folder_path(run_name):
     return join(get_run_folder_path(run_name), "graphs")
 
 
-def get_generations_folder_path(run_name=config.run_name):
+def get_generations_folder_path(run_name):
     return join(get_run_folder_path(run_name), "generations")
 
 
-def get_run_folder_path(run_name=config.run_name):
+def get_run_folder_path(run_name):
     return join(get_runs_folder_path(), run_name)
 
 
-def does_run_folder_exist(run_name=config.run_name) -> bool:
+def does_run_folder_exist(run_name) -> bool:
     return exists(get_run_folder_path(run_name))
 
 

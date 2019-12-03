@@ -49,5 +49,8 @@
   "module_add_node_chance": 0.1,
   "module_add_connection_chance": 0.1,
   "module_node_layer_type_change_chance": 0.1,
-  "use_wandb": true
+  "use_wandb": true,
+  "wandb_tags": [
+    "base"
+  ]
 }

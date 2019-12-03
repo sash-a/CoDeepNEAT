@@ -129,7 +129,7 @@ def visualise_blueprint_genome(genome: BlueprintGenome, sample_map: Dict[int, in
                                         sub_graph=True, label=sub_graph_label, node_colour="blue")
             blueprint_graph.subgraph(module_graph)
 
-    blueprint_graph.render(directory=RunsManager.get_graphs_folder_path(), view=config.view_graph_plots)
+    blueprint_graph.render(directory=RunsManager.get_graphs_folder_path(config.run_name), view=config.view_graph_plots)
 
 
 def visualise_traversal_dict(traversal_dict: Dict[int, List[int]]):
