@@ -21,7 +21,7 @@ class Node(Gene):
         # TODO
         self.lossy_aggregation = Option('lossy', False, True,
                                         current_value=random.choices([False, True], weights=[config.lossy_chance,
-                                                                                             1 - config.lossy_chance]),
+                                                                                             1 - config.lossy_chance])[0],
                                         mutation_chance=0.3 if config.mutate_lossy_values else 0)
         self.try_conv_aggregation = Option('conv_aggregation', False, True, current_value=random.choice([False, True]))
 
