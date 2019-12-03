@@ -33,7 +33,9 @@ class ModuleNode(Node):
                                          current_value=F.leaky_relu, mutation_chance=0.15)  # TODO try add in Selu, Elu
 
     def get_all_mutagens(self):
-        return [self.layer_type, self.activation]
+        node_muts = super().get_all_mutagens()
+        node_muts.extend([self.layer_type, self.activation])
+        return node_muts
 
     def convert_node(self, **kwargs) -> Tuple[Layer, Layer]:
         bp_node_id = kwargs['node_id']

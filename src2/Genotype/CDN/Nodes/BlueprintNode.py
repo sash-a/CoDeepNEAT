@@ -27,7 +27,9 @@ class BlueprintNode(Node):
         self.species_id: int = random.choice(possible_species_ids)
 
     def get_all_mutagens(self):
-        return [self.module_repeat_count]
+        node_muts = super().get_all_mutagens()
+        node_muts.extend([self.module_repeat_count])
+        return node_muts
 
     def pick_module(self, module_sample_map: Dict[int, int]) -> ModuleGenome:
         # import src2.main.Generation as Generation  # TODO how slow is this
