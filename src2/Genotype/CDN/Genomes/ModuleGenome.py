@@ -18,7 +18,7 @@ class ModuleGenome(Genome):
         return super().to_phenotype(**kwargs)
 
     def visualize(self):
-        get_graph_of(self).render(directory=RunsManager.get_graphs_folder_path(), view=config.view_graph_plots)
+        get_graph_of(self).render(directory=RunsManager.get_graphs_folder_path(config.run_name), view=config.view_graph_plots)
 
     def __getstate__(self):
         d = dict(self.__dict__)

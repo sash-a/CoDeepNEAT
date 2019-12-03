@@ -50,11 +50,13 @@ def _create_individual(Node: Union[Type[ModuleNode], Type[BlueprintNode], Type[D
 
     # Making the in and out nodes of modules blank
     genomes = [linear, tri, dia]
-    if config.blank_input_nodes:
+    if (config.blank_module_input_nodes and Node == ModuleNode) or (config.blank_bp_input_nodes and Node == BlueprintNode):
+        print('inside input loop with type:', Node)
         for genome in genomes:
-            genome.nodes[0] = _blank_node(genome.get_input_node())
+            genome.nodes[0] = _blank_node(genome.get_input_node())  # 0 is alwa
 
-    if config.blank_output_nodes:
+    if (config.blank_module_output_nodes and Node == ModuleNode) or (config.blank_bp_output_nodes and Node == BlueprintNode):
+        print('inside output loop with type:', Node)
         for genome in genomes:
             genome.nodes[1] = _blank_node(genome.get_output_node())
 
