@@ -11,7 +11,7 @@ class Config:
         print('loading config...')
         # ----------------------------------------------- General stuff -----------------------------------------------
         self.run_name = 'test'
-        self.n_generations = 50
+        self.n_generations = 100
         # ------------------------------------------------ Model stuff ------------------------------------------------
         self.device = 'gpu'  # cpu
         self.n_gpus = 1
