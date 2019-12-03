@@ -100,6 +100,9 @@ class BlueprintGenome(Genome):
 
     def to_phenotype(self, **kwargs) -> Tuple[Layer, Layer]:
         sample_map = {}
+        if "prescribed_sample_map" in kwargs and kwargs["prescribed_sample_map"] is not None:
+            sample_map = kwargs["prescribed_sample_map"]
+
         return super().to_phenotype(module_sample_map=sample_map), sample_map
 
     def visualize(self, parse_number=-1, prefix=""):

@@ -18,13 +18,13 @@ if TYPE_CHECKING:
 
 
 class Network(nn.Module):
-    def __init__(self, blueprint: BlueprintGenome, input_shape: list, output_dim=10):
+    def __init__(self, blueprint: BlueprintGenome, input_shape: list, output_dim=10, prescribed_sample_map = None):
         super().__init__()
         self.blueprint: BlueprintGenome = blueprint
         self.output_dim = output_dim
 
         self.model: Layer
-        (self.model, output_layer), self.sample_map = blueprint.to_phenotype()
+        (self.model, output_layer), self.sample_map = blueprint.to_phenotype(prescribed_sample_map = prescribed_sample_map)
 
         self.shape_layers(input_shape)
 

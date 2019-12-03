@@ -18,9 +18,9 @@ if TYPE_CHECKING:
     from src2.Phenotype.NeuralNetwork.NeuralNetwork import Network
 
 
-def evaluate(model: Network, num_epochs=config.epochs_in_evolution):
+def evaluate(model: Network, num_epochs=config.epochs_in_evolution, fully_training = False):
     """trains model on training data, test on testing and returns test acc"""
-    if config.dummy_run:
+    if config.dummy_run and not fully_training:
         return random.random()
 
     # TODO add in augmentations
