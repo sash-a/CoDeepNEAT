@@ -62,7 +62,7 @@ def evolve_from_generation(generation):
             print('Running gen', i)
             gen_start_time = time.time()
             generation.evaluate(i)
-            generation.step()
+            generation.step_evolution()
             print('completed gen', i, "in", (time.time() - gen_start_time), "elapsed time:", (time.time() - start_time),
                   "\n\n")
         print("finished evolving", Config.max_num_generations, "generations")

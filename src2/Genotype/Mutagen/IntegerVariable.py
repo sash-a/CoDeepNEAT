@@ -28,9 +28,8 @@ class IntegerVariable(Variable):
 
         else:
             # random deviation
-            deviation_magnitude = math.pow(random.random(), 4)
-            deviation_direction = (1 if random.choice([True, False]) else -1)
-            new_current_value = self.current_value + int(deviation_direction * deviation_magnitude * range)
+            deviation = random.normalvariate(0,range/8)
+            new_current_value = self.current_value + int(deviation)
             change_type = " deviated"
 
         # making sure value changes

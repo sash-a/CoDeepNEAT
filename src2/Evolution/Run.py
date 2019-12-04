@@ -41,7 +41,7 @@ class Run:
         for gen in self.generations:
             blueprints = gen.blueprint_population.get_most_accurate(n, return_unit_as_list=True)
             blueprints = list(zip(blueprints, [gen.generation_number] * n))
-            # print("all", [x.accuracy for x in gen.blueprint_population])
+            print("all", [x.accuracy for x in gen.blueprint_population])
             blueprints.extend(most_accurate)
             most_accurate = heapq.nlargest(n, blueprints, key=lambda x: x[0].accuracy)
 

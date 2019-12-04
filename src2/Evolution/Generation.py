@@ -39,11 +39,7 @@ class Generation:
         self.initialise_populations()
         self.generation_number = 0
 
-    def step(self):
-        """
-            Runs CDN for one generation. Calls the evaluation of all individuals. Prepares population objects for the
-            next step.
-        """
+    def step_evaluation(self):
         model_sizes = self.evaluate_blueprints()  # may be parallel
         # Aggregate the fitnesses immediately after they have all been recorded
         self.module_population.aggregate_fitness()
@@ -52,10 +48,16 @@ class Generation:
         if config.use_wandb:
             self.wandb_report(model_sizes)
 
+    def step_evolution(self):
+        """
+            Runs CDN for one generation. Calls the evaluation of all individuals. Prepares population objects for the
+            next step.
+        """
+        most_accurate_blueprint: BlueprintGenome = self.blueprint_population.get_most_accurate()
         if config.plot_best_genotypes:
-            self.blueprint_population.get_most_accurate().visualize(prefix="best_g" + str(self.generation_number) + "_")
+            most_accurate_blueprint.visualize(prefix="best_g" + str(self.generation_number) + "_")
         if config.plot_best_phenotype:
-            model: Network = Network(self.blueprint_population.get_most_accurate(), get_data_shape())
+            model: Network = Network(most_accurate_blueprint, get_data_shape(), prescribed_sample_map=most_accurate_blueprint.best_module_sample_map)
             model.visualize(prefix="best_g" + str(self.generation_number) + "_")
 
         print("Num blueprint species:", len(self.blueprint_population.species), self.blueprint_population.species)

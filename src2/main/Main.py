@@ -40,23 +40,23 @@ def main():
     arg_parse()
     print("after arg name: ", config.run_name)
     _force_cuda_device_init()
-    generation = init_generation()
-    Singleton.instance = generation
     init_operators()
+    generation = init_generation()
     init_wandb(generation.generation_number)
 
     print(config.__dict__)
 
     while generation.generation_number < config.n_generations:
         print('\n\nStarted generation:', generation.generation_number)
+        generation.step_evaluation()
         RunsManager.save_generation(generation, config.run_name)
-        generation.step()
+        generation.step_evolution()
 
 
 def fully_train(n=1):
     arg_parse()
     RunsManager.load_config(run_name=config.run_name)
-    FullTraining.fully_train_best_evolved_networks(config.run_name,5)
+    FullTraining.fully_train_best_evolved_networks(config.run_name,n)
 
 
 def arg_parse():
@@ -81,10 +81,15 @@ def init_generation() -> Generation:
         RunsManager.set_up_run_folder(config.run_name)
         RunsManager.save_config(config.run_name, config)
         generation: Generation = Generation()
+        Singleton.instance = generation
+
     else:
         """continuing run"""
         RunsManager.load_config(config.run_name)
         generation: Generation = RunsManager.load_latest_generation(config.run_name)
+        Singleton.instance = generation
+        generation.step_evolution()
+
 
     return generation
 
@@ -155,5 +160,5 @@ def _force_cuda_device_init():
 
 
 if __name__ == '__main__':
-    main()
-    # fully_train()
+    # main()
+    fully_train(n=1)

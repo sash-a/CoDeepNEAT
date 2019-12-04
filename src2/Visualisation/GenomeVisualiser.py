@@ -126,7 +126,7 @@ def visualise_blueprint_genome(genome: BlueprintGenome, sample_map: Dict[int, in
             node_names = "module_" + str(species_id) + "_" + str(module_id)
             module = Singleton.instance.module_population[module_id]
             module_graph = get_graph_of(module, node_names=node_names,
-                                        sub_graph=True, label=sub_graph_label, node_colour="blue")
+                                        sub_graph=True, label=sub_graph_label, node_colour="cyan")
             blueprint_graph.subgraph(module_graph)
 
     blueprint_graph.render(directory=RunsManager.get_graphs_folder_path(config.run_name), view=config.view_graph_plots)
