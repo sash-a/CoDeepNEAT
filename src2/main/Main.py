@@ -161,5 +161,5 @@ def _force_cuda_device_init():
 
 
 if __name__ == '__main__':
-    # main()
-    fully_train(n=1)
+    main()
+    # fully_train(n=1)
