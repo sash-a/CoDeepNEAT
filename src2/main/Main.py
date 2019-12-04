@@ -95,10 +95,10 @@ def init_wandb(gen_num: int):
             config.wandb_run_id = config.run_name + str(datetime.date.today()) + '_' + str(random.randint(1E5, 1E6))
 
             tags = config.wandb_tags
-            if not tags:
-                tags = ['no_tag']
+            if config.dummy_run:
+                tags += ['TEST_RUN']
 
-            wandb.init(project='cdn_test', name=config.run_name, tags=tags, dir='../../results', id=config.wandb_run_id)
+            wandb.init(project='cdn', name=config.run_name, tags=tags, dir='../../results', id=config.wandb_run_id)
             for key, val in config.__dict__.items():
                 wandb.config[key] = val
 
@@ -106,7 +106,8 @@ def init_wandb(gen_num: int):
             RunsManager.save_config(config.run_name, config)
 
         else:  # this is not the first generation, need to resume wandb
-            wandb.init(project='cdn_test', resume=config.wandb_run_id)
+            print('trying to resume', config.wandb_run_id)
+            wandb.init(project='cdn', resume=config.wandb_run_id)
 
 
 def init_operators():

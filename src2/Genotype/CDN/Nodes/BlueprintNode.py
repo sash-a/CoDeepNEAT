@@ -30,12 +30,11 @@ class BlueprintNode(Node):
         return [self.module_repeat_count]
 
     def pick_module(self, module_sample_map: Dict[int, int]) -> ModuleGenome:
-        # import src2.main.Generation as Generation  # TODO how slow is this
-        import src2.main.Singleton as S
+        import src2.main.Singleton as Singleton
 
         if self.linked_module_id != -1:
             """genome already linked module"""
-            module = S.instance.module_population[self.linked_module_id]
+            module = Singleton.instance.module_population[self.linked_module_id]
             if module is None:
                 raise Exception("bad module link " + str(self.linked_module_id))
             module_sample_map[self.species_id] = module.id
@@ -48,13 +47,13 @@ class BlueprintNode(Node):
                 unlinked module has not yet been sampled
                 sample module, add to sample map
             """
-            species = S.instance.module_population.get_species_by_id(self.species_id)
+            species = Singleton.instance.module_population.get_species_by_id(self.species_id)
             if species is None:
                 raise Exception('Species with ID = ' + str(self.species_id) + ' no longer exists')
 
             module_sample_map[self.species_id] = species.sample_individual().id
 
-        return S.instance.module_population[module_sample_map[self.species_id]]
+        return Singleton.instance.module_population[module_sample_map[self.species_id]]
 
     def convert_node(self, **kwargs) -> Tuple[Layer, Layer]:
         # TODO module sampling needs to live long enough to be able to be committed

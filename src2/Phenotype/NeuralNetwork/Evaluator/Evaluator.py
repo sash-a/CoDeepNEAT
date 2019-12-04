@@ -1,18 +1,17 @@
 from __future__ import annotations
 
 import random
-
-import torch
+from threading import current_thread
 from typing import TYPE_CHECKING
 
+import torch
 from torch.utils.data import DataLoader
 from torchvision.transforms import transforms
+from sklearn.metrics import accuracy_score
+import numpy as np
 
 from src2.Configuration import config
 from src2.Phenotype.NeuralNetwork.Evaluator.DataLoader import load_data
-
-from sklearn.metrics import accuracy_score
-import numpy as np
 
 if TYPE_CHECKING:
     from src2.Phenotype.NeuralNetwork.NeuralNetwork import Network
@@ -33,6 +32,7 @@ def evaluate(model: Network, num_epochs=config.epochs_in_evolution):
     test_loader = load_data(composed_transform, 'test')
 
     for epoch in range(num_epochs):
+        print('Thread ', current_thread().name[-1], 'training bp', model.blueprint.id, 'epoch', epoch)
         train_epoch(model, train_loader)
 
     return get_test_acc(model, test_loader)
@@ -62,7 +62,6 @@ def train_batch(model: Network, inputs: torch.tensor, labels: torch.tensor):
 
 def get_test_acc(model: Network, test_loader: DataLoader):
     model.eval()
-    # print("testing")
 
     count = 0
     total_acc = 0
