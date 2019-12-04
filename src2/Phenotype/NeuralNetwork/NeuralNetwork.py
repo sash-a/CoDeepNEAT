@@ -76,7 +76,7 @@ class Network(nn.Module):
     def visualize(self, parse_number=-1, prefix=""):
         name = prefix + "blueprint_i" + str(self.blueprint.id) + "_phenotype" + (
             "_p" + str(parse_number) + "_" if parse_number >= 0 else "")
-        print("saving:", name, "to",RunsManager.get_graphs_folder_path(config.run_name))
+        # print("saving:", name, "to",RunsManager.get_graphs_folder_path(config.run_name))
         graph = graphviz.Digraph(name=name, comment='Phenotype')
 
         q: List[BaseLayer] = [self.model]
