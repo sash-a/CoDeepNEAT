@@ -23,7 +23,7 @@ from src2.Genotype.NEAT.Operators.Speciators.NEATSpeciator import NEATSpeciator
 from src2.Genotype.NEAT.Population import Population
 from src2.Phenotype.NeuralNetwork.Evaluator.DataLoader import get_data_shape
 from src2.Phenotype.NeuralNetwork.NeuralNetwork import Network
-from src2.Phenotype.NeuralNetwork.PhenotypeEvaluator import evaluate_blueprint
+from src2.Phenotype.PhenotypeEvaluator import evaluate_blueprint
 
 
 class Generation:
@@ -39,11 +39,7 @@ class Generation:
         self.initialise_populations()
         self.generation_number = 0
 
-    def step(self):
-        """
-            Runs CDN for one generation. Calls the evaluation of all individuals. Prepares population objects for the
-            next step.
-        """
+    def step_evaluation(self):
         model_sizes = self.evaluate_blueprints()  # may be parallel
         # Aggregate the fitnesses immediately after they have all been recorded
         self.module_population.aggregate_fitness()
@@ -52,10 +48,16 @@ class Generation:
         if config.use_wandb:
             self.wandb_report(model_sizes)
 
+    def step_evolution(self):
+        """
+            Runs CDN for one generation. Calls the evaluation of all individuals. Prepares population objects for the
+            next step.
+        """
+        most_accurate_blueprint: BlueprintGenome = self.blueprint_population.get_most_accurate()
         if config.plot_best_genotypes:
-            self.blueprint_population.get_most_accurate().visualize(prefix="best_g" + str(self.generation_number) + "_")
+            most_accurate_blueprint.visualize(prefix="best_g" + str(self.generation_number) + "_")
         if config.plot_best_phenotype:
-            model: Network = Network(self.blueprint_population.get_most_accurate(), get_data_shape())
+            model: Network = Network(most_accurate_blueprint, get_data_shape(), prescribed_sample_map=most_accurate_blueprint.best_module_sample_map)
             model.visualize(prefix="best_g" + str(self.generation_number) + "_")
 
         print("Num blueprint species:", len(self.blueprint_population.species), self.blueprint_population.species)
@@ -69,12 +71,19 @@ class Generation:
 
         self.generation_number += 1
 
+        self.module_population.end_step()
+        self.blueprint_population.end_step()
+
         print('Step ended')
         print('Module species:', [len(spc.members) for spc in self.module_population.species])
 
     def evaluate_blueprints(self) -> List[int]:
         """Evaluates all blueprints"""
         # Multiplying the blueprints so that each blueprint is evaluated config.n_evaluations_per_bp times
+
+        self.module_population.before_step()
+        self.blueprint_population.before_step()
+
         blueprints = list(self.blueprint_population) * config.n_evaluations_per_bp
         in_size = get_data_shape()
         model_sizes: List[int] = []
@@ -150,3 +159,12 @@ class Generation:
                    'unevaluated blueprints': n_unevaluated_bps, 'n_unevaluated_mods': n_unevaluated_mods,
                    'speciation threshold': self.module_population.speciator.threshold,
                    'model sizes': model_sizes})
+
+    def __getitem__(self, genome_id: int):
+        populations: List[Population] = [self.blueprint_population,self.module_population] #todo add DA
+        for pop in populations:
+            mem = pop[genome_id]
+            if mem is not None:
+                return mem
+
+        return None

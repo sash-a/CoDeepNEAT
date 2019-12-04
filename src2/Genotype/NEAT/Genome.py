@@ -30,6 +30,7 @@ class Genome(GraphGenome):
         self.fitness_values: List[float] = [0]
         self.fitness_raw: List[List[float]] = [[]]
         self.n_evaluations = 0
+        self.parents: List[int] = []  # the ids of the parents of this genome. can be empty if a genome has no parents
 
         self.lock = threading.RLock()
 
@@ -87,12 +88,15 @@ class Genome(GraphGenome):
 
             self.fitness_values[i] = aggregated_fitness
 
-    def end_step(self):
-        """Resets all necessary values for next the generation"""
+    def before_step(self):
         self.n_evaluations = 0
         self.fitness_raw = [[]]
         if self.fitness_values is not None:
             self.fitness_values = [0 for _ in self.fitness_values]
+
+    def end_step(self):
+        """Resets all necessary values for next the generation"""
+        pass
 
     def distance_to(self, other) -> float:
         return self.get_topological_distance(other)

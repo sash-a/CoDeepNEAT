@@ -97,7 +97,7 @@ def train_batch(model, inputs, targets, device, augmentor=None):
     output = model(train_inputs)
     m_loss = model.loss_fn(output, train_labels)
     m_loss.backward()
-    model.optimizer.step()
+    model.optimizer.step_evolution()
 
     return m_loss.item()
 

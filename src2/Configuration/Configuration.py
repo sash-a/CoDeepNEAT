@@ -11,7 +11,7 @@ class Config:
         print('loading config...')
         # ----------------------------------------------- General stuff -----------------------------------------------
         self.run_name = 'test'
-        self.n_generations = 50
+        self.n_generations = 100
         # ------------------------------------------------ Model stuff ------------------------------------------------
         self.device = 'gpu'  # cpu
         self.n_gpus = 1
@@ -24,9 +24,9 @@ class Config:
         # ---------------------------------------------- Graphing Options ----------------------------------------------
         self.view_graph_plots = False  # if true, any plotted graphs will be viewed
         self.plot_best_genotypes = True
-        self.plot_every_genotype = True
+        self.plot_every_genotype = False
         self.plot_best_phenotype = True
-        self.plot_every_phenotype = True
+        self.plot_every_phenotype = False
         self.plot_module_species = False
         # ----------------------------------------------- Dataset stuff -----------------------------------------------
         self.dataset = 'cifar10'  # mnist | cifar10 | custom
@@ -46,8 +46,11 @@ class Config:
         self.module_node_batchnorm_chance = 0.65
         self.module_node_dropout_chance = 0.2
         self.module_node_max_pool_chance = 0.3
-        self.module_node_deep_layer_chance = 0.95
-        self.module_node_conv_layer_chance = 0.7  # chance of linear = 1-conv. not used if no deep layer
+        """chance of a new node starting with a deep layer - as opposed to a regulariser only layer"""
+        self.module_node_deep_layer_chance = 1
+        self.module_node_conv_layer_chance = 1  # chance of linear = 1-conv. not used if no deep layer
+        self.lossy_chance = 0.5
+        self.mutate_lossy_values = True
         # Layer types
         self.use_depthwise_separable_convs = False
         # Module retention/elitism

@@ -138,15 +138,15 @@ class Generation:
         """Runs CDN for one generation - must be called after fitness evaluation"""
         self.pareto_population.update_pareto_front()
 
-        self.module_population.step(self)
+        self.module_population.step_evolution(self)
         for blueprint_individual in self.blueprint_population.individuals:
             blueprint_individual.reset_number_of_module_species(self.module_population.get_num_species(),
                                                                 self.generation_number)
 
-        self.blueprint_population.step(self)
+        self.blueprint_population.step_evolution(self)
 
         if Config.evolve_data_augmentations:
-            self.da_population.step(self)
+            self.da_population.step_evolution(self)
 
         for blueprint_individual in self.blueprint_population.individuals:
             blueprint_individual.end_step(self)

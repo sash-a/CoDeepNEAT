@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import heapq
 from typing import List, Iterable, Optional, Union, TYPE_CHECKING
 
 from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
@@ -33,7 +34,8 @@ class Population:
 
         # print("mems in spc:",len(self.species[0]))
 
-        self.speciator.speciate(self.species)
+        if self.speciator.target_num_species >1:
+            self.speciator.speciate(self.species)
 
         self.pop_size: int = pop_size
         self.mutation_record: MutationRecords = mutation_record
@@ -44,12 +46,12 @@ class Population:
     def __len__(self):
         return len([member for spc in self.species for member in spc])
 
-    def __getitem__(self, item):
+    def __getitem__(self, genome_id):
         for species in self.species:
-            if item not in species.members:
+            if genome_id not in species.members:
                 continue
 
-            return species[item]
+            return species[genome_id]
 
         return None
 
@@ -91,12 +93,15 @@ class Population:
         if self.speciator.target_num_species >1:
             self.speciator.speciate(self.species)
         self.species: List[Species] = [species for species in self.species if species]  # Removing empty species
-        self.end_step()
 
     def end_step(self):
         """calls the end step of each member"""
         for member in self:
             member.end_step()
+
+    def before_step(self):
+        for member in self:
+            member.before_step()
 
     def aggregate_fitness(self):
         for individual in self:
@@ -109,8 +114,11 @@ class Population:
 
         return False
 
-    def get_most_accurate(self):
-        return max(iter(self), key=lambda x: x.accuracy)
+    def get_most_accurate(self, n=1, return_unit_as_list = False):
+        if n == 1 and not return_unit_as_list:
+            return heapq.nlargest(n, iter(self), key=lambda x: x.accuracy)[0]
+
+        return heapq.nlargest(n,iter(self), key=lambda x: x.accuracy)
 
     def visualise(self, suffix=""):
         SpeciationVisualiser.visualise_specieses(self.species, suffix=suffix)

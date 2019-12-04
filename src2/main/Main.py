@@ -1,17 +1,16 @@
 from __future__ import annotations
 
 import argparse
+import datetime
 import os
 import random
 import sys
-import datetime
+from typing import TYPE_CHECKING
 
 import torch
 import wandb
-from typing import TYPE_CHECKING
 
 # For importing project files
-from torchvision.transforms import transforms
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
@@ -24,38 +23,40 @@ sys.path.append(os.path.join(dir_path_1, 'runs'))
 from runs import RunsManager
 
 from src2.Configuration import config
-from src2.main.Generation import Generation
+from src2.Evolution.Generation import Generation
 import src2.main.Singleton as Singleton
+from src2.main import FullTraining
+
 
 if TYPE_CHECKING:
-    from src2.Phenotype import NeuralNetwork
+    pass
 
 
 def main():
     # seeding and unseeding pytorch so that the 'random split' is deterministic
     # TODO is this the best way to enforce a deterministic split? Do we want torch to be seeded?
     torch.manual_seed(0)
-
+    print("before parse run name: ", config.run_name)
+    arg_parse()
+    print("after arg name: ", config.run_name)
     _force_cuda_device_init()
-    generation = init_generation()
-    Singleton.instance = generation
     init_operators()
+    generation = init_generation()
     init_wandb(generation.generation_number)
 
     print(config.__dict__)
 
     while generation.generation_number < config.n_generations:
         print('\n\nStarted generation:', generation.generation_number)
+        generation.step_evaluation()
         RunsManager.save_generation(generation, config.run_name)
-        evolve_generation(generation)
+        generation.step_evolution()
 
 
-def evolve_generation(generation: Generation):
-    generation.step()
-
-
-def fully_train_nn(model: NeuralNetwork):
-    pass
+def fully_train(n=1):
+    arg_parse()
+    RunsManager.load_config(run_name=config.run_name)
+    FullTraining.fully_train_best_evolved_networks(config.run_name,n)
 
 
 def arg_parse():
@@ -73,7 +74,6 @@ def arg_parse():
 
 
 def init_generation() -> Generation:
-    arg_parse()
     print('args parsed', config.run_name)
 
     if not RunsManager.does_run_folder_exist(config.run_name):
@@ -81,10 +81,15 @@ def init_generation() -> Generation:
         RunsManager.set_up_run_folder(config.run_name)
         RunsManager.save_config(config.run_name, config)
         generation: Generation = Generation()
+        Singleton.instance = generation
+
     else:
         """continuing run"""
         RunsManager.load_config(config.run_name)
         generation: Generation = RunsManager.load_latest_generation(config.run_name)
+        Singleton.instance = generation
+        generation.step_evolution()
+
 
     return generation
 
@@ -156,14 +161,5 @@ def _force_cuda_device_init():
 
 
 if __name__ == '__main__':
-    main()
-    # For test random validation/train split
-    # from src2.Phenotype.NeuralNetwork.Evaluator.DataLoader import load_data
-    #
-    # composed_transform = transforms.Compose([
-    #     transforms.ToTensor(),
-    #     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-    # ])
-    # load_data(composed_transform, 'train')
-    # load_data(composed_transform, 'test')
-    # load_data(composed_transform, 'validation')
+    # main()
+    fully_train(n=1)

@@ -1,0 +1,8 @@
+{
+  "run_name": "force_conv_lossy_actually_forced",
+  "n_gpus": 4,
+  "lossy_chance" : 1,
+  "mutate_lossy_values" : false,
+  "dummy_run" : false,
+  "wandb_tags": ["base"]
+}

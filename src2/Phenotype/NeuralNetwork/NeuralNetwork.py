@@ -18,13 +18,13 @@ if TYPE_CHECKING:
 
 
 class Network(nn.Module):
-    def __init__(self, blueprint: BlueprintGenome, input_shape: list, output_dim=10):
+    def __init__(self, blueprint: BlueprintGenome, input_shape: list, output_dim=10, prescribed_sample_map = None):
         super().__init__()
         self.blueprint: BlueprintGenome = blueprint
         self.output_dim = output_dim
 
         self.model: Layer
-        (self.model, output_layer), self.sample_map = blueprint.to_phenotype()
+        (self.model, output_layer), self.sample_map = blueprint.to_phenotype(prescribed_sample_map = prescribed_sample_map)
 
         self.shape_layers(input_shape)
 
@@ -65,8 +65,10 @@ class Network(nn.Module):
         pass
 
     def visualize(self, parse_number=-1, prefix=""):
-        graph = graphviz.Digraph(name=prefix + "blueprint_i" + str(self.blueprint.id) + "_phenotype" + (
-            "_p" + str(parse_number) + "_" if parse_number >= 0 else ""), comment='Phenotype')
+        name = prefix + "blueprint_i" + str(self.blueprint.id) + "_phenotype" + (
+            "_p" + str(parse_number) + "_" if parse_number >= 0 else "")
+        # print("saving:", name, "to",RunsManager.get_graphs_folder_path(config.run_name))
+        graph = graphviz.Digraph(name=name, comment='Phenotype')
 
         q: List[BaseLayer] = [self.model]
         graph.node(self.model.name, self.model.get_layer_info())
@@ -85,5 +87,4 @@ class Network(nn.Module):
 
                     q.append(child_layer)
 
-        graph.render(quiet=False, directory=RunsManager.get_graphs_folder_path(config.run_name),
-                     view=config.view_graph_plots)
+        graph.render(quiet=False, directory=RunsManager.get_graphs_folder_path(config.run_name), view=config.view_graph_plots)

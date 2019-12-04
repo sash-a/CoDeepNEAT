@@ -25,7 +25,7 @@ class Option(Mutagen):
         self.submutagens: Dict[Any, Dict[str, Mutagen]] = submutagens
 
         if current_value not in options:
-            raise Exception("current value must be in options list")
+            raise Exception("current value must be in options list. CV: " + repr(current_value) + "options: " + repr(options))
         self.current_value = current_value
 
     def get_subvalue(self, subvalue_name):
