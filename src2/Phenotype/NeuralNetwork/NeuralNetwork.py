@@ -46,7 +46,7 @@ class Network(nn.Module):
             if x is not None:
                 q.extend([(child, x) for child in list(layer.child_layers)])
 
-        # TODO final activation function should be evolvable
+        # TODO final activation function should be evolve-able
         batch_size = x.size()[0]
         final_layer_out = F.relu(self.final_layer(x.view(batch_size, -1)))
         return squeeze(F.log_softmax(final_layer_out.view(batch_size, self.output_dim, -1), dim=1))
