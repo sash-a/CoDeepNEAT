@@ -60,7 +60,10 @@ class AggregationLayer(BaseLayer):
 
         # Calculate the output shape of the layer by passing input through it
         # self.out_shape = list(self.aggregate().size())
-        self.out_shape = list(merge(self.inputs, self).size())
+        if config.old_agg:
+            self.out_shape = list(self.old_aggregate().size())
+        else:
+            self.out_shape = list(merge(self.inputs, self).size())
         self.reset()
 
         return self.out_shape
@@ -75,6 +78,8 @@ class AggregationLayer(BaseLayer):
             by now the inputs list is full
             :returns the result of aggregating all of the received inputs
         """
+        # print('old agg')
+
         input_dims = list(map(lambda x: len(list(x.size())), self.inputs))
         has_linear = 2 in input_dims
         has_conv = 4 in input_dims
