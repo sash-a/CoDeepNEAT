@@ -13,8 +13,10 @@ from runs import RunsManager
 from src2.Configuration import config
 from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
 from src2.Genotype.CDN.Genomes.ModuleGenome import ModuleGenome
+from src2.Genotype.CDN.Genomes.DAGenome import DAGenome
 from src2.Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
 from src2.Genotype.CDN.Nodes.ModuleNode import ModuleNode
+from src2.Genotype.CDN.Nodes.DANode import DANode
 from src2.Genotype.CDN.Operators.Mutators.BlueprintGenomeMutator import BlueprintGenomeMutator
 from src2.Genotype.CDN.Operators.Mutators.ModuleGenomeMutator import ModuleGenomeMutator
 from src2.Genotype.CDN.PopulationInitializer import create_population, create_mr
@@ -121,9 +123,13 @@ class Generation:
 
         self.module_population = Population(create_population(config.module_pop_size, ModuleNode, ModuleGenome),
                                             create_mr(), config.module_pop_size, module_speciator)
+
         self.blueprint_population = Population(create_population(config.bp_pop_size, BlueprintNode, BlueprintGenome),
                                                create_mr(), config.bp_pop_size, bp_speciator)
         # TODO DA pop
+        # if config.evolve_data_augmentations:
+        #     self.da_population = Population(create_population(config.da_pop_size, DANode, DAGenome),
+        #                                     create_mr(), config.da_pop_size, #???)
 
     def wandb_report(self, model_sizes: List[int]):
         module_accs = sorted([module.accuracy for module in self.module_population])
@@ -161,7 +167,12 @@ class Generation:
                    'model sizes': model_sizes})
 
     def __getitem__(self, genome_id: int):
-        populations: List[Population] = [self.blueprint_population,self.module_population] #todo add DA
+
+        if config.evolve_data_augmentations:
+            populations: List[Population] = [self.blueprint_population, self.module_population, self.da_population]
+        else:
+            populations: List[Population] = [self.blueprint_population, self.module_population]
+
         for pop in populations:
             mem = pop[genome_id]
             if mem is not None:

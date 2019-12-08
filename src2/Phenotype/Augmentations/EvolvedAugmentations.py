@@ -3,7 +3,7 @@ from typing import Dict, Any, Union, TYPE_CHECKING
 
 import imgaug.augmenters as iaa
 import random
-from src2.Configuration import Configuration
+from src2.Configuration import config
 
 from src2.Genotype.Mutagen.IntegerVariable import IntegerVariable
 from src2.Genotype.Mutagen.ContinuousVariable import ContinuousVariable
@@ -68,7 +68,7 @@ DA_SubMutagens = {
 }
 
 # Separated Photometric (Colour) Augmentations from geometric (non-colour) ones
-if Configuration.colour_augmentations:
+if config.use_colour_augmentations:
 
     DA_SubMutagens["HSV"] = {
         "channel": Option("channel", 0, 1, 2, current_value=0, mutation_chance=0.1),

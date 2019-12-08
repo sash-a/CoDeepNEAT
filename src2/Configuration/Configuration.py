@@ -33,6 +33,10 @@ class Config:
         self.custom_dataset_root = ''
         self.validation_split = 0.15  # Percent of the train set that becomes the validation set
         self.download_dataset = True
+        # ------------------------------------------------- DA stuff --------------------------------------------------
+        self.evolve_data_augmentations = False
+        self.use_colour_augmentations = False
+        self.add_da_node_chance = 0.15
         # ------------------------------------------------- CDN stuff -------------------------------------------------
         self.multiobjective = False
         # Population and species sizes
