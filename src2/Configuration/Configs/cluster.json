@@ -1,10 +1,10 @@
 {
-  "run_name": "old_agg",
+  "run_name": "val-control",
   "n_gpus": 4,
   "lossy_chance" : 1,
   "mutate_lossy_values" : true,
   "dummy_run" : false,
   "wandb_tags": ["base"],
-  "old_agg": true
-
+  "old_agg": true,
+  "validation_split" : 0
 }
