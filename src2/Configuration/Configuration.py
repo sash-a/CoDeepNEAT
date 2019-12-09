@@ -67,6 +67,8 @@ class Config:
         self.blank_bp_input_nodes = False
         self.blank_module_output_nodes = False
         self.blank_bp_output_nodes = False
+        # Use the old aggregation method
+        self.old_agg = False
         # ------------------------------------------------- NEAT stuff -------------------------------------------------
         # Used when calculating distance between genomes
         self.disjoint_coefficient = 3
