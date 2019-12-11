@@ -14,6 +14,9 @@ from src2.Genotype.NEAT.Genome import Genome
 from src2.Genotype.NEAT.Node import Node
 from src2.Visualisation.GenomeVisualiser import visualise_blueprint_genome
 
+# TESTING
+from src.CoDeepNEAT.CDNGenomes.BlueprintGenome import BlueprintGenome as BPG_old
+
 if TYPE_CHECKING:
     from src2.Phenotype.NeuralNetwork.Layers import Layer
 
@@ -147,3 +150,16 @@ class BlueprintGenome(Genome):
 
     def inherit(self, parent: BlueprintGenome):
         self.best_module_sample_map = copy.deepcopy(parent.best_module_sample_map)
+
+    def old(self) -> BPG_old:
+        old_nodes = []
+        old_conns = []
+
+        for node in self.nodes.values():
+            old_nodes.append(node.old())
+
+        for connection in self.connections.values():
+            old_conns.append(connection.old())
+
+        return BPG_old(old_conns, old_nodes)
+

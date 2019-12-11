@@ -15,6 +15,9 @@ from src2.Genotype.NEAT.Node import Node, NodeType
 from src2.Phenotype.NeuralNetwork.Layers.CustomLayerTypes.DepthwiseSeparableConv import DepthwiseSeparableConv
 from src2.Phenotype.NeuralNetwork.Layers.Layer import Layer
 
+# For testing!
+from src.CoDeepNEAT.CDNNodes.ModuleNode import ModuleNEATNode
+
 
 class ModuleNode(Node):
     def __init__(self, id: int, type: NodeType):
@@ -27,7 +30,8 @@ class ModuleNode(Node):
             layer_types.append(DepthwiseSeparableConv)
 
         self.layer_type: Option = Option("layer_type", *layer_types, current_value=layer_type,
-                                         submutagens=get_new_layer_submutagens(), mutation_chance=config.module_node_layer_type_change_chance)  # TODO add in separable convs
+                                         submutagens=get_new_layer_submutagens(),
+                                         mutation_chance=config.module_node_layer_type_change_chance)  # TODO add in separable convs
 
         self.activation: Option = Option("activation", F.relu, F.leaky_relu, torch.sigmoid, F.relu6,
                                          current_value=F.leaky_relu, mutation_chance=0.15)  # TODO try add in Selu, Elu
@@ -52,6 +56,14 @@ class ModuleNode(Node):
 
     def is_depthwise_sep(self):
         return self.layer_type.value == DepthwiseSeparableConv
+
+    def old(self) -> ModuleNEATNode:
+        conv_subs = [] if not self.is_conv() else [self.layer_type.get_submutagen('conv_window_size').value,
+                                                   self.layer_type.get_submutagen('conv_stride').value,
+                                                   self.layer_type.get_submutagen('reduction').get_submutagen(
+                                                       'pool_size').value]
+
+        return ModuleNEATNode(self.id, self.node_type, self.activation.value, self.layer_type, *conv_subs)
 
 
 def get_new_conv_parameter_mutagens():

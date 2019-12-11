@@ -23,10 +23,9 @@ sys.path.append(os.path.join(dir_path_1, 'runs'))
 from runs import RunsManager
 
 from src2.Configuration import config
-from src2.Evolution.Generation import Generation
+from src2.main.Generation import Generation
 import src2.main.Singleton as Singleton
-from src2.main import FullTraining
-
+from src2.Phenotype.NeuralNetwork.Evaluator import FullTraining
 
 if TYPE_CHECKING:
     pass
@@ -56,7 +55,7 @@ def main():
 def fully_train(n=1):
     arg_parse()
     RunsManager.load_config(run_name=config.run_name)
-    FullTraining.fully_train_best_evolved_networks(config.run_name,n)
+    FullTraining.fully_train_best_evolved_networks(config.run_name, n)
 
 
 def arg_parse():
@@ -89,7 +88,6 @@ def init_generation() -> Generation:
         generation: Generation = RunsManager.load_latest_generation(config.run_name)
         Singleton.instance = generation
         generation.step_evolution()
-
 
     return generation
 

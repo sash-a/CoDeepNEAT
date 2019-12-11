@@ -3,14 +3,14 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from src2.Configuration import config
-from src2.Evolution import Run
+from src2 import Run
 from src2.Phenotype.NeuralNetwork.Evaluator.DataLoader import get_data_shape
 from src2.Phenotype.NeuralNetwork.Evaluator.Evaluator import evaluate
 from src2.Phenotype.NeuralNetwork.NeuralNetwork import Network
 
 if TYPE_CHECKING:
     from src2.Phenotype import NeuralNetwork
-    from src2.Evolution.Run import Run as RunClass
+    from src2.Run import Run as RunClass
 
 
 def fully_train_nn(model: NeuralNetwork, num_epochs):

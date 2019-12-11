@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, List
 from src2.Configuration import config
 from src2.Phenotype.NeuralNetwork.Evaluator.Evaluator import evaluate
 from src2.Phenotype.NeuralNetwork.NeuralNetwork import Network
+import src.Validation.Validation as Val
 
 if TYPE_CHECKING:
     from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
@@ -27,6 +28,10 @@ def evaluate_blueprint(blueprint: BlueprintGenome, input_size: List[int], genera
 
     blueprint.update_best_sample_map(model.sample_map, accuracy)
     blueprint.report_fitness([accuracy], module_sample_map=model.sample_map)
+
+    old = blueprint.old()
+
+    Val.get_accuracy_estimate_for_network()
 
     print("Evaluation of genome:", blueprint.id, "complete with accuracy:", accuracy)
 

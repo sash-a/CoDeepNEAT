@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 from runs import RunsManager
 
 if TYPE_CHECKING:
-    from src2.Evolution.Generation import Generation
+    from src2.main.Generation import Generation
     from src2.Configuration import Configuration
     from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
     from src2.Genotype.CDN.Genomes.ModuleGenome import ModuleGenome

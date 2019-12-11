@@ -7,6 +7,9 @@ from src2.Genotype.Mutagen.IntegerVariable import IntegerVariable
 from src2.Genotype.NEAT.Node import Node, NodeType
 from src2.Phenotype.NeuralNetwork.Layers.Layer import Layer
 
+# For testing!
+from src.CoDeepNEAT.CDNNodes.BlueprintNode import BlueprintNEATNode
+
 if TYPE_CHECKING:
     from src2.Genotype.CDN.Genomes.ModuleGenome import ModuleGenome
 
@@ -64,3 +67,6 @@ class BlueprintNode(Node):
         if module is None:
             raise Exception("failed to sample module ")
         return module.to_phenotype(blueprint_node_id=self.id)
+
+    def old(self) -> BlueprintNEATNode:
+        return BlueprintNEATNode(self.id, self.node_type)

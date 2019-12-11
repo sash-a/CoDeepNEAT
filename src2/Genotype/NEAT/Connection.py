@@ -1,6 +1,9 @@
 from src2.Genotype.Mutagen.Option import Option
 from src2.Genotype.NEAT.Gene import Gene
 
+# TESTING
+from src.NEAT.Gene import ConnectionGene
+
 
 class Connection(Gene):
     def __init__(self, id: int, from_node: int, to_node: int):
@@ -16,3 +19,6 @@ class Connection(Gene):
 
     def get_all_mutagens(self):
         return [self.enabled]
+
+    def old(self):
+        return ConnectionGene(self.id, self.from_node_id, self.to_node_id)

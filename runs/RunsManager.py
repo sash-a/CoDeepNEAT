@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 from src2.Configuration import config
 
 if TYPE_CHECKING:
-    from src2.Evolution.Generation import Generation
+    from src2.main.Generation import Generation
 
 
 def load_latest_generation(run_name):

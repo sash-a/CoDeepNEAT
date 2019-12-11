@@ -32,7 +32,7 @@ def evaluate(model: Network, num_epochs=config.epochs_in_evolution, fully_traini
     test_loader = load_data(composed_transform, 'test')
 
     for epoch in range(num_epochs):
-        print('Thread ', current_thread().name[-1], 'training bp', model.blueprint.id, 'epoch', epoch)
+        # print('Thread ', current_thread().name[-1], 'training bp', model.blueprint.id, 'epoch', epoch)
         train_epoch(model, train_loader)
 
     return get_test_acc(model, test_loader)
