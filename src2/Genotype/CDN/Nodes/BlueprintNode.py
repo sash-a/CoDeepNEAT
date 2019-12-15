@@ -34,10 +34,10 @@ class BlueprintNode(Node):
         node_muts.extend([self.module_repeat_count])
         return node_muts
 
-    def pick_module(self, module_sample_map: Dict[int, int]) -> ModuleGenome:
+    def pick_module(self, module_sample_map: Dict[int, int], ignore_species) -> ModuleGenome:
         import src2.main.Singleton as Singleton
 
-        if self.linked_module_id != -1:
+        if self.linked_module_id != -1 and self.species_id != ignore_species:
             """genome already linked module"""
             module = Singleton.instance.module_population[self.linked_module_id]
             if module is None:
@@ -63,7 +63,8 @@ class BlueprintNode(Node):
     def convert_node(self, **kwargs) -> Tuple[Layer, Layer]:
         # TODO module sampling needs to live long enough to be able to be committed
         module_sample_map = kwargs['module_sample_map']
-        module = self.pick_module(module_sample_map)
+        ignore_species = kwargs['ignore_species'] if 'ignore_species' in kwargs else -1
+        module = self.pick_module(module_sample_map,ignore_species)
         if module is None:
             raise Exception("failed to sample module ")
         return module.to_phenotype(blueprint_node_id=self.id)

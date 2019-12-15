@@ -90,7 +90,10 @@ class BlueprintGenome(Genome):
                     node.species_id = random.choice(living_species)
 
                 if node.species_id in self.best_module_sample_map:
-                    """best parent had a node with this spc id"""
+                    """
+                        best parent had a node with this spc id 
+                        try to find the mapped module if it survived
+                    """
                     module_id = self.best_module_sample_map[node.species_id]
                     module = S.instance.module_population[module_id]
                 else:
@@ -106,7 +109,7 @@ class BlueprintGenome(Genome):
         if "prescribed_sample_map" in kwargs and kwargs["prescribed_sample_map"] is not None:
             sample_map = kwargs["prescribed_sample_map"]
 
-        return super().to_phenotype(module_sample_map=sample_map), sample_map
+        return super().to_phenotype(module_sample_map=sample_map, **kwargs), sample_map
 
     def visualize(self, parse_number=-1, prefix=""):
         visualise_blueprint_genome(self, self.best_module_sample_map, parse_number=parse_number, prefix=prefix)
