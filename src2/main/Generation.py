@@ -19,7 +19,7 @@ from src2.Genotype.CDN.Nodes.ModuleNode import ModuleNode
 from src2.Genotype.CDN.Nodes.DANode import DANode
 from src2.Genotype.CDN.Operators.Mutators.BlueprintGenomeMutator import BlueprintGenomeMutator
 from src2.Genotype.CDN.Operators.Mutators.ModuleGenomeMutator import ModuleGenomeMutator
-from src2.Genotype.CDN.PopulationInitializer import create_population, create_mr
+from src2.Genotype.CDN.PopulationInitializer import create_population, create_mr, create_mr_old, create_population_old
 from src2.Genotype.NEAT.Operators.Speciators.MostSimilarSpeciator import MostSimilarSpeciator
 from src2.Genotype.NEAT.Operators.Speciators.NEATSpeciator import NEATSpeciator
 from src2.Genotype.NEAT.Population import Population
@@ -59,7 +59,8 @@ class Generation:
         if config.plot_best_genotypes:
             most_accurate_blueprint.visualize(prefix="best_g" + str(self.generation_number) + "_")
         if config.plot_best_phenotype:
-            model: Network = Network(most_accurate_blueprint, get_data_shape(), prescribed_sample_map=most_accurate_blueprint.best_module_sample_map)
+            model: Network = Network(most_accurate_blueprint, get_data_shape(),
+                                     prescribed_sample_map=most_accurate_blueprint.best_module_sample_map)
             model.visualize(prefix="best_g" + str(self.generation_number) + "_")
 
         print("Num blueprint species:", len(self.blueprint_population.species), self.blueprint_population.species)
@@ -107,6 +108,7 @@ class Generation:
 
     def initialise_populations(self):
         """Starts off the populations of a new evolutionary run"""
+        # TODO this is using the old method
         if config.module_speciation.lower() == "similar":
             module_speciator = MostSimilarSpeciator(config.species_distance_thresh_mod_base, config.n_module_species,
                                                     ModuleGenomeMutator())
@@ -121,11 +123,12 @@ class Generation:
         bp_speciator = NEATSpeciator(config.species_distance_thresh_mod_base, config.n_blueprint_species,
                                      BlueprintGenomeMutator())
 
-        self.module_population = Population(create_population(config.module_pop_size, ModuleNode, ModuleGenome),
-                                            create_mr(), config.module_pop_size, module_speciator)
+        self.module_population = Population(create_population_old(config.module_pop_size, ModuleNode, ModuleGenome),
+                                            create_mr_old(), config.module_pop_size, module_speciator)
 
-        self.blueprint_population = Population(create_population(config.bp_pop_size, BlueprintNode, BlueprintGenome),
-                                               create_mr(), config.bp_pop_size, bp_speciator)
+        self.blueprint_population = Population(
+            create_population_old(config.bp_pop_size, BlueprintNode, BlueprintGenome),
+            create_mr_old(), config.bp_pop_size, bp_speciator)
         # TODO DA pop
         # if config.evolve_data_augmentations:
         #     self.da_population = Population(create_population(config.da_pop_size, DANode, DAGenome),

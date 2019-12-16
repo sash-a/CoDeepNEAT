@@ -40,7 +40,6 @@ class AggregationLayer(BaseLayer):
             aggregated = self.old_aggregate()
         else:
             aggregated = merge(self.inputs, self)
-        # TODO: inputs should probably be reset after the step although can be pretty sure that this is fine
         self.reset()
         return aggregated
 

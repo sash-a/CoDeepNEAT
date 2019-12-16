@@ -61,7 +61,6 @@ class BlueprintNode(Node):
         return Singleton.instance.module_population[module_sample_map[self.species_id]]
 
     def convert_node(self, **kwargs) -> Tuple[Layer, Layer]:
-        # TODO module sampling needs to live long enough to be able to be committed
         module_sample_map = kwargs['module_sample_map']
         ignore_species = kwargs['ignore_species'] if 'ignore_species' in kwargs else -1
         module = self.pick_module(module_sample_map,ignore_species)

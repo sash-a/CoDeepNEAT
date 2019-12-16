@@ -132,7 +132,13 @@ class Layer(BaseLayer):
                    module is not None]
 
         if self.module_node.is_conv():
-            modules.append(PadUp())
+            if reshape_layer is not None:
+                modules.insert(1, PadUp(deep_layer.kernel_size[0]))
+            else:
+                modules.insert(0, PadUp(deep_layer.kernel_size[0]))
+
+            modules.append(PadUp(deep_layer.kernel_size[0]))
+            print('layer order:', modules)
 
         if not modules:
             modules = [nn.Identity()]
