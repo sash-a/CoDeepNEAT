@@ -9,6 +9,7 @@ from torch import nn, zeros
 from src2.Phenotype.NeuralNetwork.Layers.BaseLayer import BaseLayer
 from src2.Phenotype.NeuralNetwork.Layers.CustomLayerTypes.DepthwiseSeparableConv import DepthwiseSeparableConv
 from src2.Phenotype.NeuralNetwork.Layers.CustomLayerTypes.Reshape import Reshape
+from src2.Phenotype.NeuralNetwork.Layers.CustomLayerTypes.PadUp import PadUp
 
 if TYPE_CHECKING:
     from src2.Genotype.CDN.Nodes.ModuleNode import ModuleNode
@@ -129,6 +130,10 @@ class Layer(BaseLayer):
         # packing reshape, deep layer and regularisers into a sequential
         modules = [module for module in [reshape_layer, deep_layer, *self._create_regularisers(in_shape)] if
                    module is not None]
+
+        if self.module_node.is_conv():
+            modules.append(PadUp())
+
         if not modules:
             modules = [nn.Identity()]
 

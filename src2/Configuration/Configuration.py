@@ -19,6 +19,8 @@ class Config:
         self.epochs_in_evolution = 8
         self.n_evaluations_per_bp = 4
         self.max_model_params = 50e6
+
+        self.min_square_dim = 7  # Min output size a conv can be without padding
         # ---------------------------------------------- Debug Options ----------------------------------------------
         self.dummy_run = False
         # ---------------------------------------------- Graphing Options ----------------------------------------------
