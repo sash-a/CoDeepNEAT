@@ -17,6 +17,9 @@ from src2.Phenotype.NeuralNetwork.Layers.Layer import Layer
 
 # For testing!
 from src.CoDeepNEAT.CDNNodes.ModuleNode import ModuleNEATNode
+from src.NEAT.Mutagen import Mutagen as Oldmutagen, ValueType as OldMutagenValueType
+from src.NEAT.Gene import NodeType as OldNodeType
+
 
 
 class ModuleNode(Node):
@@ -58,13 +61,66 @@ class ModuleNode(Node):
         return self.layer_type.value == DepthwiseSeparableConv
 
     def old(self) -> ModuleNEATNode:
-        conv_subs = [] if not self.is_conv() else [self.layer_type.get_submutagen('conv_window_size').value,
-                                                   self.layer_type.get_submutagen('conv_stride').value,
-                                                   self.layer_type.get_submutagen('reduction').get_submutagen(
-                                                       'pool_size').value]
 
-        return ModuleNEATNode(self.id, self.node_type, self.activation.value, self.layer_type, *conv_subs)
+        current_conv_mutagens = self.layer_type.submutagens[nn.Conv2d]
+        current_linear_mutagens = self.layer_type.submutagens[nn.Linear]
 
+        conv_submutagens = {
+            "conv_window_size": Oldmutagen(3, 5, 7, discreet_value=current_conv_mutagens['conv_window_size'].value, mutation_chance=0.13),
+
+            "conv_stride": Oldmutagen(value_type=OldMutagenValueType.WHOLE_NUMBERS, current_value=current_conv_mutagens['conv_stride'].value, start_range=1,
+                                   end_range=5),
+
+            "reduction": Oldmutagen(None, nn.MaxPool2d, discreet_value=current_conv_mutagens['reduction'].value,
+                                 sub_mutagens=
+                                 {
+                                     nn.MaxPool2d: {"pool_size": Oldmutagen(
+                                         value_type=OldMutagenValueType.WHOLE_NUMBERS,
+                                         current_value=current_conv_mutagens['reduction'].get_subvalue('pool_size'), start_range=2,
+                                         end_range=5)}
+                                 }, mutation_chance=0.15),
+
+            "regularisation": Oldmutagen(None, nn.BatchNorm2d, discreet_value=current_conv_mutagens['regularisation'].value,
+                                      mutation_chance=0.15),
+
+            "dropout": Oldmutagen(None, nn.Dropout2d, discreet_value=current_conv_mutagens['dropout'].value, sub_mutagens=
+            {
+                nn.Dropout2d: {
+                    "dropout_factor": Oldmutagen(value_type=OldMutagenValueType.CONTINUOUS, current_value=current_conv_mutagens['dropout'].get_subvalue('dropout_factor'),
+                                              start_range=0, end_range=0.75)}
+            }, mutation_chance=0.08),
+
+            "out_features": Oldmutagen(value_type=OldMutagenValueType.WHOLE_NUMBERS, current_value=current_conv_mutagens['out_features'].value
+                                       , start_range=1,
+                                    end_range=100, name="num out features", mutation_chance=0.22)
+        }
+
+        linear_submutagens  = \
+            {
+                "regularisation": Oldmutagen(None, nn.BatchNorm1d,
+                                          discreet_value=current_linear_mutagens['regularisation'].value,
+                                          mutation_chance=0.15),
+
+                "dropout": Oldmutagen(None, nn.Dropout, discreet_value=current_linear_mutagens['dropout'].value, sub_mutagens=
+                {
+                    nn.Dropout: {
+                        "dropout_factor": Oldmutagen(value_type=OldMutagenValueType.CONTINUOUS, current_value=0.15, start_range=0,
+                                                  end_range=0.75)}
+                }, mutation_chance=0.08),
+
+                "out_features": Oldmutagen(value_type=OldMutagenValueType.WHOLE_NUMBERS, current_value=current_linear_mutagens['out_features'],
+                                        start_range=10,
+                                        end_range=1024, name="num out features", mutation_chance=0.22)
+            }
+
+        old_node =  ModuleNEATNode(self.id, activation=self.activation.value, node_type= OldNodeType(self.node_type.value))
+        old_node.layer_type = Oldmutagen(nn.Conv2d, nn.Linear, discreet_value=self.layer_type.value,
+                                      sub_mutagens={
+                                          nn.Conv2d: conv_submutagens,
+                                          nn.Linear: linear_submutagens
+                                      }, name="deep layer type", mutation_chance=0.08)
+
+        return old_node
 
 def get_new_conv_parameter_mutagens():
     return {
@@ -73,8 +129,8 @@ def get_new_conv_parameter_mutagens():
 
         "conv_stride": IntegerVariable("conv_stride", current_value=1, start_range=1, end_range=5, mutation_chance=0.1),
 
-        "reduction": Option("reduction", None, nn.MaxPool2d, nn.AvgPool2d,
-                            current_value=nn.MaxPool2d if random.random() < config.module_node_max_pool_chance else None,
+        "reduction": Option("reduction", None, nn.MaxPool2d#, nn.AvgPool2d
+                            ,current_value=nn.MaxPool2d if random.random() < config.module_node_max_pool_chance else None,
                             submutagens=
                             {
                                 nn.MaxPool2d: {
@@ -82,14 +138,14 @@ def get_new_conv_parameter_mutagens():
                                                                  current_value=2,
                                                                  start_range=2,
                                                                  end_range=5,
-                                                                 mutation_chance=0.1)},
-
-                                nn.AvgPool2d: {
-                                    "pool_size": IntegerVariable("pool_size",
-                                                                 current_value=2,
-                                                                 start_range=2,
-                                                                 end_range=5,
                                                                  mutation_chance=0.1)}
+
+                                # ,nn.AvgPool2d: {
+                                #     "pool_size": IntegerVariable("pool_size",
+                                #                                  current_value=2,
+                                #                                  start_range=2,
+                                #                                  end_range=5,
+                                #                                  mutation_chance=0.1)}
                             }
                             , mutation_chance=0.15),
 
