@@ -1,5 +1,5 @@
 import random
-from typing import Dict, Any
+from typing import Dict, Any, Union
 
 from src2.Genotype.Mutagen import Mutagen as MutagenFile
 from src2.Genotype.Mutagen.Mutagen import Mutagen
@@ -22,7 +22,7 @@ class Option(Mutagen):
         self.options = options
 
         # maps an option value to -> a mapping from subvalue name to -> submutagen
-        self.submutagens: Dict[Any, Dict[str, Mutagen]] = submutagens
+        self.submutagens: Dict[Any, Dict[str, Union[Mutagen, Option]]] = submutagens
 
         if current_value not in options:
             raise Exception("current value must be in options list. CV: " + repr(current_value) + "options: " + repr(options))
