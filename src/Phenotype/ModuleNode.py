@@ -220,17 +220,15 @@ class ModuleNode(Node):
         if self.dropout is not None:
             output = self.dropout(output)
 
-        # if self.is_linear() or (self.is_conv2d() and list(output.size())[2] > minimum_conv_dim):
-        #     return self.activation(output)
-        # else:
-        #     # is conv layer - is small. needs padding
-        #     xkernel, ykernel = self.deep_layer.kernel_size
-        #     xkernel, ykernel = (xkernel - 1) // 2, (ykernel - 1) // 2
-        #
-        #     return F.pad(input=self.activation(output), pad=(ykernel, ykernel, xkernel, xkernel), mode='constant',
-        #                  value=0)
+        if self.is_linear() or (self.is_conv2d() and list(output.size())[2] > minimum_conv_dim):
+            return self.activation(output)
+        else:
+            # is conv layer - is small. needs padding
+            xkernel, ykernel = self.deep_layer.kernel_size
+            xkernel, ykernel = (xkernel - 1) // 2, (ykernel - 1) // 2
 
-        return self.activation(output)
+            return F.pad(input=self.activation(output), pad=(ykernel, ykernel, xkernel, xkernel), mode='constant',
+                         value=0)
 
     def shape_layer(self, input_shape):
         """
