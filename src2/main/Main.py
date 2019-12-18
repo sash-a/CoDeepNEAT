@@ -35,10 +35,11 @@ def main():
     # seeding and unseeding pytorch so that the 'random split' is deterministic
     # TODO is this the best way to enforce a deterministic split? Do we want torch to be seeded?
     torch.manual_seed(0)
-    print("before parse run name: ", config.run_name)
     arg_parse()
-    print("after arg name: ", config.run_name)
-    _force_cuda_device_init()
+
+    if config.device == 'gpu':
+        _force_cuda_device_init()
+
     init_operators()
     generation = init_generation()
     init_wandb(generation.generation_number)
