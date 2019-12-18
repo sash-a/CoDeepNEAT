@@ -1,10 +1,10 @@
 {
-  "run_name": "val-control",
+  "run_name": "max_batches",
   "n_gpus": 4,
   "lossy_chance" : 1,
   "mutate_lossy_values" : true,
   "dummy_run" : false,
   "wandb_tags": ["base"],
-  "old_agg": true,
+  "old_agg": false,
   "validation_split" : 0
 }
