@@ -11,7 +11,7 @@ class PadUp(nn.Module):
     # TODO this is inefficient, size check should only be done once, not every forward call
     def forward(self, x: tensor):
         shape = x.size()
-        if shape[3] < config.min_square_dim:
+        if shape[3] < config.min_square_dim != -1:
             return F.pad(x,
                          [config.min_square_dim, config.min_square_dim, config.min_square_dim, config.min_square_dim])
 
