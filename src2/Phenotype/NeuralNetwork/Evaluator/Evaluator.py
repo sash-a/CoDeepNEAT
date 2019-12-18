@@ -38,7 +38,7 @@ def evaluate(model: Network, num_epochs=config.epochs_in_evolution, fully_traini
     return get_test_acc(model, test_loader)
 
 
-def train_epoch(model: Network, train_loader: DataLoader, max_batches=20):
+def train_epoch(model: Network, train_loader: DataLoader, max_batches=-1):
     model.train()
     loss = 0
     for batch_idx, (inputs, targets) in enumerate(train_loader):
@@ -46,6 +46,8 @@ def train_epoch(model: Network, train_loader: DataLoader, max_batches=20):
             break
         model.optimizer.zero_grad()
         loss += train_batch(model, inputs, targets)
+
+    print("num batches:" , batch_idx)
 
 
 def train_batch(model: Network, inputs: torch.tensor, labels: torch.tensor):

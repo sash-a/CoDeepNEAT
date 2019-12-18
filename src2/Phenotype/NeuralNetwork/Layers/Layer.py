@@ -138,7 +138,7 @@ class Layer(BaseLayer):
                 modules.insert(0, PadUp(deep_layer.kernel_size[0]))
 
             modules.append(PadUp(deep_layer.kernel_size[0]))
-            print('layer order:', modules)
+            # print('layer order:', modules)
 
         if not modules:
             modules = [nn.Identity()]

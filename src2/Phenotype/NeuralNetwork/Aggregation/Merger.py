@@ -19,10 +19,10 @@ def merge(inputs: List[tensor], agg_layer: AggregationLayer) -> tensor:
 
     if linear_inputs and conv_inputs:
         # print('both inputs')
-        linear = merge_layers(homogenise_linear(linear_inputs, lossy), lossy) if len(linear_inputs) > 1 else \
+        linear = _merge_layers(homogenise_linear(linear_inputs, lossy), lossy) if len(linear_inputs) > 1 else \
             linear_inputs[0]
         # print('linears merged, shape: ', linear.size(), "numel:", linear.numel())
-        conv = merge_layers(homogenise_conv(conv_inputs, agg_layer), lossy) if len(conv_inputs) > 1 else conv_inputs[0]
+        conv = _merge_layers(homogenise_conv(conv_inputs, agg_layer), lossy) if len(conv_inputs) > 1 else conv_inputs[0]
         # print('convs merged, shape:', conv.size(), "numel:", conv.numel())
 
         if agg_layer.try_output_conv:
@@ -53,10 +53,10 @@ def merge(inputs: List[tensor], agg_layer: AggregationLayer) -> tensor:
         raise Exception("erroneous or empty inputs passed to agg layer")
 
     # print('done merging...')
-    return merge_layers(homos, lossy)
+    return _merge_layers(homos, lossy)
 
 
-def merge_layers(homogeneous_inputs: List[tensor], lossy: bool) -> tensor:
+def _merge_layers(homogeneous_inputs: List[tensor], lossy: bool) -> tensor:
     if lossy:
         return torch.sum(torch.stack(homogeneous_inputs), dim=0)
     else:
