@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import math
 import random
 import threading
 from typing import List, Dict, TYPE_CHECKING, Optional, Tuple
@@ -110,10 +111,10 @@ class BlueprintGenome(Genome):
 
     def to_phenotype(self, **kwargs) -> Tuple[Layer, Layer]:
         sample_map = {}
-        if "prescribed_sample_map" in kwargs and kwargs["prescribed_sample_map"] is not None:
-            sample_map = kwargs["prescribed_sample_map"]
+        if "sample_map" in kwargs and kwargs["sample_map"] is not None:
+            sample_map = kwargs["sample_map"]
 
-        return super().to_phenotype(module_sample_map=sample_map, **kwargs), sample_map
+        return super().to_phenotype(module_sample_map=sample_map, ignore_species=self.forget_module()), sample_map
 
     def visualize(self, parse_number=-1, prefix=""):
         visualise_blueprint_genome(self, self.best_module_sample_map, parse_number=parse_number, prefix=prefix)
@@ -159,17 +160,20 @@ class BlueprintGenome(Genome):
         self.da_scheme = parent.da_scheme
         self.best_module_sample_map = copy.deepcopy(parent.best_module_sample_map)
 
-    def old(self) -> BPG_old:
-        old_nodes = []
-        old_conns = []
+    def forget_module(self) -> List[int]:
+        """forget module maps with a probability based on how fully mapped the blueprint is"""
+        # of all of the nodes what percent of their linked species are in the module map
+        species_ids = set([node.species_id for node in self.nodes.values()])
+        mapped_species = set([node.species_id for node in self.nodes.values() if node.linked_module_id != -1])
+        map_frac = len(mapped_species) / len(species_ids)
 
-        for node in self.nodes.values():
-            old_nodes.append(node.old())
+        n_species_to_unmap = min(config.max_module_map_ignores, int(len(mapped_species) * map_frac * random.random()))
+        species_to_unmap = []
 
-        for connection in self.connections.values():
-            old_conns.append(connection.old())
-
-        return BPG_old(old_conns, old_nodes)
+        if (random.random() < math.pow(map_frac, 1.5)) or map_frac == 1:
+            """fully mapped blueprints are guaranteed to lose a mapping"""
+            species_to_unmap = random.choices(list(mapped_species), max(n_species_to_unmap, 1))
+        return species_to_unmap
 
     def pick_da_scheme(self):
         import src2.main.Singleton as Singleton
@@ -180,6 +184,3 @@ class BlueprintGenome(Genome):
                 raise Exception("bad DA link " + str(self.linked_da_id))
 
             return self.da_scheme
-
-
-

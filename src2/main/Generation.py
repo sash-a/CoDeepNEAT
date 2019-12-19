@@ -11,13 +11,15 @@ import wandb
 
 from runs import RunsManager
 from src2.Configuration import config
+from src2.Genotype.CDN.Genomes.DAGenome import DAGenome
 from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
 from src2.Genotype.CDN.Genomes.ModuleGenome import ModuleGenome
+from src2.Genotype.CDN.Nodes.DANode import DANode
 from src2.Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
 from src2.Genotype.CDN.Nodes.ModuleNode import ModuleNode
-from src2.Genotype.CDN.Mutators import BlueprintGenomeMutator
-from src2.Genotype.CDN.Mutators import ModuleGenomeMutator
-from src2.Genotype.CDN.PopulationInitializer import create_mr_old, create_population_old
+from src2.Genotype.CDN.Mutators.BlueprintGenomeMutator import BlueprintGenomeMutator
+from src2.Genotype.CDN.Mutators.ModuleGenomeMutator import ModuleGenomeMutator
+from src2.Genotype.CDN.PopulationInitializer import create_mr_old, create_population_old, create_population, create_mr
 from src2.Genotype.NEAT.Operators.Speciators.MostSimilarSpeciator import MostSimilarSpeciator
 from src2.Genotype.NEAT.Operators.Speciators.NEATSpeciator import NEATSpeciator
 from src2.Genotype.NEAT.Population import Population
@@ -58,7 +60,7 @@ class Generation:
             most_accurate_blueprint.visualize(prefix="best_g" + str(self.generation_number) + "_")
         if config.plot_best_phenotype:
             model: Network = Network(most_accurate_blueprint, get_data_shape(),
-                                     prescribed_sample_map=most_accurate_blueprint.best_module_sample_map)
+                                     sample_map=most_accurate_blueprint.best_module_sample_map)
             model.visualize(prefix="best_g" + str(self.generation_number) + "_")
 
         print("Num blueprint species:", len(self.blueprint_population.species), self.blueprint_population.species)
@@ -85,7 +87,7 @@ class Generation:
 
         self.module_population.before_step()
         self.blueprint_population.before_step()
-        self.da_population.before_step()
+        # self.da_population.before_step()
 
         # blueprints choosing DA schemes from population
         if config.evolve_data_augmentations:
@@ -176,7 +178,6 @@ class Generation:
                    'model sizes': model_sizes})
 
     def __getitem__(self, genome_id: int):
-
         if config.evolve_data_augmentations:
             populations: List[Population] = [self.blueprint_population, self.module_population, self.da_population]
         else:

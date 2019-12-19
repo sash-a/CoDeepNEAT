@@ -18,13 +18,22 @@ if TYPE_CHECKING:
 
 
 class Network(nn.Module):
-    def __init__(self, blueprint: BlueprintGenome, input_shape: list, output_dim=10, prescribed_sample_map = None, **kwargs):
+    def __init__(self, blueprint: BlueprintGenome, input_shape: list, output_dim=10, sample_map=None):
+        """
+        Constructs a trainable nn.Module network given a Blueprint genome. Must have access to a generation singleton
+        with a module population.
+
+        :param blueprint: The blueprint used to construct the network
+        :param input_shape: The shape of the input
+        :param output_dim: The required dimension of the output (assumed to be 1D)
+        :param sample_map: Required to construct a network with specific modules from each species (usually used when fully training)
+        """
         super().__init__()
         self.blueprint: BlueprintGenome = blueprint
         self.output_dim = output_dim
 
         self.model: Layer
-        (self.model, output_layer), self.sample_map = blueprint.to_phenotype(prescribed_sample_map = prescribed_sample_map, **kwargs)
+        (self.model, output_layer), self.sample_map = blueprint.to_phenotype(sample_map=sample_map)
 
         self.shape_layers(input_shape)
 
@@ -87,4 +96,5 @@ class Network(nn.Module):
 
                     q.append(child_layer)
 
-        graph.render(quiet=False, directory=RunsManager.get_graphs_folder_path(config.run_name), view=config.view_graph_plots)
+        graph.render(quiet=False, directory=RunsManager.get_graphs_folder_path(config.run_name),
+                     view=config.view_graph_plots)

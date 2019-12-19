@@ -30,7 +30,7 @@ def fully_train_best_evolved_networks(run_name, n=1, num_epochs=100):
         print("bp:", blueprint, "\nmodules:", modules, "\nsample map:", blueprint.best_module_sample_map,
               "\nspecies used:", list(set([x.species_id for x in blueprint.nodes.values()])))
         device = config.get_device()
-        model: Network = Network(blueprint, in_size, prescribed_sample_map=blueprint.best_module_sample_map).to(device)
+        model: Network = Network(blueprint, in_size, sample_map=blueprint.best_module_sample_map).to(device)
         model_size = sum(p.numel() for p in model.parameters() if p.requires_grad)
         print("training model which scored:", blueprint.accuracy, " in evolution for ", num_epochs, "epochs, with",
               model_size, " params")

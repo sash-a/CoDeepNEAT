@@ -1,8 +1,5 @@
-import random
 from typing import List
 
-import torch
-import torchvision
 from torch.utils.data import DataLoader, Dataset, random_split
 from torchvision import transforms
 from torchvision.datasets import MNIST, CIFAR10, ImageFolder
@@ -48,8 +45,8 @@ def load_data(composed_transforms: transforms.Compose, split: str) -> DataLoader
             dataset = train
         else:
             dataset = valid
-    # TODO: test num workers and pin memory
 
+    # TODO: test num workers and pin memory
     return DataLoader(dataset, batch_size=config.batch_size, shuffle=False, num_workers=0, pin_memory=False)
 
 

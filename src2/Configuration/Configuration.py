@@ -62,8 +62,8 @@ class Config:
         # Module retention/elitism
         self.fitness_aggregation = 'avg'  # max | avg
         self.use_module_retention = False
-        self.module_map_ignore_chance = 1
         self.module_map_forget_mutation_chance = 0.2
+        self.max_module_map_ignores = 10
         self.parent_selector = "uniform"  # uniform | roulette | tournament
         self.representative_selector = 'random'  # best | centroid | random
         #  blank node settings - if true input/output nodes are left blank perpetually
