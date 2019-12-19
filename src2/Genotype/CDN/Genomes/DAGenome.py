@@ -1,12 +1,10 @@
 from __future__ import annotations
 
-import threading
-from typing import List, Dict, TYPE_CHECKING, Optional
+from typing import List
 
 from src2.Genotype.CDN.Nodes.DANode import DANode
 from src2.Genotype.NEAT.Connection import Connection
 from src2.Genotype.NEAT.Genome import Genome
-
 from src2.Phenotype.Augmentations.AugmentationScheme import AugmentationScheme
 
 

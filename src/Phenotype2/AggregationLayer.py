@@ -1,10 +1,11 @@
-import torch
-from torch import tensor
 from typing import List
 
+import torch
+from torch import tensor
+
 from src.Config import Config
-from src.Phenotype2.LayerUtils import BaseLayer
 from src.Phenotype import AggregatorOperations
+from src.Phenotype2.LayerUtils import BaseLayer
 
 
 class AggregationLayer(BaseLayer):

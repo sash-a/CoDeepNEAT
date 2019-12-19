@@ -3,21 +3,19 @@ from __future__ import annotations
 import copy
 import math
 import random
-import threading
 from typing import List, Dict, TYPE_CHECKING, Optional, Tuple
 
 import src2.Genotype.CDN.Nodes.BlueprintNode as BlueprintNode
 from src2.Configuration import config
+from src2.Genotype.CDN.Genomes.DAGenome import DAGenome
 from src2.Genotype.Mutagen.ContinuousVariable import ContinuousVariable
 from src2.Genotype.Mutagen.Mutagen import Mutagen
 from src2.Genotype.NEAT.Connection import Connection
 from src2.Genotype.NEAT.Genome import Genome
 from src2.Genotype.NEAT.Node import Node
 from src2.Visualisation.GenomeVisualiser import visualise_blueprint_genome
-from src2.Genotype.CDN.Genomes.DAGenome import DAGenome
 
 # TESTING
-from src.CoDeepNEAT.CDNGenomes.BlueprintGenome import BlueprintGenome as BPG_old
 
 if TYPE_CHECKING:
     from src2.Phenotype.NeuralNetwork.Layers import Layer

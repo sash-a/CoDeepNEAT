@@ -1,15 +1,15 @@
 from __future__ import annotations
 
+import math
 from functools import reduce
 from typing import Optional, List, Tuple, TYPE_CHECKING
 
-import math
 from torch import nn, zeros
 
 from src2.Phenotype.NeuralNetwork.Layers.BaseLayer import BaseLayer
 from src2.Phenotype.NeuralNetwork.Layers.CustomLayerTypes.DepthwiseSeparableConv import DepthwiseSeparableConv
-from src2.Phenotype.NeuralNetwork.Layers.CustomLayerTypes.Reshape import Reshape
 from src2.Phenotype.NeuralNetwork.Layers.CustomLayerTypes.PadUp import PadUp
+from src2.Phenotype.NeuralNetwork.Layers.CustomLayerTypes.Reshape import Reshape
 
 if TYPE_CHECKING:
     from src2.Genotype.CDN.Nodes.ModuleNode import ModuleNode

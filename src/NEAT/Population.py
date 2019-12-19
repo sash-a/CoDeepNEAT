@@ -2,9 +2,9 @@ import math
 import os
 
 import matplotlib.pyplot as plt
-from data import DataManager
 
 import src.Config.NeatProperties as Props
+from data import DataManager
 from src.Config import Config
 from src.NEAT.Species import Species
 

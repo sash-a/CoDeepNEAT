@@ -1,5 +1,6 @@
-import wandb
 from typing import List, Dict, Set
+
+import wandb
 
 
 def fetch_history(run_id: str) -> List[Dict]:

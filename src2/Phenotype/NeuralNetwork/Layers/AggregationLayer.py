@@ -4,9 +4,9 @@ import torch
 from torch import tensor, nn
 
 from src.Phenotype import AggregatorOperations
-from src2.Phenotype.NeuralNetwork.Layers.BaseLayer import BaseLayer
 from src2.Configuration import config
 from src2.Phenotype.NeuralNetwork.Aggregation.Merger import merge
+from src2.Phenotype.NeuralNetwork.Layers.BaseLayer import BaseLayer
 
 
 class AggregationLayer(BaseLayer):

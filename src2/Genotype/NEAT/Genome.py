@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import copy
-import threading
 from typing import Dict, List, TYPE_CHECKING, Set, Tuple
 
 from torch import nn

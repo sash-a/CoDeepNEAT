@@ -3,12 +3,11 @@ from __future__ import annotations
 import random
 from typing import Dict, TYPE_CHECKING, Tuple, List
 
+# For testing!
+from src.CoDeepNEAT.CDNNodes.BlueprintNode import BlueprintNEATNode
 from src2.Genotype.Mutagen.IntegerVariable import IntegerVariable
 from src2.Genotype.NEAT.Node import Node, NodeType
 from src2.Phenotype.NeuralNetwork.Layers.Layer import Layer
-
-# For testing!
-from src.CoDeepNEAT.CDNNodes.BlueprintNode import BlueprintNEATNode
 
 if TYPE_CHECKING:
     from src2.Genotype.CDN.Genomes.ModuleGenome import ModuleGenome

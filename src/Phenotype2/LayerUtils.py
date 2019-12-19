@@ -1,6 +1,8 @@
 from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from typing import List
+
 from torch import nn, tensor
 
 from src.Config import Config

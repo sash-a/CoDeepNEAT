@@ -1,8 +1,7 @@
-from src2.Genotype.Mutagen.Option import Option
-from src2.Genotype.NEAT.Gene import Gene
-
 # TESTING
 from src.NEAT.Gene import ConnectionGene
+from src2.Genotype.Mutagen.Option import Option
+from src2.Genotype.NEAT.Gene import Gene
 
 
 class Connection(Gene):

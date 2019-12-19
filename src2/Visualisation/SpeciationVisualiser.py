@@ -1,15 +1,12 @@
 from __future__ import annotations
 
+import math
 import os
 import random
 from typing import TYPE_CHECKING, List
 
-import math
-
 if TYPE_CHECKING:
     from src2.Genotype.NEAT.Species import Species
-
-from graphviz import Graph
 
 os.environ["PATH"] += os.pathsep + 'C:/Program Files (x86)/Graphviz2.38/bin/'
 

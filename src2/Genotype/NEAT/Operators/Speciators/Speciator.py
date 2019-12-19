@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import List, TYPE_CHECKING, Union
+from typing import List, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from src2.Genotype.NEAT.Species import Species

@@ -11,14 +11,14 @@ import wandb
 
 from runs import RunsManager
 from src2.Configuration import config
-from src2.Genotype.CDN.Genomes.DAGenome import DAGenome
 from src2.Genotype.CDN.Genomes.BlueprintGenome import BlueprintGenome
+from src2.Genotype.CDN.Genomes.DAGenome import DAGenome
 from src2.Genotype.CDN.Genomes.ModuleGenome import ModuleGenome
-from src2.Genotype.CDN.Nodes.DANode import DANode
-from src2.Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
-from src2.Genotype.CDN.Nodes.ModuleNode import ModuleNode
 from src2.Genotype.CDN.Mutators.BlueprintGenomeMutator import BlueprintGenomeMutator
 from src2.Genotype.CDN.Mutators.ModuleGenomeMutator import ModuleGenomeMutator
+from src2.Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
+from src2.Genotype.CDN.Nodes.DANode import DANode
+from src2.Genotype.CDN.Nodes.ModuleNode import ModuleNode
 from src2.Genotype.CDN.PopulationInitializer import create_mr_old, create_population_old, create_population, create_mr
 from src2.Genotype.NEAT.Operators.Speciators.MostSimilarSpeciator import MostSimilarSpeciator
 from src2.Genotype.NEAT.Operators.Speciators.NEATSpeciator import NEATSpeciator

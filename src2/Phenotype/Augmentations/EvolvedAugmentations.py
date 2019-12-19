@@ -1,15 +1,11 @@
 from __future__ import annotations
-from typing import Dict, Any, Union, TYPE_CHECKING
 
-import imgaug.augmenters as iaa
 import random
+
 from src2.Configuration import config
-
-from src2.Genotype.Mutagen.IntegerVariable import IntegerVariable
 from src2.Genotype.Mutagen.ContinuousVariable import ContinuousVariable
+from src2.Genotype.Mutagen.IntegerVariable import IntegerVariable
 from src2.Genotype.Mutagen.Option import Option
-
-import src2.Phenotype.Augmentations.DADefinitions as DAD
 
 # augmentations = [
 #     iaa.Fliplr(1),

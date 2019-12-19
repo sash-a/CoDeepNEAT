@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from src2.Configuration import config
 from src2 import Run
+from src2.Configuration import config
 from src2.Phenotype.NeuralNetwork.Evaluator.DataLoader import get_data_shape
 from src2.Phenotype.NeuralNetwork.Evaluator.Evaluator import evaluate
 from src2.Phenotype.NeuralNetwork.NeuralNetwork import Network

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import List, TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING, Dict
 
 if TYPE_CHECKING:
     from src2.Genotype.NEAT.Genome import Genome

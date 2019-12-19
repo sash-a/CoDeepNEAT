@@ -1,6 +1,7 @@
-from src2.Genotype.NEAT.Node import Node, NodeType
 import src2.Phenotype.Augmentations.EvolvedAugmentations as EDA
 from src2.Genotype.Mutagen.Option import Option
+from src2.Genotype.NEAT.Node import Node, NodeType
+
 
 class DANode(Node):
 

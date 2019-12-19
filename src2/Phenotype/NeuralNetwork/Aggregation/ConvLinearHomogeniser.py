@@ -1,8 +1,7 @@
 from math import floor, ceil
-from typing import List
 
-from torch import tensor
 import torch.nn.functional as F
+from torch import tensor
 
 
 def flatten_conv(conv_input: tensor) -> tensor:

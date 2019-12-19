@@ -1,6 +1,7 @@
+import random
+
 import imgaug.augmenters as iaa
 import numpy as np
-import random
 
 
 # The AugmenationScheme class allows for the creation of a augmentation schemes.

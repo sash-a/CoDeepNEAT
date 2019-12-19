@@ -1,4 +1,5 @@
 import imgaug.augmenters as iaa
+
 from src.DataAugmentation.CustomOperations import CustomOperation as CO
 
 # Dictionary containing all possible augmentation functions

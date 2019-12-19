@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 
-from src.Config import Config
 from src.Phenotype import AggregatorOperations
 from src.Phenotype.ModuleNode import ModuleNode as Module
 

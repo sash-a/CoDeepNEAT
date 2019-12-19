@@ -1,13 +1,12 @@
 from torch import nn
 
 import src.Validation.DataLoader as DL
-from src.Validation.Validation import get_accuracy_estimate_for_network
 from src.CoDeepNEAT.CDNGenomes.BlueprintGenome import BlueprintGenome
-from src.Config import Config
-from src.NEAT.Gene import ConnectionGene
 from src.CoDeepNEAT.CDNGenomes.ModuleGenome import ModuleGenome
 from src.CoDeepNEAT.CDNNodes.BlueprintNode import BlueprintNEATNode
 from src.CoDeepNEAT.CDNNodes.ModuleNode import ModuleNEATNode, NodeType
+from src.Config import Config
+from src.NEAT.Gene import ConnectionGene
 from src.NEAT.Species import Species
 from src.Phenotype2.NeuralNetwork import Network
 

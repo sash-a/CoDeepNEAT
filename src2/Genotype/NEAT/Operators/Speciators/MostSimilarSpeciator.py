@@ -1,8 +1,8 @@
 import math
 from typing import List, TYPE_CHECKING
 
-from src2.Genotype.NEAT.Operators.Speciators.Speciator import Speciator
 from src2.Configuration import config
+from src2.Genotype.NEAT.Operators.Speciators.Speciator import Speciator
 from src2.Genotype.NEAT.Species import Species
 
 if TYPE_CHECKING:

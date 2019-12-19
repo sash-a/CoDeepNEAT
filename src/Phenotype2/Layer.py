@@ -1,10 +1,8 @@
-from typing import Type, Union, Optional
-
-from torch import nn, zeros
 import math
 from functools import reduce
+from typing import Optional
 
-from torch.nn import Sequential
+from torch import nn, zeros
 
 from src.CoDeepNEAT.CDNNodes.ModuleNode import ModuleNEATNode
 from src.Phenotype2.LayerUtils import Reshape, BaseLayer

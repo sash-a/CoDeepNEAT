@@ -1,7 +1,9 @@
-import imgaug.augmenters as iaa
-from src.DataAugmentation.CustomOperations import CustomOperation as CO
-import numpy as np
 import random
+
+import imgaug.augmenters as iaa
+import numpy as np
+
+from src.DataAugmentation.CustomOperations import CustomOperation as CO
 
 
 # The AugmenationScheme class allows for the creation of a augmentation schemes.

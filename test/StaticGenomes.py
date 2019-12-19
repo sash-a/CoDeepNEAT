@@ -1,10 +1,11 @@
 from __future__ import annotations
+
 from typing import Tuple, Union, Type, TYPE_CHECKING
 
-from src2.Genotype.NEAT.MutationRecord import MutationRecords
-from src2.Genotype.NEAT.Node import Node, NodeType
 from src2.Genotype.NEAT.Connection import Connection
 from src2.Genotype.NEAT.Genome import Genome
+from src2.Genotype.NEAT.MutationRecord import MutationRecords
+from src2.Genotype.NEAT.Node import Node, NodeType
 
 if TYPE_CHECKING:
     from src2.Genotype.CDN.Nodes.ModuleNode import ModuleNode

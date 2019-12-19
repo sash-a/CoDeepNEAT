@@ -3,8 +3,8 @@ import os
 
 import matplotlib.pyplot as plt
 import numpy as np
-from data import DataManager
 
+from data import DataManager
 from src.Analysis import Logger
 
 """

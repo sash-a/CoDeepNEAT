@@ -1,16 +1,13 @@
-import copy
-import threading
 from typing import List, Tuple
 
 from runs import RunsManager
+from src.CoDeepNEAT.CDNGenomes.ModuleGenome import ModuleGenome as ModuleGenome_Old
 from src2.Configuration import config
-from src2.Phenotype.NeuralNetwork.Layers.Layer import Layer
 from src2.Genotype.NEAT.Connection import Connection
 from src2.Genotype.NEAT.Genome import Genome
 from src2.Genotype.NEAT.Node import Node
+from src2.Phenotype.NeuralNetwork.Layers.Layer import Layer
 from src2.Visualisation.GenomeVisualiser import get_graph_of
-
-from src.CoDeepNEAT.CDNGenomes.ModuleGenome import ModuleGenome as ModuleGenome_Old
 
 
 class ModuleGenome(Genome):

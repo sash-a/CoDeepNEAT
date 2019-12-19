@@ -7,6 +7,10 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 
+# For testing!
+from src.CoDeepNEAT.CDNNodes.ModuleNode import ModuleNEATNode
+from src.NEAT.Gene import NodeType as OldNodeType
+from src.NEAT.Mutagen import Mutagen as Oldmutagen, ValueType as OldMutagenValueType
 from src2.Configuration import config
 from src2.Genotype.Mutagen.ContinuousVariable import ContinuousVariable
 from src2.Genotype.Mutagen.IntegerVariable import IntegerVariable
@@ -14,12 +18,6 @@ from src2.Genotype.Mutagen.Option import Option
 from src2.Genotype.NEAT.Node import Node, NodeType
 from src2.Phenotype.NeuralNetwork.Layers.CustomLayerTypes.DepthwiseSeparableConv import DepthwiseSeparableConv
 from src2.Phenotype.NeuralNetwork.Layers.Layer import Layer
-
-# For testing!
-from src.CoDeepNEAT.CDNNodes.ModuleNode import ModuleNEATNode
-from src.NEAT.Mutagen import Mutagen as Oldmutagen, ValueType as OldMutagenValueType
-from src.NEAT.Gene import NodeType as OldNodeType
-
 
 
 class ModuleNode(Node):

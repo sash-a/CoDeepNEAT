@@ -1,6 +1,8 @@
-import inspect, os
-from src.Config import Config
+import inspect
+import os
 import pickle
+
+from src.Config import Config
 
 
 def create_runs_folder():

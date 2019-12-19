@@ -1,5 +1,4 @@
 import copy
-import time
 
 from src.Analysis.EvolutionaryDataPlotter import plot_acc_vs_second, plot_histogram
 from src.Config import Config

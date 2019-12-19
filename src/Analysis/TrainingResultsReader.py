@@ -1,6 +1,7 @@
 import os
 
 import matplotlib.pyplot as plt
+
 from data import DataManager
 from src.Analysis.EvolutionaryDataPlotter import name_overrides
 

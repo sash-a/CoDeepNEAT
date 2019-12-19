@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List
 import threading
+from typing import TYPE_CHECKING, List
 
 from src2.Configuration import config
 from src2.Phenotype.NeuralNetwork.Evaluator.Evaluator import evaluate
@@ -19,8 +19,7 @@ def evaluate_blueprint(blueprint: BlueprintGenome, input_size: List[int], genera
     Parses the blueprint into its phenotype NN
     Handles the assignment of the single/multi obj finesses to the blueprint in parallel
     """
-    print(bp_lock)
-
+    print('thread name:', threading.current_thread().name)
     device = config.get_device()
 
     model: Network = Network(blueprint, input_size).to(device)

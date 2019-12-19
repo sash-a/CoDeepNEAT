@@ -1,15 +1,14 @@
-from typing import List
-
-from torch.utils.data import DataLoader, Dataset, random_split
-from torchvision import transforms
-from torchvision.datasets import MNIST, CIFAR10, ImageFolder
 from os import path
-
-from data import DataManager
-from src2.Configuration import config
+from typing import List
 
 import matplotlib.pyplot as plt
 import numpy as np
+from torch.utils.data import DataLoader, Dataset, random_split
+from torchvision import transforms
+from torchvision.datasets import MNIST, CIFAR10, ImageFolder
+
+from data import DataManager
+from src2.Configuration import config
 
 
 def load_data(composed_transforms: transforms.Compose, split: str) -> DataLoader:

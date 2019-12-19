@@ -1,14 +1,15 @@
 from __future__ import annotations
 
 import random
-from threading import current_thread
+import sys
+import threading
 from typing import TYPE_CHECKING
 
+import numpy as np
 import torch
+from sklearn.metrics import accuracy_score
 from torch.utils.data import DataLoader
 from torchvision.transforms import transforms
-from sklearn.metrics import accuracy_score
-import numpy as np
 
 from src2.Configuration import config
 from src2.Phenotype.NeuralNetwork.Evaluator.DataLoader import load_data
@@ -37,27 +38,31 @@ def evaluate(model: Network, num_epochs=config.epochs_in_evolution, fully_traini
         ])
 
     train_loader = load_data(composed_transform, 'train')
-
+    device = config.get_device()
     for epoch in range(num_epochs):
-        # print('Thread ', current_thread().name[-1], 'training bp', model.blueprint.id, 'epoch', epoch)
-        train_epoch(model, train_loader)
+        if config.threading_test:
+            print('Thread %s bp: %i epoch: %i' % (threading.current_thread().name[-1], model.blueprint.id, epoch))
+        train_epoch(model, train_loader, device)
 
     test_loader = load_data(composed_transform, 'test')
     return get_test_acc(model, test_loader)
 
 
-def train_epoch(model: Network, train_loader: DataLoader, max_batches=-1):
+def train_epoch(model: Network, train_loader: DataLoader, device, max_batches=-1):
     model.train()
     loss = 0
     for batch_idx, (inputs, targets) in enumerate(train_loader):
         if max_batches != -1 and batch_idx > max_batches:
             break
         model.optimizer.zero_grad()
-        loss += train_batch(model, inputs, targets)
+        loss += train_batch(model, inputs, targets, device)
 
 
-def train_batch(model: Network, inputs: torch.tensor, labels: torch.tensor):
-    device = config.get_device()
+def train_batch(model: Network, inputs: torch.tensor, labels: torch.tensor, device):
+    if config.threading_test:
+        print('training batch on thread:', threading.current_thread().name)
+        sys.stdout.flush()
+
     inputs, labels = inputs.to(device), labels.to(device)
 
     output = model(inputs)

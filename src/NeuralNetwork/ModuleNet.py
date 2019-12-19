@@ -1,8 +1,8 @@
 import torch
 import torch.nn.functional as F
-from data import DataManager
 from torch import nn, optim
 
+from data import DataManager
 from src.Config import Config
 from src.Utilities import Utils
 

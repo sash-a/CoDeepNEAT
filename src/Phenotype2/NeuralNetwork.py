@@ -1,17 +1,16 @@
-import graphviz
-from torch import nn, tensor, optim, squeeze
-import torch.nn.functional as F
-
-from src.Config import Config
-from src.CoDeepNEAT.CDNGenomes.BlueprintGenome import BlueprintGenome
-from src.NEAT.Species import Species
-
-from src.Phenotype2.Layer import Layer
-from src.Phenotype2.AggregationLayer import AggregationLayer
-from src.Phenotype2.LayerUtils import BaseLayer, Reshape
-
 from functools import reduce
 from typing import List, Union, Tuple
+
+import graphviz
+import torch.nn.functional as F
+from torch import nn, tensor, optim, squeeze
+
+from src.CoDeepNEAT.CDNGenomes.BlueprintGenome import BlueprintGenome
+from src.Config import Config
+from src.NEAT.Species import Species
+from src.Phenotype2.AggregationLayer import AggregationLayer
+from src.Phenotype2.Layer import Layer
+from src.Phenotype2.LayerUtils import BaseLayer
 
 
 class Network(nn.Module):

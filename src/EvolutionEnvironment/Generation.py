@@ -1,36 +1,28 @@
 import copy
-import sys
 import math
+import multiprocessing as mp
 import random
+import sys
 import time
 
-import multiprocessing as mp
 import cv2
-
 from Phenotype2.NeuralNetwork import Network
 
-from data import DataManager
-
 import src.Config.NeatProperties as Props
-from src.Config import Config
-from src.Validation import DataLoader, Validation
+from data import DataManager
 from src.Analysis import Logger
-
 from src.CoDeepNEAT import PopulationInitialiser as PopInit
+from src.CoDeepNEAT.CDNGenomes.BlueprintGenome import BlueprintGenome
+from src.CoDeepNEAT.CDNGenomes.DAGenome import DAGenome
+from src.CoDeepNEAT.CDNGenomes.ModuleGenome import ModuleGenome
+from src.CoDeepNEAT.CDNNodes.BlueprintNode import BlueprintNEATNode
+from src.CoDeepNEAT.CDNNodes.DANode import DANode
+from src.CoDeepNEAT.CDNNodes.ModuleNode import ModuleNEATNode
+from src.Config import Config
 from src.NEAT.Population import Population
 from src.NEAT.PopulationRanking import single_objective_rank, cdn_rank, nsga_rank
 from src.Phenotype.ParetoPopulation import ParetoPopulation
-
-from src.CoDeepNEAT.CDNGenomes.ModuleGenome import ModuleGenome
-from src.CoDeepNEAT.CDNGenomes.BlueprintGenome import BlueprintGenome
-from src.CoDeepNEAT.CDNGenomes.DAGenome import DAGenome
-
-from src.CoDeepNEAT.CDNNodes.ModuleNode import ModuleNEATNode
-from src.CoDeepNEAT.CDNNodes.BlueprintNode import BlueprintNEATNode
-from src.CoDeepNEAT.CDNNodes.DANode import DANode
-from src.NEAT.Species import Species
-
-import wandb
+from src.Validation import DataLoader, Validation
 
 """the generation class is a container for the 3 cdn populations.
     It is also responsible for stepping the evolutionary cycle.

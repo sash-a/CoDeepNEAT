@@ -3,10 +3,10 @@ from __future__ import annotations
 from typing import Union, Type, TYPE_CHECKING, List
 
 from src2.Configuration import config
+from src2.Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
+from src2.Genotype.CDN.Nodes.ModuleNode import ModuleNode, NodeType
 from src2.Genotype.NEAT.Connection import Connection
 from src2.Genotype.NEAT.MutationRecord import MutationRecords
-from src2.Genotype.CDN.Nodes.ModuleNode import ModuleNode, NodeType
-from src2.Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
 
 if TYPE_CHECKING:
     from src2.Genotype.CDN.Genomes.ModuleGenome import ModuleGenome

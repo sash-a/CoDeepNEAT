@@ -1,11 +1,12 @@
 from __future__ import annotations
+
 from abc import ABC, abstractmethod
-from typing import List, Union, TYPE_CHECKING
+from typing import List, TYPE_CHECKING
+
 from torch import nn
 
 if TYPE_CHECKING:
-    from src2.Phenotype.NeuralNetwork.Layers.AggregationLayer import AggregationLayer
-    from src2.Phenotype.NeuralNetwork.Layers.Layer import Layer
+    pass
 
 
 class BaseLayer(nn.Module, ABC):

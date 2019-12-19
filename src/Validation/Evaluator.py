@@ -1,12 +1,10 @@
 # modified from https://github.com/pytorch/examples/blob/master/mnist/main.py
 import math
-import sys
 import time
 
 import torch
-import torch.multiprocessing as mp
-from data import DataManager
 
+from data import DataManager
 from src.Config import Config
 from src.DataAugmentation import BatchAugmentor
 from src.Validation.DataLoader import load_data

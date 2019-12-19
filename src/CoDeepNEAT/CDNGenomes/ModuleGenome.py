@@ -5,8 +5,8 @@ from src.CoDeepNEAT.CDNNodes.ModuleNode import ModuleNEATNode
 from src.Config import NeatProperties as Props
 from src.NEAT.Genome import Genome
 from src.Phenotype.ModuleNode import ModuleNode
-from src2.Phenotype.NeuralNetwork.Layers import Layer
 from src2.Phenotype.NeuralNetwork.Layers import AggregationLayer
+from src2.Phenotype.NeuralNetwork.Layers import Layer
 
 
 class ModuleGenome(Genome):

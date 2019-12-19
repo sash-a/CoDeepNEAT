@@ -2,6 +2,7 @@ import ast
 import os
 import os.path
 from typing import List
+
 from data import DataManager
 from src.Analysis.GenerationData import GenerationData
 

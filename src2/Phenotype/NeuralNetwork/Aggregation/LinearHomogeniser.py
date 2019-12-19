@@ -1,7 +1,7 @@
 from typing import List
 
-from torch import tensor
 import torch.nn.functional as F
+from torch import tensor
 
 
 def homogenise(linear_inputs: List[tensor]) -> List[tensor]:

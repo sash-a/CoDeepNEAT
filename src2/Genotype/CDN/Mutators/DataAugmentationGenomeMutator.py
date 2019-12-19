@@ -1,7 +1,7 @@
-from src2.Genotype.NEAT.Genome import Genome
-from src2.Genotype.NEAT import MutationRecord
-from src2.Genotype.NEAT.Operators.Mutators.GenomeMutator import GenomeMutator
 from src2.Configuration import config
+from src2.Genotype.NEAT import MutationRecord
+from src2.Genotype.NEAT.Genome import Genome
+from src2.Genotype.NEAT.Operators.Mutators.GenomeMutator import GenomeMutator
 
 
 class DataAugmentationGenomeMutator(GenomeMutator):

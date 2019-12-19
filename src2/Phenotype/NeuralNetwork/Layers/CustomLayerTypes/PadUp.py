@@ -1,5 +1,6 @@
-from torch import nn, tensor
 import torch.nn.functional as F
+from torch import nn, tensor
+
 from src2.Configuration import config
 
 

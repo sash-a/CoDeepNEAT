@@ -3,9 +3,8 @@ import os
 
 import graphviz
 import matplotlib.pyplot as plt
-from data import DataManager
 
-from src.Config import Config
+from data import DataManager
 
 
 class Node:

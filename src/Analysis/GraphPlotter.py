@@ -1,6 +1,7 @@
 import os
-from data import DataManager
+
 import src.Config.Config as Config
+from data import DataManager
 from src.Analysis.EvolutionaryDataPlotter import get_all_run_names
 from src.NeuralNetwork.ModuleNet import create_nn
 # generation = DataManager.load_generation_state(Config.run_name)

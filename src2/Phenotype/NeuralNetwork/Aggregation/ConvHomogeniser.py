@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import List, TYPE_CHECKING
 
-from torch import tensor, nn
 import torch.nn.functional as F
+from torch import tensor, nn
 
 from src2.Configuration import config
 

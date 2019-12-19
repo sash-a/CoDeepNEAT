@@ -3,11 +3,11 @@ import random
 from src2.Configuration import config
 from src2.Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
 from src2.Genotype.CDN.Nodes.ModuleNode import ModuleNode
-from src2.Genotype.NEAT.Node import Node
-from src2.Genotype.NEAT.Operators.Mutators.MutationReport import MutationReport
-from src2.Genotype.NEAT.Genome import Genome
 from src2.Genotype.NEAT import MutationRecord
+from src2.Genotype.NEAT.Genome import Genome
+from src2.Genotype.NEAT.Node import Node
 from src2.Genotype.NEAT.Operators.Mutators.GenomeMutator import GenomeMutator
+from src2.Genotype.NEAT.Operators.Mutators.MutationReport import MutationReport
 
 
 class BlueprintGenomeMutator(GenomeMutator):

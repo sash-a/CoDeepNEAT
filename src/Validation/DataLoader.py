@@ -1,11 +1,11 @@
-from data import DataManager
+from typing import Tuple
 
+from torch import tensor
 from torch.utils.data import DataLoader
 from torchvision import transforms, datasets
-from torch import tensor
 
+from data import DataManager
 from src.Config import Config
-from typing import Tuple
 
 
 def load_data(batch_size=Config.batch_size, dataset=""):
