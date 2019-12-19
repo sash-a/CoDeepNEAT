@@ -8,8 +8,8 @@ from src2.Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
 from src2.Genotype.NEAT.Genome import Genome
 from src2.Genotype.NEAT.Operators import Cross
 from src2.Genotype.NEAT import MutationRecord
-from src2.Genotype.CDN.Operators.Mutators.BlueprintGenomeMutator import BlueprintGenomeMutator
-from src2.Genotype.CDN.Operators.Mutators.ModuleGenomeMutator import ModuleGenomeMutator
+from src2.Genotype.CDN.Mutators import BlueprintGenomeMutator
+from src2.Genotype.CDN.Mutators import ModuleGenomeMutator
 from src2.Visualisation.GenomeVisualiser import get_graph_of
 from test import StaticGenomes
 
