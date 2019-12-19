@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 
 def fully_train_nn(model: NeuralNetwork, num_epochs):
-    accuracy = evaluate(model, num_epochs=num_epochs, fully_training=True)
+    accuracy = evaluate(model, num_epochs=num_epochs, fully_training=True, augmentation_transform=model.blueprint.da_scheme.to_phenotype())
     print("model scored ", accuracy, " on fully training")
 
 

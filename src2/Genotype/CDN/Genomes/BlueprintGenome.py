@@ -13,6 +13,7 @@ from src2.Genotype.NEAT.Connection import Connection
 from src2.Genotype.NEAT.Genome import Genome
 from src2.Genotype.NEAT.Node import Node
 from src2.Visualisation.GenomeVisualiser import visualise_blueprint_genome
+from src2.Genotype.CDN.Genomes.DAGenome import DAGenome
 
 # TESTING
 from src.CoDeepNEAT.CDNGenomes.BlueprintGenome import BlueprintGenome as BPG_old
@@ -36,6 +37,9 @@ class BlueprintGenome(Genome):
         # mapping from species id to the genome id of the module sampled from that species
         self.best_module_sample_map: Optional[Dict[int, int]] = None  # todo empty this at the end of evaluation
         self.best_sample_map_accuracy: float = -1
+
+        self.da_scheme: DAGenome = None
+        self.linked_da_id: int = -1
 
     def __deepcopy__(self, memodict={}):
         cp = super().__deepcopy__()
@@ -152,6 +156,7 @@ class BlueprintGenome(Genome):
                 self.best_sample_map_accuracy = accuracy
 
     def inherit(self, parent: BlueprintGenome):
+        self.da_scheme = parent.da_scheme
         self.best_module_sample_map = copy.deepcopy(parent.best_module_sample_map)
 
     def old(self) -> BPG_old:
@@ -165,4 +170,16 @@ class BlueprintGenome(Genome):
             old_conns.append(connection.old())
 
         return BPG_old(old_conns, old_nodes)
+
+    def pick_da_scheme(self):
+        import src2.main.Singleton as Singleton
+
+        if self.linked_da_id != -1:
+            self.da_scheme = Singleton.instance.da_population[self.linked_da_id]
+            if self.da_scheme is None:
+                raise Exception("bad DA link " + str(self.linked_da_id))
+
+            return self.da_scheme
+
+
 

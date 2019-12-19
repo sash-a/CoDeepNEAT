@@ -10,6 +10,7 @@ from src2.Genotype.NEAT.Genome import Genome
 
 from src2.Phenotype.Augmentations.AugmentationScheme import AugmentationScheme
 
+
 class DAGenome(Genome):
 
     def __init__(self, nodes: List[DANode], connections: List[Connection]):

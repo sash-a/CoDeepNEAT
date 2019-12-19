@@ -31,7 +31,7 @@ def evaluate_blueprint(blueprint: BlueprintGenome, input_size: List[int], genera
     if model_size > config.max_model_params:
         accuracy = 0
     else:
-        accuracy = evaluate(model, num_epochs=num_epochs)
+        accuracy = evaluate(model, num_epochs=num_epochs, augmentation_transform=model.blueprint.da_scheme.to_phenotype())
 
     blueprint.update_best_sample_map(model.sample_map, accuracy)
     blueprint.report_fitness([accuracy], module_sample_map=model.sample_map)

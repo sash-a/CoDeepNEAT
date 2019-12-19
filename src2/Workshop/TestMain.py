@@ -9,4 +9,4 @@ net = Net()
 net.to(config.get_device())
 acc = evaluate(net, 2, True)
 
-print("acc:",acc)
+print("acc:", acc)

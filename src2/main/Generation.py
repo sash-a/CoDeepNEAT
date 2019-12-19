@@ -76,6 +76,7 @@ class Generation:
 
         self.module_population.end_step()
         self.blueprint_population.end_step()
+        self.da_population.end_step()
 
         print('Step ended')
         print('Module species:', [len(spc.members) for spc in self.module_population.species])
@@ -86,6 +87,12 @@ class Generation:
 
         self.module_population.before_step()
         self.blueprint_population.before_step()
+        self.da_population.before_step()
+
+        # blueprints choosing DA schemes from population
+        if config.evolve_data_augmentations:
+            for blueprint_individual in self.blueprint_population:
+                blueprint_individual.pick_da_scheme()
 
         blueprints = list(self.blueprint_population) * config.n_evaluations_per_bp
         in_size = get_data_shape()
@@ -129,10 +136,11 @@ class Generation:
         self.blueprint_population = Population(
             create_population_old(config.bp_pop_size, BlueprintNode, BlueprintGenome),
             create_mr_old(), config.bp_pop_size, bp_speciator)
+
         # TODO DA pop
-        # if config.evolve_data_augmentations:
-        #     self.da_population = Population(create_population(config.da_pop_size, DANode, DAGenome),
-        #                                     create_mr(), config.da_pop_size, #???)
+        if config.evolve_data_augmentations:
+            self.da_population = Population(create_population(config.da_pop_size, DANode, DAGenome),
+                                            create_mr(), config.da_pop_size, bp_speciator)
 
     def wandb_report(self, model_sizes: List[int]):
         module_accs = sorted([module.accuracy for module in self.module_population])

@@ -17,16 +17,23 @@ if TYPE_CHECKING:
     from src2.Phenotype.NeuralNetwork.NeuralNetwork import Network
 
 
-def evaluate(model: Network, num_epochs=config.epochs_in_evolution, fully_training = False):
+def evaluate(model: Network, num_epochs=config.epochs_in_evolution, fully_training=False, augmentation_transform=None):
     """trains model on training data, test on testing and returns test acc"""
     if config.dummy_run and not fully_training:
         return random.random()
 
     # TODO add in augmentations
-    composed_transform = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-    ])
+    if config.evolve_data_augmentations:
+        composed_transform = transforms.Compose([
+            augmentation_transform,
+            transforms.ToTensor(),
+            # transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+        ])
+    else:
+        composed_transform = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+        ])
 
     train_loader = load_data(composed_transform, 'train')
     test_loader = load_data(composed_transform, 'test')
@@ -47,7 +54,7 @@ def train_epoch(model: Network, train_loader: DataLoader, max_batches=-1):
         model.optimizer.zero_grad()
         loss += train_batch(model, inputs, targets)
 
-    print("num batches:" , batch_idx)
+    print("num batches:", batch_idx)
 
 
 def train_batch(model: Network, inputs: torch.tensor, labels: torch.tensor):
