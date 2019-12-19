@@ -24,16 +24,6 @@ class ModuleGenome(Genome):
         get_graph_of(self).render(directory=RunsManager.get_graphs_folder_path(config.run_name),
                                   view=config.view_graph_plots)
 
-    def __getstate__(self):
-        d = dict(self.__dict__)
-        if 'lock' in d:
-            del d['lock']
-        return d
-
-    def __setstate__(self, state):
-        self.__dict__ = state
-        self.__dict__['lock'] = threading.RLock()
-
     def old(self) -> ModuleGenome_Old:
         old_nodes = []
         old_conns = []

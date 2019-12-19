@@ -32,29 +32,7 @@ class Genome(GraphGenome):
         self.n_evaluations = 0
         self.parents: List[int] = []  # the ids of the parents of this genome. can be empty if a genome has no parents
 
-        self.lock = threading.RLock()
-
     accuracy = property(lambda self: self.fitness_values[0])
-
-    def __deepcopy__(self, memodict={}):
-        cp = type(self)(copy.deepcopy(list(self.nodes.values())), copy.deepcopy(list(self.connections.values())))
-
-        cp.id = self.id
-        cp.rank = self.rank
-        cp.fitness_values = self.fitness_values
-        cp.fitness_raw = self.fitness_raw
-
-        return cp
-
-    def __getstate__(self):
-        d = dict(self.__dict__)
-        if 'lock' in d:
-            del d['lock']
-        return d
-
-    def __setstate__(self, state):
-        self.__dict__ = state
-        self.__dict__['lock'] = threading.RLock()
 
     def __eq__(self, other):
         return self.id == other.id
@@ -70,10 +48,9 @@ class Genome(GraphGenome):
 
     def report_fitness(self, fitnesses: List[float], **kwargs):
         """updates the fitnesses stored with a new given fitness"""
-        with self.lock:
-            self.n_evaluations += 1
-            for i, fitness in enumerate(fitnesses):
-                self.fitness_raw[i].append(fitness)
+        self.n_evaluations += 1
+        for i, fitness in enumerate(fitnesses):
+            self.fitness_raw[i].append(fitness)
 
     def aggregate_fitness(self):
         for i, raw_fitness_values in enumerate(self.fitness_raw):

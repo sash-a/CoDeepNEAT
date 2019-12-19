@@ -42,32 +42,6 @@ class BlueprintGenome(Genome):
         self.da_scheme: DAGenome = None
         self.linked_da_id: int = -1
 
-    def __deepcopy__(self, memodict={}):
-        cp = super().__deepcopy__()
-
-        cp.learning_rate = copy.deepcopy(self.learning_rate)
-        cp.beta1 = copy.deepcopy(self.beta1)
-        cp.beta2 = copy.deepcopy(self.beta2)
-        cp.best_module_sample_map = copy.deepcopy(self.best_module_sample_map)
-        cp.best_sample_map_accuracy = copy.deepcopy(self.best_sample_map_accuracy)
-
-        return cp
-
-    # def __repr__(self):
-    #     return '\n'.join([str(self.learning_rate.value), str(self.beta1.value), str(self.beta2.value),
-    #                       str(self.best_module_sample_map), str(self.nodes.keys()), str(self.nodes.values()),
-    #                       str(id(self))])
-
-    def __getstate__(self):
-        d = dict(self.__dict__)
-        if 'lock' in d:
-            del d['lock']
-        return d
-
-    def __setstate__(self, state):
-        self.__dict__ = state
-        self.__dict__['lock'] = threading.RLock()
-
     def get_modules_used(self):
         """:returns all module ids currently being used by this blueprint. returns duplicates"""
         pass
@@ -132,29 +106,27 @@ class BlueprintGenome(Genome):
         super().report_fitness(fitnesses)
         import src2.main.Singleton as Singleton
 
-        with self.lock:
-            sample_map = kwargs["module_sample_map"]
+        sample_map = kwargs["module_sample_map"]
 
-            for node_id in self.get_fully_connected_node_ids():
-                node: Node = self.nodes[node_id]
-                if not isinstance(node, BlueprintNode.BlueprintNode):
-                    """module node"""
-                    continue
+        for node_id in self.get_fully_connected_node_ids():
+            node: Node = self.nodes[node_id]
+            if not isinstance(node, BlueprintNode.BlueprintNode):
+                """module node"""
+                continue
 
-                if node.species_id not in sample_map:
-                    raise Exception(
-                        "sample map" + repr(sample_map) + "doesn't cover all species in blueprint - missing: " + repr(
-                            node.species_id))
+            if node.species_id not in sample_map:
+                raise Exception(
+                    "sample map" + repr(sample_map) + "doesn't cover all species in blueprint - missing: " + repr(
+                        node.species_id))
 
-                module_id = sample_map[node.species_id]
-                module = Singleton.instance.module_population[module_id]
-                module.report_fitness(fitnesses, **kwargs)
+            module_id = sample_map[node.species_id]
+            module = Singleton.instance.module_population[module_id]
+            module.report_fitness(fitnesses, **kwargs)
 
     def update_best_sample_map(self, candidate_map: Dict[int, int], accuracy: int):
-        with self.lock:
-            if self.best_sample_map_accuracy < accuracy:
-                self.best_module_sample_map = candidate_map
-                self.best_sample_map_accuracy = accuracy
+        if self.best_sample_map_accuracy < accuracy:
+            self.best_module_sample_map = candidate_map
+            self.best_sample_map_accuracy = accuracy
 
     def inherit(self, parent: BlueprintGenome):
         self.da_scheme = parent.da_scheme
@@ -175,12 +147,13 @@ class BlueprintGenome(Genome):
             species_to_unmap = random.choices(list(mapped_species), max(n_species_to_unmap, 1))
         return species_to_unmap
 
+    # I think this should be the get_da method, we still need a method to sample a random DA id from the population
     def pick_da_scheme(self):
         import src2.main.Singleton as Singleton
 
         if self.linked_da_id != -1:
             self.da_scheme = Singleton.instance.da_population[self.linked_da_id]
             if self.da_scheme is None:
-                raise Exception("bad DA link " + str(self.linked_da_id))
+                raise Exception("Bad DA link " + str(self.linked_da_id))
 
             return self.da_scheme

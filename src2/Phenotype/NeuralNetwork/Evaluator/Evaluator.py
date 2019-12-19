@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from src2.Phenotype.NeuralNetwork.NeuralNetwork import Network
 
 
-def evaluate(model: Network, num_epochs=config.epochs_in_evolution, fully_training=False, augmentation_transform=None):
+def evaluate(model: Network, num_epochs=config.epochs_in_evolution, fully_training=False):
     """trains model on training data, test on testing and returns test acc"""
     if config.dummy_run and not fully_training:
         return random.random()
@@ -25,9 +25,10 @@ def evaluate(model: Network, num_epochs=config.epochs_in_evolution, fully_traini
     # TODO add in augmentations
     if config.evolve_data_augmentations:
         composed_transform = transforms.Compose([
-            augmentation_transform,
+            # TODO dunno how we gonna implement da scheme, but this avoids passing any DA schemes around cause it lives in the bp in the model
+            model.blueprint.da_scheme.to_phenotype(),
             transforms.ToTensor(),
-            # transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+            # transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))  # TODO why is this commented out
         ])
     else:
         composed_transform = transforms.Compose([
