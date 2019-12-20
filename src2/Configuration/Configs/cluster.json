@@ -1,5 +1,5 @@
 {
-  "run_name": "max_batches",
+  "run_name": "mms",
   "n_gpus": 4,
   "lossy_chance" : 0.5,
   "mutate_lossy_values" : true,
@@ -11,5 +11,7 @@
   "fitness_aggregation" : "max",
   "parent_selector" : "tournament",
   "representative_selector" : "centroid",
-  "module_speciation" : "similar"
+  "module_speciation" : "similar",
+  "blueprint_node_type_switch_chance": 0
+
 }
