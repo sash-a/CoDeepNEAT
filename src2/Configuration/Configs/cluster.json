@@ -6,7 +6,7 @@
   "dummy_run" : false,
   "wandb_tags": ["base"],
   "old_agg": false,
-  "validation_split" : 0,
+  "validation_split" : 0.15,
   "use_module_retention": true,
   "fitness_aggregation" : "max",
   "parent_selector" : "tournament",
