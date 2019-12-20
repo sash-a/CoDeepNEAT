@@ -142,7 +142,7 @@ class BlueprintGenome(Genome):
 
         if (random.random() < math.pow(map_frac, 1.5)) or map_frac == 1:
             """fully mapped blueprints are guaranteed to lose a mapping"""
-            species_to_unmap = random.choices(list(mapped_species), max(n_species_to_unmap, 1))
+            species_to_unmap = random.choices(list(mapped_species),k = max(n_species_to_unmap, 1))
         return species_to_unmap
 
     # I think this should be the get_da method, we still need a method to sample a random DA id from the population

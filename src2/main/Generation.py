@@ -4,6 +4,7 @@
 """
 from __future__ import annotations
 
+import time
 from concurrent.futures import ThreadPoolExecutor
 from typing import Optional, List
 
@@ -19,7 +20,7 @@ from src2.Genotype.CDN.Mutators.ModuleGenomeMutator import ModuleGenomeMutator
 from src2.Genotype.CDN.Nodes.BlueprintNode import BlueprintNode
 from src2.Genotype.CDN.Nodes.DANode import DANode
 from src2.Genotype.CDN.Nodes.ModuleNode import ModuleNode
-from src2.Genotype.CDN.PopulationInitializer import create_mr_old, create_population_old, create_population, create_mr
+from src2.Genotype.CDN.PopulationInitializer import create_population, create_mr
 from src2.Genotype.NEAT.Operators.Speciators.MostSimilarSpeciator import MostSimilarSpeciator
 from src2.Genotype.NEAT.Operators.Speciators.NEATSpeciator import NEATSpeciator
 from src2.Genotype.NEAT.Population import Population
@@ -42,7 +43,11 @@ class Generation:
         self.generation_number = 0
 
     def step_evaluation(self):
+        eval_start_time = time.time()
         model_sizes = self.evaluate_blueprints()  # may be parallel
+        num_evals = len(self.blueprint_population) * config.n_evaluations_per_bp
+        time_taken = time.time() - eval_start_time
+        print("finished ",num_evals,"evals in",time_taken,"seconds, av:",(time_taken/num_evals),"num threads:",config.n_gpus)
         # Aggregate the fitnesses immediately after they have all been recorded
         self.module_population.aggregate_fitness()
         self.blueprint_population.aggregate_fitness()
@@ -76,7 +81,8 @@ class Generation:
 
         self.module_population.end_step()
         self.blueprint_population.end_step()
-        self.da_population.end_step()
+        if config.evolve_data_augmentations:
+            self.da_population.end_step()
 
         print('Step ended')
         print('Module species:', [len(spc.members) for spc in self.module_population.species])
@@ -97,6 +103,9 @@ class Generation:
         blueprints = list(self.blueprint_population) * config.n_evaluations_per_bp
         in_size = get_data_shape()
         model_sizes: List[int] = []
+
+        print("num blueprints:",len(self.blueprint_population), "num evals:",len(blueprints))
+        print("num modules:",len(self.module_population))
 
         if config.n_gpus > 1:
             with ThreadPoolExecutor(max_workers=config.n_gpus, thread_name_prefix='thread') as ex:
@@ -130,12 +139,14 @@ class Generation:
         bp_speciator = NEATSpeciator(config.species_distance_thresh_mod_base, config.n_blueprint_species,
                                      BlueprintGenomeMutator())
 
-        self.module_population = Population(create_population_old(config.module_pop_size, ModuleNode, ModuleGenome),
-                                            create_mr_old(), config.module_pop_size, module_speciator)
+        self.module_population = Population(create_population(config.module_pop_size, ModuleNode, ModuleGenome),
+                                            create_mr(), config.module_pop_size, module_speciator)
 
         self.blueprint_population = Population(
-            create_population_old(config.bp_pop_size, BlueprintNode, BlueprintGenome),
-            create_mr_old(), config.bp_pop_size, bp_speciator)
+            create_population(config.bp_pop_size, BlueprintNode, BlueprintGenome),
+            create_mr(), config.bp_pop_size, bp_speciator)
+
+        print("initialised pops, bps:",len(self.blueprint_population), "mods:",len(self.module_population))
 
         # TODO DA pop
         if config.evolve_data_augmentations:

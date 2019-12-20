@@ -4,6 +4,7 @@ import inspect
 import json
 import os
 import pickle
+import shutil
 from os.path import join, exists, dirname, abspath
 from typing import TYPE_CHECKING
 
@@ -16,8 +17,12 @@ if TYPE_CHECKING:
 def load_latest_generation(run_name):
     latest = get_latest_generation(run_name)
     if latest < 0:
-        raise FileNotFoundError('Run folder exists, but no generation.pickle file. '
-                                'Run may not have completed generation 0 - delete the whole folder')
+        shutil.rmtree(get_run_folder_path(run_name))
+        print('Run folder exists, but no generation.pickle file. '
+              'Run may not have completed generation 0 - deleting '
+              'run folder and restarting with original config')
+        return None
+
     return load_generation(latest, run_name)
 
 

@@ -3,6 +3,7 @@ from __future__ import annotations
 import random
 import sys
 import threading
+import time
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -21,6 +22,8 @@ if TYPE_CHECKING:
 def evaluate(model: Network, num_epochs=config.epochs_in_evolution, fully_training=False):
     """trains model on training data, test on testing and returns test acc"""
     if config.dummy_run and not fully_training:
+        if config.dummy_time > 0:
+            time.sleep(config.dummy_time)
         return random.random()
 
     # TODO add in augmentations

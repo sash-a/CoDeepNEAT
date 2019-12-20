@@ -32,7 +32,7 @@ class Network(nn.Module):
         self.blueprint: BlueprintGenome = blueprint
         self.output_dim = output_dim
 
-        self.model: Layer
+        self.model: Layer  #todo what is this? should it be named input layer
         (self.model, output_layer), self.sample_map = blueprint.to_phenotype(sample_map=sample_map)
 
         self.shape_layers(input_shape)
@@ -75,7 +75,7 @@ class Network(nn.Module):
 
     def visualize(self, parse_number=-1, prefix=""):
         name = prefix + "blueprint_i" + str(self.blueprint.id) + "_phenotype" + (
-            "_p" + str(parse_number) + "_" if parse_number >= 0 else "")
+            "_p" + str(parse_number) if parse_number >= 0 else "")
         # print("saving:", name, "to",RunsManager.get_graphs_folder_path(config.run_name))
         graph = graphviz.Digraph(name=name, comment='Phenotype')
 
@@ -96,5 +96,5 @@ class Network(nn.Module):
 
                     q.append(child_layer)
 
-        graph.render(quiet=False, directory=RunsManager.get_graphs_folder_path(config.run_name),
+        graph.render( directory=RunsManager.get_graphs_folder_path(config.run_name),
                      view=config.view_graph_plots)

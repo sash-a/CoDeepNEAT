@@ -87,6 +87,9 @@ def init_generation() -> Generation:
         """continuing run"""
         RunsManager.load_config(config.run_name)
         generation: Generation = RunsManager.load_latest_generation(config.run_name)
+        if generation is None:  # generation load failed, likely because the run did not complete gen 0
+            return init_generation()  # will start a fresh gen
+
         Singleton.instance = generation
         generation.step_evolution()
 
@@ -155,8 +158,11 @@ def init_operators():
 def _force_cuda_device_init():
     """Needed because of a bug in pytorch/cuda: https://github.com/pytorch/pytorch/issues/16559"""
     for i in range(config.n_gpus):
-        with torch.cuda.device(i):
-            torch.tensor([1.]).cuda()
+        try:
+            with torch.cuda.device(i):
+                torch.tensor([1.]).cuda()
+        except Exception as e:
+            print(e)
 
 
 if __name__ == '__main__':

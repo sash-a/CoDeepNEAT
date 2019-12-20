@@ -33,15 +33,16 @@ def evaluate_blueprint(blueprint: BlueprintGenome, input_size: List[int], genera
     with bp_lock:
         blueprint.update_best_sample_map(model.sample_map, accuracy)
         blueprint.report_fitness([accuracy], module_sample_map=model.sample_map)
+        parse_number =blueprint.n_evaluations
 
-    print("Evaluation of genome:", blueprint.id, "complete with accuracy:", accuracy)
+    print("Evaluation of genome:", blueprint.id, "complete with accuracy:", accuracy, "by thread", threading.current_thread().name)
 
     if config.plot_every_genotype:
-        blueprint.visualize(parse_number=blueprint.n_evaluations,
+        blueprint.visualize(parse_number=parse_number,
                             prefix="g" + str(generation_num) + "_" + str(blueprint.id))
 
     if config.plot_every_phenotype:
-        model.visualize(parse_number=blueprint.n_evaluations,
+        model.visualize(parse_number=parse_number,
                         prefix="g" + str(generation_num) + "_" + str(blueprint.id))
 
     return model_size

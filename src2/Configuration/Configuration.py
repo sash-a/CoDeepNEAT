@@ -23,6 +23,7 @@ class Config:
         self.min_square_dim = -1  # Min output size a conv can be without padding
         # ---------------------------------------------- Debug Options ----------------------------------------------
         self.dummy_run = False
+        self.dummy_time = 0  # number of seconds to wait to return a dummy eval
         self.threading_test = False
         # ---------------------------------------------- Graphing Options ----------------------------------------------
         self.view_graph_plots = False  # if true, any plotted graphs will be viewed
@@ -64,7 +65,7 @@ class Config:
         self.fitness_aggregation = 'avg'  # max | avg
         self.use_module_retention = False
         self.module_map_forget_mutation_chance = 0.2
-        self.max_module_map_ignores = 10
+        self.max_module_map_ignores = 1
         self.parent_selector = "uniform"  # uniform | roulette | tournament
         self.representative_selector = 'random'  # best | centroid | random
         #  blank node settings - if true input/output nodes are left blank perpetually
@@ -104,7 +105,7 @@ class Config:
         """Used to obtain the correct device taking into account multiple GPUs"""
         gpu = 'cuda:'
         gpu_idx = '0' if current_thread().name == 'MainThread' else str(int(current_thread().name[-1]) % self.n_gpus)
-        print('extracted device id:', gpu_idx)
+        # print('extracted device id:', gpu_idx)
         gpu += gpu_idx
         return device('cpu') if self.device == 'cpu' else device(gpu)
 

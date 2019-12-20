@@ -20,41 +20,12 @@ def create_population(pop_size: int, Node: Union[Type[ModuleNode], Type[Blueprin
                       Genome: Union[Type[ModuleGenome], Type[BlueprintGenome], Type[DAGenome]]) -> \
         List[Union[ModuleGenome, BlueprintGenome, DAGenome]]:
     pop = []
-    for _ in range(pop_size // 3 + 1):
-        pop.extend(_create_individual(Node, Genome))
+    while len(pop) < pop_size:
+        new_genomes = _create_individual(Node, Genome)
+        new_genomes = new_genomes[:min(len(new_genomes),pop_size - len(pop) )]
+        pop.extend(new_genomes)
 
     return pop
-
-
-def create_population_old(pop_size: int, Node: Union[Type[ModuleNode], Type[BlueprintNode], Type[DANode]],
-                          Genome: Union[Type[ModuleGenome], Type[BlueprintGenome], Type[DAGenome]]) -> \
-        List[Union[ModuleGenome, BlueprintGenome, DAGenome]]:
-    pop = []
-    for _ in range(pop_size // 2 + 1):
-        pop.extend(_create_individual_old(Node, Genome))
-
-    return pop
-
-
-def _create_individual_old(Node: Union[Type[ModuleNode], Type[BlueprintNode], Type[DANode]],
-                           Genome: Union[Type[ModuleGenome], Type[BlueprintGenome], Type[DAGenome]]) -> \
-        List[Union[ModuleGenome, BlueprintGenome, DAGenome]]:
-    in_node_params = (0, NodeType.INPUT)
-    out_node_params = (1, NodeType.OUTPUT)
-    mid_node_params = (2, NodeType.HIDDEN)
-
-    linear = Genome(
-        ([Node(*in_node_params), Node(*out_node_params)]),
-        [Connection(0, 0, 1)]
-    )
-
-    tri = Genome(
-        ([Node(*in_node_params), Node(*mid_node_params), Node(*out_node_params)]),
-        [Connection(0, 0, 1), Connection(1, 0, 2), Connection(2, 2, 1)]
-    )
-
-    return [linear, tri]
-
 
 def _create_individual(Node: Union[Type[ModuleNode], Type[BlueprintNode], Type[DANode]],
                        Genome: Union[Type[ModuleGenome], Type[BlueprintGenome], Type[DAGenome]]) -> \
@@ -97,13 +68,6 @@ def create_mr() -> MutationRecords:
     return MutationRecords({(0, 1): 0, (0, 2): 1, (2, 1): 2, (0, 3): 3, (3, 1): 4},
                            {(0, 0): 2, (0, 1): 3},
                            3, 4)
-
-
-def create_mr_old() -> MutationRecords:
-    return MutationRecords({(0, 1): 0, (0, 2): 1, (2, 1): 2},
-                           {(0, 0): 2},
-                           2, 2)
-
 
 def _blank_node(node: Union[ModuleNode, BlueprintNode, DANode]) -> ModuleNode:
     """Makes a module node that only return its input and doesn't allow it to change"""
