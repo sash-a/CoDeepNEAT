@@ -14,8 +14,8 @@ from src.NEAT.Mutagen import Mutagen, ValueType
 from src.NEAT.Species import Species
 from src.Phenotype.BlueprintGraph import BlueprintGraph
 from src.Phenotype.BlueprintNode import BlueprintNode
-from src2.Phenotype.NeuralNetwork.Layers import AggregationLayer
-from src2.Phenotype.NeuralNetwork.Layers import Layer
+from src2.phenotype.neural_network.layers import aggregation_layer
+from src2.phenotype.neural_network.layers import layer
 
 
 class BlueprintGenome(Genome):
@@ -96,7 +96,7 @@ class BlueprintGenome(Genome):
         output_module = self.get_output_node().pick_module(self.species_module_index_map, module_species).to_phenotype(
             None, 1)
 
-        def create_modules(parent_nn_output: Layer, parent_bp_node_id):
+        def create_modules(parent_nn_output: layer, parent_bp_node_id):
             if parent_bp_node_id not in node_map:
                 return
 
@@ -120,8 +120,8 @@ class BlueprintGenome(Genome):
                     nn_input_layer = agg_layers[child_node_id]  # only create an aggregation layer once
                 else:
                     # Create aggregation layer if not already created and node_id is negative
-                    nn_input_layer = AggregationLayer(multi_input_map[child_node_id * -1],
-                                                      str(child_node_id) + '_' + str(child_node_id))
+                    nn_input_layer = aggregation_layer(multi_input_map[child_node_id * -1],
+                                                       str(child_node_id) + '_' + str(child_node_id))
                     agg_layers[child_node_id] = nn_input_layer
                     create_modules(nn_input_layer, child_node_id)
 

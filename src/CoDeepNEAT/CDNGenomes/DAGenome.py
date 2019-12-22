@@ -14,7 +14,7 @@ class DAGenome(Genome):
             if node.enabled():
                 node_names.append(node.get_node_name())
 
-        toString = "\tNodes:" + repr(list(node_names)) + "\n" + "\tTraversal_Dict: " + repr(
+        toString = "\tnodes:" + repr(list(node_names)) + "\n" + "\tTraversal_Dict: " + repr(
             self.get_traversal_dictionary())
         return "\n" + "\tConnections: " + super().__repr__() + "\n" + toString
 

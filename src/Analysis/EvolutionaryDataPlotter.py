@@ -256,12 +256,12 @@ def get_rolling_averages(data, alpha=0.65):
     return smoothed
 
 
-name_overrides = {"mm": "Modmax CDN", "mms": "Elite CDN", "mms_10E": "Elite CDN 10E", "base": "CDN",
-                  "base_10E": "CDN 10E", "spc": "SPCDN", "base_da": "DACDN", "mms_da": "Elite DACDN",
-                  "max": "max fitness aggregation CDN", "modret": "module retention CDN",
+name_overrides = {"mm": "Modmax cdn", "mms": "Elite cdn", "mms_10E": "Elite cdn 10E", "base": "cdn",
+                  "base_10E": "cdn 10E", "spc": "SPCDN", "base_da": "DACDN", "mms_da": "Elite DACDN",
+                  "max": "max fitness aggregation cdn", "modret": "module retention cdn",
                   "mm_globmut": "ModMax with Global Mutation Adjustment",
-                  "mms_globmut": "Elite CDN with Global Mutation Adjustment",
-                  "mm_breed": "ModMax CDN with Node Breeding", "mms_breed": "Elite CDN with Node Breeding"}
+                  "mms_globmut": "Elite cdn with Global Mutation Adjustment",
+                  "mm_breed": "ModMax cdn with Node Breeding", "mms_breed": "Elite cdn with Node Breeding"}
 
 if __name__ == "__main__":
     # style.use('fivethirtyeight')

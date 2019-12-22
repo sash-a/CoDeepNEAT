@@ -5,8 +5,8 @@ from src.CoDeepNEAT.CDNNodes.ModuleNode import ModuleNEATNode
 from src.Config import NeatProperties as Props
 from src.NEAT.Genome import Genome
 from src.Phenotype.ModuleNode import ModuleNode
-from src2.Phenotype.NeuralNetwork.Layers import AggregationLayer
-from src2.Phenotype.NeuralNetwork.Layers import Layer
+from src2.phenotype.neural_network.layers import aggregation_layer
+from src2.phenotype.neural_network.layers import layer
 
 
 class ModuleGenome(Genome):
@@ -77,10 +77,10 @@ class ModuleGenome(Genome):
         agg_layers = {}  # maps {node_id : AggregatorLayer}
 
         input_neat_node = self.get_input_node()
-        input_layer = Layer(input_neat_node, str(bp_id) + '_0')
-        output_layer = Layer(self.get_output_node(), str(bp_id) + '_1')
+        input_layer = layer(input_neat_node, str(bp_id) + '_0')
+        output_layer = layer(self.get_output_node(), str(bp_id) + '_1')
 
-        def create_layers(parent_layer: Layer, parent_node_id: int):
+        def create_layers(parent_layer: layer, parent_node_id: int):
             if parent_node_id not in node_map:
                 return
 
@@ -93,15 +93,15 @@ class ModuleGenome(Genome):
                     # Creates a new layer
                     neat_node: ModuleNEATNode = self._nodes[child_node_id]
                     # Use already created output layer if child is output node
-                    new_layer = Layer(neat_node, str(bp_id) + '_' + str(
+                    new_layer = layer(neat_node, str(bp_id) + '_' + str(
                         child_node_id)) if not neat_node.is_output_node() else output_layer
                     create_layers(new_layer, child_node_id)
                 elif child_node_id in agg_layers:
                     new_layer = agg_layers[child_node_id]  # only create an aggregation layer once
                 else:
                     # Create aggregation layer if not already created and node_id is negative
-                    new_layer = AggregationLayer(multi_input_map[child_node_id * -1],
-                                                 str(bp_id) + '_' + str(child_node_id))
+                    new_layer = aggregation_layer(multi_input_map[child_node_id * -1],
+                                                  str(bp_id) + '_' + str(child_node_id))
                     agg_layers[child_node_id] = new_layer
                     create_layers(new_layer, child_node_id)
 

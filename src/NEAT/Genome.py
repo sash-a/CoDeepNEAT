@@ -56,13 +56,13 @@ class Genome:
         return self._connections.keys() ^ other._connections.keys()
 
     def add_node(self, node):
-        """Add node. Nodes must be added before their connections"""
+        """Add node. nodes must be added before their connections"""
         if node.id in self._nodes:
             raise Exception("Added node " + repr(node) + " already in genome " + repr(self))
         self._nodes[node.id] = node
 
     def add_connection(self, conn, ignore_height_exception=False):
-        """Add connections. Nodes must be added before their connections"""
+        """Add connections. nodes must be added before their connections"""
         if conn.id in self._connections:
             raise Exception("Added connection " + repr(conn) + " already in genome " + repr(self))
         if not (conn.from_node in self._nodes and conn.to_node in self._nodes):
@@ -126,7 +126,7 @@ class Genome:
         return G
 
     def get_topological_distance(self, other):
-        """:returns either NEAT distance of graph edit distance from self to other (depending on Config option)"""
+        """:returns either neat distance of graph edit distance from self to other (depending on Config option)"""
         if other == self:
             return 0
 

@@ -191,7 +191,7 @@ class Population:
         return sum([indv.rank for indv in individuals]) / len(individuals)
 
     def step(self, generation=None):
-        """Runs a single generation of NEAT - expects individuals to have been assigned their fitnesses"""
+        """Runs a single generation of neat - expects individuals to have been assigned their fitnesses"""
         # self.plot_species_spaces(generation)
         self.rank_population_fn(self._get_all_individuals())
         self.update_species_sizes()

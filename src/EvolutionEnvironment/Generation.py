@@ -127,7 +127,7 @@ class Generation:
                 indv.fitness_values.append(bad_init)
 
     def step(self):
-        """Runs CDN for one generation - must be called after fitness evaluation"""
+        """Runs cdn for one generation - must be called after fitness evaluation"""
         self.pareto_population.update_pareto_front()
 
         self.module_population.step_evolution(self)

@@ -15,7 +15,7 @@
 **/clusterbackup*/*
 **/wandb/*
 
-src2/Configuration/Configs/homeconf.json
+src2/configuration/configs/homeconf.json
 
 __pycache__/
 *.py[cod]

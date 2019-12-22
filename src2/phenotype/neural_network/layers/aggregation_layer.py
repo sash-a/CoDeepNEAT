@@ -1,20 +1,30 @@
 from typing import List
 
 import torch
-from torch import tensor
+from torch import tensor, nn
 
-from src.Config import Config
 from src.Phenotype import AggregatorOperations
-from src.Phenotype2.LayerUtils import BaseLayer
+from src2.configuration import config
+from src2.phenotype.neural_network.aggregation.merger import merge
+from src2.phenotype.neural_network.layers.base_layer import BaseLayer
 
 
 class AggregationLayer(BaseLayer):
-    def __init__(self, num_inputs: int, name):
+    def __init__(self, num_inputs: int, name: str, lossy: bool, try_output_conv: bool):
+        """
+        :param lossy: choice between summing or catting to merge
+        :param try_output_conv: determines whether the agg layer outputs a conv or linear
+            in the case where both are provided as inputs
+        """
         super().__init__(name)
 
         self.n_inputs_expected: int = num_inputs
         self.n_inputs_received: int = 0
+        self.channel_resizers: nn.ModuleList = nn.ModuleList()
         self.inputs: List[tensor] = []
+
+        self.lossy: bool = lossy
+        self.try_output_conv: bool = try_output_conv
 
     def forward(self, input):
         self.n_inputs_received += 1
@@ -23,10 +33,13 @@ class AggregationLayer(BaseLayer):
         if self.n_inputs_received > self.n_inputs_expected:
             raise Exception('Received more inputs than expected')
         elif self.n_inputs_received < self.n_inputs_expected:
+            # waiting on other inputs
             return
 
-        aggregated = self.aggregate()
-        # TODO: inputs should probably be reset after the step although can be pretty sure that this is fine
+        if config.old_agg:
+            aggregated = self.old_aggregate()
+        else:
+            aggregated = merge(self.inputs, self)
         self.reset()
         return aggregated
 
@@ -35,8 +48,9 @@ class AggregationLayer(BaseLayer):
         self.inputs = []
 
     def create_layer(self, in_shape: list):
+        # print('creating agg layer')
         self.n_inputs_received += 1
-        self.inputs.append(torch.zeros(in_shape).to(Config.get_device()))
+        self.inputs.append(torch.zeros(in_shape).to(config.get_device()))
 
         if self.n_inputs_received > self.n_inputs_expected:
             raise Exception('Received more inputs than expected')
@@ -44,15 +58,27 @@ class AggregationLayer(BaseLayer):
             return
 
         # Calculate the output shape of the layer by passing input through it
-        self.out_shape = list(self.aggregate().size())
+        # self.out_shape = list(self.aggregate().size())
+        if config.old_agg:
+            self.out_shape = list(self.old_aggregate().size())
+        else:
+            self.out_shape = list(merge(self.inputs, self).size())
         self.reset()
 
         return self.out_shape
 
     def get_layer_info(self):
-        return "aggregation layer"
+        return 'aggregation layer' \
+               '\nLossy: ' + str(self.lossy) + \
+               '\nConv agg: ' + str(self.try_output_conv)
 
-    def aggregate(self):
+    def old_aggregate(self):
+        """
+            by now the inputs list is full
+            :returns the result of aggregating all of the received inputs
+        """
+        # print('old agg')
+
         input_dims = list(map(lambda x: len(list(x.size())), self.inputs))
         has_linear = 2 in input_dims
         has_conv = 4 in input_dims
@@ -66,7 +92,8 @@ class AggregationLayer(BaseLayer):
         elif has_conv and not has_linear:
             conv_inputs = self.homogenise_outputs_list(conv_inputs, AggregatorOperations.merge_conv_outputs)
             if conv_inputs is None:
-                print("Error: null conv outputs returned from homogeniser")
+                raise Exception("Error: null conv outputs returned from homogeniser")
+
             try:
                 return torch.sum(torch.stack(conv_inputs), dim=0)
             except Exception as e:
@@ -75,16 +102,23 @@ class AggregationLayer(BaseLayer):
                     print(conv.size(), end=",")
                 raise e
         elif has_linear and has_conv:
+            """
+                strategy to deal with a mix of linear and conv inputs is to aggregate them separately,
+                and then to merge the aggregated linear and conv input together
+            """
+
             linear_inputs = self.homogenise_outputs_list(linear_inputs, AggregatorOperations.merge_linear_outputs)
             conv_inputs = self.homogenise_outputs_list(conv_inputs, AggregatorOperations.merge_conv_outputs)
             return AggregatorOperations.merge_linear_and_conv(torch.sum(torch.stack(linear_inputs), dim=0),
                                                               torch.sum(torch.stack(conv_inputs), dim=0))
         else:
-            print("error - agg node received neither conv or linear inputs")
-            return None
+            raise Exception("error - agg node received neither conv or linear inputs")
 
-    def homogenise_outputs_list(self, outputs, homogeniser, outputs_deep_layers=None):
+    def homogenise_outputs_list(self, outputs, homogeniser):
         """
+        loops through the inputs, building up a list of homogeneously sized transformed inputs
+        for each new input, either reshapes that input, or the homogeneous list
+
         :param outputs: full list of unhomogenous output tensors - of the same layer type (dimensionality)
         :param homogeniser: the function used to return the homogenous list for this layer type
         :param outputs_deep_layers: a map of output tensor to deep layer it came from
@@ -92,10 +126,6 @@ class AggregationLayer(BaseLayer):
         """
         if outputs is None:
             raise Exception("Error: trying to homogenise null outputs list")
-
-        # if len(outputs) > len(outputs_deep_layers):
-        #     raise Exception("outputs list(", len(outputs), ") and outputs map (out->layer)(", len(outputs_deep_layers),
-        #                     ") do not match size")
 
         length_of_outputs = len(outputs)
         i = 0
@@ -106,7 +136,8 @@ class AggregationLayer(BaseLayer):
             new_features = outputs[i].size()
 
             if new_features != homogenous_features:
-                # either the list up till this point or the new  input needs modification
+                """either the list up till this point or the new  input needs modification"""
+
                 if i < length_of_outputs - 1:
                     outputs = homogeniser(outputs[:i], outputs[i]) + outputs[i + 1:]
                 else:  # i== len - 1

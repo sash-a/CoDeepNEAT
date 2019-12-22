@@ -325,12 +325,12 @@ class AugmentationScheme:
     #     sub_values = augmentation_mutagen.get_sub_values()
     #
     #     if sub_values is None:
-    #         self.augs.append(AugmentationScheme.Augmentations[augmentation_name])
+    #         self.augs.append(AugmentationScheme.augmentations[augmentation_name])
     #     else:
     #         args = [sub_values[x]() for x in sub_values]
     #
     #         try:
-    #             self.augs.append(AugmentationScheme.Augmentations[augmentation_name](*args))
+    #             self.augs.append(AugmentationScheme.augmentations[augmentation_name](*args))
     #         except Exception as e:
     #             raise Exception(augmentation_name + " failed to initialise with parameters" + repr(args))
     #
