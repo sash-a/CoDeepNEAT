@@ -47,7 +47,8 @@ class Generation:
         model_sizes = self.evaluate_blueprints()  # may be parallel
         num_evals = len(self.blueprint_population) * config.n_evaluations_per_bp
         time_taken = time.time() - eval_start_time
-        print("finished ",num_evals,"evals in",time_taken,"seconds, av:",(time_taken/num_evals),"num threads:",config.n_gpus)
+        print('Generation %i:\n%i evaluations\nTotal time taken: %f(s)\nAvg time taken %f(s)\ngpus used: %i'
+              % (self.generation_number, num_evals, time_taken, time_taken / num_evals, config.n_gpus))
         # Aggregate the fitnesses immediately after they have all been recorded
         self.module_population.aggregate_fitness()
         self.blueprint_population.aggregate_fitness()
@@ -104,8 +105,8 @@ class Generation:
         in_size = get_data_shape()
         model_sizes: List[int] = []
 
-        print("num blueprints:",len(self.blueprint_population), "num evals:",len(blueprints))
-        print("num modules:",len(self.module_population))
+        print("num blueprints:", len(self.blueprint_population), "num evals:", len(blueprints))
+        print("num modules:", len(self.module_population))
 
         if config.n_gpus > 1:
             with ThreadPoolExecutor(max_workers=config.n_gpus, thread_name_prefix='thread') as ex:
@@ -146,7 +147,7 @@ class Generation:
             create_population(config.bp_pop_size, BlueprintNode, BlueprintGenome),
             create_mr(), config.bp_pop_size, bp_speciator)
 
-        print("initialised pops, bps:",len(self.blueprint_population), "mods:",len(self.module_population))
+        print("initialised pops, bps:", len(self.blueprint_population), "mods:", len(self.module_population))
 
         # TODO DA pop
         if config.evolve_data_augmentations:
