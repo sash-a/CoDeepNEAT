@@ -125,7 +125,7 @@ class Layer(BaseLayer):
 
             deep_layer = DepthwiseSeparableConv(channels, self.out_features, kernels_per_layer, window_size)
         elif self.module_node.layer_type.value is None:  # No deep layer
-            deep_layer = nn.Identity()
+            deep_layer = None
 
         # packing reshape, deep layer and regularisers into a sequential
         modules = [module for module in [reshape_layer, deep_layer, *self._create_regularisers(in_shape)] if

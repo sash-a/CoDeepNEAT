@@ -8,6 +8,7 @@ from torch import nn, tensor, optim, squeeze
 
 from src2.phenotype.neural_network.layers.layer import Layer
 from src2.visualisation import phenotype_visualiser
+from src2.visualisation.phenotype_visualiser import get_node_colour
 
 if TYPE_CHECKING:
     from src2.genotype.cdn.genomes.blueprint_genome import BlueprintGenome
@@ -72,4 +73,4 @@ class Network(nn.Module):
 
     def visualize(self, parse_number=-1, prefix=""):
         suffix = ("_p" + str(parse_number) if parse_number >= 0 else "")
-        phenotype_visualiser.visualise(self,prefix,suffix)
+        phenotype_visualiser.visualise(self,prefix,suffix, node_colour=get_node_colour)
