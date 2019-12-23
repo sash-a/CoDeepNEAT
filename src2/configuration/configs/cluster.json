@@ -1,5 +1,5 @@
 {
-  "run_name": "mms",
+  "run_name": "mms_switch",
   "n_gpus": 4,
   "lossy_chance" : 0.5,
   "mutate_lossy_values" : true,

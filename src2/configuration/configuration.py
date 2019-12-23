@@ -91,7 +91,7 @@ class Config:
         self.blueprint_add_node_chance = 0.16  # 0.16
         self.blueprint_add_connection_chance = 0.12  # 0.12
         self.blueprint_node_type_switch_chance = 0  # 0.1     chance for blueprint nodes to switch to module nodes
-        self.blueprint_node_species_switch_chance = 0.15
+        self.blueprint_node_species_switch_chance = 0.15  # chance per bp
         self.module_add_node_chance = 0.1  # 0.08
         self.module_add_connection_chance = 0.1  # 0.08
         self.module_node_layer_type_change_chance = 0.1

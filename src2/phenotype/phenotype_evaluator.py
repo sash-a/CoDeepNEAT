@@ -24,7 +24,13 @@ def evaluate_blueprint(blueprint: BlueprintGenome, input_size: List[int], genera
     device = config.get_device()
 
     constr_start = time()
-    model: Network = Network(blueprint, input_size).to(device)
+    model: Network = Network(blueprint, input_size)
+    try:
+        model.to(device)
+    except Exception as e:
+        print(e)
+        print("model size:",  sum(p.numel() for p in model.parameters() if p.requires_grad))
+
     constr_time = time() - constr_start
 
     size_start = time()

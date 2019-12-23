@@ -17,7 +17,8 @@ def visualise(pheno: neural_network, prefix="", suffix = "", node_colour: Any = 
     graph = graphviz.Digraph(name=name, comment='phenotype')
 
     q: List[BaseLayer] = [pheno.model]
-    graph.node(pheno.model.name, pheno.model.get_layer_info())
+    _node_colour = node_colour if isinstance(node_colour, str) else node_colour(pheno.model)
+    graph.node(pheno.model.name, pheno.model.get_layer_info(), fillcolor = _node_colour, style="filled")
     visited = set()
 
     while q:
