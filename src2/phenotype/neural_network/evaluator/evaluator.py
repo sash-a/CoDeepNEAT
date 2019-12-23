@@ -51,11 +51,11 @@ def evaluate(model: Network, num_epochs=config.epochs_in_evolution, fully_traini
     return get_test_acc(model, test_loader)
 
 
-def train_epoch(model: Network, train_loader: DataLoader, device, max_batches=5):
+def train_epoch(model: Network, train_loader: DataLoader, device):
     model.train()
     loss = 0
     for batch_idx, (inputs, targets) in enumerate(train_loader):
-        if max_batches != -1 and batch_idx > max_batches:
+        if config.max_batches != -1 and batch_idx > config.max_batches:
             break
         model.optimizer.zero_grad()
         loss += train_batch(model, inputs, targets, device)

@@ -25,6 +25,7 @@ class Config:
         self.dummy_run = False
         self.dummy_time = 0  # number of seconds to wait to return a dummy eval
         self.threading_test = False
+        self.max_batches = -1
         # ---------------------------------------------- Graphing Options ----------------------------------------------
         self.view_graph_plots = False  # if true, any plotted graphs will be viewed
         self.plot_best_genotypes = True
