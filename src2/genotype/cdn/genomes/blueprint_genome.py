@@ -130,11 +130,19 @@ class BlueprintGenome(Genome):
         self.da_scheme = parent.da_scheme
         self.best_module_sample_map = copy.deepcopy(parent.best_module_sample_map)
 
+    def get_blueprint_nodes_iter(self):
+        """returns an iterable object without iterating first"""
+        return (node for node in self.nodes.values() if isinstance(node, BlueprintNode.BlueprintNode))
+
     def forget_module(self) -> List[int]:
         """forget module maps with a probability based on how fully mapped the blueprint is"""
         # of all of the nodes what percent of their linked species are in the module map
-        species_ids = set([node.species_id for node in self.nodes.values()])
-        mapped_species = set([node.species_id for node in self.nodes.values() if node.linked_module_id != -1])
+        species_ids = set(self.get_blueprint_nodes_iter())
+        mapped_species = set([node.species_id for node in self.get_blueprint_nodes_iter() if node.linked_module_id != -1])
+        if len(species_ids) == 0:
+            print("blueprint without any blueprint nodes")
+            return []
+
         map_frac = len(mapped_species) / len(species_ids)
 
         n_species_to_unmap = min(config.max_module_map_ignores, int(len(mapped_species) * map_frac * random.random()))

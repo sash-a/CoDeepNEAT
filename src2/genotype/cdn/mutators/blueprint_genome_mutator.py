@@ -1,6 +1,7 @@
 import random
 
 from src2.configuration import config
+from src2.genotype.cdn.genomes.blueprint_genome import BlueprintGenome
 from src2.genotype.cdn.nodes.blueprint_node import BlueprintNode
 from src2.genotype.cdn.nodes.module_node import ModuleNode
 from src2.genotype.neat import mutation_record
@@ -66,16 +67,16 @@ class BlueprintGenomeMutator(GenomeMutator):
 
         return mutation_report
 
-    def forget_module_mappings_mutation(self, genome) -> MutationReport:
+    def forget_module_mappings_mutation(self, genome: BlueprintGenome) -> MutationReport:
         mutation_report = MutationReport()
 
         if config.use_module_retention and random.random()< config.module_map_forget_mutation_chance:
-            choices = list(set([node.species_id for node in genome.nodes.values() if node.linked_module_id != -1]))
+            choices = list(set([node.species_id for node in genome.get_blueprint_nodes_iter() if node.linked_module_id != -1]))
             if len(choices) == 0:
                 return mutation_report
 
             species_id = random.choice(choices)
-            for node in genome.nodes.values():
+            for node in genome.get_blueprint_nodes_iter():
                 if node.species_id == species_id:
                     node.linked_module_id = -1  # forget the link. will be sampled fresh next cycle
 

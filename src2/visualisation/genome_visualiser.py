@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import os
-from typing import TYPE_CHECKING, Union, List, Dict
+from typing import TYPE_CHECKING, Union, List, Dict, Any
 
 from runs import runs_manager
 from src2.configuration import config
@@ -18,7 +18,7 @@ from graphviz import Digraph
 
 
 def get_graph_of(genome: Genome, sub_graph=False, cluster_style="filled", cluster_colour="lightgrey",
-                 node_style="filled", node_colour="white", label="",
+                 node_style="filled", node_colour: Any="white", label="",
                  node_shape="", start_node_shape="Mdiamond", end_node_shape="Msquare",
                  node_names="", graph_title_prefix="", graph_title_suffix="", append_graph: Digraph = None,
                  exclude_unconnected_nodes=True, exclude_non_fully_connected_nodes=True,
@@ -68,18 +68,22 @@ def get_graph_of(genome: Genome, sub_graph=False, cluster_style="filled", cluste
 
     for node in node_set:
         shape = start_node_shape if (node.is_input_node() and start_node_shape != "") else (
-            end_node_shape if (node.is_output_node() and end_node_shape != "") else node_shape)
+                end_node_shape if (node.is_output_node() and end_node_shape != "") else node_shape)
 
         if "sample_map" in kwargs and kwargs["sample_map"] is not None:
             meta_data = get_node_metadata(node, sample_map=kwargs["sample_map"])
         else:
             meta_data = get_node_metadata(node)
 
+        _node_colour = node_colour if isinstance(node_colour, str) else node_colour(node)
+        # print(node, node_colour )
+
         if shape != "":
             # print("using shape ",shape)
-            g.node(name=node_names + "_v " + str(node.id), shape=shape, label=meta_data)
+            g.node(name=node_names + "_v " + str(node.id), shape=shape, label=meta_data,
+                   fillcolor = _node_colour, style="filled")
         else:
-            g.node(name=node_names + "_v " + str(node.id), label=meta_data)
+            g.node(name=node_names + "_v " + str(node.id), label=meta_data, fillcolor = _node_colour, style="filled")
 
         # print("created node: ", (node_names + ": " + str(node.id)) , " id: ", node.id )
 
@@ -96,7 +100,7 @@ def get_graph_of(genome: Genome, sub_graph=False, cluster_style="filled", cluste
     if sub_graph:
         g.attr(style=cluster_style, color=cluster_colour)
         # print("changed subgraph style")
-    g.node_attr.update(style=node_style, color=node_colour)
+    # g.node_attr.update(style=node_style, color=node_colour)
 
     g.attr(label=label)
 
@@ -104,7 +108,7 @@ def get_graph_of(genome: Genome, sub_graph=False, cluster_style="filled", cluste
 
 
 def visualise_blueprint_genome(genome: BlueprintGenome, sample_map: Dict[int, int] = None, parse_number=-1, prefix=""):
-    blueprint_graph = get_graph_of(genome, node_names="blueprint", sample_map=sample_map, node_colour="yellow",
+    blueprint_graph = get_graph_of(genome, node_names="blueprint", sample_map=sample_map, node_colour=get_node_colour,
                                    graph_title_prefix=prefix + "blueprint_",
                                    graph_title_suffix=("_p" + str(parse_number) + "_" if parse_number >= 0 else ""))
     module_ids = set()
@@ -129,7 +133,10 @@ def visualise_blueprint_genome(genome: BlueprintGenome, sample_map: Dict[int, in
                                         sub_graph=True, label=sub_graph_label, node_colour="cyan")
             blueprint_graph.subgraph(module_graph)
 
-    blueprint_graph.render(directory=runs_manager.get_graphs_folder_path(config.run_name), view=config.view_graph_plots)
+    try:
+        blueprint_graph.render(directory=runs_manager.get_graphs_folder_path(config.run_name), view=config.view_graph_plots)
+    except Exception as e:
+        print(e)
 
 
 def visualise_traversal_dict(traversal_dict: Dict[int, List[int]]):
@@ -141,7 +148,7 @@ def visualise_traversal_dict(traversal_dict: Dict[int, List[int]]):
             g.node(name=str(to_id))
             g.edge(str(from_id), str(to_id))
 
-    g.render(directory=runs_manager.get_graphs_folder_path(), view=config.view_graph_plots)
+    g.render(directory=runs_manager.get_graphs_folder_path(config.run_name), view=config.view_graph_plots)
 
 
 def get_node_metadata(node: Union[BlueprintNode, ModuleNode], **kwargs):
@@ -192,6 +199,15 @@ def get_node_metadata(node: Union[BlueprintNode, ModuleNode], **kwargs):
     # print("labeling node", meta)
 
     return meta
+
+
+def get_node_colour(node) -> str:
+    # print(node, isinstance(node, BlueprintNode), isinstance(node, ModuleNode), isinstance(node, BlueprintNode.__class__))
+    if isinstance(node, BlueprintNode):
+        return "yellow"
+
+    if isinstance(node, ModuleNode):
+        return "cyan"
 
 
 def pretty(full_object_name: str):

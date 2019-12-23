@@ -3,18 +3,15 @@ from __future__ import annotations
 from functools import reduce
 from typing import List, Union, Tuple, TYPE_CHECKING
 
-import graphviz
 import torch.nn.functional as F
 from torch import nn, tensor, optim, squeeze
 
-from runs import runs_manager
-from src2.configuration import config
-from src2.phenotype.neural_network.layers.aggregation_layer import AggregationLayer
-from src2.phenotype.neural_network.layers.base_layer import BaseLayer
 from src2.phenotype.neural_network.layers.layer import Layer
+from src2.visualisation import phenotype_visualiser
 
 if TYPE_CHECKING:
     from src2.genotype.cdn.genomes.blueprint_genome import BlueprintGenome
+    from src2.phenotype.neural_network.layers.aggregation_layer import AggregationLayer
 
 
 class Network(nn.Module):
@@ -74,27 +71,5 @@ class Network(nn.Module):
         pass
 
     def visualize(self, parse_number=-1, prefix=""):
-        name = prefix + "blueprint_i" + str(self.blueprint.id) + "_phenotype" + (
-            "_p" + str(parse_number) if parse_number >= 0 else "")
-        # print("saving:", name, "to",RunsManager.get_graphs_folder_path(config.run_name))
-        graph = graphviz.Digraph(name=name, comment='phenotype')
-
-        q: List[BaseLayer] = [self.model]
-        graph.node(self.model.name, self.model.get_layer_info())
-        visited = set()
-
-        while q:
-            parent_layer = q.pop()
-
-            if parent_layer.name not in visited:
-                visited.add(parent_layer.name)
-                for child_layer in parent_layer.child_layers:
-                    description = child_layer.get_layer_info()
-
-                    graph.node(child_layer.name, child_layer.name + '\n' + description)
-                    graph.edge(parent_layer.name, child_layer.name)
-
-                    q.append(child_layer)
-
-        graph.render(directory=runs_manager.get_graphs_folder_path(config.run_name),
-                     view=config.view_graph_plots)
+        suffix = ("_p" + str(parse_number) if parse_number >= 0 else "")
+        phenotype_visualiser.visualise(self,prefix,suffix)
