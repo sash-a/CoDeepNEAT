@@ -1,76 +1,71 @@
 from __future__ import annotations
 
-import threading
-from time import time
+import torch.multiprocessing as mp
 from typing import TYPE_CHECKING, List
 
 from src2.configuration import config
 from src2.phenotype.neural_network.evaluator.evaluator import evaluate
 from src2.phenotype.neural_network.neural_network import Network
 
+import src2.main.singleton as singleton
+
 if TYPE_CHECKING:
     from src2.genotype.cdn.genomes.blueprint_genome import BlueprintGenome
 
-bp_lock = threading.Lock()
+
+def evaluate_blueprints(blueprint_q: mp.Queue,
+                        input_size: List[int],
+                        num_epochs: int = config.epochs_in_evolution) -> List[BlueprintGenome]:
+    """
+    Consumes blueprints off the blueprints queue, evaluates them and adds them back to the queue if all of their
+    evaluations have not been completed for the current generation. If all their evaluations have been completed, add
+    them to the completed_blueprints list.
+
+    :param blueprint_q:
+    :param input_size:
+    :param num_epochs:
+    :return:
+    """
+    completed_blueprints: List[BlueprintGenome] = []
+    while blueprint_q.qsize() != 0:
+        blueprint = blueprint_q.get()
+
+        blueprint = evaluate_blueprint(blueprint, input_size, num_epochs)
+
+        if blueprint.n_evaluations == config.n_evaluations_per_bp:
+            completed_blueprints.append(blueprint)
+        else:
+            blueprint_q.put(blueprint)
+
+    return completed_blueprints
 
 
-def evaluate_blueprint(blueprint: BlueprintGenome, input_size: List[int], generation_num: int,
-                       num_epochs=config.epochs_in_evolution) -> int:
+def evaluate_blueprint(blueprint: BlueprintGenome, input_size: List[int], num_epochs) -> BlueprintGenome:
     """
     Parses the blueprint into its phenotype NN
     Handles the assignment of the single/multi obj finesses to the blueprint in parallel
     """
-    start = time()
     device = config.get_device()
-
-    constr_start = time()
-    model: Network = Network(blueprint, input_size)
-    try:
-        model.to(device)
-    except Exception as e:
-        print(e)
-        print("model size:",  sum(p.numel() for p in model.parameters() if p.requires_grad))
-
-    constr_time = time() - constr_start
-
-    size_start = time()
+    model: Network = Network(blueprint, input_size).to(device)
     model_size = sum(p.numel() for p in model.parameters() if p.requires_grad)
-    size_time = time() - size_start
-
-    eval_start = time()
     if model_size > config.max_model_params:
         accuracy = 0
     else:
         accuracy = evaluate(model, num_epochs=num_epochs)
-    eval_time = time() - eval_start
 
-    fit_start = time()
-    with bp_lock:
-        blueprint.update_best_sample_map(model.sample_map, accuracy)
-        blueprint.report_fitness([accuracy], module_sample_map=model.sample_map)
-        parse_number = blueprint.n_evaluations
-    fit_time = time() - fit_start
+    blueprint.update_best_sample_map(model.sample_map, accuracy)
+    blueprint.report_fitness([accuracy])
+    parse_number = blueprint.n_evaluations
 
-    other_start = time()
-    print("Evaluation of genome:", blueprint.id, "complete with accuracy:", accuracy, "by thread",
-          threading.current_thread().name)
+    print("Blueprint - {:^5} - accuracy: {:05.2f}% (proc {})"
+          .format(blueprint.id, accuracy * 100, mp.current_process().name))
 
     if config.plot_every_genotype:
         blueprint.visualize(parse_number=parse_number,
-                            prefix="g" + str(generation_num) + "_" + str(blueprint.id))
+                            prefix="g" + str(singleton.instance.generation_number) + "_" + str(blueprint.id))
 
     if config.plot_every_phenotype:
         model.visualize(parse_number=parse_number,
-                        prefix="g" + str(generation_num) + "_" + str(blueprint.id))
-    other_time = time() - other_start
-    total_time = time() - start
-    print("BP: %i time taken for:\n"
-          "Everything: %f\n"
-          "Construction: %f\n"
-          "Size check: %f\n"
-          "Evaluation: %f\n"
-          "Fitness reporting: %f\n"
-          "Misc: %f"
-          % (blueprint.id, total_time, constr_time, size_time, eval_time, fit_time, other_time))
+                        prefix="g" + str(singleton.instance.generation_number) + "_" + str(blueprint.id))
 
-    return model_size
+    return blueprint

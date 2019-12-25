@@ -25,8 +25,12 @@ class Genome(GraphGenome):
         Singleton.instance.genome_id_counter += 1
 
         self.rank = 0  # The order of this genome when ranked by fitness values, high rank is more fit
-        self.fitness_values: List[float] = [0]
+        # 2D array:
+        # [ [ objective 0 values ]
+        #   ...
+        #   [ objective n values] ]
         self.fitness_raw: List[List[float]] = [[]]
+        self.fitness_values: List[float] = [0]
         self.n_evaluations = 0
         self.parents: List[int] = []  # the ids of the parents of this genome. can be empty if a genome has no parents
 
@@ -44,7 +48,7 @@ class Genome(GraphGenome):
     def __lt__(self, other):
         return self.rank < other.rank
 
-    def report_fitness(self, fitnesses: List[float], **kwargs):
+    def report_fitness(self, fitnesses: List[float]):
         """updates the fitnesses stored with a new given fitness"""
         self.n_evaluations += 1
         for i, fitness in enumerate(fitnesses):

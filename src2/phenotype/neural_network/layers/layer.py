@@ -131,24 +131,21 @@ class Layer(BaseLayer):
         modules = [module for module in [reshape_layer, deep_layer, *self._create_regularisers(in_shape)] if
                    module is not None]
 
-        if self.module_node.is_conv():
-            if reshape_layer is not None:
-                modules.insert(1, PadUp(deep_layer.kernel_size[0]))
-            else:
-                modules.insert(0, PadUp(deep_layer.kernel_size[0]))
-
-            modules.append(PadUp(deep_layer.kernel_size[0]))
+        # if self.module_node.is_conv():
+        #     if reshape_layer is not None:
+        #         modules.insert(1, PadUp(deep_layer.kernel_size[0]))
+        #     else:
+        #         modules.insert(0, PadUp(deep_layer.kernel_size[0]))
+        #
+        #     modules.append(PadUp(deep_layer.kernel_size[0]))
             # print('layer order:', modules)
 
         if not modules:
             modules = [nn.Identity()]
-
         self.sequential = nn.Sequential(*modules)
-
         # TODO: remove out shape
         #  doesn't look like out_shape is used anywhere else
         self.out_shape = list(self.forward(zeros(in_shape)).size())
-
         return self.out_shape
 
     def get_layer_info(self) -> str:

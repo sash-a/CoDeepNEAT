@@ -21,11 +21,12 @@ def create_population(pop_size: int, Node: Union[Type[ModuleNode], Type[Blueprin
         List[Union[ModuleGenome, BlueprintGenome, DAGenome]]:
     pop = []
     while len(pop) < pop_size:
-        new_genomes = _create_individual(Node, Genome)
-        new_genomes = new_genomes[:min(len(new_genomes),pop_size - len(pop) )]
-        pop.extend(new_genomes)
+        pop.extend(_create_individual(Node, Genome))
 
+    # removing any extra genomes
+    pop = pop[:pop_size]
     return pop
+
 
 def _create_individual(Node: Union[Type[ModuleNode], Type[BlueprintNode], Type[DANode]],
                        Genome: Union[Type[ModuleGenome], Type[BlueprintGenome], Type[DAGenome]]) -> \
@@ -68,6 +69,7 @@ def create_mr() -> MutationRecords:
     return MutationRecords({(0, 1): 0, (0, 2): 1, (2, 1): 2, (0, 3): 3, (3, 1): 4},
                            {(0, 0): 2, (0, 1): 3},
                            3, 4)
+
 
 def _blank_node(node: Union[ModuleNode, BlueprintNode, DANode]) -> ModuleNode:
     """Makes a module node that only return its input and doesn't allow it to change"""

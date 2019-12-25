@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import torch.multiprocessing as mp
 import argparse
 import datetime
 import os
@@ -32,9 +33,6 @@ if TYPE_CHECKING:
 
 
 def main():
-    # seeding and unseeding pytorch so that the 'random split' is deterministic
-    # TODO is this the best way to enforce a deterministic split? Do we want torch to be seeded?
-    torch.manual_seed(0)
     arg_parse()
 
     if config.device == 'gpu':
@@ -74,8 +72,6 @@ def arg_parse():
 
 
 def init_generation() -> Generation:
-    print('args parsed', config.run_name)
-
     if not runs_manager.does_run_folder_exist(config.run_name):
         """"fresh run"""
         runs_manager.set_up_run_folder(config.run_name)
@@ -166,5 +162,5 @@ def _force_cuda_device_init():
 
 
 if __name__ == '__main__':
+    # mp.set_start_method('spawn')
     main()
-    # fully_train(n=1)

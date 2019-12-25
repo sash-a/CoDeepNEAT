@@ -1,6 +1,6 @@
 import json
 import os
-from threading import current_thread
+from multiprocessing import current_process
 from typing import Dict
 
 from torch import device
@@ -8,13 +8,13 @@ from torch import device
 
 class Config:
     def __init__(self):
-        print('loading config...')
         # ----------------------------------------------- General stuff -----------------------------------------------
         self.run_name = 'test'
         self.n_generations = 100
         # ------------------------------------------------ Model stuff ------------------------------------------------
         self.device = 'gpu'  # cpu
         self.n_gpus = 1
+        self.n_evals_per_gpu = 1
         self.batch_size = 256
         self.epochs_in_evolution = 8
         self.n_evaluations_per_bp = 4
@@ -28,9 +28,9 @@ class Config:
         self.max_batches = -1
         # ---------------------------------------------- Graphing Options ----------------------------------------------
         self.view_graph_plots = False  # if true, any plotted graphs will be viewed
-        self.plot_best_genotypes = True
+        self.plot_best_genotypes = False
         self.plot_every_genotype = False
-        self.plot_best_phenotype = True
+        self.plot_best_phenotype = False
         self.plot_every_phenotype = False
         self.plot_module_species = False
         # ----------------------------------------------- Dataset stuff -----------------------------------------------
@@ -105,14 +105,16 @@ class Config:
     def get_device(self):
         """Used to obtain the correct device taking into account multiple GPUs"""
         gpu = 'cuda:'
-        gpu_idx = '0' if current_thread().name == 'MainThread' else str(int(current_thread().name[-1]) % self.n_gpus)
+        gpu_idx = '0' if current_process().name == 'MainProcess' else str(int(current_process().name) % self.n_gpus)
         # print('extracted device id:', gpu_idx)
         gpu += gpu_idx
         return device('cpu') if self.device == 'cpu' else device(gpu)
 
     def read(self, file: str):
-        print('reading config from file:', file)
         # If the path is not absolute (i.e starts at root) then search in configs dir
+        if not file.endswith('.json'):
+            file += ".json"
+
         if not file.startswith("/"):
             file = os.path.join(os.path.dirname(__file__), 'configs', file)
 

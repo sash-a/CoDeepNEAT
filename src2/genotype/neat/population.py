@@ -34,7 +34,7 @@ class Population:
 
         # print("mems in spc:",len(self.species[0]))
 
-        if self.speciator.target_num_species >1:
+        if self.speciator.target_num_species > 1:
             self.speciator.speciate(self.species)
 
         self.pop_size: int = pop_size
@@ -90,7 +90,7 @@ class Population:
         for spc in self.species:
             spc.step(self.mutation_record)
 
-        if self.speciator.target_num_species >1:
+        if self.speciator.target_num_species > 1:
             self.speciator.speciate(self.species)
         self.species: List[Species] = [species for species in self.species if species]  # Removing empty species
 
@@ -114,11 +114,11 @@ class Population:
 
         return False
 
-    def get_most_accurate(self, n=1, return_unit_as_list = False):
+    def get_most_accurate(self, n=1, return_unit_as_list=False) -> Union[BlueprintGenome, ModuleGenome, Genome]:
         if n == 1 and not return_unit_as_list:
             return heapq.nlargest(n, iter(self), key=lambda x: x.accuracy)[0]
 
-        return heapq.nlargest(n,iter(self), key=lambda x: x.accuracy)
+        return heapq.nlargest(n, iter(self), key=lambda x: x.accuracy)
 
     def visualise(self, suffix=""):
         speciation_visualiser.visualise_specieses(self.species, suffix=suffix)

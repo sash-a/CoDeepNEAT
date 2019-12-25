@@ -4,13 +4,13 @@
 """
 from __future__ import annotations
 
-import time
-from concurrent.futures import ThreadPoolExecutor
+import torch.multiprocessing as mp
 from typing import Optional, List
 
 import wandb
 
 from runs import runs_manager
+from src2.mp_utils import get_bp_eval_pool
 from src2.configuration import config
 from src2.genotype.cdn.genomes.blueprint_genome import BlueprintGenome
 from src2.genotype.cdn.genomes.da_genome import DAGenome
@@ -26,14 +26,14 @@ from src2.genotype.neat.operators.speciators.neat_speciator import NEATSpeciator
 from src2.genotype.neat.population import Population
 from src2.phenotype.neural_network.evaluator.data_loader import get_data_shape
 from src2.phenotype.neural_network.neural_network import Network
-from src2.phenotype.phenotype_evaluator import evaluate_blueprint
+from src2.phenotype.phenotype_evaluator import evaluate_blueprints
+import src2.main.singleton as singleton
 
 
 class Generation:
     def __init__(self):
         self.genome_id_counter = 0  # max genome id of all genomes contained in this generation obj
-        import src2.main.singleton as Singleton
-        Singleton.instance = self
+        singleton.instance = self
 
         self.module_population: Optional[Population] = None
         self.blueprint_population: Optional[Population] = None
@@ -43,24 +43,24 @@ class Generation:
         self.generation_number = 0
 
     def step_evaluation(self):
-        eval_start_time = time.time()
-        model_sizes = self.evaluate_blueprints()  # may be parallel
-        num_evals = len(self.blueprint_population) * config.n_evaluations_per_bp
-        time_taken = time.time() - eval_start_time
-        print('Generation %i:\n%i evaluations\nTotal time taken: %f(s)\nAvg time taken %f(s)\ngpus used: %i'
-              % (self.generation_number, num_evals, time_taken, time_taken / num_evals, config.n_gpus))
-        # Aggregate the fitnesses immediately after they have all been recorded
+        self.evaluate_blueprints()
+
+        # Aggregate the fitness immediately after they have all been recorded
         self.module_population.aggregate_fitness()
         self.blueprint_population.aggregate_fitness()
 
         if config.use_wandb:
-            self.wandb_report(model_sizes)
+            self.wandb_report()
+
+        best = self.blueprint_population.get_most_accurate()
+        print("Best nn: {} - {:.2f}%".format(best.id, best.accuracy * 100))
 
     def step_evolution(self):
         """
             Runs cdn for one generation. Calls the evaluation of all individuals. Prepares population objects for the
             next step.
         """
+        # TODO move this to visualization method
         most_accurate_blueprint: BlueprintGenome = self.blueprint_population.get_most_accurate()
         if config.plot_best_genotypes:
             most_accurate_blueprint.visualize(prefix="best_g" + str(self.generation_number) + "_")
@@ -68,9 +68,6 @@ class Generation:
             model: Network = Network(most_accurate_blueprint, get_data_shape(),
                                      sample_map=most_accurate_blueprint.best_module_sample_map)
             model.visualize(prefix="best_g" + str(self.generation_number) + "_")
-
-        print("Num blueprint species:", len(self.blueprint_population.species), self.blueprint_population.species)
-        print("Most accurate graph:", self.blueprint_population.get_most_accurate().fitness_values)
 
         self.module_population.step()
         self.blueprint_population.step()
@@ -88,44 +85,48 @@ class Generation:
         print('Step ended')
         print('Module species:', [len(spc.members) for spc in self.module_population.species])
 
-    def evaluate_blueprints(self) -> List[int]:
+    def evaluate_blueprints(self):
         """Evaluates all blueprints"""
-        # Multiplying the blueprints so that each blueprint is evaluated config.n_evaluations_per_bp times
-
         self.module_population.before_step()
         self.blueprint_population.before_step()
-        # self.da_population.before_step()
-
         # blueprints choosing DA schemes from population
         if config.evolve_data_augmentations:
+            self.da_population.before_step()
             for blueprint_individual in self.blueprint_population:
                 blueprint_individual.pick_da_scheme()
 
-        blueprints = list(self.blueprint_population) * config.n_evaluations_per_bp
+        # Kicking off evaluation
         in_size = get_data_shape()
-        model_sizes: List[int] = []
+        consumable_q = mp.get_context('spawn').Manager().Queue(len(list(self.blueprint_population)))
 
-        print("num blueprints:", len(self.blueprint_population), "num evals:", len(blueprints))
-        print("num modules:", len(self.module_population))
+        for bp in self.blueprint_population:
+            consumable_q.put(bp, False)
 
-        if config.n_gpus > 1:
-            with ThreadPoolExecutor(max_workers=config.n_gpus, thread_name_prefix='thread') as ex:
-                results = ex.map(
-                    lambda x: evaluate_blueprint(*x),
-                    list(zip(blueprints, [in_size] * len(blueprints), [self.generation_number] * len(blueprints)))
-                )
-                for result in results:
-                    model_sizes.append(result)
+        with get_bp_eval_pool(self) as pool:  # TODO will probably be more efficient to keep this alive throughout gens
+            futures = []
+            for i in range(config.n_gpus * config.n_evals_per_gpu):
+                futures.append(pool.submit(evaluate_blueprints, consumable_q, in_size, self))
 
-        else:
-            for bp in blueprints:
-                model_sizes.append(evaluate_blueprint(bp, in_size, self.generation_number))
+            self.report_fitness(futures)
 
-        return model_sizes
+    def report_fitness(self, futures):
+        """
+        Collects the results from each process and assigns them to the blueprints and modules on this process
+        """
+        results: List[BlueprintGenome] = []
+        for future in futures:
+            results += future.result()
+
+        # Replacing the bp population with the blueprints that are returned from the processes
+        # i.e the same blueprints, but they have fitness assigned
+        self.blueprint_population.species[0].members = {bp.id: bp for bp in results}
+        # Reporting fitness to all modules
+        for bp in self.blueprint_population:
+            for fitness, sample_map in zip(bp.fitness_raw[0], bp.all_sample_maps):
+                bp.report_fitness_to_modules([fitness], sample_map)
 
     def initialise_populations(self):
         """Starts off the populations of a new evolutionary run"""
-        # TODO this is using the old method
         if config.module_speciation.lower() == "similar":
             module_speciator = MostSimilarSpeciator(config.species_distance_thresh_mod_base, config.n_module_species,
                                                     ModuleGenomeMutator())
@@ -149,12 +150,13 @@ class Generation:
 
         print("initialised pops, bps:", len(self.blueprint_population), "mods:", len(self.module_population))
 
-        # TODO DA pop
+        # TODO DA pop only straight genomes
         if config.evolve_data_augmentations:
             self.da_population = Population(create_population(config.da_pop_size, DANode, DAGenome),
                                             create_mr(), config.da_pop_size, bp_speciator)
 
-    def wandb_report(self, model_sizes: List[int]):
+    # TODO move this to a wandb manager or something similar
+    def wandb_report(self):
         module_accs = sorted([module.accuracy for module in self.module_population])
         bp_accs = sorted([bp.accuracy for bp in self.blueprint_population])
 
@@ -186,8 +188,8 @@ class Generation:
                    'num module species': len(self.module_population.species),
                    'species sizes': [len(spc.members) for spc in self.module_population.species],
                    'unevaluated blueprints': n_unevaluated_bps, 'n_unevaluated_mods': n_unevaluated_mods,
-                   'speciation threshold': self.module_population.speciator.threshold,
-                   'model sizes': model_sizes})
+                   'speciation threshold': self.module_population.speciator.threshold
+                   })
 
     def __getitem__(self, genome_id: int):
         if config.evolve_data_augmentations:

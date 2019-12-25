@@ -15,8 +15,6 @@ from src2.genotype.neat.genome import Genome
 from src2.genotype.neat.node import Node
 from src2.visualisation.genome_visualiser import visualise_blueprint_genome
 
-# TESTING
-
 if TYPE_CHECKING:
     from src2.phenotype.neural_network.layers import layer
 
@@ -34,6 +32,7 @@ class BlueprintGenome(Genome):
                                         mutation_chance=0)
 
         # mapping from species id to the genome id of the module sampled from that species
+        self.all_sample_maps: List[Dict[int, int]] = []
         self.best_module_sample_map: Optional[Dict[int, int]] = None  # todo empty this at the end of evaluation
         self.best_sample_map_accuracy: float = -1
 
@@ -99,29 +98,25 @@ class BlueprintGenome(Genome):
         super().end_step()
         self.commit_sample_maps()
         self.best_sample_map_accuracy = -1
+        self.all_sample_maps = []
 
-    def report_fitness(self, fitnesses: List[float], **kwargs):
-        super().report_fitness(fitnesses)
+    def report_fitness_to_modules(self, fitness: List[float], sample_map):
         import src2.main.singleton as Singleton
-
-        sample_map = kwargs["module_sample_map"]
 
         for node_id in self.get_fully_connected_node_ids():
             node: Node = self.nodes[node_id]
-            if not isinstance(node, BlueprintNode.BlueprintNode):
-                """module node"""
+            if not isinstance(node, BlueprintNode.BlueprintNode):  # not blueprint node
                 continue
 
             if node.species_id not in sample_map:
-                raise Exception(
-                    "sample map" + repr(sample_map) + "doesn't cover all species in blueprint - missing: " + repr(
-                        node.species_id))
+                raise LookupError("Sample map" + repr(sample_map) + "missing species id: " + repr(node.species_id))
 
             module_id = sample_map[node.species_id]
             module = Singleton.instance.module_population[module_id]
-            module.report_fitness(fitnesses, **kwargs)
+            module.report_fitness(fitness)
 
     def update_best_sample_map(self, candidate_map: Dict[int, int], accuracy: int):
+        self.all_sample_maps.append(candidate_map)
         if self.best_sample_map_accuracy < accuracy:
             self.best_module_sample_map = candidate_map
             self.best_sample_map_accuracy = accuracy
@@ -150,7 +145,7 @@ class BlueprintGenome(Genome):
 
         if (random.random() < math.pow(map_frac, 1.5)) or map_frac == 1:
             """fully mapped blueprints are guaranteed to lose a mapping"""
-            species_to_unmap = random.choices(list(mapped_species),k = max(n_species_to_unmap, 1))
+            species_to_unmap = random.choices(list(mapped_species), k=max(n_species_to_unmap, 1))
         return species_to_unmap
 
     # I think this should be the get_da method, we still need a method to sample a random DA id from the population

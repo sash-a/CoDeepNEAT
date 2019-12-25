@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 from functools import reduce
 from typing import List, Union, Tuple, TYPE_CHECKING
 
@@ -30,16 +31,15 @@ class Network(nn.Module):
         self.blueprint: BlueprintGenome = blueprint
         self.output_dim = output_dim
 
-        self.model: Layer  #todo what is this? should it be named input layer
+        self.model: Layer
         (self.model, output_layer), self.sample_map = blueprint.to_phenotype(sample_map=sample_map)
-
         self.shape_layers(input_shape)
-
         # shaping the final layer
         img_flat_size = int(reduce(lambda x, y: x * y, output_layer.out_shape) / output_layer.out_shape[0])
         self.final_layer = nn.Linear(img_flat_size, output_dim)
 
         self.loss_fn = nn.NLLLoss()  # TODO mutagen
+
         self.optimizer: optim.adam = optim.Adam(self.parameters(), lr=self.blueprint.learning_rate.value,
                                                 betas=(self.blueprint.beta1.value, self.blueprint.beta2.value))
 
@@ -60,7 +60,6 @@ class Network(nn.Module):
 
     def shape_layers(self, in_shape: list):
         q: List[Tuple[Union[Layer, AggregationLayer], list]] = [(self.model, in_shape)]
-
         while q:
             layer, input_shape = q.pop()
             output_shape = layer.create_layer(input_shape)
