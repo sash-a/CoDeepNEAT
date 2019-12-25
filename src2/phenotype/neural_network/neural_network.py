@@ -72,4 +72,7 @@ class Network(nn.Module):
 
     def visualize(self, parse_number=-1, prefix=""):
         suffix = ("_p" + str(parse_number) if parse_number >= 0 else "")
-        phenotype_visualiser.visualise(self,prefix,suffix, node_colour=get_node_colour)
+        phenotype_visualiser.visualise(self, prefix, suffix, node_colour=get_node_colour)
+
+    def size(self):
+        return sum(p.numel() for p in self.parameters() if p.requires_grad)

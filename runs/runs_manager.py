@@ -76,7 +76,7 @@ def get_latest_generation(run_name):
 
 
 def set_up_run_folder(run_name):
-    if not does_run_folder_exist(run_name):
+    if not does_run_folder_exist(config.run_name):
         os.makedirs(get_run_folder_path(run_name))
         os.makedirs(get_graphs_folder_path(run_name))
         os.makedirs(get_generations_folder_path(run_name))
@@ -91,12 +91,12 @@ def get_generations_folder_path(run_name):
 
 
 def get_run_folder_path(run_name):
-    return join(get_runs_folder_path(), run_name)
+    return join(__get_runs_folder_path(), run_name)
 
 
 def does_run_folder_exist(run_name) -> bool:
     return exists(get_run_folder_path(run_name))
 
 
-def get_runs_folder_path():
+def __get_runs_folder_path():
     return dirname(abspath(inspect.getfile(inspect.currentframe())))

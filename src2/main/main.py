@@ -20,28 +20,38 @@ sys.path.append(os.path.join(dir_path_1, 'src2'))
 sys.path.append(os.path.join(dir_path_1, 'test'))
 sys.path.append(os.path.join(dir_path_1, 'runs'))
 
-from runs import runs_manager
+import src2.main.singleton as Singleton
 
+from runs import runs_manager
+from src2.analysis.datafetcher import fetch_generations, fetch_config
 from src2.configuration import config
 from src2.main.generation import Generation
-import src2.main.singleton as Singleton
-from src2.phenotype.neural_network.evaluator import full_training
+from src2.phenotype.neural_network.evaluator import fully_train
 
 if TYPE_CHECKING:
     pass
 
 
 def main():
-    arg_parse()
+    locally_new_run = not runs_manager.does_run_folder_exist(config.run_name)  # this must come before config is created
+    init_config(locally_new_run)
+    downloading_run = bool(config.wandb_run_id)  # this must come after config is written to
+
+    init_wandb(locally_new_run)
+    init_operators()
+    print(downloading_run, locally_new_run)
+    print(False if downloading_run else locally_new_run)
+    generation = init_generation(False if downloading_run else locally_new_run)
 
     if config.device == 'gpu':
         _force_cuda_device_init()
 
-    init_operators()
-    generation = init_generation()
-    init_wandb(generation.generation_number)
+    if config.fully_train:
+        init_wandb(locally_new_run)
+        fully_train()
+        return
 
-    print(config.__dict__)
+    print('config:', config.__dict__)
 
     while generation.generation_number < config.n_generations:
         print('\n\nStarted generation:', generation.generation_number)
@@ -51,12 +61,12 @@ def main():
 
 
 def fully_train(n=1):
-    arg_parse()
+    init_config(False)
     runs_manager.load_config(run_name=config.run_name)
-    full_training.fully_train_best_evolved_networks(config.run_name, n)
+    fully_train.fully_train(config.run_name, n)
 
 
-def arg_parse():
+def init_config(new_run: bool):
     parser = argparse.ArgumentParser(description='CoDeepNEAT')
     parser.add_argument('-c', '--configs', nargs='+', type=str,
                         help='Path to all config files that will be used. (Earlier configs are given preference)',
@@ -69,21 +79,26 @@ def arg_parse():
     for cfg_file in reversed(args.configs):
         config.read(cfg_file)
 
-
-def init_generation() -> Generation:
-    if not runs_manager.does_run_folder_exist(config.run_name):
-        # new run
+    if new_run:
         runs_manager.set_up_run_folder(config.run_name)
         runs_manager.save_config(config.run_name, config)
+    else:
+        runs_manager.load_config(config.run_name)
+
+
+def init_generation(new_run: bool) -> Generation:
+    if new_run:
+        print('new')
+        # new run
         generation: Generation = Generation()
         Singleton.instance = generation
 
     else:
         # continuing run
-        runs_manager.load_config(config.run_name)
+        print('cont')
         generation: Generation = runs_manager.load_latest_generation(config.run_name)
         if generation is None:  # generation load failed, likely because the run did not complete gen 0
-            return init_generation()  # will start a fresh gen
+            return init_generation(True)  # will start a fresh gen
 
         Singleton.instance = generation
         generation.step_evolution()
@@ -91,26 +106,42 @@ def init_generation() -> Generation:
     return generation
 
 
-def init_wandb(gen_num: int):
-    if config.use_wandb:
-        if gen_num == 0:  # this is the first generation, need to initialize wandb
-            config.wandb_run_id = config.run_name + str(datetime.date.today()) + '_' + str(random.randint(1E5, 1E6))
+def init_wandb(is_new_run):
+    if not config.use_wandb:
+        return
 
-            tags = config.wandb_tags
-            if config.dummy_run:
-                tags += ['TEST_RUN']
+    print(config.wandb_run_id, bool(config.wandb_run_id), is_new_run)
+    if config.wandb_run_id and is_new_run:
+        # the runs folder does not exist locally, but a run ID is provided -> create the folder and download the run
+        print('fetching!!!')
+        fetch_generations(run_id=config.wandb_run_id)
+        # config used to download the run will already be copied there so must replace it
+        fetch_config(run_id=config.wandb_run_id, replace=True)
+        wandb.init(project='cdn', entity='codeepneat', resume=config.wandb_run_id)
+    elif is_new_run or config.fully_train:
+        # this is the first generation -> initialize wandb
+        config.wandb_run_id = config.run_name + str(datetime.date.today()) + '_' + str(random.randint(1E5, 1E6))
 
-            dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', '..', 'results')
-            wandb.init(project='cdn', name=config.run_name, tags=tags, dir=dir, id=config.wandb_run_id)
-            for key, val in config.__dict__.items():
-                wandb.config[key] = val
+        project = 'cdn_fully_train' if config.fully_train else 'cdn'
+        dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', '..', 'results')
+        tags = config.wandb_tags
+        if config.fully_train:
+            tags = ['FULLY_TRAIN']
+        if config.dummy_run:
+            tags += ['TEST_RUN']
 
-            # need to re-add the new wandb_run_id into the saved config
-            runs_manager.save_config(config.run_name, config)
+        wandb.init(project=project, entity='codeepneat', name=config.run_name, tags=tags, dir=dir,
+                   id=config.wandb_run_id)
+        wandb.config.update(config.__dict__)
 
-        else:  # this is not the first generation, need to resume wandb
-            print('attempting to resume', config.wandb_run_id)
-            wandb.init(project='cdn', resume=config.wandb_run_id)
+        # need to re-add the new wandb_run_id into the saved config
+        runs_manager.save_config(config.run_name, config)
+        # saving the config to wandb
+        wandb.save(os.path.join(runs_manager.get_run_folder_path(config.run_name), 'config.json'))
+    else:
+        # this is not the first generation -> need to resume wandb
+        print('attempting to resume', config.wandb_run_id)
+        wandb.init(project='cdn', entity='codeepneat', resume=config.wandb_run_id)
 
 
 def init_operators():

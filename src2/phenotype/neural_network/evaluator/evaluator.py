@@ -42,13 +42,14 @@ def evaluate(model: Network, num_epochs=config.epochs_in_evolution, fully_traini
 
     train_loader = load_data(composed_transform, 'train')
     device = config.get_device()
+
     for epoch in range(num_epochs):
         if config.threading_test:
             print('Thread %s bp: %i epoch: %i' % (mp.current_process().name[-1], model.blueprint.id, epoch))
         train_epoch(model, train_loader, device)
 
     test_loader = load_data(composed_transform, 'test')
-    return get_test_acc(model, test_loader)
+    return test_nn(model, test_loader)
 
 
 def train_epoch(model: Network, train_loader: DataLoader, device):
@@ -76,7 +77,7 @@ def train_batch(model: Network, inputs: torch.tensor, labels: torch.tensor, devi
     return m_loss.item()
 
 
-def get_test_acc(model: Network, test_loader: DataLoader):
+def test_nn(model: Network, test_loader: DataLoader):
     model.eval()
 
     count = 0

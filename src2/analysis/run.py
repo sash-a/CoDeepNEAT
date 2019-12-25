@@ -14,7 +14,6 @@ if TYPE_CHECKING:
 
 
 class Run:
-
     def __init__(self, generations: List[Generation], configuration: configuration):
         self.generations: List[Generation] = generations
         self.config: configuration = configuration

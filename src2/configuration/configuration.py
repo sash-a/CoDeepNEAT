@@ -11,6 +11,7 @@ class Config:
         # ----------------------------------------------- General stuff -----------------------------------------------
         self.run_name = 'test'
         self.n_generations = 100
+        self.fully_train = False
         # ------------------------------------------------ Model stuff ------------------------------------------------
         self.device = 'gpu'  # cpu
         self.n_gpus = 1

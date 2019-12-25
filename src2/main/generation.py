@@ -49,17 +49,14 @@ class Generation:
         self.module_population.aggregate_fitness()
         self.blueprint_population.aggregate_fitness()
 
-        if config.use_wandb:
-            self.wandb_report()
-
         best = self.blueprint_population.get_most_accurate()
         print("Best nn: {} - {:.2f}%".format(best.id, best.accuracy * 100))
 
     def step_evolution(self):
-        """
-            Runs cdn for one generation. Calls the evaluation of all individuals. Prepares population objects for the
-            next step.
-        """
+        """Runs cdn for one generation. Prepares population objects for the next step."""
+        if config.use_wandb:
+            self.wandb_report()
+
         # TODO move this to visualization method
         most_accurate_blueprint: BlueprintGenome = self.blueprint_population.get_most_accurate()
         if config.plot_best_genotypes:
@@ -82,8 +79,8 @@ class Generation:
         if config.evolve_data_augmentations:
             self.da_population.end_step()
 
-        print('Step ended')
         print('Module species:', [len(spc.members) for spc in self.module_population.species])
+        print('Step ended\n\n')
 
     def evaluate_blueprints(self):
         """Evaluates all blueprints"""
@@ -172,10 +169,8 @@ class Generation:
             n_unevaluated_mods += 1 if mod.n_evaluations == 0 else 0
             raw_mod_accs.extend(mod.fitness_raw[0])
 
-        mod_acc_tbl = wandb.Table(['module accuracies'],
-                                  data=raw_mod_accs)
-        bp_acc_tbl = wandb.Table(['blueprint accuracies'],
-                                 data=raw_bp_accs)
+        mod_acc_tbl = wandb.Table(['module accuracies'], data=raw_mod_accs)
+        bp_acc_tbl = wandb.Table(['blueprint accuracies'], data=raw_bp_accs)
         # Saving the pickle file for further inspection
         wandb.save(runs_manager.get_generation_file_path(self.generation_number, config.run_name))
 
