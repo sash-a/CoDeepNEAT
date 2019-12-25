@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import torch.multiprocessing as mp
 import argparse
 import datetime
 import os
@@ -73,14 +72,14 @@ def arg_parse():
 
 def init_generation() -> Generation:
     if not runs_manager.does_run_folder_exist(config.run_name):
-        """"fresh run"""
+        # new run
         runs_manager.set_up_run_folder(config.run_name)
         runs_manager.save_config(config.run_name, config)
         generation: Generation = Generation()
         Singleton.instance = generation
 
     else:
-        """continuing run"""
+        # continuing run
         runs_manager.load_config(config.run_name)
         generation: Generation = runs_manager.load_latest_generation(config.run_name)
         if generation is None:  # generation load failed, likely because the run did not complete gen 0
@@ -101,7 +100,8 @@ def init_wandb(gen_num: int):
             if config.dummy_run:
                 tags += ['TEST_RUN']
 
-            wandb.init(project='cdn', name=config.run_name, tags=tags, dir='../../results', id=config.wandb_run_id)
+            dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', '..', 'results')
+            wandb.init(project='cdn', name=config.run_name, tags=tags, dir=dir, id=config.wandb_run_id)
             for key, val in config.__dict__.items():
                 wandb.config[key] = val
 
@@ -109,7 +109,7 @@ def init_wandb(gen_num: int):
             runs_manager.save_config(config.run_name, config)
 
         else:  # this is not the first generation, need to resume wandb
-            print('trying to resume', config.wandb_run_id)
+            print('attempting to resume', config.wandb_run_id)
             wandb.init(project='cdn', resume=config.wandb_run_id)
 
 
@@ -162,5 +162,4 @@ def _force_cuda_device_init():
 
 
 if __name__ == '__main__':
-    # mp.set_start_method('spawn')
     main()

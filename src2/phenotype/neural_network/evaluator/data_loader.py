@@ -3,7 +3,7 @@ from typing import List
 
 import matplotlib.pyplot as plt
 import numpy as np
-from torch.utils.data import DataLoader, Dataset, random_split
+from torch.utils.data import DataLoader, Dataset, Subset
 from torchvision import transforms
 from torchvision.datasets import MNIST, CIFAR10, ImageFolder
 
@@ -12,7 +12,12 @@ from src2.configuration import config
 
 
 def load_data(composed_transforms: transforms.Compose, split: str) -> DataLoader:
-    """Loads the data given the config.dataset"""
+    """
+    Loads the data given the config.dataset
+
+    Note: the validation/train split does not try balance the classes of data, it just takes the first n for the train
+    set and the remaining data goes to the validation set
+    """
     if split not in ['train', 'test', 'validation']:
         raise ValueError('Parameter split can be one of train, test or validation, but received: ' + str(split))
 
@@ -37,13 +42,10 @@ def load_data(composed_transforms: transforms.Compose, split: str) -> DataLoader
     if train:
         # Splitting the train set into a train and valid set
         train_size = int(len(dataset) * (1 - config.validation_split))
-        validation_size = len(dataset) - train_size
-        train, valid = random_split(dataset, [train_size, validation_size])
-
         if split == 'train':
-            dataset = train
+            dataset = Subset(dataset, range(train_size))
         else:
-            dataset = valid
+            dataset = Subset(dataset, range(train_size, len(dataset)))
 
     # TODO: test num workers and pin memory
     return DataLoader(dataset, batch_size=config.batch_size, shuffle=False, num_workers=0, pin_memory=False)
@@ -65,6 +67,8 @@ def get_generic_dataset(composed_transforms: transforms.Compose, train: bool) ->
 
     root/train/cat/123.png
     root/test/cat/nsdf3.png
+
+    Note: the train set should contain enough data to be split into a train and validation set
     :return: a train and test dataloader
     """
     if train:
