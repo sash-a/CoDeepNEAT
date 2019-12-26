@@ -1,14 +1,10 @@
 from __future__ import annotations
-
-import argparse
-import datetime
-import os
-import random
-import sys
 from typing import TYPE_CHECKING
 
+import argparse
+import os
+import sys
 import torch
-import wandb
 
 # For importing project files
 
@@ -23,10 +19,10 @@ sys.path.append(os.path.join(dir_path_1, 'runs'))
 import src2.main.singleton as Singleton
 
 from runs import runs_manager
-from src2.analysis.datafetcher import fetch_generations, fetch_config
 from src2.configuration import config
 from src2.main.generation import Generation
 from src2.phenotype.neural_network.evaluator import fully_train
+from src2.utils.wandb_utils import init_wandb
 
 if TYPE_CHECKING:
     pass
@@ -39,8 +35,6 @@ def main():
 
     init_wandb(locally_new_run)
     init_operators()
-    print(downloading_run, locally_new_run)
-    print(False if downloading_run else locally_new_run)
     generation = init_generation(False if downloading_run else locally_new_run)
 
     if config.device == 'gpu':
@@ -104,44 +98,6 @@ def init_generation(new_run: bool) -> Generation:
         generation.step_evolution()
 
     return generation
-
-
-def init_wandb(is_new_run):
-    if not config.use_wandb:
-        return
-
-    print(config.wandb_run_id, bool(config.wandb_run_id), is_new_run)
-    if config.wandb_run_id and is_new_run:
-        # the runs folder does not exist locally, but a run ID is provided -> create the folder and download the run
-        print('fetching!!!')
-        fetch_generations(run_id=config.wandb_run_id)
-        # config used to download the run will already be copied there so must replace it
-        fetch_config(run_id=config.wandb_run_id, replace=True)
-        wandb.init(project='cdn', entity='codeepneat', resume=config.wandb_run_id)
-    elif is_new_run or config.fully_train:
-        # this is the first generation -> initialize wandb
-        config.wandb_run_id = config.run_name + str(datetime.date.today()) + '_' + str(random.randint(1E5, 1E6))
-
-        project = 'cdn_fully_train' if config.fully_train else 'cdn'
-        dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', '..', 'results')
-        tags = config.wandb_tags
-        if config.fully_train:
-            tags = ['FULLY_TRAIN']
-        if config.dummy_run:
-            tags += ['TEST_RUN']
-
-        wandb.init(project=project, entity='codeepneat', name=config.run_name, tags=tags, dir=dir,
-                   id=config.wandb_run_id)
-        wandb.config.update(config.__dict__)
-
-        # need to re-add the new wandb_run_id into the saved config
-        runs_manager.save_config(config.run_name, config)
-        # saving the config to wandb
-        wandb.save(os.path.join(runs_manager.get_run_folder_path(config.run_name), 'config.json'))
-    else:
-        # this is not the first generation -> need to resume wandb
-        print('attempting to resume', config.wandb_run_id)
-        wandb.init(project='cdn', entity='codeepneat', resume=config.wandb_run_id)
 
 
 def init_operators():

@@ -11,7 +11,6 @@ class Config:
         # ----------------------------------------------- General stuff -----------------------------------------------
         self.run_name = 'test'
         self.n_generations = 100
-        self.fully_train = False
         # ------------------------------------------------ Model stuff ------------------------------------------------
         self.device = 'gpu'  # cpu
         self.n_gpus = 1
@@ -22,6 +21,9 @@ class Config:
         self.max_model_params = 50e6
 
         self.min_square_dim = -1  # Min output size a conv can be without padding
+        # --------------------------------------------- Fully train stuff ---------------------------------------------
+        self.fully_train = False
+        self.resume_fully_train = False  # used to know if a generation should be downloaded from wandb or a fully train should be downloaded
         # ---------------------------------------------- Debug Options ----------------------------------------------
         self.dummy_run = False
         self.dummy_time = 0  # number of seconds to wait to return a dummy eval
