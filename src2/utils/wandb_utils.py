@@ -24,16 +24,18 @@ def init_wandb(is_new_run):
     if not config.use_wandb:
         return
 
-    # TODO right now fully train can only resume if gnereation file is present
-    #  Fix: save the wandb_id of the evolution run in the wandb config of the fully train run
     if config.wandb_run_id and config.fully_train and config.resume_fully_train:
         # Resuming a checkpoint of a fully train
         _fetch_run()
         _resume_run()
+        fetch_generations(run_path='codeepneat/cdn/' + wandb.config.evolution_run_id, replace=True)
     elif config.wandb_run_id and config.fully_train and not config.resume_fully_train:
-        # Download a run
+        # config.wandb_run_id here is the ID of the evolution run (because its before we download the new config)
+        evolution_run_id = config.wandb_run_id
         _fetch_run()  # fetches a remote fun
         _new_run()  # Then creates a new fully train run
+        # this is done to allow fully train runs to resume without needing the local generation files for that run
+        wandb.config['evolution_run_id'] = evolution_run_id
     elif config.wandb_run_id and not config.fully_train:
         # Run ID is provided and not fully train -> create the folder and download the run
         _fetch_run()  # Fetches remote run
@@ -47,12 +49,13 @@ def init_wandb(is_new_run):
 
 
 def _fetch_run():
-    path_prefix = 'codeepneat/cdn'
     if config.resume_fully_train:
         path_prefix = 'codeepneat/cdn_fully_train'
         fetch_model(run_path=path_prefix + '/' + config.wandb_run_id, replace=True)
+    else:
+        path_prefix = 'codeepneat/cdn'
+        fetch_generations(run_path=path_prefix + '/' + config.wandb_run_id, replace=True)
 
-    fetch_generations(run_path=path_prefix + '/' + config.wandb_run_id, replace=True)
     # config used to download the run will already be copied there so must replace it
     fetch_config(run_path=path_prefix + '/' + config.wandb_run_id, replace=True)
 
@@ -74,8 +77,7 @@ def _new_run():
     if config.dummy_run:
         tags += ['TEST_RUN']
 
-    wandb.init(project=project, entity='codeepneat', name=config.run_name, tags=tags, dir=dir,
-               id=config.wandb_run_id)
+    wandb.init(project=project, entity='codeepneat', name=config.run_name, tags=tags, dir=dir, id=config.wandb_run_id)
     wandb.config.update(config.__dict__)
 
     # need to re-add the new wandb_run_id into the saved config
