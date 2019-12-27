@@ -28,18 +28,18 @@ def fully_train(run_name, n=1, epochs=100):
     best_blueprints = run.get_most_accurate_blueprints(n)
     in_size = get_data_shape()
 
-    for blueprint, gen_number in best_blueprints:
-        model = _create_model(run, blueprint, gen_number, in_size, epochs)
+    for blueprint, gen_num in best_blueprints:
+        model = _create_model(run, blueprint, gen_num, in_size, epochs)
 
         if config.resume_fully_train and os.path.exists(model.save_location()):
-            model = _load_model(blueprint, run, in_size)
+            model = _load_model(blueprint, run, gen_num, in_size)
 
         accuracy = evaluate(model, num_epochs=epochs, fully_training=True)
         print('Achieved a final accuracy of: {}'.format(accuracy * 100))
 
 
-def _create_model(run: Run, blueprint: BlueprintGenome, gen_number, in_size, epochs) -> Network:
-    S.instance = run.generations[gen_number]
+def _create_model(run: Run, blueprint: BlueprintGenome, gen_num, in_size, epochs) -> Network:
+    S.instance = run.generations[gen_num]
     modules = run.get_modules_for_blueprint(blueprint)
     model: Network = Network(blueprint, in_size, sample_map=blueprint.best_module_sample_map).to(config.device)
 
@@ -57,10 +57,12 @@ def _create_model(run: Run, blueprint: BlueprintGenome, gen_number, in_size, epo
     return model
 
 
-def _load_model(dummy_bp: BlueprintGenome, run: Run, in_size):
+def _load_model(dummy_bp: BlueprintGenome, run: Run, gen_num: int, in_size) -> Network:
     if not config.resume_fully_train:
         raise Exception('Calling resume training, but config.resume_fully_train is false')
 
-    S.instance = run.generations[0]
+    S.instance = run.generations[gen_num]
     model: Network = Network(dummy_bp, in_size, sample_map=dummy_bp.best_module_sample_map).to(config.device)
     model.load()
+
+    return model

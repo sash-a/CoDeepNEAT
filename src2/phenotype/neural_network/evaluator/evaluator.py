@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 import torch
+import wandb
 from sklearn.metrics import accuracy_score
 from torch.utils.data import DataLoader
 from torchvision.transforms import transforms
@@ -45,21 +46,31 @@ def evaluate(model: Network, num_epochs=config.epochs_in_evolution, fully_traini
 
     for epoch in range(num_epochs):
         if config.threading_test:
-            print('Thread %s bp: %i epoch: %i' % (mp.current_process().name[-1], model.blueprint.id, epoch))
-        train_epoch(model, train_loader, device)
+            print('Thread %s bp: %i epoch: %i' % (mp.current_process().name, model.blueprint.id, epoch))
+        loss = train_epoch(model, train_loader, device)
+
+        if fully_training:
+            # Save and log if fully training
+            print('epoch: {} got loss: {}'.format(epoch, loss))
+            if config.use_wandb:
+                wandb.log({'loss': loss})
+                model.save()
+                wandb.save(model.save_location())
 
     test_loader = load_data(composed_transform, 'test')
     return test_nn(model, test_loader)
 
 
-def train_epoch(model: Network, train_loader: DataLoader, device):
+def train_epoch(model: Network, train_loader: DataLoader, device) -> float:
     model.train()
-    loss = 0
+    loss: float = 0
     for batch_idx, (inputs, targets) in enumerate(train_loader):
         if config.max_batches != -1 and batch_idx > config.max_batches:
             break
         model.optimizer.zero_grad()
         loss += train_batch(model, inputs, targets, device)
+
+    return loss
 
 
 def train_batch(model: Network, inputs: torch.tensor, labels: torch.tensor, device):

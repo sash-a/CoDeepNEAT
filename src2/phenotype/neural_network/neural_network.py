@@ -85,7 +85,10 @@ class Network(nn.Module):
         return os.path.join(get_fully_train_folder_path(config.run_name), 'bp-' + str(self.blueprint.id) + '.model')
 
     def save(self):
+        if not os.path.exists(get_fully_train_folder_path(config.run_name)):
+            os.makedirs(get_fully_train_folder_path(config.run_name))
+
         torch.save(self.state_dict(), self.save_location())
 
     def load(self):
-        self.load_state_dict(torch.load(map_location=self.save_location()))
+        self.load_state_dict(torch.load(self.save_location()))

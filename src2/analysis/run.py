@@ -37,12 +37,13 @@ class Run:
         blueprints = []
         for gen in self.generations:
             if gen is not None:
-                blueprints += gen.blueprint_population.get_most_accurate(n, return_unit_as_list=True)
-                blueprints = list(zip(blueprints, [gen.generation_number] * n))
+                bps = list(gen.blueprint_population)
+                blueprints += list(zip(bps, [gen.generation_number] * len(bps)))
             else:
                 print("Null generation found")
 
         most_accurate = heapq.nlargest(n, blueprints, key=lambda x: x[0].accuracy)
+        print(most_accurate)
         return most_accurate
 
     def get_modules_for_blueprint(self, blueprint: BlueprintGenome) -> Dict[int, ModuleGenome]:

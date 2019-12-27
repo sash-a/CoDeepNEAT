@@ -29,7 +29,7 @@ def load_latest_generation(run_name):
 def load_generation(generation_number, run_name):
     file_name = get_generation_file_path(generation_number, run_name)
 
-    print('loading', file_name)
+    print('loading generation', file_name)
     pickle_in = open(file_name, "rb")
     try:
         gen = pickle.load(pickle_in)
@@ -54,7 +54,7 @@ def load_config(run_name, config_name="config"):
     config.read(file_path)
 
 
-def save_config(run_name, conf=config,config_name="config"):
+def save_config(run_name, conf=config, config_name="config"):
     file_path = join(get_run_folder_path(run_name), config_name + '.json')
     with open(file_path, 'w+') as f:
         json.dump(conf.__dict__, f)
@@ -76,7 +76,8 @@ def get_latest_generation(run_name):
 
 
 def set_up_run_folder(run_name):
-    if not does_run_folder_exist(config.run_name):
+    print('rf setup:', get_run_folder_path(run_name))
+    if not does_run_folder_exist(run_name):
         os.makedirs(get_run_folder_path(run_name))
         os.makedirs(get_graphs_folder_path(run_name))
         os.makedirs(get_generations_folder_path(run_name))

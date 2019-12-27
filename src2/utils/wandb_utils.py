@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 import datetime
 from random import randint
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 import wandb
 
 from runs.runs_manager import get_generation_file_path, save_config, get_run_folder_path
@@ -24,9 +24,12 @@ def init_wandb(is_new_run):
     if not config.use_wandb:
         return
 
+    # TODO right now fully train can only resume if gnereation file is present
+    #  Fix: save the wandb_id of the evolution run in the wandb config of the fully train run
     if config.wandb_run_id and config.fully_train and config.resume_fully_train:
         # Resuming a checkpoint of a fully train
         _fetch_run()
+        _resume_run()
     elif config.wandb_run_id and config.fully_train and not config.resume_fully_train:
         # Download a run
         _fetch_run()  # fetches a remote fun
@@ -34,26 +37,30 @@ def init_wandb(is_new_run):
     elif config.wandb_run_id and not config.fully_train:
         # Run ID is provided and not fully train -> create the folder and download the run
         _fetch_run()  # Fetches remote run
-        _load_local_run()  # Loads that run
+        _resume_run()  # Loads that run
     elif is_new_run or config.fully_train:
         # this is the first generation -> initialize wandb
         _new_run()
     else:
         # this is not the first generation -> need to resume wandb
-        _load_local_run()
+        _resume_run()
 
 
 def _fetch_run():
+    path_prefix = 'codeepneat/cdn'
     if config.resume_fully_train:
-        fetch_model(replace=True)
+        path_prefix = 'codeepneat/cdn_fully_train'
+        fetch_model(run_path=path_prefix + '/' + config.wandb_run_id, replace=True)
 
-    fetch_generations(run_id=config.wandb_run_id, replace=True)
+    fetch_generations(run_path=path_prefix + '/' + config.wandb_run_id, replace=True)
     # config used to download the run will already be copied there so must replace it
-    fetch_config(run_id=config.wandb_run_id, replace=True)
+    fetch_config(run_path=path_prefix + '/' + config.wandb_run_id, replace=True)
 
 
-def _load_local_run():
-    wandb.init(project='cdn', entity='codeepneat', resume=config.wandb_run_id)
+def _resume_run():
+    project = 'cdn_fully_train' if config.fully_train else 'cdn'
+    dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', '..', 'results')
+    wandb.init(dir=dir, project=project, entity='codeepneat', resume=config.wandb_run_id)
 
 
 def _new_run():

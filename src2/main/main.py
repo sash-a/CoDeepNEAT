@@ -23,27 +23,29 @@ from src2.configuration import config
 from src2.main.generation import Generation
 from src2.phenotype.neural_network.evaluator import fully_train
 from src2.utils.wandb_utils import init_wandb
-
+from src2.phenotype.neural_network.evaluator.fully_train import fully_train as ft
 if TYPE_CHECKING:
     pass
 
 
 def main():
     init_config()
-    locally_new_run = not runs_manager.does_run_folder_exist(config.run_name)
-    downloading_run = bool(config.wandb_run_id)  # this must come after config is written to
-
-    init_wandb(locally_new_run)
-    init_operators()
-    generation = init_generation(False if downloading_run else locally_new_run)
-
     if config.device == 'gpu':
         _force_cuda_device_init()
 
+    locally_new_run = not runs_manager.does_run_folder_exist(config.run_name)
+    downloading_run = bool(config.wandb_run_id)
+
     if config.fully_train:
+        print('Starting fully training...')
         init_wandb(locally_new_run)
         fully_train()
         return
+
+    init_generation_dir(locally_new_run)  # A config from a previous run has possibly been loaded from this point
+    init_wandb(locally_new_run)
+    init_operators()
+    generation = init_generation(False if downloading_run else locally_new_run)
 
     print('config:', config.__dict__)
 
@@ -55,9 +57,9 @@ def main():
 
 
 def fully_train(n=1):
-    init_config(False)
+    init_config()
     runs_manager.load_config(run_name=config.run_name)
-    fully_train.fully_train(config.run_name, n)
+    ft(config.run_name, n, epochs=100)  # fully train evaluation
 
 
 def init_config():
@@ -73,8 +75,8 @@ def init_config():
     for cfg_file in reversed(args.configs):
         config.read(cfg_file)
 
-    new_run = not runs_manager.does_run_folder_exist(config.run_name)
 
+def init_generation_dir(new_run: bool):
     if new_run:
         runs_manager.set_up_run_folder(config.run_name)
         runs_manager.save_config(config.run_name, config)
@@ -84,7 +86,6 @@ def init_config():
 
 def init_generation(new_run: bool) -> Generation:
     if new_run:
-        print('new')
         # new run
         generation: Generation = Generation()
         Singleton.instance = generation
