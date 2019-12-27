@@ -1,12 +1,16 @@
 from __future__ import annotations
 
+import os
 import sys
 from functools import reduce
 from typing import List, Union, Tuple, TYPE_CHECKING
 
+import torch
 import torch.nn.functional as F
 from torch import nn, tensor, optim, squeeze
 
+from runs.runs_manager import get_fully_train_folder_path
+from src2.configuration import config
 from src2.phenotype.neural_network.layers.layer import Layer
 from src2.visualisation import phenotype_visualiser
 from src2.visualisation.phenotype_visualiser import get_node_colour
@@ -76,3 +80,12 @@ class Network(nn.Module):
 
     def size(self):
         return sum(p.numel() for p in self.parameters() if p.requires_grad)
+
+    def _save_location(self) -> str:
+        return os.path.join(get_fully_train_folder_path(config.run_name), 'bp-' + str(self.blueprint.id) + '.model')
+
+    def save(self):
+        torch.save(self.state_dict(), self._save_location())
+
+    def load(self):
+        self.load_state_dict(torch.load(map_location=self._save_location()))

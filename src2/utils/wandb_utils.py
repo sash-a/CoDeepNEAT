@@ -8,7 +8,7 @@ import wandb
 
 from runs.runs_manager import get_generation_file_path, save_config, get_run_folder_path
 from src2.configuration import config
-from src2.utils.wandb_data_fetcher import fetch_generations, fetch_config
+from src2.utils.wandb_data_fetcher import fetch_generations, fetch_config, fetch_model
 
 if TYPE_CHECKING:
     from src2.main.generation import Generation
@@ -45,11 +45,11 @@ def init_wandb(is_new_run):
 
 def _fetch_run():
     if config.resume_fully_train:
-        pass  # TODO load the checkpoint file from wandb
-    else:
-        fetch_generations(run_id=config.wandb_run_id)
-        # config used to download the run will already be copied there so must replace it
-        fetch_config(run_id=config.wandb_run_id, replace=True)
+        fetch_model(replace=True)
+
+    fetch_generations(run_id=config.wandb_run_id, replace=True)
+    # config used to download the run will already be copied there so must replace it
+    fetch_config(run_id=config.wandb_run_id, replace=True)
 
 
 def _load_local_run():

@@ -33,20 +33,16 @@ class Run:
         return None
 
     def get_most_accurate_blueprints(self, n=1) -> List[Tuple[BlueprintGenome, int]]:
-        """
-        :return: a list of tuples (genome,gen_no) of the best bp genomes and their best gen
-        """
-        most_accurate = []
+        """:return: a list of tuples (genome,gen_no) of the best bp genomes and their best gen"""
+        blueprints = []
         for gen in self.generations:
-            if not gen is None:
-                blueprints = gen.blueprint_population.get_most_accurate(n, return_unit_as_list=True)
+            if gen is not None:
+                blueprints += gen.blueprint_population.get_most_accurate(n, return_unit_as_list=True)
                 blueprints = list(zip(blueprints, [gen.generation_number] * n))
-                print("all", [x.accuracy for x in gen.blueprint_population])
-                blueprints.extend(most_accurate)
-                most_accurate = heapq.nlargest(n, blueprints, key=lambda x: x[0].accuracy)
             else:
-                print("null gen")
+                print("Null generation found")
 
+        most_accurate = heapq.nlargest(n, blueprints, key=lambda x: x[0].accuracy)
         return most_accurate
 
     def get_modules_for_blueprint(self, blueprint: BlueprintGenome) -> Dict[int, ModuleGenome]:

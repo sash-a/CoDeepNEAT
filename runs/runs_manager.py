@@ -86,6 +86,10 @@ def get_graphs_folder_path(run_name):
     return join(get_run_folder_path(run_name), "graphs")
 
 
+def get_fully_train_folder_path(run_name):
+    return join(get_run_folder_path(run_name), 'fully_trained_models')
+
+
 def get_generations_folder_path(run_name):
     return join(get_run_folder_path(run_name), "generations")
 

@@ -1,11 +1,11 @@
-from typing import List, Dict, Set
+from typing import List, Set
 import wandb
 
-from runs.runs_manager import get_generations_folder_path, get_run_folder_path
+from runs.runs_manager import get_generations_folder_path, get_run_folder_path, get_fully_train_folder_path
 
 from src2.configuration import config
 
-# TODO move to wandb utils
+
 def fetch_run(run_id: str = '', run_path: str = '') -> wandb.run:
     if not run_path:
         run_path = 'codeepneat/cdn/' + run_id
@@ -21,8 +21,13 @@ def fetch_generations(run_id: str = '', run_path: str = '', replace: bool = Fals
 def fetch_config(run_id: str = '', run_path: str = '', replace: bool = False):
     for file in fetch_run(run_id, run_path).files():
         if file.name == 'config.json':
-            print(get_run_folder_path(config.run_name))
             file.download(replace=replace, root=get_run_folder_path(config.run_name))
+
+
+def fetch_model(run_id: str = '', run_path: str = '', replace: bool = False):
+    for file in fetch_run(run_id, run_path).files():
+        if file.name.endswith('.model'):
+            file.download(replace=replace, root=get_fully_train_folder_path(config.run_name))
 
 
 def get_all_metrics(run_id: str = '', run_path: str = '') -> Set[str]:
