@@ -1,9 +1,19 @@
+from __future__ import annotations
+
+from typing import Dict, List, TYPE_CHECKING, Set, Tuple
+
 import random
 from enum import Enum
+from typing import Union
 
 from src2.configuration import config
 from src2.genotype.mutagen.option import Option
 from src2.genotype.neat.gene import Gene
+
+if TYPE_CHECKING:
+    from src2.genotype.cdn.nodes.blueprint_node import BlueprintNode
+    from src2.genotype.cdn.nodes.da_node import DANode
+    from src2.genotype.cdn.nodes.module_node import ModuleNode
 
 
 class NodeType(Enum):
@@ -35,4 +45,7 @@ class Node(Gene):
         return [self.lossy_aggregation, self.try_conv_aggregation]
 
     def convert_node(self, **kwargs):
+        raise NotImplemented()
+
+    def interpolate(self, other: Union[ModuleNode, BlueprintNode, DANode]):
         raise NotImplemented()

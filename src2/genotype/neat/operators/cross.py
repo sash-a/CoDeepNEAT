@@ -2,6 +2,7 @@
 import copy
 import random
 
+from src2.configuration import config
 from src2.genotype.neat.genome import Genome
 
 
@@ -13,7 +14,9 @@ def over(genome_a: Genome, genome_b: Genome) -> Genome:
     child = type(best)([], [])
 
     for best_node in best.nodes.values():
-        if best_node.id in worst.nodes:
+        if random.random()< config.node_breeding_chance:
+            child_node =None
+        elif best_node.id in worst.nodes:
             child_node = copy.deepcopy(random.choice([best_node, worst.nodes[best_node.id]]))
         else:
             child_node = copy.deepcopy(best_node)

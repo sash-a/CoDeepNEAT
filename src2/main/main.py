@@ -29,8 +29,8 @@ if TYPE_CHECKING:
 
 
 def main():
-    locally_new_run = not runs_manager.does_run_folder_exist(config.run_name)  # this must come before config is created
-    init_config(locally_new_run)
+    init_config()
+    locally_new_run = not runs_manager.does_run_folder_exist(config.run_name)
     downloading_run = bool(config.wandb_run_id)  # this must come after config is written to
 
     init_wandb(locally_new_run)
@@ -60,7 +60,7 @@ def fully_train(n=1):
     fully_train.fully_train(config.run_name, n)
 
 
-def init_config(new_run: bool):
+def init_config():
     parser = argparse.ArgumentParser(description='CoDeepNEAT')
     parser.add_argument('-c', '--configs', nargs='+', type=str,
                         help='Path to all config files that will be used. (Earlier configs are given preference)',
@@ -72,6 +72,8 @@ def init_config(new_run: bool):
 
     for cfg_file in reversed(args.configs):
         config.read(cfg_file)
+
+    new_run = not runs_manager.does_run_folder_exist(config.run_name)
 
     if new_run:
         runs_manager.set_up_run_folder(config.run_name)
