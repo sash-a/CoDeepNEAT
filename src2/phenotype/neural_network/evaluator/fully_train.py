@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from typing import TYPE_CHECKING
 import wandb
 
@@ -27,15 +28,14 @@ def fully_train(run_name, n=1, epochs=100):
     best_blueprints = run.get_most_accurate_blueprints(n)
     in_size = get_data_shape()
 
-    if config.resume_fully_train:
-        model = _load_model(best_blueprints[0][0], run, in_size)
+    for blueprint, gen_number in best_blueprints:
+        model = _create_model(run, blueprint, gen_number, in_size, epochs)
+
+        if config.resume_fully_train and os.path.exists(model.save_location()):
+            model = _load_model(blueprint, run, in_size)
+
         accuracy = evaluate(model, num_epochs=epochs, fully_training=True)
         print('Achieved a final accuracy of: {}'.format(accuracy * 100))
-    else:
-        for blueprint, gen_number in best_blueprints:
-            model = _create_model(run, blueprint, gen_number, in_size, epochs)
-            accuracy = evaluate(model, num_epochs=epochs, fully_training=True)
-            print('Achieved a final accuracy of: {}'.format(accuracy * 100))
 
 
 def _create_model(run: Run, blueprint: BlueprintGenome, gen_number, in_size, epochs) -> Network:

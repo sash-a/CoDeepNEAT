@@ -81,11 +81,11 @@ class Network(nn.Module):
     def size(self):
         return sum(p.numel() for p in self.parameters() if p.requires_grad)
 
-    def _save_location(self) -> str:
+    def save_location(self) -> str:
         return os.path.join(get_fully_train_folder_path(config.run_name), 'bp-' + str(self.blueprint.id) + '.model')
 
     def save(self):
-        torch.save(self.state_dict(), self._save_location())
+        torch.save(self.state_dict(), self.save_location())
 
     def load(self):
-        self.load_state_dict(torch.load(map_location=self._save_location()))
+        self.load_state_dict(torch.load(map_location=self.save_location()))
