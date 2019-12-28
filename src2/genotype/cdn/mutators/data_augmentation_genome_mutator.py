@@ -11,4 +11,4 @@ class DataAugmentationGenomeMutator(GenomeMutator):
             performs base neat genome mutations, as well as node and genome property mutations
             as well as all mutations specific to data augmentation genomes
         """
-        self.mutate_base_genome(genome, mutation_record, config.add_da_node_chance, 0)  # todo get these mutation chances from config
+        self.mutate_base_genome(genome, mutation_record, add_node_chance=config.add_da_node_chance, add_connection_chance=0, allow_disabling_connections= False)  # todo get these mutation chances from config
