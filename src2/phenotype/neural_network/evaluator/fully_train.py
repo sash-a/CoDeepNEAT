@@ -29,10 +29,13 @@ def fully_train(run_name, n=1, epochs=100):
     in_size = get_data_shape()
 
     for blueprint, gen_num in best_blueprints:
-        model = _create_model(run, blueprint, gen_num, in_size, epochs)
+        model: Network = _create_model(run, blueprint, gen_num, in_size, epochs)
 
         if config.resume_fully_train and os.path.exists(model.save_location()):
             model = _load_model(blueprint, run, gen_num, in_size)
+
+        if config.use_wandb:
+            wandb.watch(model, criterion=model.loss_fn, log='all', idx=blueprint.id)
 
         accuracy = evaluate(model, num_epochs=epochs, fully_training=True)
         print('Achieved a final accuracy of: {}'.format(accuracy * 100))
@@ -42,9 +45,6 @@ def _create_model(run: Run, blueprint: BlueprintGenome, gen_num, in_size, epochs
     S.instance = run.generations[gen_num]
     modules = run.get_modules_for_blueprint(blueprint)
     model: Network = Network(blueprint, in_size, sample_map=blueprint.best_module_sample_map).to(config.device)
-
-    if config.use_wandb:
-        wandb.watch(model, criterion=model.loss_fn, log='all', idx=blueprint.id)
 
     print("Blueprint: {}\nModules: {}\nSample map: {}\n Species used: {}"
           .format(blueprint,
