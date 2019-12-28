@@ -80,8 +80,8 @@ def train_batch(model: Network, inputs: torch.tensor, labels: torch.tensor, devi
         sys.stdout.flush()
 
     inputs, labels = inputs.to(device), labels.to(device)
-    print(model.blueprint.da_scheme)
-    imshow(inputs[0])
+    # print(model.blueprint.da_scheme)
+    # imshow(inputs[0])
 
     output = model(inputs)
     m_loss = model.loss_fn(output, labels)
