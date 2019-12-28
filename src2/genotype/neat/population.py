@@ -114,10 +114,7 @@ class Population:
 
         return False
 
-    def get_most_accurate(self, n=1, return_unit_as_list=False) -> List[Union[BlueprintGenome, ModuleGenome, Genome]]:
-        if n == 1 and not return_unit_as_list:
-            return heapq.nlargest(n, iter(self), key=lambda x: x.accuracy)[0]
-
+    def get_most_accurate(self, n=1) -> List[Union[BlueprintGenome, ModuleGenome, Genome]]:
         return heapq.nlargest(n, iter(self), key=lambda x: x.accuracy)
 
     def visualise(self, suffix=""):

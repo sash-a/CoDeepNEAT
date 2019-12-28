@@ -51,7 +51,7 @@ class Generation:
         self.module_population.aggregate_fitness()
         self.blueprint_population.aggregate_fitness()
 
-        best = self.blueprint_population.get_most_accurate()
+        best = self.blueprint_population.get_most_accurate()[0]
         print("Best nn: {} - {:.2f}%".format(best.id, best.accuracy * 100))
 
     def step_evolution(self):
@@ -60,7 +60,7 @@ class Generation:
             wandb_log(self)
 
         # TODO move this to visualization method
-        most_accurate_blueprint: BlueprintGenome = self.blueprint_population.get_most_accurate()
+        most_accurate_blueprint: BlueprintGenome = self.blueprint_population.get_most_accurate()[0]
         if config.plot_best_genotypes:
             most_accurate_blueprint.visualize(prefix="best_g" + str(self.generation_number) + "_")
         if config.plot_best_phenotype:
