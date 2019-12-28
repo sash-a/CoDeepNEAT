@@ -93,7 +93,7 @@ class Generation:
         if config.evolve_data_augmentations:
             self.da_population.before_step()
             for blueprint_individual in self.blueprint_population:
-                blueprint_individual.pick_da_scheme()
+                blueprint_individual.sample_da()
 
         # Kicking off evaluation
         in_size = get_data_shape()

@@ -76,7 +76,6 @@ def get_latest_generation(run_name):
 
 
 def set_up_run_folder(run_name):
-    print('rf setup:', get_run_folder_path(run_name))
     if not does_run_folder_exist(run_name):
         os.makedirs(get_run_folder_path(run_name))
         os.makedirs(get_graphs_folder_path(run_name))

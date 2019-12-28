@@ -5,6 +5,7 @@ import math
 import random
 from typing import List, Dict, TYPE_CHECKING, Optional, Tuple
 
+import src2.main.singleton as singleton
 import src2.genotype.cdn.nodes.blueprint_node as BlueprintNode
 from src2.configuration import config
 from src2.genotype.cdn.genomes.da_genome import DAGenome
@@ -156,13 +157,17 @@ class BlueprintGenome(Genome):
             species_to_unmap = random.choices(list(mapped_species), k=max(n_species_to_unmap, 1))
         return species_to_unmap
 
-    # I think this should be the get_da method, we still need a method to sample a random DA id from the population
-    def pick_da_scheme(self):
-        import src2.main.singleton as Singleton
+    def get_da(self) -> DAGenome:
+        self.da_scheme = singleton.instance.da_population[self.linked_da_id]
+        if self.da_scheme is None:
+            raise Exception("Bad DA link " + str(self.linked_da_id))
 
+        return self.da_scheme
+
+    def sample_da(self):
         if self.linked_da_id != -1:
-            self.da_scheme = Singleton.instance.da_population[self.linked_da_id]
-            if self.da_scheme is None:
-                raise Exception("Bad DA link " + str(self.linked_da_id))
-
-            return self.da_scheme
+            # already have linked da
+            self.da_scheme = self.get_da()
+        else:
+            self.da_scheme = random.choice(list(singleton.instance.da_population))
+            self.linked_da_id = self.da_scheme.id

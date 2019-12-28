@@ -167,7 +167,7 @@ class Generation:
             # blueprints should pick their da schemes before being evaluated. if their old DA is still alive they
             # will reselect it
             for blueprint_individual in self.blueprint_population.individuals:
-                blueprint_individual.pick_da_scheme(self.da_population)
+                blueprint_individual.sample_da(self.da_population)
 
         for i in range(Config.num_gpus):
             procs.append(mp.Process(target=self._evaluate, args=(lock, bp_index, results_dict), name=str(i)))

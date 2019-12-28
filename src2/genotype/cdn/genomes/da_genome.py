@@ -13,11 +13,20 @@ class DAGenome(Genome):
     def __init__(self, nodes: List[DANode], connections: List[Connection]):
         super().__init__(nodes, connections)
 
+    def __repr__(self):
+        da_nodes = ""
+        for n in self.nodes.values():
+            kwargs = {k: mutagen.value for k, mutagen in n.da.submutagens[n.da.value].items()}
+            da_nodes += n.da.value + ": " + repr(kwargs) + "\n"
+        return da_nodes
+
+
     def to_phenotype(self):
         """Construct a data augmentation scheme from its genome"""
         data_augmentations = []
+        node: DANode
         for node in self.nodes.values():
-            data_augmentations.append(node)
+            data_augmentations.append(node.to_phenotype())
 
         augmentation_scheme = AugmentationScheme(data_augmentations)
         return augmentation_scheme

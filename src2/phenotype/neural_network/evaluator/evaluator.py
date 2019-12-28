@@ -13,6 +13,7 @@ from sklearn.metrics import accuracy_score
 from torch.utils.data import DataLoader
 from torchvision.transforms import transforms
 
+from src2.phenotype.neural_network.evaluator.data_loader import imshow
 from src2.configuration import config
 from src2.phenotype.neural_network.evaluator.data_loader import load_data
 
@@ -27,19 +28,19 @@ def evaluate(model: Network, num_epochs=config.epochs_in_evolution, fully_traini
             time.sleep(config.dummy_time)
         return random.random()
 
-    # TODO add in augmentations
     if config.evolve_data_augmentations:
         composed_transform = transforms.Compose([
-            # TODO dunno how we gonna implement da scheme, but this avoids passing any DA schemes around cause it lives in the bp in the model
             model.blueprint.da_scheme.to_phenotype(),
             transforms.ToTensor(),
-            # transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))  # TODO why is this commented out
+            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
         ])
     else:
         composed_transform = transforms.Compose([
             transforms.ToTensor(),
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
         ])
+
+    print('da:', model.blueprint.da_scheme.to_phenotype())
 
     train_loader = load_data(composed_transform, 'train')
     device = config.get_device()
@@ -79,6 +80,8 @@ def train_batch(model: Network, inputs: torch.tensor, labels: torch.tensor, devi
         sys.stdout.flush()
 
     inputs, labels = inputs.to(device), labels.to(device)
+    print(model.blueprint.da_scheme)
+    imshow(inputs[0])
 
     output = model(inputs)
     m_loss = model.loss_fn(output, labels)
