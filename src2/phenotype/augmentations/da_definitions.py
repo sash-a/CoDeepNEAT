@@ -1,8 +1,14 @@
+from typing import List
+
 import imgaug.augmenters as iaa
 
 from src.DataAugmentation.CustomOperations import CustomOperation as CO
-
 # Dictionary containing all possible augmentation functions
+import src2.genotype.cdn.genomes.da_genome as da_genome
+import src2.genotype.cdn.nodes.da_node as da_node
+from src2.genotype.neat.connection import Connection
+from src2.genotype.neat.node import NodeType
+
 Augmentations = {
 
     # Convert images to HSV, then increase each pixel's Hue (H), Saturation (S) or Value/lightness (V) [0, 1, 2]
@@ -293,3 +299,39 @@ Augmentations = {
         func_images=CO.Edges(min_value=min_val, max_value=max_val)),
 
 }
+
+
+def get_legacy_da_scheme():
+    from src2.genotype.cdn.nodes.da_node import DANode
+    def _get_node_type(i, max_i):
+        return NodeType.INPUT if i == 0 else NodeType.OUTPUT if i == max_i - 1 else NodeType.HIDDEN
+
+    num_das = 6
+    nodes: List[DANode] = [DANode(i, _get_node_type(i, num_das)) for i in range(num_das)]
+    _make_da_scheme_legacy(nodes)
+    # Note: the connection IDs should not matter because DA connections will never be mutated
+    return da_genome.DAGenome(nodes, [Connection(0, 0, 1), Connection(1, 1, 2), Connection(2, 2, 3), Connection(3, 3, 4), Connection(4, 4, 5)])
+
+
+def _make_da_scheme_legacy(nodes: List):
+    for i in range(len(nodes)):
+        node = nodes[i]
+        if i == 0:
+            node.da.set_value("HSV")
+            node.da.set_sub_value("channel", 0)
+        elif i == 1:
+            node.da.set_value("HSV")
+            node.da.set_sub_value("channel", 1)
+        elif i == 2:
+            node.da.set_value("HSV")
+            node.da.set_sub_value("channel", 2)
+        elif i == 3:
+            node.da.set_value("Crop_Pixels")
+        elif i == 4:
+            node.da.set_value("Scale")
+        elif i == 5:
+            node.da.set_value("Flip_lr")
+        else:
+            raise Exception("num_das is incorrect")
+
+    return nodes

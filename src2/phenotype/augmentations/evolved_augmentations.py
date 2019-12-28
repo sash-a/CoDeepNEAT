@@ -56,3 +56,28 @@ def get_da_submutagens():
             "alpha_hi": ContinuousVariable("alpha_hi", 0.75, 0.5, 1.0, 0.3)}
 
     return submutagens
+
+
+def get_legacy_da_submutagens():
+    submutagens = {
+        "Scale": {
+            "x_lo": ContinuousVariable("x_lo", 1.1, 1, 1.15, 0.3),
+            "x_hi": ContinuousVariable("x_hi", 1.2, 1.15, 1.3, 0.3),
+
+            "y_lo": ContinuousVariable("y_lo", 1.1, 1, 1.15, 0.3),
+            "y_hi": ContinuousVariable("y_hi", 1.2, 1.15, 1.3, 0.3)},
+
+        "Crop_Pixels": {
+            "lo": IntegerVariable("lo", 2, 0, 3, 0.2),
+            "hi": IntegerVariable("hi", 4, 4, 6, 0.2),
+            "s_i": Option("s_i",  False, current_value=False, mutation_chance=0)}
+
+    }
+    if config.use_colour_augmentations:
+        submutagens["HSV"] = {
+            "channel": Option("channel", 0, 1, 2, current_value=0, mutation_chance=0),
+            "lo": IntegerVariable("lo", 15, 0, 27, 0.2),
+            "hi": IntegerVariable("hi", 35, 27, 45, 0.2)
+        }
+
+    return submutagens
