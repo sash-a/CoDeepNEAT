@@ -16,7 +16,7 @@ from src2.genotype.neat.connection import Connection
 from src2.genotype.neat.genome import Genome
 from src2.genotype.neat.node import Node
 from src2.phenotype.augmentations.da_definitions import get_legacy_da_scheme
-from src2.visualisation.genome_visualiser import visualise_blueprint_genome
+from src2.analysis.visualisation.genome_visualiser import visualise_blueprint_genome
 
 if TYPE_CHECKING:
     from src2.phenotype.neural_network.layers import layer

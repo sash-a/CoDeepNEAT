@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import sys
 from functools import reduce
 from typing import List, Union, Tuple, TYPE_CHECKING
 
@@ -12,8 +11,8 @@ from torch import nn, tensor, optim, squeeze
 from runs.runs_manager import get_fully_train_folder_path
 from src2.configuration import config
 from src2.phenotype.neural_network.layers.layer import Layer
-from src2.visualisation import phenotype_visualiser
-from src2.visualisation.phenotype_visualiser import get_node_colour
+from src2.analysis.visualisation import phenotype_visualiser
+from src2.analysis.visualisation.phenotype_visualiser import get_node_colour
 
 if TYPE_CHECKING:
     from src2.genotype.cdn.genomes.blueprint_genome import BlueprintGenome

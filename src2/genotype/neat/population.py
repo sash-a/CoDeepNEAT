@@ -9,7 +9,7 @@ from src2.genotype.neat.mutation_record import MutationRecords
 from src2.genotype.neat.operators.population_rankers.population_ranker import PopulationRanker
 from src2.genotype.neat.operators.speciators.speciator import Speciator
 from src2.genotype.neat.species import Species
-from src2.visualisation import speciation_visualiser
+from src2.analysis.visualisation import speciation_visualiser
 
 if TYPE_CHECKING:
     from src2.genotype.cdn.genomes.da_genome import DAGenome

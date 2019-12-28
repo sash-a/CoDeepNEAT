@@ -10,7 +10,7 @@ from src2.genotype.cdn.nodes.blueprint_node import BlueprintNode
 from src2.genotype.neat import mutation_record
 from src2.genotype.neat.genome import Genome
 from src2.genotype.neat.operators import cross
-from src2.visualisation.genome_visualiser import get_graph_of
+from src2.analysis.visualisation.genome_visualiser import get_graph_of
 from test import static_genomes
 
 """

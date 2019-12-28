@@ -13,7 +13,7 @@ from src2.genotype.neat.operators.mutators.mutation_report import MutationReport
 
 class BlueprintGenomeMutator(GenomeMutator):
 
-    def mutate(self, genome: Genome, mutation_record: mutation_record):
+    def mutate(self, genome: BlueprintGenome, mutation_record: mutation_record):
         """
             performs base neat genome mutations, as well as node and genome property mutations
             as well as all mutations specific to blueprint genomes
@@ -25,6 +25,7 @@ class BlueprintGenomeMutator(GenomeMutator):
         mutation_report += self.mutate_node_types(genome)
         mutation_report += self.mutate_species_numbers(genome)
         mutation_report += self.forget_module_mappings_mutation(genome)
+        mutation_report += self.forget_da_scheme(genome)
 
         return genome
 
@@ -83,4 +84,9 @@ class BlueprintGenomeMutator(GenomeMutator):
             mutation_report += "forgot module mapping for species " + str(species_id)
 
         return mutation_report
+
+    def forget_da_scheme(self, genome: BlueprintGenome):
+        if random.random() < config.da_link_forget_chance:
+            genome.da_scheme = None
+            genome.linked_da_id = -1
 

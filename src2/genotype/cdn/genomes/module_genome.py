@@ -7,7 +7,7 @@ from src2.genotype.neat.connection import Connection
 from src2.genotype.neat.genome import Genome
 from src2.genotype.neat.node import Node
 from src2.phenotype.neural_network.layers.layer import Layer
-from src2.visualisation.genome_visualiser import get_graph_of
+from src2.analysis.visualisation.genome_visualiser import get_graph_of
 
 
 class ModuleGenome(Genome):

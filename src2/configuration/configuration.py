@@ -48,6 +48,7 @@ class Config:
         self.use_colour_augmentations = False
         self.add_da_node_chance = 0.15
         self.apply_da_chance = 0.5
+        self.da_link_forget_chance = 0.2
         # ------------------------------------------------- cdn stuff -------------------------------------------------
         self.multiobjective = False
         # Population and species sizes
