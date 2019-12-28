@@ -29,13 +29,14 @@ class Config:
         self.dummy_time = 0  # number of seconds to wait to return a dummy eval
         self.threading_test = False
         self.max_batches = -1
-        # ---------------------------------------------- Graphing Options ----------------------------------------------
+        # -------------------------------------------- Visualising Options --------------------------------------------
         self.view_graph_plots = False  # if true, any plotted graphs will be viewed
         self.plot_best_genotypes = False
         self.plot_every_genotype = False
         self.plot_best_phenotype = False
         self.plot_every_phenotype = False
         self.plot_module_species = False
+        self.view_batch_image = False
         # ----------------------------------------------- Dataset stuff -----------------------------------------------
         self.dataset = 'cifar10'  # mnist | cifar10 | custom
         self.custom_dataset_root = ''
@@ -45,6 +46,7 @@ class Config:
         self.evolve_data_augmentations = False
         self.use_colour_augmentations = False
         self.add_da_node_chance = 0.15
+        self.apply_da_chance = 0.5
         # ------------------------------------------------- cdn stuff -------------------------------------------------
         self.multiobjective = False
         # Population and species sizes

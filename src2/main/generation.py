@@ -156,7 +156,7 @@ class Generation:
         if config.evolve_data_augmentations:
             da_speciator = NEATSpeciator(config.species_distance_thresh_mod_base, config.n_blueprint_species,
                                          DAGenomeMutator())
-            self.da_population = Population(create_population(config.da_pop_size, DANode, DAGenome),
+            self.da_population = Population(create_population(config.da_pop_size, DANode, DAGenome, no_branches=True),
                                             create_mr(), config.da_pop_size, da_speciator)
 
     def __getitem__(self, genome_id: int):

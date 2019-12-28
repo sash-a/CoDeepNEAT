@@ -40,8 +40,6 @@ def evaluate(model: Network, num_epochs=config.epochs_in_evolution, fully_traini
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
         ])
 
-    print('da:', model.blueprint.da_scheme.to_phenotype())
-
     train_loader = load_data(composed_transform, 'train')
     device = config.get_device()
 
@@ -80,8 +78,8 @@ def train_batch(model: Network, inputs: torch.tensor, labels: torch.tensor, devi
         sys.stdout.flush()
 
     inputs, labels = inputs.to(device), labels.to(device)
-    # print(model.blueprint.da_scheme)
-    # imshow(inputs[0])
+    if config.view_batch_image:
+        imshow(inputs[0])
 
     output = model(inputs)
     m_loss = model.loss_fn(output, labels)

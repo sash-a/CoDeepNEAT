@@ -5,6 +5,7 @@ from typing import Dict, TYPE_CHECKING, List, Union, AbstractSet, Set
 from tarjan import tarjan
 
 from src2.configuration import config
+from src2.genotype.cdn.nodes.da_node import DANode
 from src2.genotype.neat.mutation_record import MutationRecords
 
 if TYPE_CHECKING:
@@ -18,7 +19,7 @@ if TYPE_CHECKING:
 class GraphGenome:
     def __init__(self, nodes: List[Node], connections: List[Connection]):
         # nodes and connections map from gene id -> gene object
-        self.nodes: Dict[int, Union[Node, BlueprintNode, ModuleNode]] = {}
+        self.nodes: Dict[int, Union[Node, BlueprintNode, ModuleNode, DANode]] = {}
         self.connections: Dict[int, Connection] = {}
 
         # connected nodes is stored to quickly tell if a connection is already in the genome
