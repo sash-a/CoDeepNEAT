@@ -123,6 +123,8 @@ class Generation:
         for bp in self.blueprint_population:
             for fitness, sample_map in zip(bp.fitness_raw[0], bp.all_sample_maps):
                 bp.report_fitness_to_modules([fitness], sample_map)
+                if config.evolve_data_augmentations:
+                    bp.report_fitness_to_da([fitness])
 
     def initialise_populations(self):
         """Starts off the populations of a new evolutionary run"""

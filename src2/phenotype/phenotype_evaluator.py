@@ -49,6 +49,7 @@ def evaluate_blueprint(blueprint: BlueprintGenome, input_size: List[int], num_ep
     model: Network = Network(blueprint, input_size).to(device)
     model_size = sum(p.numel() for p in model.parameters() if p.requires_grad)
     if model_size > config.max_model_params:
+        print("dropped model which was too large:",model_size,"params")
         accuracy = 0
     else:
         accuracy = evaluate(model, num_epochs=num_epochs)

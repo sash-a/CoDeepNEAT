@@ -115,6 +115,14 @@ class BlueprintGenome(Genome):
             module = Singleton.instance.module_population[module_id]
             module.report_fitness(fitness)
 
+    def report_fitness_to_da(self, fitness: List[float]):
+        import src2.main.singleton as Singleton
+        da_indv : DAGenome = Singleton.instance.da_population[self.linked_da_id]
+        if da_indv is not None:
+            da_indv.report_fitness(fitness)
+        else:
+            print("no da to report fitness to")
+
     def update_best_sample_map(self, candidate_map: Dict[int, int], accuracy: int):
         self.all_sample_maps.append(candidate_map)
         if self.best_sample_map_accuracy < accuracy:
