@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import copy
-import math
 import random
 from typing import List, Dict, TYPE_CHECKING, Optional, Tuple
 
-import src2.main.singleton as singleton
+import math
+
 import src2.genotype.cdn.nodes.blueprint_node as BlueprintNode
+import src2.main.singleton as singleton
 from src2.configuration import config
 from src2.genotype.cdn.genomes.da_genome import DAGenome
 from src2.genotype.mutagen.continuous_variable import ContinuousVariable
@@ -14,6 +15,7 @@ from src2.genotype.mutagen.mutagen import Mutagen
 from src2.genotype.neat.connection import Connection
 from src2.genotype.neat.genome import Genome
 from src2.genotype.neat.node import Node
+from src2.phenotype.augmentations.da_definitions import get_legacy_da_scheme
 from src2.visualisation.genome_visualiser import visualise_blueprint_genome
 
 if TYPE_CHECKING:
@@ -37,15 +39,21 @@ class BlueprintGenome(Genome):
         self.best_module_sample_map: Optional[Dict[int, int]] = None  # todo empty this at the end of evaluation
         self.best_sample_map_accuracy: float = -1
 
-        self.da_scheme: DAGenome = None
         self.linked_da_id: int = -1
+        self.da_scheme: Optional[DAGenome] = None
+        if config.evolve_data_augmentations and not config.evolve_da_pop:
+            self.da_scheme = get_legacy_da_scheme()
 
     def get_modules_used(self):
         """:returns all module ids currently being used by this blueprint. returns duplicates"""
         pass
 
     def get_all_mutagens(self) -> List[Mutagen]:
-        return [self.learning_rate, self.beta1, self.beta2]
+        mutagens = [self.learning_rate, self.beta1, self.beta2]
+        if config.evolve_data_augmentations and not config.evolve_da_pop:
+            mutagens += [node.da for node in self.da_scheme.nodes.values()]
+
+        return mutagens
 
     def commit_sample_maps(self):
         """
@@ -118,7 +126,7 @@ class BlueprintGenome(Genome):
 
     def report_fitness_to_da(self, fitness: List[float]):
         import src2.main.singleton as Singleton
-        da_indv : DAGenome = Singleton.instance.da_population[self.linked_da_id]
+        da_indv: DAGenome = Singleton.instance.da_population[self.linked_da_id]
         if da_indv is not None:
             da_indv.report_fitness(fitness)
         else:
@@ -142,7 +150,8 @@ class BlueprintGenome(Genome):
         """forget module maps with a probability based on how fully mapped the blueprint is"""
         # of all of the nodes what percent of their linked species are in the module map
         species_ids = set(self.get_blueprint_nodes_iter())
-        mapped_species = set([node.species_id for node in self.get_blueprint_nodes_iter() if node.linked_module_id != -1])
+        mapped_species = set(
+            [node.species_id for node in self.get_blueprint_nodes_iter() if node.linked_module_id != -1])
         if len(species_ids) == 0:
             print("blueprint without any blueprint nodes")
             return []
@@ -165,6 +174,9 @@ class BlueprintGenome(Genome):
         return self.da_scheme
 
     def sample_da(self):
+        if not config.evolve_da_pop:
+            return
+
         if self.linked_da_id != -1:
             # already have linked da
             self.da_scheme = self.get_da()

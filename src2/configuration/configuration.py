@@ -44,6 +44,7 @@ class Config:
         self.download_dataset = True
         # ------------------------------------------------- DA stuff --------------------------------------------------
         self.evolve_data_augmentations = False
+        self.evolve_da_pop = False
         self.use_colour_augmentations = False
         self.add_da_node_chance = 0.15
         self.apply_da_chance = 0.5

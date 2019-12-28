@@ -9,7 +9,6 @@ from src2.phenotype.augmentations.augmentation_scheme import AugmentationScheme
 
 
 class DAGenome(Genome):
-
     def __init__(self, nodes: List[DANode], connections: List[Connection]):
         super().__init__(nodes, connections)
 

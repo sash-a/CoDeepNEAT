@@ -85,6 +85,9 @@ class Option(Mutagen):
 
         self.current_value = value
 
+    def set_sub_value(self, submutagen_name, value):
+        self.get_submutagen(submutagen_name).set_value(value)
+
     def _interpolate(self, other: Mutagen):
         return Option(self.name, *self.options,
                       current_value=random.choice([self.current_value, other.get_current_value()]),

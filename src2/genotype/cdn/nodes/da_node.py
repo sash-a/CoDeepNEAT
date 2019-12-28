@@ -14,6 +14,7 @@ class DANode(Node):
 
         submutagens = get_da_submutagens()
         # Separated Photometric (Colour) augmentations from geometric (non-colour) ones
+        self.da: Option
         if config.use_colour_augmentations:
             self.da: Option = Option("DA Type", "Flip_lr", "Rotate", "Translate_Pixels", "Scale", "Pad_Pixels",
                                      "Crop_Pixels", "Grayscale", "Coarse_Dropout", "HSV", "No_Operation",
