@@ -95,6 +95,7 @@ def init_generation(new_run: bool) -> Generation:
         print('cont')
         generation: Generation = runs_manager.load_latest_generation(config.run_name)
         if generation is None:  # generation load failed, likely because the run did not complete gen 0
+            init_generation_dir(True)
             return init_generation(True)  # will start a fresh gen
 
         Singleton.instance = generation
