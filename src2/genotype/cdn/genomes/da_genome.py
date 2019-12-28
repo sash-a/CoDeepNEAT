@@ -21,3 +21,11 @@ class DAGenome(Genome):
 
         augmentation_scheme = AugmentationScheme(data_augmentations)
         return augmentation_scheme
+
+    def validate(self) -> bool:
+        traversal_dict = self.get_traversal_dictionary()
+        for children in traversal_dict.values():
+            if len(children) > 1:
+                return False
+
+        return super().validate()

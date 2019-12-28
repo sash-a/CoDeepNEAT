@@ -4,7 +4,7 @@ from src2.genotype.neat.genome import Genome
 from src2.genotype.neat.operators.mutators.genome_mutator import GenomeMutator
 
 
-class DataAugmentationGenomeMutator(GenomeMutator):
+class DAGenomeMutator(GenomeMutator):
 
     def mutate(self, genome: Genome, mutation_record: mutation_record):
         """

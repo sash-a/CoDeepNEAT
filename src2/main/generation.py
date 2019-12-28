@@ -18,6 +18,7 @@ from src2.genotype.cdn.genomes.blueprint_genome import BlueprintGenome
 from src2.genotype.cdn.genomes.da_genome import DAGenome
 from src2.genotype.cdn.genomes.module_genome import ModuleGenome
 from src2.genotype.cdn.mutators.blueprint_genome_mutator import BlueprintGenomeMutator
+from src2.genotype.cdn.mutators.da_genome_mutator import DAGenomeMutator
 from src2.genotype.cdn.mutators.module_genome_mutator import ModuleGenomeMutator
 from src2.genotype.cdn.nodes.blueprint_node import BlueprintNode
 from src2.genotype.cdn.nodes.da_node import DANode
@@ -153,8 +154,10 @@ class Generation:
 
         # TODO DA pop only straight genomes
         if config.evolve_data_augmentations:
+            da_speciator = NEATSpeciator(config.species_distance_thresh_mod_base, config.n_blueprint_species,
+                                         DAGenomeMutator())
             self.da_population = Population(create_population(config.da_pop_size, DANode, DAGenome),
-                                            create_mr(), config.da_pop_size, bp_speciator)
+                                            create_mr(), config.da_pop_size, da_speciator)
 
     def __getitem__(self, genome_id: int):
         if config.evolve_data_augmentations:
