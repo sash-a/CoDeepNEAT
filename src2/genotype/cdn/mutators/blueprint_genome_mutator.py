@@ -85,8 +85,14 @@ class BlueprintGenomeMutator(GenomeMutator):
 
         return mutation_report
 
-    def forget_da_scheme(self, genome: BlueprintGenome):
+
+    def forget_da_scheme(self, genome: BlueprintGenome) -> MutationReport:
+        mutation_report = MutationReport()
+
         if random.random() < config.da_link_forget_chance:
             genome.da_scheme = None
             genome.linked_da_id = -1
+            mutation_report += "forgot da scheme link"
+
+        return mutation_report
 
