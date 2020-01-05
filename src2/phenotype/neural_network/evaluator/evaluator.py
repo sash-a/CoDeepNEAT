@@ -68,7 +68,6 @@ def train_batch(model: Network, inputs: torch.Tensor, labels: torch.Tensor, augm
 
     inputs = augmentor(list(inputs.numpy()))
     inputs, labels = inputs.to(device), labels.to(device)
-    imshow(inputs[0])
     if config.view_batch_image:
         imshow(inputs[0])
 
