@@ -46,7 +46,6 @@ def reformat_images_for_DA(images, augmentor):
     reformatted_images_list = []
     # different reformatting required based on if images are 1 channel or 3 channel (grayscale or RGB)
     if Config.colour_augmentations:
-
         for i in images:
             # the following DAs require conversion to uint8
             if "Grayscale" in augmentor.augs_names or "HSV" in augmentor.augs_names or "Custom_Canny_Edges" in augmentor.augs_names:
@@ -63,7 +62,6 @@ def reformat_images_for_DA(images, augmentor):
         reformatted_images = np.asarray(reformatted_images_list)
         return reformatted_images
     else:
-
         for i in images:
             # convert 1 channel image to 3 channel image (necessary for specific DAs)
             # Also makes transposing these images unnecessary

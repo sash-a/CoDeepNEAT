@@ -8,7 +8,9 @@ from torchvision import transforms
 from torchvision.datasets import MNIST, CIFAR10, ImageFolder
 
 from data import DataManager
+
 from src2.configuration import config
+from src2.phenotype.neural_network.neural_network import Network
 
 
 def load_data(composed_transforms: transforms.Compose, split: str) -> DataLoader:
@@ -77,6 +79,21 @@ def get_generic_dataset(composed_transforms: transforms.Compose, train: bool) ->
         data = ImageFolder(root=path.join(config.custom_dataset_root, 'test'), transform=composed_transforms)
 
     return data
+
+
+def load_transform(model: Network = None) -> transforms.Compose:
+    print(model)
+    if config.evolve_data_augmentations and model is not None:
+        return transforms.Compose([
+            model.blueprint.da_scheme.to_phenotype(),
+            transforms.ToTensor(),
+            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+        ])
+    else:
+        return transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+        ])
 
 
 def imshow(img):

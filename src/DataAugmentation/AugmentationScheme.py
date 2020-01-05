@@ -318,19 +318,36 @@ class AugmentationScheme:
         aug_img = aug_img[..., ::1] - np.zeros_like(aug_img)
         return aug_img
 
-    # def add_augmentation(self, augmentation_mutagen):
-    #     """Used to add a single augmentation to the pipeline"""
-    #     augmentation_name = augmentation_mutagen()
-    #     self.augs_names.append(augmentation_name)
-    #     sub_values = augmentation_mutagen.get_sub_values()
-    #
-    #     if sub_values is None:
-    #         self.augs.append(AugmentationScheme.augmentations[augmentation_name])
-    #     else:
-    #         args = [sub_values[x]() for x in sub_values]
-    #
-    #         try:
-    #             self.augs.append(AugmentationScheme.augmentations[augmentation_name](*args))
-    #         except Exception as e:
-    #             raise Exception(augmentation_name + " failed to initialise with parameters" + repr(args))
-    #
+    # This function is used to add a single augmentation to the pipeline
+    # The augmentation added is a combination of the ones found in augmentations
+    # augmentations is a list of numbers that should correspond to the augmentations you want to combine
+    def add_augmentation(self, augmentation_mutagen):
+        augmentation_name = augmentation_mutagen()
+        self.augs_names.append(augmentation_name)
+        sub_values = augmentation_mutagen.get_sub_values()
+        if sub_values is None:
+            self.augs.append(AugmentationScheme.Augmentations[augmentation_name])
+            # print('got', augmentation_name)
+        else:
+            args = [sub_values[x]() for x in sub_values]
+            try:
+                self.augs.append(AugmentationScheme.Augmentations[augmentation_name](*args))
+            except Exception as e:
+                print(e)
+                raise Exception(augmentation_name + " failed to initialise with parameters" + repr(args))
+            # print('got', augmentation_name, "args", args, "*args", *args)
+
+        # print('related function: ', AugmentationScheme.Augmentations[augmentation_name])
+
+    # This function returns a new list of augmented images based on the pipeline you create
+    def augment_images(self):
+
+        if self.augs:
+            seq = iaa.Sequential(self.augs)
+            images_aug = seq.augment_images(self.images)
+            # print("auging with:",seq,"\nfrom augs",self.augs)
+            self.labels = self.labels  # labels should be identical
+            return images_aug, self.labels
+
+        else:
+            raise TypeError("Augmentation pipe is currently empty")

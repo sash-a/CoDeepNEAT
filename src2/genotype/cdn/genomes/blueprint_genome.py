@@ -167,6 +167,9 @@ class BlueprintGenome(Genome):
         return species_to_unmap
 
     def get_da(self) -> DAGenome:
+        if config.evolve_data_augmentations and not config.evolve_da_pop:
+            return self.da_scheme
+
         self.da_scheme = singleton.instance.da_population[self.linked_da_id]
         if self.da_scheme is None:
             raise Exception("Bad DA link " + str(self.linked_da_id))

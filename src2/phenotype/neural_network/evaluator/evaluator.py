@@ -1,52 +1,41 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import random
 import sys
-import torch.multiprocessing as mp
 import time
-from typing import TYPE_CHECKING
+import wandb
 
 import numpy as np
 import torch
-import wandb
+import torch.multiprocessing as mp
+
 from sklearn.metrics import accuracy_score
 from torch.utils.data import DataLoader
-from torchvision.transforms import transforms
 
-from src2.phenotype.neural_network.evaluator.data_loader import imshow
+from src2.phenotype.augmentations.batch_augmentation_scheme import BatchAugmentationScheme
+from src2.phenotype.neural_network.evaluator.data_loader import imshow, load_data, load_transform
 from src2.configuration import config
-from src2.phenotype.neural_network.evaluator.data_loader import load_data
 
 if TYPE_CHECKING:
     from src2.phenotype.neural_network.neural_network import Network
 
 
-def evaluate(model: Network, num_epochs=config.epochs_in_evolution, fully_training=False):
+def evaluate(model: Network, num_epochs=config.epochs_in_evolution, fully_training=False) -> float:
     """trains model on training data, test on testing and returns test acc"""
     if config.dummy_run and not fully_training:
         if config.dummy_time > 0:
             time.sleep(config.dummy_time)
         return random.random()
 
-    if config.evolve_data_augmentations:
-        composed_transform = transforms.Compose([
-            model.blueprint.da_scheme.to_phenotype(),
-            transforms.ToTensor(),
-            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-        ])
-    else:
-        composed_transform = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-        ])
-
-    train_loader = load_data(composed_transform, 'train')
+    train_loader = load_data(load_transform(model if not config.batch_augmentation else None), 'train')
     device = config.get_device()
 
     for epoch in range(num_epochs):
         if config.threading_test:
             print('Thread %s bp: %i epoch: %i' % (mp.current_process().name, model.blueprint.id, epoch))
-        loss = train_epoch(model, train_loader, device)
+        loss = train_epoch(model, train_loader, model.blueprint.get_da().to_phenotype(), device)
 
         if fully_training:
             # Save and log if fully training
@@ -56,28 +45,30 @@ def evaluate(model: Network, num_epochs=config.epochs_in_evolution, fully_traini
                 model.save()
                 wandb.save(model.save_location())
 
-    test_loader = load_data(composed_transform, 'test')
+    test_loader = load_data(load_transform(), 'test' if not config.fully_train else 'validation')
     return test_nn(model, test_loader)
 
 
-def train_epoch(model: Network, train_loader: DataLoader, device) -> float:
+def train_epoch(model: Network, train_loader: DataLoader, augmentor: BatchAugmentationScheme, device) -> float:
     model.train()
     loss: float = 0
     for batch_idx, (inputs, targets) in enumerate(train_loader):
         if config.max_batches != -1 and batch_idx > config.max_batches:
             break
         model.optimizer.zero_grad()
-        loss += train_batch(model, inputs, targets, device)
+        loss += train_batch(model, inputs, targets, augmentor, device)
 
     return loss
 
 
-def train_batch(model: Network, inputs: torch.tensor, labels: torch.tensor, device):
+def train_batch(model: Network, inputs: torch.Tensor, labels: torch.Tensor, augmentor: BatchAugmentationScheme, device):
     if config.threading_test:
         print('training batch on thread:', mp.current_process().name)
         sys.stdout.flush()
 
+    inputs = augmentor(list(inputs.numpy()))
     inputs, labels = inputs.to(device), labels.to(device)
+    imshow(inputs[0])
     if config.view_batch_image:
         imshow(inputs[0])
 
