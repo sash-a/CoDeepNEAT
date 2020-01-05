@@ -62,7 +62,7 @@ class Config:
         self.module_node_batchnorm_chance = 0.65
         self.module_node_dropout_chance = 0.2
         self.module_node_max_pool_chance = 0.3
-        """chance of a new node starting with a deep layer - as opposed to a regulariser only layer"""
+        # chance of a new node starting with a deep layer - as opposed to a regulariser only layer
         self.module_node_deep_layer_chance = 1
         self.module_node_conv_layer_chance = 1  # chance of linear = 1-conv. not used if no deep layer
         self.lossy_chance = 0.5
@@ -76,7 +76,7 @@ class Config:
         self.max_module_map_ignores = 1
         self.parent_selector = "uniform"  # uniform | roulette | tournament
         self.representative_selector = 'random'  # best | centroid | random
-        #  blank node settings - if true input/output nodes are left blank perpetually
+        # blank node settings - if true input/output nodes are left blank perpetually
         self.blank_module_input_nodes = False
         self.blank_bp_input_nodes = False
         self.blank_module_output_nodes = False

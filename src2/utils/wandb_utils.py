@@ -100,25 +100,29 @@ def _wandb_log_generation(generation: Generation):
     raw_bp_accs = []
     for bp in generation.blueprint_population:
         n_unevaluated_bps += sum(fitness[0] == 0 for fitness in bp.fitness_raw)
-        raw_bp_accs.extend(bp.fitness_raw[0])
+        raw_bp_accs.extend(bp.accuracy)
 
     n_unevaluated_mods = 0
     raw_mod_accs = []
     for mod in generation.module_population:
         n_unevaluated_mods += 1 if mod.n_evaluations == 0 else 0
-        raw_mod_accs.extend(mod.fitness_raw[0])
+        raw_mod_accs.extend(mod.accuracy)  # this will end up being a list in MOO
 
     mod_acc_tbl = wandb.Table(['module accuracies'], data=raw_mod_accs)
     bp_acc_tbl = wandb.Table(['blueprint accuracies'], data=raw_bp_accs)
+
+    non_zero_mod_accs = [x for x in raw_mod_accs if x != 0]
+
     # Saving the pickle file for further inspection
     wandb.save(get_generation_file_path(generation.generation_number, config.run_name))
 
     wandb.log({'module accuracy table': mod_acc_tbl, 'blueprint accuracy table': bp_acc_tbl,
-               'module accuracies aggregated': module_accs, 'blueprint accuracies aggregated': bp_accs,
+               config.fitness_aggregation + ' module accuracies': module_accs,
+               config.fitness_aggregation + ' blueprint accuracies': bp_accs,
                'module accuracies raw': raw_mod_accs, 'blueprint accuracies raw': raw_bp_accs,
-               'avg module accuracy': sum(module_accs) / len(module_accs),
+               'avg module accuracy': sum(non_zero_mod_accs) / len(non_zero_mod_accs),
                'avg blueprint accuracy': sum(bp_accs) / len(bp_accs),
-               'best module accuracy': max(raw_mod_accs), 'best blueprint accuracy': max(raw_bp_accs),
+               'best blueprint accuracy': max(raw_bp_accs),
                'num module species': len(generation.module_population.species),
                'species sizes': [len(spc.members) for spc in generation.module_population.species],
                'unevaluated blueprints': n_unevaluated_bps, 'n_unevaluated_mods': n_unevaluated_mods,
