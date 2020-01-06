@@ -1,17 +1,13 @@
 {
-  "run_name": "mms_switch",
+  "run_name": "base",
   "n_gpus": 4,
-  "lossy_chance" : 0.5,
-  "mutate_lossy_values" : true,
   "dummy_run" : false,
   "wandb_tags": ["base"],
-  "old_agg": false,
-  "validation_split" : 0.15,
-  "use_module_retention": true,
-  "fitness_aggregation" : "max",
-  "parent_selector" : "tournament",
-  "representative_selector" : "centroid",
-  "module_speciation" : "similar",
+  "use_module_retention": false,
+  "fitness_aggregation" : "avg",
+  "parent_selector" : "uniform",
+  "representative_selector" : "random",
+  "module_speciation" : "neat",
   "blueprint_node_type_switch_chance": 0
 
 }
