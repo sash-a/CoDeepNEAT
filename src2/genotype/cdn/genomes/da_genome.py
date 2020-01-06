@@ -16,11 +16,12 @@ class DAGenome(Genome):
 
     def __repr__(self):
         da_nodes = ""
-        for n in self.nodes.values():
+        for n_id in self.get_fully_connected_node_ids():
+            node: DANode = self.nodes[n_id]
             kwargs = {}
-            if n.da.value in n.da.submutagens:
-                kwargs = {k: mutagen.value for k, mutagen in n.da.submutagens[n.da.value].items()}
-            da_nodes += n.da.value + ": " + repr(kwargs) + "\n"
+            if node.da.value in node.da.submutagens:
+                kwargs = {k: mutagen.value for k, mutagen in node.da.submutagens[node.da.value].items()}
+            da_nodes += node.da.value + ": " + repr(kwargs) + "\n"
         return da_nodes
 
     def to_phenotype(self) -> Union[BatchAugmentationScheme, AugmentationScheme]:

@@ -303,6 +303,7 @@ Augmentations = {
 
 def get_legacy_da_scheme():
     from src2.genotype.cdn.nodes.da_node import DANode
+
     def _get_node_type(i, max_i):
         return NodeType.INPUT if i == 0 else NodeType.OUTPUT if i == max_i - 1 else NodeType.HIDDEN
 
@@ -310,7 +311,9 @@ def get_legacy_da_scheme():
     nodes: List[DANode] = [DANode(i, _get_node_type(i, num_das)) for i in range(num_das)]
     _make_da_scheme_legacy(nodes)
     # Note: the connection IDs should not matter because DA connections will never be mutated
-    return da_genome.DAGenome(nodes, [Connection(0, 0, 1), Connection(1, 1, 2), Connection(2, 2, 3), Connection(3, 3, 4), Connection(4, 4, 5)])
+    return da_genome.DAGenome(nodes,
+                              [Connection(0, 0, 1), Connection(1, 1, 2), Connection(2, 2, 3), Connection(3, 3, 4),
+                               Connection(4, 4, 5)])
 
 
 def _make_da_scheme_legacy(nodes: List):

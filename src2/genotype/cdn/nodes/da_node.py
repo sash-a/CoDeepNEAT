@@ -33,8 +33,6 @@ class DANode(Node):
 
     def to_phenotype(self):
         kwargs = {k: mutagen.value for k, mutagen in self.da.submutagens[self.da.value].items()}
-        print(self.da.value)
-        print(kwargs)
         return Augmentations[self.da.value](**kwargs)
 
     # def get_node_name(self):

@@ -10,6 +10,7 @@ from torchvision.datasets import MNIST, CIFAR10, ImageFolder
 from data import DataManager
 
 from src2.configuration import config
+from src2.phenotype.augmentations.augmentation_scheme import AugmentationScheme
 from src2.phenotype.neural_network.neural_network import Network
 
 
@@ -81,11 +82,10 @@ def get_generic_dataset(composed_transforms: transforms.Compose, train: bool) ->
     return data
 
 
-def load_transform(model: Network = None) -> transforms.Compose:
-    print(model)
-    if config.evolve_da and model is not None:
+def load_transform(aug: AugmentationScheme = None) -> transforms.Compose:
+    if config.evolve_da and not config.batch_augmentation and aug is not None:
         return transforms.Compose([
-            model.blueprint.get_da().to_phenotype(),
+            aug,
             transforms.ToTensor(),
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
         ])

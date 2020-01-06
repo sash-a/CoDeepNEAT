@@ -29,7 +29,7 @@ def evaluate(model: Network, num_epochs=config.epochs_in_evolution, fully_traini
             time.sleep(config.dummy_time)
         return random.random()
 
-    train_loader = load_data(load_transform(model if not config.batch_augmentation else None), 'train')
+    train_loader = load_data(load_transform(model.blueprint.get_da().to_phenotype()), 'train')
     device = config.get_device()
 
     for epoch in range(num_epochs):
