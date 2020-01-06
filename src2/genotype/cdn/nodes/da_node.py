@@ -1,7 +1,7 @@
 import random
 
 from src2.configuration import config
-from src2.phenotype.augmentations.evolved_augmentations import get_da_submutagens
+from src2.phenotype.augmentations.da_submutagens import get_da_submutagens
 from src2.genotype.mutagen.option import Option
 from src2.genotype.neat.node import Node, NodeType
 from src2.phenotype.augmentations.da_definitions import Augmentations
@@ -33,6 +33,8 @@ class DANode(Node):
 
     def to_phenotype(self):
         kwargs = {k: mutagen.value for k, mutagen in self.da.submutagens[self.da.value].items()}
+        print(self.da.value)
+        print(kwargs)
         return Augmentations[self.da.value](**kwargs)
 
     # def get_node_name(self):

@@ -25,7 +25,7 @@ class Option(Mutagen):
         self.submutagens: Dict[Any, Dict[str, Union[Mutagen, Option]]] = submutagens
 
         if current_value not in options:
-            raise Exception("current value must be in options list. CV: " + repr(current_value) + "options: " + repr(options))
+            raise Exception("Current value must be option in list: " + repr(current_value) + " not in " + repr(options))
         self.current_value = current_value
 
     def get_subvalue(self, subvalue_name):
@@ -36,10 +36,11 @@ class Option(Mutagen):
             raise Exception("No submutagens on option: " + repr(self.name) + " " + repr(self))
 
         if self.value not in self.submutagens:
-            print(self.name, "does not have the submutagen", subvalue_name,"does not have any submutagens")
+            print(self.name, "does not have the submutagen", subvalue_name, "does not have any submutagens")
 
         if subvalue_name not in self.submutagens[self.value]:
-            raise Exception(self.name + " does not have the submutagen " + subvalue_name + " for value " + repr(self.value))
+            raise Exception(
+                self.name + " does not have the submutagen " + subvalue_name + " for value " + repr(self.value))
 
         return self.submutagens[self.value][subvalue_name]
 

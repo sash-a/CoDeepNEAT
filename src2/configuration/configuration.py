@@ -43,7 +43,7 @@ class Config:
         self.validation_split = 0.15  # Percent of the train set that becomes the validation set
         self.download_dataset = True
         # ------------------------------------------------- DA stuff --------------------------------------------------
-        self.evolve_data_augmentations = False
+        self.evolve_da = False
         self.evolve_da_pop = False
         self.use_colour_augmentations = False
         self.add_da_node_chance = 0.15

@@ -79,7 +79,7 @@ class Generation:
 
         self.module_population.end_step()
         self.blueprint_population.end_step()
-        if config.evolve_data_augmentations:
+        if config.evolve_da and config.evolve_da_pop:
             self.da_population.end_step()
 
         print('Module species:', [len(spc.members) for spc in self.module_population.species])
@@ -90,7 +90,7 @@ class Generation:
         self.module_population.before_step()
         self.blueprint_population.before_step()
         # blueprints choosing DA schemes from population
-        if config.evolve_data_augmentations:
+        if config.evolve_da and config.evolve_da_pop:
             self.da_population.before_step()
             for blueprint_individual in self.blueprint_population:
                 blueprint_individual.sample_da()
@@ -121,11 +121,12 @@ class Generation:
         # i.e the same blueprints, but they have fitness assigned
         self.blueprint_population.species[0].members = {bp.id: bp for bp in results}
         # Reporting fitness to all modules
+        bp: BlueprintGenome
         for bp in self.blueprint_population:
             for fitness, sample_map in zip(bp.fitness_raw[0], bp.all_sample_maps):
-                bp.report_fitness_to_modules([fitness], sample_map)
-                if config.evolve_data_augmentations:
-                    bp.report_fitness_to_da([fitness])
+                bp.report_module_fitness([fitness], sample_map)
+                if config.evolve_da and config.evolve_da_pop:
+                    bp.report_da_fitness([fitness])
 
     def initialise_populations(self):
         """Starts off the populations of a new evolutionary run"""
@@ -153,14 +154,14 @@ class Generation:
         print("initialised pops, bps:", len(self.blueprint_population), "mods:", len(self.module_population))
 
         # TODO DA pop only straight genomes
-        if config.evolve_data_augmentations:
+        if config.evolve_da and config.evolve_da_pop:
             da_speciator = NEATSpeciator(config.species_distance_thresh_mod_base, config.n_blueprint_species,
                                          DAGenomeMutator())
             self.da_population = Population(create_population(config.da_pop_size, DANode, DAGenome, no_branches=True),
                                             create_mr(), config.da_pop_size, da_speciator)
 
     def __getitem__(self, genome_id: int):
-        if config.evolve_data_augmentations:
+        if config.evolve_da and config.evolve_da_pop:
             populations: List[Population] = [self.blueprint_population, self.module_population, self.da_population]
         else:
             populations: List[Population] = [self.blueprint_population, self.module_population]

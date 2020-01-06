@@ -83,9 +83,9 @@ def get_generic_dataset(composed_transforms: transforms.Compose, train: bool) ->
 
 def load_transform(model: Network = None) -> transforms.Compose:
     print(model)
-    if config.evolve_data_augmentations and model is not None:
+    if config.evolve_da and model is not None:
         return transforms.Compose([
-            model.blueprint.da_scheme.to_phenotype(),
+            model.blueprint.get_da().to_phenotype(),
             transforms.ToTensor(),
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
         ])
@@ -98,7 +98,6 @@ def load_transform(model: Network = None) -> transforms.Compose:
 
 def imshow(img):
     img = img / 2 + 0.5  # unnormalize
-    npimg = img.numpy()
+    npimg = img.cpu().numpy()
     plt.imshow(np.transpose(npimg, (1, 2, 0)))
-    # plt.imshow(npimg)
     plt.show()

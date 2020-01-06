@@ -17,7 +17,9 @@ class DAGenome(Genome):
     def __repr__(self):
         da_nodes = ""
         for n in self.nodes.values():
-            kwargs = {k: mutagen.value for k, mutagen in n.da.submutagens[n.da.value].items()}
+            kwargs = {}
+            if n.da.value in n.da.submutagens:
+                kwargs = {k: mutagen.value for k, mutagen in n.da.submutagens[n.da.value].items()}
             da_nodes += n.da.value + ": " + repr(kwargs) + "\n"
         return da_nodes
 

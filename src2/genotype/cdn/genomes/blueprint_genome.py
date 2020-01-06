@@ -7,6 +7,7 @@ from typing import List, Dict, TYPE_CHECKING, Optional, Tuple
 import math
 
 import src2.genotype.cdn.nodes.blueprint_node as BlueprintNode
+
 import src2.main.singleton as singleton
 from src2.configuration import config
 from src2.genotype.cdn.genomes.da_genome import DAGenome
@@ -39,10 +40,10 @@ class BlueprintGenome(Genome):
         self.best_module_sample_map: Optional[Dict[int, int]] = None  # todo empty this at the end of evaluation
         self.best_sample_map_accuracy: float = -1
 
-        self.linked_da_id: int = -1
-        self.da_scheme: Optional[DAGenome] = None
-        if config.evolve_data_augmentations and not config.evolve_da_pop:
-            self.da_scheme = get_legacy_da_scheme()
+        self._da_id: int = -1
+        self._da: Optional[DAGenome] = None
+        if config.evolve_da and not config.evolve_da_pop:
+            self._da = get_legacy_da_scheme()
 
     def get_modules_used(self):
         """:returns all module ids currently being used by this blueprint. returns duplicates"""
@@ -50,18 +51,16 @@ class BlueprintGenome(Genome):
 
     def get_all_mutagens(self) -> List[Mutagen]:
         mutagens = [self.learning_rate, self.beta1, self.beta2]
-        if config.evolve_data_augmentations and not config.evolve_da_pop:
-            mutagens += [node.da for node in self.da_scheme.nodes.values()]
+        if config.evolve_da and not config.evolve_da_pop:
+            mutagens += [node.da for node in self.get_da().nodes.values()]
 
         return mutagens
 
     def commit_sample_maps(self):
         """
-            commits whatever species->module mapping is in the sample map
+            commits whatever species -> module mapping is in the sample map
             this should be the best sampling found this step
         """
-        import src2.main.singleton as S
-
         if self.best_module_sample_map is None:
             return
 
@@ -69,7 +68,7 @@ class BlueprintGenome(Genome):
             """node may be blueprint or module node"""
             if isinstance(node, BlueprintNode.BlueprintNode):
                 """updates the module id value of each node in the genome according to the sample map present"""
-                living_species = [spc.id for spc in S.instance.module_population.species]
+                living_species = [spc.id for spc in singleton.instance.module_population.species]
                 if node.species_id not in living_species:
                     """this species died during the last speciation step"""
                     node.species_id = random.choice(living_species)
@@ -80,7 +79,7 @@ class BlueprintGenome(Genome):
                         try to find the mapped module if it survived
                     """
                     module_id = self.best_module_sample_map[node.species_id]
-                    module = S.instance.module_population[module_id]
+                    module = singleton.instance.module_population[module_id]
                 else:
                     """best parent did not have a node with this spc id"""
                     module = None
@@ -109,9 +108,7 @@ class BlueprintGenome(Genome):
         self.best_sample_map_accuracy = -1
         self.all_sample_maps = []
 
-    def report_fitness_to_modules(self, fitness: List[float], sample_map):
-        import src2.main.singleton as Singleton
-
+    def report_module_fitness(self, fitness: List[float], sample_map):
         for node_id in self.get_fully_connected_node_ids():
             node: Node = self.nodes[node_id]
             if not isinstance(node, BlueprintNode.BlueprintNode):  # not blueprint node
@@ -121,14 +118,16 @@ class BlueprintGenome(Genome):
                 raise LookupError("Sample map" + repr(sample_map) + "missing species id: " + repr(node.species_id))
 
             module_id = sample_map[node.species_id]
-            module = Singleton.instance.module_population[module_id]
+            module = singleton.instance.module_population[module_id]
             module.report_fitness(fitness)
 
-    def report_fitness_to_da(self, fitness: List[float]):
-        import src2.main.singleton as Singleton
-        da_indv: DAGenome = Singleton.instance.da_population[self.linked_da_id]
-        if da_indv is not None:
-            da_indv.report_fitness(fitness)
+    def report_da_fitness(self, fitness: List[float]):
+        if not config.evolve_da:
+            raise Exception("Trying to get DA from blueprint in a non DA run (check config)")
+
+        da: DAGenome = self.get_da()
+        if da is not None:
+            da.report_fitness(fitness)
         else:
             print("no da to report fitness to")
 
@@ -139,7 +138,7 @@ class BlueprintGenome(Genome):
             self.best_sample_map_accuracy = accuracy
 
     def inherit(self, parent: BlueprintGenome):
-        self.da_scheme = parent.da_scheme
+        self._da = parent.get_da()
         self.best_module_sample_map = copy.deepcopy(parent.best_module_sample_map)
 
     def get_blueprint_nodes_iter(self):
@@ -162,27 +161,29 @@ class BlueprintGenome(Genome):
         species_to_unmap = []
 
         if (random.random() < math.pow(map_frac, 1.5)) or map_frac == 1:
-            """fully mapped blueprints are guaranteed to lose a mapping"""
+            # fully mapped blueprints are guaranteed to lose a mapping
             species_to_unmap = random.choices(list(mapped_species), k=max(n_species_to_unmap, 1))
         return species_to_unmap
 
     def get_da(self) -> DAGenome:
-        if config.evolve_data_augmentations and not config.evolve_da_pop:
-            return self.da_scheme
+        if not config.evolve_da:
+            raise Exception("Trying to get DA from blueprint in a non DA run (check config)")
 
-        self.da_scheme = singleton.instance.da_population[self.linked_da_id]
-        if self.da_scheme is None:
-            raise Exception("Bad DA link " + str(self.linked_da_id))
+        if not config.evolve_da_pop:  # Always only 1 static DA linked
+            return self._da
 
-        return self.da_scheme
+        self._da = singleton.instance.da_population[self._da_id]
+        if self._da is None:
+            raise Exception("Bad DA link " + str(self._da_id))
+
+        return self._da
 
     def sample_da(self):
         if not config.evolve_da_pop:
             return
 
-        if self.linked_da_id != -1:
-            # already have linked da
-            self.da_scheme = self.get_da()
+        if self._da_id != -1:  # already have linked da
+            self._da = self.get_da()
         else:
-            self.da_scheme = random.choice(list(singleton.instance.da_population))
-            self.linked_da_id = self.da_scheme.id
+            self._da = random.choice(list(singleton.instance.da_population))
+            self._da_id = self._da.id
