@@ -8,8 +8,13 @@ class IntegerVariable(Variable):
 
     def __init__(self, name, current_value: int, start_range: int, end_range: int, mutation_chance):
         super().__init__(name, current_value, start_range, end_range, mutation_chance)
+
+        if current_value == 'auto':
+            current_value = random.randint(start_range, end_range)
+
         if current_value % 1 != 0:
             raise Exception("cannot pass non natural number to int variable")
+
 
     def mutate(self) -> MutationReport:
         mutation_report = MutationReport()

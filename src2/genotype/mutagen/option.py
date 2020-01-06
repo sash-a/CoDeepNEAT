@@ -16,8 +16,9 @@ class Option(Mutagen):
     def __init__(self, name: str, *options, current_value=_Null, submutagens: Dict[Any, Dict[str, Mutagen]] = None,
                  mutation_chance: float = 0.3):
         super().__init__(name, mutation_chance)
-        if current_value is _Null:
-            raise Exception('Must provide a current value')
+
+        if current_value is _Null or current_value == 'auto':
+            current_value = random.choice(options)
 
         self.options = options
 
