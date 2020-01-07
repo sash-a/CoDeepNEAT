@@ -31,9 +31,9 @@ class Config:
         self.max_batches = -1
         # -------------------------------------------- Visualising Options --------------------------------------------
         self.view_graph_plots = False  # if true, any plotted graphs will be viewed
-        self.plot_best_genotypes = False
+        self.plot_best_genotypes = True
         self.plot_every_genotype = False
-        self.plot_best_phenotype = False
+        self.plot_best_phenotype = True
         self.plot_every_phenotype = False
         self.plot_module_species = False
         self.view_batch_image = False

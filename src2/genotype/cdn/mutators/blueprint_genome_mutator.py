@@ -85,9 +85,12 @@ class BlueprintGenomeMutator(GenomeMutator):
 
         return mutation_report
 
-
     def forget_da_scheme(self, genome: BlueprintGenome) -> MutationReport:
         mutation_report = MutationReport()
+
+        if not config.evolve_da_pop:
+            # blueprint tethered da schemes should not be forgotten by their da
+            return mutation_report
 
         if random.random() < config.da_link_forget_chance:
             genome.da = None

@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Union, List, Dict, Any
 
 from runs import runs_manager
 from src2.configuration import config
+from src2.genotype.cdn.genomes.da_genome import DAGenome
 from src2.genotype.cdn.nodes.blueprint_node import BlueprintNode
 from src2.genotype.cdn.nodes.module_node import ModuleNode
 
@@ -133,8 +134,12 @@ def visualise_blueprint_genome(genome: BlueprintGenome, sample_map: Dict[int, in
                                         sub_graph=True, label=sub_graph_label, node_colour="cyan")
             blueprint_graph.subgraph(module_graph)
 
+    da: DAGenome = genome.get_da(ignore_exception=True)
+    if da is not None:
+        da_graph = get_graph_of(da, sub_graph=True, node_names="da_nodes", label="Augmentation Scheme")
+        blueprint_graph.subgraph(da_graph)
     try:
-        blueprint_graph.render(directory=runs_manager.get_graphs_folder_path(config.run_name), view=config.view_graph_plots)
+        blueprint_graph.render(directory=runs_manager.get_graphs_folder_path(config.run_name), view=config.view_graph_plots, format="png")
     except Exception as e:
         print(e)
 
@@ -148,7 +153,7 @@ def visualise_traversal_dict(traversal_dict: Dict[int, List[int]]):
             g.node(name=str(to_id))
             g.edge(str(from_id), str(to_id))
 
-    g.render(directory=runs_manager.get_graphs_folder_path(config.run_name), view=config.view_graph_plots)
+    g.render(directory=runs_manager.get_graphs_folder_path(config.run_name), view=config.view_graph_plots, format="png")
 
 
 def get_node_metadata(node: Union[BlueprintNode, ModuleNode], **kwargs):

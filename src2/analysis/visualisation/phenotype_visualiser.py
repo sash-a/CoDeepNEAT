@@ -37,7 +37,7 @@ def visualise(pheno: neural_network, prefix="", suffix = "", node_colour: Any = 
 
     try:
         graph.render(directory=runs_manager.get_graphs_folder_path(config.run_name),
-                     view=config.view_graph_plots)
+                     view=config.view_graph_plots, format="png")
 
     except Exception as e:
         print(e)

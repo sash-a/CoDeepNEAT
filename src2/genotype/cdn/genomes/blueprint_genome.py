@@ -49,6 +49,7 @@ class BlueprintGenome(Genome):
         mutagens = [self.learning_rate, self.beta1, self.beta2]
         if config.evolve_da and not config.evolve_da_pop:
             # Mutating the attribs of the mutagens the static DAs
+            # population das get mutated in their own pops
             mutagens += [mutagen for node in self.get_da().nodes.values() for mutagen in node.da.get_submutagens()]
 
         return mutagens
@@ -78,7 +79,13 @@ class BlueprintGenome(Genome):
         return (node for node in self.nodes.values() if isinstance(node, BlueprintNode.BlueprintNode))
 
     def inherit(self, parent: BlueprintGenome):
-        self._da = parent.get_da()
+        if config.evolve_da_pop:
+            # da is part of a pop, there should be a 1-1 relationship between id and genome
+            self._da = parent.get_da()
+        else:
+            # da is tethered to the blueprint, each child should get its own copy to mutate freely
+            self._da = copy.deepcopy(parent.get_da())
+
         self.best_module_sample_map = copy.deepcopy(parent.best_module_sample_map)
 
     # -------------------------- MODULE RETENTION --------------------------
@@ -160,9 +167,12 @@ class BlueprintGenome(Genome):
             print("no da to report fitness to")
 
     # -------------------------- DATA AUGMENTATION --------------------------
-    def get_da(self) -> DAGenome:
+    def get_da(self, ignore_exception = False) -> Optional[DAGenome]:
         if not config.evolve_da:
-            raise Exception("Trying to get DA from blueprint in a non DA run (check config)")
+            if not ignore_exception:
+                raise Exception("Trying to get DA from blueprint in a non DA run (check config)")
+            else:
+                return None
 
         if not config.evolve_da_pop:  # Always only 1 static DA linked
             return self._da
