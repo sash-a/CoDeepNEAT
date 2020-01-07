@@ -100,13 +100,13 @@ def _wandb_log_generation(generation: Generation):
     raw_bp_accs = []
     for bp in generation.blueprint_population:
         n_unevaluated_bps += sum(fitness[0] == 0 for fitness in bp.fitness_raw)
-        raw_bp_accs.extend(bp.accuracy)
+        raw_bp_accs.extend(bp.fitness_raw[0])
 
     n_unevaluated_mods = 0
     raw_mod_accs = []
     for mod in generation.module_population:
         n_unevaluated_mods += 1 if mod.n_evaluations == 0 else 0
-        raw_mod_accs.extend(mod.accuracy)  # this will end up being a list in MOO
+        raw_mod_accs.extend(mod.fitness_raw[0])  # this will end up being a list in MOO
 
     mod_acc_tbl = wandb.Table(['module accuracies'], data=raw_mod_accs)
     bp_acc_tbl = wandb.Table(['blueprint accuracies'], data=raw_bp_accs)
