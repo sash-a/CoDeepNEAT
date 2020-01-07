@@ -7,6 +7,7 @@ from runs import runs_manager
 from src2.configuration import config
 from src2.genotype.cdn.genomes.da_genome import DAGenome
 from src2.genotype.cdn.nodes.blueprint_node import BlueprintNode
+from src2.genotype.cdn.nodes.da_node import DANode
 from src2.genotype.cdn.nodes.module_node import ModuleNode
 
 if TYPE_CHECKING:
@@ -136,7 +137,7 @@ def visualise_blueprint_genome(genome: BlueprintGenome, sample_map: Dict[int, in
 
     da: DAGenome = genome.get_da(ignore_exception=True)
     if da is not None:
-        da_graph = get_graph_of(da, sub_graph=True, node_names="da_nodes", label="Augmentation Scheme")
+        da_graph = get_graph_of(da, sub_graph=True, node_names="da_nodes", label="Augmentation Scheme", node_colour= "pink")
         blueprint_graph.subgraph(da_graph)
     try:
         blueprint_graph.render(directory=runs_manager.get_graphs_folder_path(config.run_name), view=config.view_graph_plots, format="png")
@@ -201,6 +202,10 @@ def get_node_metadata(node: Union[BlueprintNode, ModuleNode], **kwargs):
             """is identiy node"""
             meta += "Identity"
 
+    if isinstance(node, DANode):
+        daNode: DANode = node
+        meta += repr(daNode.da).replace("DA TYPE: ", "")
+
     # print("labeling node", meta)
 
     return meta
@@ -213,6 +218,9 @@ def get_node_colour(node) -> str:
 
     if isinstance(node, ModuleNode):
         return "cyan"
+
+    if isinstance(node, DANode):
+        return "pink"
 
 
 def pretty(full_object_name: str):

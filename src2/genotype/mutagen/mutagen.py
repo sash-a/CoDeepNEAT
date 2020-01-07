@@ -8,6 +8,9 @@ class Mutagen:
         self.name = name
         self.mutation_chance = mutation_chance
 
+    def __repr__(self):
+        return self.name + ": " + repr(self.get_current_value())
+
     value = property(lambda self: self.get_current_value())
 
     def get_current_value(self):

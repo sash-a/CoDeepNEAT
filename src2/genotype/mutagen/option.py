@@ -29,6 +29,19 @@ class Option(Mutagen):
             raise Exception("Current value must be option in list: " + repr(current_value) + " not in " + repr(options))
         self.current_value = current_value
 
+    def __repr__(self):
+        out: str = self.name + ": " + repr(self.current_value)
+        if self.submutagens is None or self.value not in self.submutagens:
+            return out
+
+        out += "\n"
+        subs = self.submutagens[self.value]
+        i = 0
+        for sub in subs:
+            out += repr(subs[sub]) + ("\t" if i % 2 == 0 else "\n")
+            i+=1
+        return out
+
     def get_subvalue(self, subvalue_name):
         return self.get_submutagen(subvalue_name).value
 
