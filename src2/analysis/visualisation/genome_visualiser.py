@@ -137,7 +137,7 @@ def visualise_blueprint_genome(genome: BlueprintGenome, sample_map: Dict[int, in
 
     da: DAGenome = genome.get_da(ignore_exception=True)
     if da is not None:
-        da_graph = get_graph_of(da, sub_graph=True, node_names="da_nodes", label="Augmentation Scheme", node_colour= "pink")
+        da_graph = get_graph_of(da, sub_graph=True, node_names="da_nodes", label="Augmentation Scheme " + repr(da.id), node_colour= "pink")
         blueprint_graph.subgraph(da_graph)
     try:
         blueprint_graph.render(directory=runs_manager.get_graphs_folder_path(config.run_name), view=config.view_graph_plots, format="png")
@@ -204,7 +204,7 @@ def get_node_metadata(node: Union[BlueprintNode, ModuleNode], **kwargs):
 
     if isinstance(node, DANode):
         daNode: DANode = node
-        meta += repr(daNode.da).replace("DA TYPE: ", "")
+        meta += repr(daNode.da).replace("DA Type: ", "")
 
     # print("labeling node", meta)
 

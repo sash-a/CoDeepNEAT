@@ -79,5 +79,5 @@ def get_run(run_name, config_name="config"):
 
 
 if __name__ == "__main__":
-    run = get_run("local_test")
+    run = get_run("base")
     print([x[0].accuracy for x in run.get_most_accurate_blueprints(5)])

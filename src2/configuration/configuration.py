@@ -48,7 +48,7 @@ class Config:
         self.use_colour_augmentations = True
         self.add_da_node_chance = 0.15
         self.apply_da_chance = 0.5
-        self.da_link_forget_chance = 0.2
+        self.da_link_forget_chance = 0.25
         self.batch_augmentation = True
         # ------------------------------------------------- cdn stuff -------------------------------------------------
         self.multiobjective = False
