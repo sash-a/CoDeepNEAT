@@ -103,7 +103,7 @@ class Option(Mutagen):
     def set_sub_value(self, submutagen_name, value):
         self.get_submutagen(submutagen_name).set_value(value)
 
-    def _interpolate(self, other: Mutagen):
+    def interpolate(self, other: Mutagen):
         return Option(self.name, *self.options,
                       current_value=random.choice([self.current_value, other.get_current_value()]),
                       submutagens=interpolate_submutagens(self, other))
@@ -111,6 +111,9 @@ class Option(Mutagen):
 
 def interpolate_submutagens(mutagen_a: Option, mutagen_b: Option):
     subs = {}
+    if mutagen_a.submutagens is None:
+        return subs
+
     for val in mutagen_a.submutagens.keys():
         subs[val] = {}
 

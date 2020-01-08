@@ -79,12 +79,13 @@ class BlueprintGenome(Genome):
         return (node for node in self.nodes.values() if isinstance(node, BlueprintNode.BlueprintNode))
 
     def inherit(self, parent: BlueprintGenome):
-        if config.evolve_da_pop:
-            # da is part of a pop, there should be a 1-1 relationship between id and genome
-            self._da = parent.get_da()
-        else:
-            # da is tethered to the blueprint, each child should get its own copy to mutate freely
-            self._da = copy.deepcopy(parent.get_da())
+        if config.evolve_da:
+            if config.evolve_da_pop:
+                # da is part of a pop, there should be a 1-1 relationship between id and genome
+                self._da = parent.get_da()
+            else:
+                # da is tethered to the blueprint, each child should get its own copy to mutate freely
+                self._da = copy.deepcopy(parent.get_da())
 
         self.best_module_sample_map = copy.deepcopy(parent.best_module_sample_map)
 

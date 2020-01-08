@@ -104,7 +104,7 @@ class Config:
         self.module_add_node_chance = 0.1  # 0.08
         self.module_add_connection_chance = 0.1  # 0.08
         self.module_node_layer_type_change_chance = 0.1
-        self.node_breeding_chance = 0
+        self.gene_breeding_chance = 0
         # ------------------------------------------------ wandb stuff ------------------------------------------------
         self.use_wandb = True
         self.wandb_tags = []

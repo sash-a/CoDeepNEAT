@@ -1,18 +1,14 @@
 from __future__ import annotations
 
 import random
-from typing import Tuple, Union, TYPE_CHECKING
+from typing import Tuple, TYPE_CHECKING
 
 import torch
 from torch import nn
 from torch.nn import functional as F
 
 # For testing!
-from src.CoDeepNEAT.CDNNodes.ModuleNode import ModuleNEATNode
-from src.NEAT.Gene import NodeType as OldNodeType
-from src.NEAT.Mutagen import Mutagen as Oldmutagen, ValueType as OldMutagenValueType
 from src2.configuration import config
-from src2.genotype.cdn.nodes.da_node import DANode
 from src2.genotype.mutagen.continuous_variable import ContinuousVariable
 from src2.genotype.mutagen.integer_variable import IntegerVariable
 from src2.genotype.mutagen.option import Option
@@ -21,7 +17,7 @@ from src2.phenotype.neural_network.layers.custom_layer_types.depthwise_separable
 from src2.phenotype.neural_network.layers.layer import Layer
 
 if TYPE_CHECKING:
-    from src2.genotype.cdn.nodes.blueprint_node import BlueprintNode
+    pass
 
 
 class ModuleNode(Node):
@@ -62,71 +58,6 @@ class ModuleNode(Node):
     def is_depthwise_sep(self):
         return self.layer_type.value == DepthwiseSeparableConv
 
-    def interpolate(self, other: Union[ModuleNode, BlueprintNode, DANode]):
-        pass
-
-    #
-    # def old(self) -> ModuleNEATNode:
-    #
-    #     current_conv_mutagens = self.layer_type.submutagens[nn.Conv2d]
-    #     current_linear_mutagens = self.layer_type.submutagens[nn.Linear]
-    #
-    #     conv_submutagens = {
-    #         "conv_window_size": Oldmutagen(3, 5, 7, discreet_value=current_conv_mutagens['conv_window_size'].value, mutation_chance=0.13),
-    #
-    #         "conv_stride": Oldmutagen(value_type=OldMutagenValueType.WHOLE_NUMBERS, current_value=current_conv_mutagens['conv_stride'].value, start_range=1,
-    #                                end_range=5),
-    #
-    #         "reduction": Oldmutagen(None, nn.MaxPool2d, discreet_value=current_conv_mutagens['reduction'].value,
-    #                              sub_mutagens=
-    #                              {
-    #                                  nn.MaxPool2d: {"pool_size": Oldmutagen(
-    #                                      value_type=OldMutagenValueType.WHOLE_NUMBERS,
-    #                                      current_value=current_conv_mutagens['reduction'].get_subvalue('pool_size'), start_range=2,
-    #                                      end_range=5)}
-    #                              }, mutation_chance=0.15),
-    #
-    #         "regularisation": Oldmutagen(None, nn.BatchNorm2d, discreet_value=current_conv_mutagens['regularisation'].value,
-    #                                   mutation_chance=0.15),
-    #
-    #         "dropout": Oldmutagen(None, nn.Dropout2d, discreet_value=current_conv_mutagens['dropout'].value, sub_mutagens=
-    #         {
-    #             nn.Dropout2d: {
-    #                 "dropout_factor": Oldmutagen(value_type=OldMutagenValueType.CONTINUOUS, current_value=current_conv_mutagens['dropout'].get_subvalue('dropout_factor'),
-    #                                           start_range=0, end_range=0.75)}
-    #         }, mutation_chance=0.08),
-    #
-    #         "out_features": Oldmutagen(value_type=OldMutagenValueType.WHOLE_NUMBERS, current_value=current_conv_mutagens['out_features'].value
-    #                                    , start_range=1,
-    #                                 end_range=100, name="num out features", mutation_chance=0.22)
-    #     }
-    #
-    #     linear_submutagens  = \
-    #         {
-    #             "regularisation": Oldmutagen(None, nn.BatchNorm1d,
-    #                                       discreet_value=current_linear_mutagens['regularisation'].value,
-    #                                       mutation_chance=0.15),
-    #
-    #             "dropout": Oldmutagen(None, nn.Dropout, discreet_value=current_linear_mutagens['dropout'].value, sub_mutagens=
-    #             {
-    #                 nn.Dropout: {
-    #                     "dropout_factor": Oldmutagen(value_type=OldMutagenValueType.CONTINUOUS, current_value=0.15, start_range=0,
-    #                                               end_range=0.75)}
-    #             }, mutation_chance=0.08),
-    #
-    #             "out_features": Oldmutagen(value_type=OldMutagenValueType.WHOLE_NUMBERS, current_value=current_linear_mutagens['out_features'],
-    #                                     start_range=10,
-    #                                     end_range=1024, name="num out features", mutation_chance=0.22)
-    #         }
-    #
-    #     old_node =  ModuleNEATNode(self.id, activation=self.activation.value, node_type= OldNodeType(self.node_type.value))
-    #     old_node.layer_type = Oldmutagen(nn.Conv2d, nn.Linear, discreet_value=self.layer_type.value,
-    #                                   sub_mutagens={
-    #                                       nn.Conv2d: conv_submutagens,
-    #                                       nn.Linear: linear_submutagens
-    #                                   }, name="deep layer type", mutation_chance=0.08)
-    #
-    #     return old_node
 
 def get_new_conv_parameter_mutagens():
     return {

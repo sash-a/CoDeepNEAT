@@ -14,10 +14,11 @@ def over(genome_a: Genome, genome_b: Genome) -> Genome:
     child = type(best)([], [])
 
     for best_node in best.nodes.values():
-        if random.random()< config.node_breeding_chance:
-            child_node =None
-        elif best_node.id in worst.nodes:
-            child_node = copy.deepcopy(random.choice([best_node, worst.nodes[best_node.id]]))
+        if best_node.id in worst.nodes:
+            if random.random()< config.gene_breeding_chance:
+                child_node = best_node.interpolate(worst.nodes[best_node.id])
+            else:
+                child_node = copy.deepcopy(random.choice([best_node, worst.nodes[best_node.id]]))
         else:
             child_node = copy.deepcopy(best_node)
 
@@ -25,7 +26,10 @@ def over(genome_a: Genome, genome_b: Genome) -> Genome:
 
     for best_conn in best.connections.values():
         if best_conn.id in worst.connections:
-            new_connection = copy.deepcopy(random.choice([best_conn, worst.connections[best_conn.id]]))
+            if random.random()< config.gene_breeding_chance:
+                new_connection = best_conn.interpolate(worst.connections[best_conn.id])
+            else:
+                new_connection = copy.deepcopy(random.choice([best_conn, worst.connections[best_conn.id]]))
         else:
             new_connection = copy.deepcopy(best_conn)
 

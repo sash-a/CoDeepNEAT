@@ -45,7 +45,7 @@ class ContinuousVariable(Variable):
 
         return mutation_report
 
-    def _interpolate(self, other):
+    def interpolate(self, other):
         return ContinuousVariable(self.name, start_range=self.start_range, end_range=self.end_range,
                                   current_value=self.get_current_value() / 2.0 + other.get_current_value() / 2.0,
                                   mutation_chance=self.mutation_chance)

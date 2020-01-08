@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 from typing import Dict, List, TYPE_CHECKING, Set, Tuple
 
 import random
@@ -45,7 +46,4 @@ class Node(Gene):
         return [self.lossy_aggregation, self.try_conv_aggregation]
 
     def convert_node(self, **kwargs):
-        raise NotImplemented()
-
-    def interpolate(self, other: Union[ModuleNode, BlueprintNode, DANode]):
         raise NotImplemented()
