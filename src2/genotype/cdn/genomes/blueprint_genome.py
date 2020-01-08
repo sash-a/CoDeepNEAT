@@ -167,7 +167,7 @@ class BlueprintGenome(Genome):
             print("no da to report fitness to")
 
     # -------------------------- DATA AUGMENTATION --------------------------
-    def get_da(self, ignore_exception = False) -> Optional[DAGenome]:
+    def get_da(self, ignore_exception=False) -> Optional[DAGenome]:
         if not config.evolve_da:
             if not ignore_exception:
                 raise Exception("Trying to get DA from blueprint in a non DA run (check config)")
@@ -187,7 +187,8 @@ class BlueprintGenome(Genome):
         if not config.evolve_da_pop:
             return
 
-        if self._da_id != -1:  # already have linked da
+        # already have linked da and its still alive
+        if self._da_id != -1 and self._da_id in singleton.instance.da_population:
             self._da = self.get_da()
         else:
             self._da = random.choice(list(singleton.instance.da_population))

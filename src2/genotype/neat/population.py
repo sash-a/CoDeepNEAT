@@ -55,6 +55,13 @@ class Population:
 
         return None
 
+    def __contains__(self, genome_id):
+        for species in self.species:
+            if genome_id in species.members:
+                return True
+
+        return False
+
     def get_species_by_id(self, species_id: int) -> Optional[Species]:
         for species in self.species:
             if species.id == species_id:
