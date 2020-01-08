@@ -35,6 +35,7 @@ class Genome(GraphGenome):
         self.parents: List[int] = []  # the ids of the parents of this genome. can be empty if a genome has no parents
 
     accuracy = property(lambda self: self.fitness_values[0])
+    max_accuracy = property(lambda self: max([fitness[0] for fitness in self.fitness_raw]))
 
     def __eq__(self, other):
         return self.id == other.id

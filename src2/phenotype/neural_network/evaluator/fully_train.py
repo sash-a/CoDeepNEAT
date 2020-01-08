@@ -44,15 +44,15 @@ def fully_train(run_name, n=1, epochs=100):
 def _create_model(run: Run, blueprint: BlueprintGenome, gen_num, in_size, epochs) -> Network:
     S.instance = run.generations[gen_num]
     modules = run.get_modules_for_blueprint(blueprint)
-    model: Network = Network(blueprint, in_size, sample_map=blueprint.best_module_sample_map).to(config.device)
+    model: Network = Network(blueprint, in_size, sample_map=blueprint.best_module_sample_map).to(config.get_device())
 
     print("Blueprint: {}\nModules: {}\nSample map: {}\n Species used: {}"
           .format(blueprint,
                   modules,
                   blueprint.best_module_sample_map,
                   list(set([x.species_id for x in blueprint.nodes.values()]))))
-    print("Training model which scored: {} in evolution for {} epochs, with {}"
-          .format(blueprint.accuracy, epochs, model.size()))
+    print("Training model which scored: {} in evolution for {} epochs, with {} parameters"
+          .format(blueprint.max_accuracy, epochs, model.size()))
 
     return model
 
