@@ -8,7 +8,7 @@ import wandb
 
 from runs.runs_manager import get_generation_file_path, save_config, get_run_folder_path
 from src2.configuration import config
-from src2.utils.wandb_data_fetcher import fetch_generations, fetch_config, fetch_model
+from src2.utils.wandb_data_fetcher import download_generations, download_config, download_model
 
 if TYPE_CHECKING:
     from src2.main.generation import Generation
@@ -25,51 +25,55 @@ def init_wandb(is_new_run):
         return
 
     if config.wandb_run_id and config.fully_train and config.resume_fully_train:
-        # Resuming a checkpoint of a fully train
+        # Resuming a remote fully train
         _fetch_run()
-        _resume_run()
-        fetch_generations(run_path='codeepneat/cdn/' + wandb.config.evolution_run_id, replace=True)
+        _resume_run(True)
+        download_generations(run_path='codeepneat/cdn/' + wandb.config.evolution_run_id, replace=True)
+
     elif config.wandb_run_id and config.fully_train and not config.resume_fully_train:
-        # config.wandb_run_id here is the ID of the evolution run (because its before we download the new config)
-        evolution_run_id = config.wandb_run_id
+        # Start a fully train given remote evolution run
+        evolution_run_id = config.wandb_run_id  # ID of the evolution run, because its before we download the new config
         _fetch_run()  # fetches a remote fun
-        _new_run()  # Then creates a new fully train run
+        _new_run(True)  # Then creates a new fully train run
         # this is done to allow fully train runs to resume without needing the local generation files for that run
         wandb.config['evolution_run_id'] = evolution_run_id
+
     elif config.wandb_run_id and not config.fully_train:
-        # Run ID is provided and not fully train -> create the folder and download the run
+        # Resume remote evolution run
         _fetch_run()  # Fetches remote run
-        _resume_run()  # Loads that run
+        _resume_run(False)  # Loads that run
+
     elif is_new_run or config.fully_train:
-        # this is the first generation -> initialize wandb
-        _new_run()
+        # start new local run
+        _new_run(config.fully_train)
+
     else:
-        # this is not the first generation -> need to resume wandb
-        _resume_run()
+        # resume local run
+        _resume_run(config.fully_train)
 
 
 def _fetch_run():
     if config.resume_fully_train:
         path_prefix = 'codeepneat/cdn_fully_train'
-        fetch_model(run_path=path_prefix + '/' + config.wandb_run_id, replace=True)
+        download_model(run_path=path_prefix + '/' + config.wandb_run_id, replace=True)
     else:
         path_prefix = 'codeepneat/cdn'
-        fetch_generations(run_path=path_prefix + '/' + config.wandb_run_id, replace=True)
+        download_generations(run_path=path_prefix + '/' + config.wandb_run_id, replace=True)
 
     # config used to download the run will already be copied there so must replace it
-    fetch_config(run_path=path_prefix + '/' + config.wandb_run_id, replace=True)
+    download_config(run_path=path_prefix + '/' + config.wandb_run_id, replace=True)
 
 
-def _resume_run():
-    project = 'cdn_fully_train' if config.fully_train else 'cdn'
+def _resume_run(fully_train: bool):
+    project = 'cdn_fully_train' if fully_train else 'cdn'
     dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', '..', 'results')
     wandb.init(dir=dir, project=project, entity='codeepneat', resume=config.wandb_run_id)
 
 
-def _new_run():
+def _new_run(fully_train: bool):
     config.wandb_run_id = config.run_name + str(datetime.date.today()) + '_' + str(randint(1E5, 1E6))
 
-    project = 'cdn_fully_train' if config.fully_train else 'cdn'
+    project = 'cdn_fully_train' if fully_train else 'cdn'
     dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', '..', 'results')
     tags = config.wandb_tags
     if config.fully_train:

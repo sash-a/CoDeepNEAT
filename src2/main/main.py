@@ -1,5 +1,7 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+
+import copy
+from typing import TYPE_CHECKING, Dict
 
 import argparse
 import os
@@ -24,12 +26,13 @@ from src2.main.generation import Generation
 from src2.phenotype.neural_network.evaluator import fully_train
 from src2.utils.wandb_utils import init_wandb
 from src2.phenotype.neural_network.evaluator.fully_train import fully_train as ft
+
 if TYPE_CHECKING:
     pass
 
 
 def main():
-    init_config()
+    read_config()
     if config.device == 'gpu':
         _force_cuda_device_init()
 
@@ -37,13 +40,12 @@ def main():
     downloading_run = bool(config.wandb_run_id)
 
     if config.fully_train:
-        print('Starting fully training...')
-        init_wandb(locally_new_run)
-        fully_train()
+        fully_train(locally_new_run)
         return
 
     init_generation_dir(locally_new_run)  # A config from a previous run has possibly been loaded from this point
     init_wandb(locally_new_run)
+    read_config()
     init_operators()
     generation = init_generation(False if downloading_run else locally_new_run)
 
@@ -56,13 +58,32 @@ def main():
         generation.step_evolution()
 
 
-def fully_train(n=1):
-    init_config()
-    runs_manager.load_config(run_name=config.run_name)
-    ft(config.run_name, n, epochs=100)  # fully train evaluation
+def fully_train(locally_new_run: bool, n=1):
+    print('Starting fully training...')
+
+    downloading_conf = bool(config.wandb_run_id)
+    init_wandb(locally_new_run)  # possibly downloading remote config
+
+    if downloading_conf:
+        # Downloaded a config, need to overwrite some of its values with values specified in local config
+
+        # Values which may not be overwritten:
+        remote_config_name = config.run_name
+        ft_wandb_run_id = config.wandb_run_id
+        print('downloaded conf:', config.__dict__)
+
+        read_config()  # overwrites some of downloaded config values with config that is passed as arg
+
+        config.run_name = remote_config_name  # files are downloaded to a dir with this name so must continue to use it
+        if not config.resume_fully_train:  # wandb run ID of fully train gets overwritten by init config with the evo ID
+            config.wandb_run_id = ft_wandb_run_id
+
+        print('overwritten:', config.__dict__)
+
+    ft(config.run_name, n, epochs=config.fully_train_epochs)  # fully train evaluation
 
 
-def init_config():
+def read_config():
     parser = argparse.ArgumentParser(description='CoDeepNEAT')
     parser.add_argument('-c', '--configs', nargs='+', type=str,
                         help='Path to all config files that will be used. (Earlier configs are given preference)',
@@ -92,7 +113,6 @@ def init_generation(new_run: bool) -> Generation:
 
     else:
         # continuing run
-        print('cont')
         generation: Generation = runs_manager.load_latest_generation(config.run_name)
         if generation is None:  # generation load failed, likely because the run did not complete gen 0
             init_generation_dir(True)

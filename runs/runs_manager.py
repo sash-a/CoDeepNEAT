@@ -54,6 +54,7 @@ def load_config(run_name, config_name="config"):
     config.read(file_path)
     return config
 
+
 def save_config(run_name, conf=config, config_name="config"):
     file_path = join(get_run_folder_path(run_name), config_name + '.json')
     with open(file_path, 'w+') as f:
