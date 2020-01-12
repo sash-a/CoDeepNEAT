@@ -3,7 +3,7 @@ from typing import List
 
 import matplotlib.pyplot as plt
 import numpy as np
-from torch.utils.data import DataLoader, Dataset, Subset
+from torch.utils.data import DataLoader, Dataset, Subset, ConcatDataset
 from torchvision import transforms
 from torchvision.datasets import MNIST, CIFAR10, ImageFolder
 
@@ -11,20 +11,25 @@ from data import DataManager
 
 from src2.configuration import config
 from src2.phenotype.augmentations.augmentation_scheme import AugmentationScheme
-from src2.phenotype.neural_network.neural_network import Network
 
 
 def load_data(composed_transforms: transforms.Compose, split: str) -> DataLoader:
     """
     Loads the data given the config.dataset
 
+    :param composed_transforms: the augmentations to apply to the dataset
+    :param split: either train or test, dataset returned also depends on config.fully_train -
+    'train' will return 42500 images for evolution, but 50000 for fully training.
+    'test' will return 7500 images for evolution, but 10000 for fully training.
+
     Note: the validation/train split does not try balance the classes of data, it just takes the first n for the train
     set and the remaining data goes to the validation set
     """
-    if split not in ['train', 'test', 'validation']:
+    if split.lower() not in ['train', 'test']:
         raise ValueError('Parameter split can be one of train, test or validation, but received: ' + str(split))
 
-    train: bool = True if split == 'train' or split == 'validation' else False
+    # when to load train set
+    train: bool = True if split == 'train' or (split == 'test' and not config.fully_train) else False
 
     dataset_args = {
         'root': DataManager.get_datasets_folder(),
@@ -42,24 +47,20 @@ def load_data(composed_transforms: transforms.Compose, split: str) -> DataLoader
     else:
         raise ValueError('config.dataset can be one of mnist, cifar10 or custom, but received: ' + str(config.dataset))
 
-    if train:
+    if train and not config.fully_train:
         # Splitting the train set into a train and valid set
         train_size = int(len(dataset) * (1 - config.validation_split))
-        if split == 'train':
+        if train:
             dataset = Subset(dataset, range(train_size))
         else:
             dataset = Subset(dataset, range(train_size, len(dataset)))
 
     # TODO: test num workers and pin memory
-    return DataLoader(dataset, batch_size=config.batch_size, shuffle=False, num_workers=0, pin_memory=False)
+    return DataLoader(dataset, batch_size=config.batch_size, shuffle=True, num_workers=0, pin_memory=False)
 
 
 def get_data_shape() -> List[int]:
-    composed_transform = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-    ])
-    return list(next(iter(load_data(composed_transform, 'test')))[0].size())
+    return list(next(iter(load_data(load_transform(), 'test')))[0].size())
 
 
 def get_generic_dataset(composed_transforms: transforms.Compose, train: bool) -> Dataset:

@@ -29,7 +29,8 @@ def evaluate(model: Network, num_epochs=config.epochs_in_evolution, fully_traini
             time.sleep(config.dummy_time)
         return random.random()
 
-    train_loader = load_data(load_transform(model.blueprint.get_da().to_phenotype()), 'train')
+    aug = None if not config.evolve_da else model.blueprint.get_da().to_phenotype()
+    train_loader = load_data(load_transform(aug), 'train')
     device = config.get_device()
 
     for epoch in range(num_epochs):
@@ -45,7 +46,7 @@ def evaluate(model: Network, num_epochs=config.epochs_in_evolution, fully_traini
                 model.save()
                 wandb.save(model.save_location())
 
-    test_loader = load_data(load_transform(), 'test' if not config.fully_train else 'validation')
+    test_loader = load_data(load_transform(), 'test')
     return test_nn(model, test_loader)
 
 

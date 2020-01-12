@@ -167,6 +167,9 @@ class Generation:
             populations: List[Population] = [self.blueprint_population, self.module_population]
 
         for pop in populations:
+            if pop is None:
+                continue
+
             mem = pop[genome_id]
             if mem is not None:
                 return mem
