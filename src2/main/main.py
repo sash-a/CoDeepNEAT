@@ -45,7 +45,7 @@ def main():
 
     init_generation_dir(locally_new_run)  # A config from a previous run has possibly been loaded from this point
     init_wandb(locally_new_run)
-    read_config()
+    read_config()  # allowing provided config to overwrite downloaded one
     init_operators()
     generation = init_generation(False if downloading_run else locally_new_run)
 
@@ -70,15 +70,12 @@ def fully_train(locally_new_run: bool, n=1):
         # Values which may not be overwritten:
         remote_config_name = config.run_name
         ft_wandb_run_id = config.wandb_run_id
-        print('downloaded conf:', config.__dict__)
 
         read_config()  # overwrites some of downloaded config values with config that is passed as arg
 
         config.run_name = remote_config_name  # files are downloaded to a dir with this name so must continue to use it
         if not config.resume_fully_train:  # wandb run ID of fully train gets overwritten by init config with the evo ID
             config.wandb_run_id = ft_wandb_run_id
-
-        print('overwritten:', config.__dict__)
 
     ft(config.run_name, n, epochs=config.fully_train_epochs)  # fully train evaluation
 

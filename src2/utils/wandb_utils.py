@@ -118,7 +118,9 @@ def _wandb_log_generation(generation: Generation):
     non_zero_mod_accs = [x for x in raw_mod_accs if x != 0]
 
     # Saving the pickle file for further inspection
-    wandb.save(get_generation_file_path(generation.generation_number, config.run_name))
+    # Were getting some runs that did not upload all generation files so now re-save all every generation to make sure
+    for i in range(generation.generation_number+1):
+        wandb.save(get_generation_file_path(i, config.run_name))
 
     wandb.log({'module accuracy table': mod_acc_tbl, 'blueprint accuracy table': bp_acc_tbl,
                config.fitness_aggregation + ' module accuracies': module_accs,
