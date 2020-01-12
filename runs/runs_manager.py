@@ -58,7 +58,7 @@ def load_config(run_name, config_name="config"):
 def save_config(run_name, conf=config, config_name="config"):
     file_path = join(get_run_folder_path(run_name), config_name + '.json')
     with open(file_path, 'w+') as f:
-        json.dump(conf.__dict__, f)
+        json.dump(conf.__dict__, f, indent=2)
 
 
 def _get_generation_name(generation_number):
