@@ -36,7 +36,7 @@ def evaluate(model: Network, num_epochs=config.epochs_in_evolution, fully_traini
     for epoch in range(num_epochs):
         if config.threading_test:
             print('Thread %s bp: %i epoch: %i' % (mp.current_process().name, model.blueprint.id, epoch))
-        loss = train_epoch(model, train_loader, model.blueprint.get_da().to_phenotype(), device)
+        loss = train_epoch(model, train_loader, aug, device)
 
         if fully_training:
             # Save and log if fully training
@@ -67,7 +67,9 @@ def train_batch(model: Network, inputs: torch.Tensor, labels: torch.Tensor, augm
         print('training batch on thread:', mp.current_process().name)
         sys.stdout.flush()
 
-    inputs = augmentor(list(inputs.numpy()))
+    if config.evolve_da:
+        inputs = augmentor(list(inputs.numpy()))
+
     inputs, labels = inputs.to(device), labels.to(device)
     if config.view_batch_image:
         imshow(inputs[0])
