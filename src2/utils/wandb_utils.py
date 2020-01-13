@@ -3,7 +3,10 @@ from __future__ import annotations
 import os
 import datetime
 from random import randint
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Dict
+from PIL import Image
+
+import re
 import wandb
 
 from runs.runs_manager import get_generation_file_path, save_config, get_run_folder_path, get_graphs_folder_path
@@ -122,19 +125,36 @@ def _wandb_log_generation(generation: Generation):
     for i in range(generation.generation_number + 1):
         wandb.save(get_generation_file_path(i, config.run_name))
 
-    for _, _, files in os.walk(get_graphs_folder_path(config.run_name)):
-        for file in files:
-            print(file)
+    log = {'module accuracy table': mod_acc_tbl, 'blueprint accuracy table': bp_acc_tbl,
+           config.fitness_aggregation + ' module accuracies': module_accs,
+           config.fitness_aggregation + ' blueprint accuracies': bp_accs,
+           'module accuracies raw': raw_mod_accs, 'blueprint accuracies raw': raw_bp_accs,
+           'avg module accuracy': sum(non_zero_mod_accs) / len(non_zero_mod_accs),
+           'avg blueprint accuracy': sum(bp_accs) / len(bp_accs),
+           'best blueprint accuracy': max(raw_bp_accs),
+           'num module species': len(generation.module_population.species),
+           'species sizes': [len(spc.members) for spc in generation.module_population.species],
+           'unevaluated blueprints': n_unevaluated_bps, 'n_unevaluated_mods': n_unevaluated_mods,
+           'speciation threshold': generation.module_population.speciator.threshold,
+           }
 
-    wandb.log({'module accuracy table': mod_acc_tbl, 'blueprint accuracy table': bp_acc_tbl,
-               config.fitness_aggregation + ' module accuracies': module_accs,
-               config.fitness_aggregation + ' blueprint accuracies': bp_accs,
-               'module accuracies raw': raw_mod_accs, 'blueprint accuracies raw': raw_bp_accs,
-               'avg module accuracy': sum(non_zero_mod_accs) / len(non_zero_mod_accs),
-               'avg blueprint accuracy': sum(bp_accs) / len(bp_accs),
-               'best blueprint accuracy': max(raw_bp_accs),
-               'num module species': len(generation.module_population.species),
-               'species sizes': [len(spc.members) for spc in generation.module_population.species],
-               'unevaluated blueprints': n_unevaluated_bps, 'n_unevaluated_mods': n_unevaluated_mods,
-               'speciation threshold': generation.module_population.speciator.threshold
-               })
+    if config.plot_best_genotypes or config.plot_best_phenotype:
+        imgs = _log_imgs(generation)
+        log.update(imgs)
+
+    wandb.log(log)
+
+
+def _log_imgs(generation: Generation) -> Dict[str, wandb.Image]:
+    imgs = {}
+    for root, _, files in os.walk(get_graphs_folder_path(config.run_name)):
+        for file in files:
+            if not file.endswith('.png'):
+                continue
+
+            for match in re.compile(r"_g[0-9]+_").finditer(str(file)):
+                if match[0][2:-1] == str(generation.generation_number - 1):
+                    name = 'best_pheno' if 'phenotype' in file else 'best_geno'
+                    imgs[name] = wandb.Image(Image.open(os.path.join(root, file)), file)
+
+    return imgs
