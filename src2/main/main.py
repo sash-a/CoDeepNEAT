@@ -98,7 +98,6 @@ def read_config():
 def init_generation_dir(new_run: bool):
     if new_run:
         runs_manager.set_up_run_folder(config.run_name)
-        runs_manager.save_config(config.run_name, config)
     else:
         runs_manager.load_config(config.run_name)
 

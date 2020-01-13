@@ -59,7 +59,7 @@ def load_config(run_name, config_name="config"):
 def save_config(run_name, conf=config, config_name="config"):
     """Saves config locally and uploads it to wandb if config.use_wandb is true"""
     if conf.use_wandb:
-        wandb.config.update(conf.__dict__)
+        wandb.config.update(conf.__dict__, allow_val_change=True)
 
     file_path = join(get_run_folder_path(run_name), config_name + '.json')
     with open(file_path, 'w+') as f:
