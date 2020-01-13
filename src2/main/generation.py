@@ -7,11 +7,6 @@ from __future__ import annotations
 import torch.multiprocessing as mp
 from typing import Optional, List
 
-import wandb
-
-from runs import runs_manager
-
-from src2.utils.wandb_utils import wandb_log
 from src2.utils.mp_utils import get_bp_eval_pool
 from src2.configuration import config
 from src2.genotype.cdn.genomes.blueprint_genome import BlueprintGenome
@@ -57,9 +52,6 @@ class Generation:
 
     def step_evolution(self):
         """Runs cdn for one generation. Prepares population objects for the next step."""
-        if config.use_wandb:
-            wandb_log(self)
-
         # TODO move this to visualization method
         most_accurate_blueprint: BlueprintGenome = self.blueprint_population.get_most_accurate()[0]
         if config.plot_best_genotypes:

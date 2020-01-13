@@ -168,12 +168,9 @@ class BlueprintGenome(Genome):
             print("no da to report fitness to")
 
     # -------------------------- DATA AUGMENTATION --------------------------
-    def get_da(self, ignore_exception=False) -> Optional[DAGenome]:
+    def get_da(self) -> Optional[DAGenome]:
         if not config.evolve_da:
-            if not ignore_exception:
-                raise Exception("Trying to get DA from blueprint in a non DA run (check config)")
-            else:
-                return None
+            raise Exception("Trying to get DA from blueprint in a non DA run (check config)")
 
         if not config.evolve_da_pop:  # Always only 1 static DA linked
             return self._da

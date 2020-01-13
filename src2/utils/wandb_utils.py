@@ -6,7 +6,7 @@ from random import randint
 from typing import TYPE_CHECKING
 import wandb
 
-from runs.runs_manager import get_generation_file_path, save_config, get_run_folder_path
+from runs.runs_manager import get_generation_file_path, save_config, get_run_folder_path, get_graphs_folder_path
 from src2.configuration import config
 from src2.utils.wandb_data_fetcher import download_generations, download_config, download_model
 
@@ -119,8 +119,12 @@ def _wandb_log_generation(generation: Generation):
 
     # Saving the pickle file for further inspection
     # Were getting some runs that did not upload all generation files so now re-save all every generation to make sure
-    for i in range(generation.generation_number+1):
+    for i in range(generation.generation_number + 1):
         wandb.save(get_generation_file_path(i, config.run_name))
+
+    for _, _, files in os.walk(get_graphs_folder_path(config.run_name)):
+        for file in files:
+            print(file)
 
     wandb.log({'module accuracy table': mod_acc_tbl, 'blueprint accuracy table': bp_acc_tbl,
                config.fitness_aggregation + ' module accuracies': module_accs,

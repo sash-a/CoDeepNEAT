@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 from typing import TYPE_CHECKING, Union, List, Dict, Any
 
+import src2.main.singleton as Singleton
 from runs import runs_manager
 from src2.configuration import config
 from src2.genotype.cdn.genomes.da_genome import DAGenome
@@ -20,7 +21,7 @@ from graphviz import Digraph
 
 
 def get_graph_of(genome: Genome, sub_graph=False, cluster_style="filled", cluster_colour="lightgrey",
-                 node_style="filled", node_colour: Any="white", label="",
+                 node_style="filled", node_colour: Any = "white", label="",
                  node_shape="", start_node_shape="Mdiamond", end_node_shape="Msquare",
                  node_names="", graph_title_prefix="", graph_title_suffix="", append_graph: Digraph = None,
                  exclude_unconnected_nodes=True, exclude_non_fully_connected_nodes=True,
@@ -70,7 +71,7 @@ def get_graph_of(genome: Genome, sub_graph=False, cluster_style="filled", cluste
 
     for node in node_set:
         shape = start_node_shape if (node.is_input_node() and start_node_shape != "") else (
-                end_node_shape if (node.is_output_node() and end_node_shape != "") else node_shape)
+            end_node_shape if (node.is_output_node() and end_node_shape != "") else node_shape)
 
         if "sample_map" in kwargs and kwargs["sample_map"] is not None:
             meta_data = get_node_metadata(node, sample_map=kwargs["sample_map"])
@@ -83,9 +84,9 @@ def get_graph_of(genome: Genome, sub_graph=False, cluster_style="filled", cluste
         if shape != "":
             # print("using shape ",shape)
             g.node(name=node_names + "_v " + str(node.id), shape=shape, label=meta_data,
-                   fillcolor = _node_colour, style="filled")
+                   fillcolor=_node_colour, style="filled")
         else:
-            g.node(name=node_names + "_v " + str(node.id), label=meta_data, fillcolor = _node_colour, style="filled")
+            g.node(name=node_names + "_v " + str(node.id), label=meta_data, fillcolor=_node_colour, style="filled")
 
         # print("created node: ", (node_names + ": " + str(node.id)) , " id: ", node.id )
 
@@ -122,10 +123,7 @@ def visualise_blueprint_genome(genome: BlueprintGenome, sample_map: Dict[int, in
         if bp_node.linked_module_id != -1:
             module_ids.add(bp_node.linked_module_id)
 
-    import src2.main.singleton as Singleton
-
     if sample_map is not None:
-
         for species_id in sample_map.keys():
             module_id = sample_map[species_id]
             sub_graph_label = "Species: " + str(species_id) + "\nModule: " + str(module_id)
@@ -135,12 +133,14 @@ def visualise_blueprint_genome(genome: BlueprintGenome, sample_map: Dict[int, in
                                         sub_graph=True, label=sub_graph_label, node_colour="cyan")
             blueprint_graph.subgraph(module_graph)
 
-    da: DAGenome = genome.get_da(ignore_exception=True)
-    if da is not None:
-        da_graph = get_graph_of(da, sub_graph=True, node_names="da_nodes", label="Augmentation Scheme " + repr(da.id), node_colour= "pink")
+    if config.evolve_da:
+        da: DAGenome = genome.get_da()
+        da_graph = get_graph_of(da, sub_graph=True, node_names="da_nodes", label="Augmentation Scheme " + repr(da.id),
+                                node_colour="pink")
         blueprint_graph.subgraph(da_graph)
     try:
-        blueprint_graph.render(directory=runs_manager.get_graphs_folder_path(config.run_name), view=config.view_graph_plots, format="png")
+        blueprint_graph.render(directory=runs_manager.get_graphs_folder_path(config.run_name),
+                               view=config.view_graph_plots, format="png")
     except Exception as e:
         print(e)
 

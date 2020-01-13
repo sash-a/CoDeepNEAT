@@ -1,15 +1,11 @@
 from __future__ import annotations
 
-import copy
-from typing import TYPE_CHECKING, Dict
-
 import argparse
 import os
 import sys
 import torch
 
 # For importing project files
-
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
 sys.path.append(dir_path_1)
@@ -24,11 +20,8 @@ from runs import runs_manager
 from src2.configuration import config
 from src2.main.generation import Generation
 from src2.phenotype.neural_network.evaluator import fully_train
-from src2.utils.wandb_utils import init_wandb
-from src2.phenotype.neural_network.evaluator.fully_train import fully_train as ft
-
-if TYPE_CHECKING:
-    pass
+from src2.utils.wandb_utils import init_wandb, wandb_log
+from src2.phenotype.neural_network.evaluator.fully_train import fully_train
 
 
 def main():
@@ -40,12 +33,16 @@ def main():
     downloading_run = bool(config.wandb_run_id)
 
     if config.fully_train:
-        fully_train(locally_new_run)
+        init_fully_train(locally_new_run)
+        fully_train(config.run_name, epochs=config.fully_train_epochs)  # fully train evaluation
         return
 
     init_generation_dir(locally_new_run)  # A config from a previous run has possibly been loaded from this point
+
     init_wandb(locally_new_run)
     read_config()  # allowing provided config to overwrite downloaded one
+    runs_manager.save_config(config.run_name, config)
+
     init_operators()
     generation = init_generation(False if downloading_run else locally_new_run)
 
@@ -54,11 +51,15 @@ def main():
     while generation.generation_number < config.n_generations:
         print('\n\nStarted generation:', generation.generation_number)
         generation.step_evaluation()
+
         runs_manager.save_generation(generation, config.run_name)
+        if config.use_wandb:
+            wandb_log(generation)
+
         generation.step_evolution()
 
 
-def fully_train(locally_new_run: bool, n=1):
+def init_fully_train(locally_new_run: bool):
     print('Starting fully training...')
 
     downloading_conf = bool(config.wandb_run_id)
@@ -77,7 +78,7 @@ def fully_train(locally_new_run: bool, n=1):
         if not config.resume_fully_train:  # wandb run ID of fully train gets overwritten by init config with the evo ID
             config.wandb_run_id = ft_wandb_run_id
 
-    ft(config.run_name, n, epochs=config.fully_train_epochs)  # fully train evaluation
+    runs_manager.save_config(config.run_name, config)
 
 
 def read_config():
