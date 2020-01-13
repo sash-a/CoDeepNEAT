@@ -50,10 +50,12 @@ def load_data(composed_transforms: transforms.Compose, split: str) -> DataLoader
     if train and not config.fully_train:
         # Splitting the train set into a train and valid set
         train_size = int(len(dataset) * (1 - config.validation_split))
-        if train:
+        if split == 'train':
             dataset = Subset(dataset, range(train_size))
         else:
             dataset = Subset(dataset, range(train_size, len(dataset)))
+
+    print(split, 'set size in', 'FT' if config.fully_train else 'evo', len(dataset))
 
     # TODO: test num workers and pin memory
     return DataLoader(dataset, batch_size=config.batch_size, shuffle=True, num_workers=0, pin_memory=False)
