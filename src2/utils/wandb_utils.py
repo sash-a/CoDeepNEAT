@@ -104,10 +104,12 @@ def _wandb_log_generation(generation: Generation):
     bp_accs = sorted([bp.accuracy for bp in generation.blueprint_population])
 
     n_unevaluated_bps = 0
+    n_large_nets = 0
     raw_bp_accs = []
     for bp in generation.blueprint_population:
         evaluated_networks = len([fitness[0] for fitness in bp.fitness_raw if fitness[0] != 0])
-        n_unevaluated_bps += 1 if evaluated_networks ==0 else 0
+        n_unevaluated_bps += 1 if evaluated_networks == 0 else 0
+        n_large_nets += sum(fitness[0] == 0 for fitness in bp.fitness_raw)
         raw_bp_accs.extend(bp.fitness_raw[0])
 
     n_unevaluated_mods = 0
@@ -136,7 +138,7 @@ def _wandb_log_generation(generation: Generation):
            'num module species': len(generation.module_population.species),
            'species sizes': [len(spc.members) for spc in generation.module_population.species],
            'unevaluated blueprints': n_unevaluated_bps, 'n_unevaluated_mods': n_unevaluated_mods,
-           'speciation threshold': generation.module_population.speciator.threshold,
+           "large blueprints": n_large_nets, 'speciation threshold': generation.module_population.speciator.threshold,
            }
 
     if config.plot_best_genotypes or config.plot_best_phenotype:

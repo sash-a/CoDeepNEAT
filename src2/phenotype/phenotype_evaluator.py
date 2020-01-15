@@ -31,7 +31,7 @@ def evaluate_blueprints(blueprint_q: mp.Queue,
         blueprint = blueprint_q.get()
 
         blueprint = evaluate_blueprint(blueprint, input_size, num_epochs)
-        if blueprint.n_evaluations == config.n_evaluations_per_bp:
+        if blueprint.n_evaluations == config.n_evals_per_bp:
             completed_blueprints.append(blueprint)
         else:
             blueprint_q.put(blueprint)
