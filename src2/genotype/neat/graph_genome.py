@@ -5,7 +5,6 @@ from typing import Dict, TYPE_CHECKING, List, Union, AbstractSet, Set
 from tarjan import tarjan
 
 from src2.configuration import config
-from src2.genotype.cdn.nodes.da_node import DANode
 from src2.genotype.neat.mutation_record import MutationRecords
 
 if TYPE_CHECKING:
@@ -14,6 +13,7 @@ if TYPE_CHECKING:
     from src2.genotype.neat.node import Node
     from src2.genotype.cdn.nodes.blueprint_node import BlueprintNode
     from src2.genotype.cdn.nodes.module_node import ModuleNode
+    from src2.genotype.cdn.nodes.da_node import DANode
 
 
 class GraphGenome:

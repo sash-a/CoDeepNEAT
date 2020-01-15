@@ -2,10 +2,9 @@ from typing import List
 
 import imgaug.augmenters as iaa
 
-from src.DataAugmentation.CustomOperations import CustomOperation as CO
 # Dictionary containing all possible augmentation functions
-import src2.genotype.cdn.genomes.da_genome as da_genome
-import src2.genotype.cdn.nodes.da_node as da_node
+from src2.genotype.cdn.genomes.da_genome import DAGenome
+from src.DataAugmentation.CustomOperations import CustomOperation as CO
 from src2.genotype.neat.connection import Connection
 from src2.genotype.neat.node import NodeType
 
@@ -311,9 +310,9 @@ def get_legacy_da_scheme():
     nodes: List[DANode] = [DANode(i, _get_node_type(i, num_das)) for i in range(num_das)]
     _make_da_scheme_legacy(nodes)
     # Note: the connection IDs should not matter because DA connections will never be mutated
-    return da_genome.DAGenome(nodes,
-                              [Connection(0, 0, 1), Connection(1, 1, 2), Connection(2, 2, 3), Connection(3, 3, 4),
-                               Connection(4, 4, 5)])
+    return DAGenome(nodes,
+                      [Connection(0, 0, 1), Connection(1, 1, 2), Connection(2, 2, 3), Connection(3, 3, 4),
+                       Connection(4, 4, 5)])
 
 
 def _make_da_scheme_legacy(nodes: List):

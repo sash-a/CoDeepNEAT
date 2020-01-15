@@ -1,13 +1,15 @@
 from __future__ import annotations
 
-from typing import List, Union
+from typing import List, Union, TYPE_CHECKING
 
 from src2.configuration import config
-from src2.genotype.cdn.nodes.da_node import DANode
 from src2.genotype.neat.connection import Connection
 from src2.genotype.neat.genome import Genome
 from src2.phenotype.augmentations.augmentation_scheme import AugmentationScheme
 from src2.phenotype.augmentations.batch_augmentation_scheme import BatchAugmentationScheme
+
+if TYPE_CHECKING:
+    from src2.genotype.cdn.nodes.da_node import DANode
 
 
 class DAGenome(Genome):
