@@ -37,7 +37,7 @@ class Generation:
         self.blueprint_population: Optional[Population] = None
         self.da_population: Optional[Population] = None
 
-        self.initialise_populations()
+        self.init_populations()
         self.generation_number = 0
 
     def step_evaluation(self):
@@ -116,11 +116,11 @@ class Generation:
         bp: BlueprintGenome
         for bp in self.blueprint_population:
             for fitness, sample_map in zip(bp.fitness_raw[0], bp.all_sample_maps):
-                bp.report_module_fitness([fitness], sample_map)
+                bp.report_module_fitness([fitness], sample_map)  # TODO report module size
                 if config.evolve_da and config.evolve_da_pop:
                     bp.report_da_fitness([fitness])
 
-    def initialise_populations(self):
+    def init_populations(self):
         """Starts off the populations of a new evolutionary run"""
         if config.module_speciation.lower() == "similar":
             module_speciator = MostSimilarSpeciator(config.species_distance_thresh_mod_base, config.n_module_species,

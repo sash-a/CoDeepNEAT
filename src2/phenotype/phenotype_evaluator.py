@@ -54,7 +54,7 @@ def evaluate_blueprint(blueprint: BlueprintGenome, input_size: List[int], num_ep
         accuracy = evaluate(model, num_epochs=num_epochs)
 
     blueprint.update_best_sample_map(model.sample_map, accuracy)
-    blueprint.report_fitness([accuracy])
+    blueprint.report_fitness([accuracy, model_size])
     parse_number = blueprint.n_evaluations
 
     print("Blueprint - {:^5} - accuracy: {:05.2f}% (proc {})"
