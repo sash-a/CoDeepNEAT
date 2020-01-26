@@ -3,57 +3,19 @@ from __future__ import annotations
 import os
 import datetime
 from random import randint
-from typing import TYPE_CHECKING, List, Dict
+from typing import TYPE_CHECKING, Dict
 from PIL import Image
 
 import re
 import wandb
 
-from runs.runs_manager import get_generation_file_path, save_config, get_run_folder_path, get_graphs_folder_path, \
+from runs.runs_manager import get_generation_file_path,  get_graphs_folder_path, \
     run_folder_exists
 from src2.configuration import config
-from src2.utils.wandb_data_fetcher import download_generations, download_config, download_model
+from src2.utils.wandb_data_fetcher import download_generations, download_model
 
 if TYPE_CHECKING:
     from src2.main.generation import Generation
-    from src2.phenotype.neural_network.neural_network import Network
-
-
-def init_wandb(is_new_run):
-    """
-    Initializes wandb either as a new run or resuming an old run. If resuming from wandb then the wandb copy is
-    preferred to the local one. So if the run already exists locally and a wandb ID is provided then the local run
-    will be overwritten.
-    """
-    if not config.use_wandb:
-        return
-
-    if config.wandb_run_id and config.fully_train and config.resume_fully_train:
-        # Resuming a remote fully train
-        _fetch_run()
-        _resume_run(True)
-        download_generations(run_path='codeepneat/cdn/' + wandb.config.evolution_run_id, replace=True)
-
-    elif config.wandb_run_id and config.fully_train and not config.resume_fully_train:
-        # Start a fully train given remote evolution run
-        evolution_run_id = config.wandb_run_id  # ID of the evolution run, because its before we download the new config
-        _fetch_run()  # fetches a remote fun
-        _new_run(True)  # Then creates a new fully train run
-        # this is done to allow fully train runs to resume without needing the local generation files for that run
-        wandb.config['evolution_run_id'] = evolution_run_id
-
-    elif config.wandb_run_id and not config.fully_train:
-        # Resume remote evolution run
-        _fetch_run()  # Fetches remote run
-        _resume_run(False)  # Loads that run
-
-    elif is_new_run or config.fully_train:
-        # start new local run
-        _new_run(config.fully_train)
-
-    else:
-        # resume local run
-        _resume_run(config.fully_train)
 
 
 def wandb_init():
@@ -79,22 +41,10 @@ def wandb_init():
     wandb.config.update(config.__dict__, allow_val_change=True)
 
 
-def _fetch_run():
-    if config.resume_fully_train:
-        path_prefix = 'codeepneat/cdn_fully_train'
-        download_model(run_path=path_prefix + '/' + config.wandb_run_id, replace=True)
-    else:
-        path_prefix = 'codeepneat/cdn'
-        download_generations(run_path=path_prefix + '/' + config.wandb_run_id, replace=True)
-
-    # config used to download the run will already be copied there so must replace it
-    download_config(run_path=path_prefix + '/' + config.wandb_run_id, replace=True)
-
-
 def _resume_run():
     project = 'cdn_fully_train' if config.fully_train else 'cdn'
     dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', '..', 'results')
-    print('RPPRPRPRPPRR',config.wandb_run_path.split('/'),config.wandb_run_path)
+    print('RPPRPRPRPPRR', config.wandb_run_path.split('/'), config.wandb_run_path)
     wandb.init(dir=dir, project=project, entity='codeepneat', resume=config.wandb_run_path.split('/')[2])
 
 

@@ -22,11 +22,11 @@ from runs import runs_manager
 from src2.configuration import config
 from src2.main.generation import Generation
 from src2.phenotype.neural_network.evaluator import fully_train
-from src2.utils.wandb_utils import init_wandb, wandb_log, wandb_init
+from src2.utils.wandb_utils import wandb_log, wandb_init
 from src2.phenotype.neural_network.evaluator.fully_train import fully_train
 
 
-def main_1():
+def main():
     cfg_file_path = get_cfg_file_path()
     run_path = None if cfg_file_path is None else config.read_option(cfg_file_path, 'wandb_run_path')
     run_name = config.read_option(cfg_file_path, 'run_name')
@@ -89,77 +89,6 @@ def evolve():
             wandb_log(generation)
 
         generation.step_evolution()
-
-
-def main():
-    read_config()
-    if config.device == 'gpu':
-        _force_cuda_device_init()
-
-    locally_new_run = not runs_manager.run_folder_exists(config.run_name)
-    downloading_run = bool(config.wandb_run_id)
-
-    if config.fully_train:
-        init_fully_train(locally_new_run)
-        fully_train(config.run_name, epochs=config.fully_train_epochs)  # fully train evaluation
-        return
-
-    init_generation_dir(locally_new_run)  # A config from a previous run has possibly been loaded from this point
-
-    init_wandb(locally_new_run)
-    read_config()  # allowing provided config to overwrite downloaded one
-    runs_manager.save_config(config.run_name, config)
-
-    init_operators()
-    generation = init_generation(False if downloading_run else locally_new_run)
-
-    print('config:', config.__dict__)
-
-    while generation.generation_number < config.n_generations:
-        print('\n\nStarted generation:', generation.generation_number)
-        generation.step_evaluation()
-
-        runs_manager.save_generation(generation, config.run_name)
-        if config.use_wandb:
-            wandb_log(generation)
-
-        generation.step_evolution()
-
-
-def init_fully_train(locally_new_run):
-    print('Starting fully training...')
-
-    downloading_conf = bool(config.wandb_run_id)
-    init_wandb(locally_new_run)  # possibly downloading remote config
-
-    if downloading_conf:
-        # Downloaded a config, need to overwrite some of its values with values specified in local config
-
-        # Values which may not be overwritten:
-        remote_config_name = config.run_name
-        ft_wandb_run_id = config.wandb_run_id
-
-        read_config()  # overwrites some of downloaded config values with config that is passed as arg
-
-        config.run_name = remote_config_name  # files are downloaded to a dir with this name so must continue to use it
-        if not config.resume_fully_train:  # wandb run ID of fully train gets overwritten by init config with the evo ID
-            config.wandb_run_id = ft_wandb_run_id
-
-    runs_manager.save_config(config.run_name, config)
-
-
-def read_config():
-    parser = argparse.ArgumentParser(description='CoDeepNEAT')
-    parser.add_argument('-c', '--configs', nargs='+', type=str,
-                        help='Path to all config files that will be used. (Earlier configs are given preference)',
-                        required=False)
-    args = parser.parse_args()
-    # Reading configs in reverse order so that initial config files overwrite others
-    if args.configs is None:
-        return
-
-    for cfg_file in reversed(args.configs):
-        config.read(cfg_file)
 
 
 def init_generation_dir(new_run: bool):
@@ -236,4 +165,4 @@ def _force_cuda_device_init():
 
 
 if __name__ == '__main__':
-    main_1()
+    main()
