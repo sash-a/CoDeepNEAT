@@ -6,6 +6,8 @@ import sys
 import torch
 
 # For importing project files
+from src2.utils.wandb_data_fetcher import download_run
+
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
 sys.path.append(dir_path_1)
@@ -20,8 +22,73 @@ from runs import runs_manager
 from src2.configuration import config
 from src2.main.generation import Generation
 from src2.phenotype.neural_network.evaluator import fully_train
-from src2.utils.wandb_utils import init_wandb, wandb_log
+from src2.utils.wandb_utils import init_wandb, wandb_log, wandb_init
 from src2.phenotype.neural_network.evaluator.fully_train import fully_train
+
+
+def main_1():
+    cfg_file_path = get_cfg_file_path()
+    run_path = None if cfg_file_path is None else config.read_option(cfg_file_path, 'wandb_run_path')
+    run_name = config.read_option(cfg_file_path, 'run_name')
+
+    print('wandb run path:', run_path is None)
+    if run_path is not None and run_path:
+        print('downloading run...')
+        run_name = download_run(run_path=run_path, replace=True)
+
+    print('Run name', run_name)
+    if runs_manager.run_folder_exists(run_name):
+        print('Run folder already exists, reading its config')
+        runs_manager.load_config(run_name)
+
+    print('Reading config at ', cfg_file_path)
+    config.read(cfg_file_path)  # overwrites loaded config with config passed as arg
+
+    # Full config is now loaded
+    if config.use_wandb:
+        wandb_init()
+
+    if not runs_manager.run_folder_exists(run_name):
+        print('New run, setting up run folder')
+        runs_manager.set_up_run_folder(run_name)
+
+    print('Saving conf')
+    runs_manager.save_config(config.run_name)
+
+    if config.device == 'gpu':
+        _force_cuda_device_init()
+
+    if config.fully_train:
+        fully_train(config.run_name)  # either load generations or load model and resume fully train
+    else:
+        evolve()
+
+
+def get_cfg_file_path():
+    parser = argparse.ArgumentParser(description='CoDeepNEAT')
+    parser.add_argument('-c', '--config', type=str,
+                        help='Config file that will be used',
+                        required=False)
+    args = parser.parse_args()
+    return args.config
+
+
+def evolve():
+    print('Evolving')
+    init_operators()
+    generation = init_generation()
+
+    print('config:', config.__dict__)
+
+    while generation.generation_number < config.n_generations:
+        print('\n\nStarted generation:', generation.generation_number)
+        generation.step_evaluation()
+
+        runs_manager.save_generation(generation, config.run_name)
+        if config.use_wandb:
+            wandb_log(generation)
+
+        generation.step_evolution()
 
 
 def main():
@@ -29,7 +96,7 @@ def main():
     if config.device == 'gpu':
         _force_cuda_device_init()
 
-    locally_new_run = not runs_manager.does_run_folder_exist(config.run_name)
+    locally_new_run = not runs_manager.run_folder_exists(config.run_name)
     downloading_run = bool(config.wandb_run_id)
 
     if config.fully_train:
@@ -59,7 +126,7 @@ def main():
         generation.step_evolution()
 
 
-def init_fully_train(locally_new_run: bool):
+def init_fully_train(locally_new_run):
     print('Starting fully training...')
 
     downloading_conf = bool(config.wandb_run_id)
@@ -102,18 +169,17 @@ def init_generation_dir(new_run: bool):
         runs_manager.load_config(config.run_name)
 
 
-def init_generation(new_run: bool) -> Generation:
-    if new_run:
-        # new run
+def init_generation() -> Generation:
+    if not os.listdir(runs_manager.get_generations_folder_path(config.run_name)):  # new run
+        print('new run')
         generation: Generation = Generation()
         Singleton.instance = generation
-
-    else:
-        # continuing run
+    else:  # continuing run
+        print('cont run')
         generation: Generation = runs_manager.load_latest_generation(config.run_name)
         if generation is None:  # generation load failed, likely because the run did not complete gen 0
             init_generation_dir(True)
-            return init_generation(True)  # will start a fresh gen
+            return init_generation()  # will start a fresh gen
 
         Singleton.instance = generation
         generation.step_evolution()
@@ -170,4 +236,4 @@ def _force_cuda_device_init():
 
 
 if __name__ == '__main__':
-    main()
+    main_1()

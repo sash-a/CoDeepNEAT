@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import time
+
 import wandb
 import inspect
 import json
@@ -58,12 +60,14 @@ def load_config(run_name, config_name="config"):
 
 def save_config(run_name, conf=config, config_name="config"):
     """Saves config locally and uploads it to wandb if config.use_wandb is true"""
-    if conf.use_wandb:
-        wandb.config.update(conf.__dict__, allow_val_change=True)
-
     file_path = join(get_run_folder_path(run_name), config_name + '.json')
+    print('saving at:', file_path)
     with open(file_path, 'w+') as f:
         json.dump(conf.__dict__, f, indent=2)
+
+    if conf.use_wandb:
+        wandb.config.update(conf.__dict__, allow_val_change=True)
+        wandb.save(file_path)
 
 
 def _get_generation_name(generation_number):
@@ -82,7 +86,7 @@ def get_latest_generation(run_name):
 
 
 def set_up_run_folder(run_name):
-    if not does_run_folder_exist(run_name):
+    if not run_folder_exists(run_name):
         os.makedirs(get_run_folder_path(run_name))
         os.makedirs(get_graphs_folder_path(run_name))
         os.makedirs(get_generations_folder_path(run_name))
@@ -104,7 +108,7 @@ def get_run_folder_path(run_name):
     return join(__get_runs_folder_path(), run_name)
 
 
-def does_run_folder_exist(run_name) -> bool:
+def run_folder_exists(run_name) -> bool:
     return exists(get_run_folder_path(run_name))
 
 

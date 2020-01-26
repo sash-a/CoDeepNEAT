@@ -1,7 +1,7 @@
 import json
 import os
 from multiprocessing import current_process
-from typing import Dict
+from typing import Dict, Optional
 
 from torch import device
 
@@ -109,7 +109,7 @@ class Config:
         # ------------------------------------------------ wandb stuff ------------------------------------------------
         self.use_wandb = True
         self.wandb_tags = []
-        self.wandb_run_id = ''
+        self.wandb_run_path = ''
         # -------------------------------------------------------------------------------------------------------------
 
     def get_device(self):
@@ -120,7 +120,8 @@ class Config:
         gpu += gpu_idx
         return device('cpu') if self.device == 'cpu' else device(gpu)
 
-    def read(self, file: str):
+    @staticmethod
+    def _build_file_path(file: str) -> str:
         # If the path is not absolute (i.e starts at root) then search in configs dir
         if not file.endswith('.json'):
             file += ".json"
@@ -128,8 +129,24 @@ class Config:
         if not file.startswith("/"):
             file = os.path.join(os.path.dirname(__file__), 'configs', file)
 
+        return file
+
+    def read_option(self, file: str, option: str) -> Optional[any]:
+        file = Config._build_file_path(file)
+
         with open(file) as cfg_file:
             options: dict = json.load(cfg_file)
+            if option in options and option in self.__dict__:
+                return options[option]
+
+        return None
+
+    def read(self, file: str):
+        file = Config._build_file_path(file)
+
+        with open(file) as cfg_file:
+            options: dict = json.load(cfg_file)
+            print(file, options)
             self._add_cfg_dict(options)
 
     def _add_cfg_dict(self, options: Dict[str, any]):

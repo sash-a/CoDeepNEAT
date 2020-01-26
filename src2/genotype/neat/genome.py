@@ -30,7 +30,7 @@ class Genome(GraphGenome):
         #   ...
         #   [ objective n values] ]
         self.fitness_raw: List[List[float]] = [[] for _ in range(2)]  # 2 objectives
-        self.fitness_values: List[float] = [0]
+        self.fitness_values: List[float] = [0, 0]
         self.n_evaluations = 0
         self.parents: List[int] = []  # the ids of the parents of this genome. can be empty if a genome has no parents
 
@@ -53,7 +53,6 @@ class Genome(GraphGenome):
     def report_fitness(self, fitnesses: List[float]):
         """updates the fitnesses stored with a new given fitness"""
         self.n_evaluations += 1
-        print(len(fitnesses), len(self.fitness_raw))
         for i, fitness in enumerate(fitnesses):
             self.fitness_raw[i].append(fitness)
 

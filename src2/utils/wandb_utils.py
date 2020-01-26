@@ -9,7 +9,8 @@ from PIL import Image
 import re
 import wandb
 
-from runs.runs_manager import get_generation_file_path, save_config, get_run_folder_path, get_graphs_folder_path
+from runs.runs_manager import get_generation_file_path, save_config, get_run_folder_path, get_graphs_folder_path, \
+    run_folder_exists
 from src2.configuration import config
 from src2.utils.wandb_data_fetcher import download_generations, download_config, download_model
 
@@ -55,6 +56,29 @@ def init_wandb(is_new_run):
         _resume_run(config.fully_train)
 
 
+def wandb_init():
+    if (config.fully_train and not config.resume_fully_train) or \
+            (not run_folder_exists(config.run_name) and not config.wandb_run_path):
+        # Either new evolution run or new fully train run
+        evo_run_path = config.wandb_run_path
+        print('new run')
+        _new_run()
+        if config.fully_train:
+            wandb.config['evolution_run_path'] = evo_run_path
+
+    elif run_folder_exists(config.run_name) or config.resume_fully_train:
+        print('resuming')
+        _resume_run()
+        if config.resume_fully_train:
+            print('resuming ft at', wandb.config.evolution_run_path)
+            download_generations(run_path=wandb.config.evolution_run_path, replace=True)
+            download_model(run_path=wandb.config.evolution_run_path, replace=True)
+    else:
+        raise Exception("Something went wrong with wandb")
+
+    wandb.config.update(config.__dict__, allow_val_change=True)
+
+
 def _fetch_run():
     if config.resume_fully_train:
         path_prefix = 'codeepneat/cdn_fully_train'
@@ -67,30 +91,30 @@ def _fetch_run():
     download_config(run_path=path_prefix + '/' + config.wandb_run_id, replace=True)
 
 
-def _resume_run(fully_train: bool):
-    project = 'cdn_fully_train' if fully_train else 'cdn'
+def _resume_run():
+    project = 'cdn_fully_train' if config.fully_train else 'cdn'
     dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', '..', 'results')
-    wandb.init(dir=dir, project=project, entity='codeepneat', resume=config.wandb_run_id)
+    print('RPPRPRPRPPRR',config.wandb_run_path.split('/'),config.wandb_run_path)
+    wandb.init(dir=dir, project=project, entity='codeepneat', resume=config.wandb_run_path.split('/')[2])
 
 
-def _new_run(fully_train: bool):
-    config.wandb_run_id = config.run_name + str(datetime.date.today()) + '_' + str(randint(1E5, 1E6))
+def _new_run():
+    wandb_run_id = config.run_name + str(datetime.date.today()) + '_' + str(randint(1E5, 1E6))
+    project = 'cdn_fully_train' if config.fully_train else 'cdn'
+    config.wandb_run_path = 'codeepneat/' + project + '/' + wandb_run_id
 
-    project = 'cdn_fully_train' if fully_train else 'cdn'
     dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', '..', 'results')
+
+    job_type = 'train'
     tags = config.wandb_tags
     if config.fully_train:
         tags = ['FULLY_TRAIN']
     if config.dummy_run:
         tags += ['TEST_RUN']
+        job_type = 'test'
 
-    wandb.init(project=project, entity='codeepneat', name=config.run_name, tags=tags, dir=dir, id=config.wandb_run_id)
-    wandb.config.update(config.__dict__)
-
-    # need to re-add the new wandb_run_id into the saved config
-    save_config(config.run_name, config)
-    # saving the config to wandb
-    wandb.save(os.path.join(get_run_folder_path(config.run_name), 'config.json'))
+    wandb.init(job_type=job_type, project=project, entity='codeepneat', name=config.run_name, tags=tags, dir=dir,
+               id=wandb_run_id)
 
 
 def wandb_log(generation: Generation):

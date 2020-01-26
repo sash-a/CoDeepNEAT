@@ -24,6 +24,7 @@ def fully_train(run_name, n=1, epochs=100):
     :param n: number of the best networks to train
     :param epochs: number of epochs to train the best networks for
     """
+    print('fully training')
     run: Run = get_run(run_name)
     best_blueprints = run.get_most_accurate_blueprints(n)
     in_size = get_data_shape()
@@ -62,7 +63,7 @@ def _load_model(dummy_bp: BlueprintGenome, run: Run, gen_num: int, in_size) -> N
         raise Exception('Calling resume training, but config.resume_fully_train is false')
 
     S.instance = run.generations[gen_num]
-    model: Network = Network(dummy_bp, in_size, sample_map=dummy_bp.best_module_sample_map).to(config.device)
+    model: Network = Network(dummy_bp, in_size, sample_map=dummy_bp.best_module_sample_map).to(config.get_device())
     model.load()
 
     return model
