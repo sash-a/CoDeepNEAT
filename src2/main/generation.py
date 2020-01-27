@@ -115,10 +115,11 @@ class Generation:
         # Reporting fitness to all modules
         bp: BlueprintGenome
         for bp in self.blueprint_population:
-            for fitness, sample_map in zip(bp.fitness_raw[0], bp.all_sample_maps):
-                bp.report_module_fitness([fitness], sample_map)  # TODO report module size
+            accuracies = bp.fitness_raw[0]
+            for accuracy, sample_map in zip(accuracies, bp.all_sample_maps):
+                bp.report_module_fitness(accuracy, sample_map)
                 if config.evolve_da and config.evolve_da_pop:
-                    bp.report_da_fitness([fitness])
+                    bp.report_da_fitness(accuracy)
 
     def init_populations(self):
         """Starts off the populations of a new evolutionary run"""

@@ -3,8 +3,6 @@ from __future__ import annotations
 import heapq
 from typing import List, Iterable, Optional, Union, TYPE_CHECKING
 
-from src2.genotype.cdn.genomes.blueprint_genome import BlueprintGenome
-from src2.genotype.neat.genome import Genome
 from src2.genotype.neat.mutation_record import MutationRecords
 from src2.genotype.neat.operators.population_rankers.population_ranker import PopulationRanker
 from src2.genotype.neat.operators.speciators.speciator import Speciator
@@ -14,6 +12,8 @@ from src2.analysis.visualisation import speciation_visualiser
 if TYPE_CHECKING:
     from src2.genotype.cdn.genomes.da_genome import DAGenome
     from src2.genotype.cdn.genomes.module_genome import ModuleGenome
+    from src2.genotype.cdn.genomes.blueprint_genome import BlueprintGenome
+    from src2.genotype.neat.genome import Genome
 
 
 class Population:

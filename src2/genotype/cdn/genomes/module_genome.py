@@ -1,7 +1,13 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from src2.genotype.cdn.nodes.module_node import ModuleNode
+
 from typing import List, Tuple
 
 from runs import runs_manager
-from src.CoDeepNEAT.CDNGenomes.ModuleGenome import ModuleGenome as ModuleGenome_Old
 from src2.configuration import config
 from src2.genotype.neat.connection import Connection
 from src2.genotype.neat.genome import Genome
@@ -21,15 +27,17 @@ class ModuleGenome(Genome):
         get_graph_of(self).render(directory=runs_manager.get_graphs_folder_path(config.run_name),
                                   view=config.view_graph_plots)
 
-    def old(self) -> ModuleGenome_Old:
-        old_nodes = []
-        old_conns = []
-
+    def get_size_estimate(self):
+        node: ModuleNode
+        size = 0
         for node in self.nodes.values():
-            old_nodes.append(node.old())
+            out_features = node.layer_type.get_subvalue('out_features')
 
-        for connection in self.connections.values():
-            old_conns.append(connection.old())
+            if node.is_conv():
+                window_size = node.layer_type.get_subvalue('conv_window_size')
 
-        return ModuleGenome_Old(old_conns, old_nodes)
+                size += window_size**2 + out_features
 
+            if node.is_linear():
+                size += out_features **2
+        return size

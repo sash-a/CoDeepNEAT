@@ -1,9 +1,14 @@
+from __future__ import annotations
+
 # This is the crossover method
 import copy
 import random
+from typing import TYPE_CHECKING
 
 from src2.configuration import config
-from src2.genotype.neat.genome import Genome
+
+if TYPE_CHECKING:
+    from src2.genotype.neat.genome import Genome
 
 
 def over(genome_a: Genome, genome_b: Genome) -> Genome:

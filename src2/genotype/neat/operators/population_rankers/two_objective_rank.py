@@ -1,10 +1,15 @@
-from typing import Iterable
-
-from src2.genotype.neat.genome import Genome
+from __future__ import annotations
+from typing import Iterable, Dict, TYPE_CHECKING, Optional, Tuple
 from src2.genotype.neat.operators.population_rankers.population_ranker import PopulationRanker
+
+if TYPE_CHECKING:
+    from src2.genotype.neat.genome import Genome
 
 
 class TwoObjectiveRank(PopulationRanker):
+
+    def __init__(self):
+        super().__init__(2)
 
     def rank(self, individuals: Iterable[Genome]) -> None:
         self.cdn_rank(individuals)
@@ -41,3 +46,4 @@ class TwoObjectiveRank(PopulationRanker):
             # i=0 is the highest rank, high rank is better
             indv.rank = num_individuals - i
         return fronts
+

@@ -8,7 +8,11 @@ if TYPE_CHECKING:
 
 
 class PopulationRanker(ABC):
+    num_objectives: int
+
+    def __init__(self, num_objectives : int):
+        self.num_objectives = num_objectives
+
     @abstractmethod
     def rank(self, individuals: Iterable[Genome]) -> None:
         """Ranks individuals based on their fitness, with the rank 0 being the worst rank"""
-        pass

@@ -10,7 +10,6 @@ import src2.genotype.cdn.nodes.blueprint_node as BlueprintNode
 
 import src2.main.singleton as singleton
 from src2.configuration import config
-from src2.genotype.cdn.genomes.da_genome import DAGenome
 from src2.genotype.mutagen.continuous_variable import ContinuousVariable
 from src2.genotype.mutagen.mutagen import Mutagen
 from src2.genotype.neat.connection import Connection
@@ -21,6 +20,8 @@ from src2.analysis.visualisation.genome_visualiser import visualise_blueprint_ge
 
 if TYPE_CHECKING:
     from src2.phenotype.neural_network.layers import layer
+    from src2.genotype.cdn.genomes.module_genome import ModuleGenome
+    from src2.genotype.cdn.genomes.da_genome import DAGenome
 
 
 class BlueprintGenome(Genome):
@@ -144,7 +145,7 @@ class BlueprintGenome(Genome):
         return species_to_unmap
 
     # -------------------------- FITNESS REPORTING --------------------------
-    def report_module_fitness(self, fitness: List[float], sample_map):
+    def report_module_fitness(self, accuracy, sample_map):
         for node_id in self.get_fully_connected_node_ids():
             node: Node = self.nodes[node_id]
             if not isinstance(node, BlueprintNode.BlueprintNode):  # not blueprint node
@@ -154,16 +155,16 @@ class BlueprintGenome(Genome):
                 raise LookupError("Sample map" + repr(sample_map) + "missing species id: " + repr(node.species_id))
 
             module_id = sample_map[node.species_id]
-            module = singleton.instance.module_population[module_id]
-            module.report_fitness(fitness)
+            module : ModuleGenome = singleton.instance.module_population[module_id]
+            module.report_fitness([accuracy, module.get_size_estimate()])
 
-    def report_da_fitness(self, fitness: List[float]):
+    def report_da_fitness(self, accuracy):
         if not config.evolve_da:
             raise Exception("Trying to get DA from blueprint in a non DA run (check config)")
 
         da: DAGenome = self.get_da()
         if da is not None:
-            da.report_fitness(fitness)
+            da.report_fitness([accuracy])
         else:
             print("no da to report fitness to")
 

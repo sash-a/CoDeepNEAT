@@ -6,7 +6,7 @@ import sys
 import torch
 
 # For importing project files
-from src2.utils.wandb_data_fetcher import download_run
+
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
@@ -16,14 +16,16 @@ sys.path.append(os.path.join(dir_path_1, 'src2'))
 sys.path.append(os.path.join(dir_path_1, 'test'))
 sys.path.append(os.path.join(dir_path_1, 'runs'))
 
-import src2.main.singleton as Singleton
 
+import src2.main.singleton as Singleton
+from src2.utils.wandb_data_fetcher import download_run
 from runs import runs_manager
 from src2.configuration import config
 from src2.main.generation import Generation
 from src2.phenotype.neural_network.evaluator import fully_train
 from src2.utils.wandb_utils import wandb_log, wandb_init
 from src2.phenotype.neural_network.evaluator.fully_train import fully_train
+from src2.genotype.neat.operators.population_rankers.two_objective_rank import TwoObjectiveRank
 
 
 def main():
@@ -130,8 +132,7 @@ def init_operators():
     if not config.multiobjective:
         Population.ranker = SingleObjectiveRank()
     else:
-        # TODO multiobjective rank
-        raise NotImplemented('Multi-objectivity is not yet implemented')
+        Population.ranker = TwoObjectiveRank()
 
     if config.parent_selector.lower() == "uniform":
         Species.selector = UniformSelector()

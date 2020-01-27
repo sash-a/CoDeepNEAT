@@ -7,6 +7,7 @@ from torch import nn
 from src2.configuration import config
 from src2.genotype.mutagen.mutagen import Mutagen
 from src2.genotype.neat.graph_genome import GraphGenome
+from src2.genotype.neat.population import Population
 from src2.phenotype.neural_network.layers.aggregation_layer import AggregationLayer
 from src2.phenotype.neural_network.layers.layer import Layer
 
@@ -29,8 +30,9 @@ class Genome(GraphGenome):
         # [ [ objective 0 values ]
         #   ...
         #   [ objective n values] ]
-        self.fitness_raw: List[List[float]] = [[] for _ in range(2)]  # 2 objectives
-        self.fitness_values: List[float] = [0, 0]
+        self.fitness_raw: List[List[float]] = [[] for _ in range(Population.ranker.num_objectives)]
+
+        self.fitness_values: List[float] = [0 for _ in range(Population.ranker.num_objectives)]
         self.n_evaluations = 0
         self.parents: List[int] = []  # the ids of the parents of this genome. can be empty if a genome has no parents
 
@@ -61,7 +63,11 @@ class Genome(GraphGenome):
             if not raw_fitness_values:
                 aggregated_fitness = 0
             elif config.fitness_aggregation == 'avg':
-                aggregated_fitness = sum(raw_fitness_values) / len(raw_fitness_values)
+                try:
+                    aggregated_fitness = sum(raw_fitness_values) / len(raw_fitness_values)
+                except:
+                    print(raw_fitness_values)
+                    raise Exception()
             elif config.fitness_aggregation == 'max':
                 aggregated_fitness = max(raw_fitness_values)
             else:
@@ -71,7 +77,7 @@ class Genome(GraphGenome):
 
     def before_step(self):
         self.n_evaluations = 0
-        self.fitness_raw = [[] for _ in range(2)]  # 2 objectives
+        self.fitness_raw = [[] for i in range(Population.ranker.num_objectives)]
         if self.fitness_values is not None:
             self.fitness_values = [0 for _ in self.fitness_values]
 

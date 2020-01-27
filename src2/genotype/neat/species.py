@@ -1,15 +1,18 @@
+from __future__ import annotations
+
 import math
 import random
-from typing import List, Dict
+from typing import List, Dict, TYPE_CHECKING
 
 import src2.genotype.neat.operators.cross as Cross
 from src2.configuration import config
 from src2.genotype.neat import mutation_record
-from src2.genotype.neat.genome import Genome
 from src2.genotype.neat.operators.mutators import mutator
 from src2.genotype.neat.operators.parent_selectors import selector
 from src2.genotype.neat.operators.representative_selectors.representative_selector import RepresentativeSelector
 
+if TYPE_CHECKING:
+    from src2.genotype.neat.genome import Genome
 
 class Species:
     species_id_counter = 0
