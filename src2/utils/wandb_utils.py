@@ -80,11 +80,14 @@ def _wandb_log_generation(generation: Generation):
     n_unevaluated_bps = 0
     n_large_nets = 0
     raw_bp_accs = []
+    raw_bp_sizes = []
+
     for bp in generation.blueprint_population:
         evaluated_networks = len([fitness[0] for fitness in bp.fitness_raw if fitness[0] != 0])
         n_unevaluated_bps += 1 if evaluated_networks == 0 else 0
         n_large_nets += sum(fitness[0] == 0 for fitness in bp.fitness_raw)
         raw_bp_accs.extend(bp.fitness_raw[0])
+        raw_bp_sizes.extend(bp.fitness_raw[1])
 
     n_unevaluated_mods = 0
     raw_mod_accs = []
