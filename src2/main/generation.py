@@ -179,7 +179,7 @@ class Generation:
 
 def get_num_objectives_for(genome):
     if isinstance(genome, BlueprintGenome) or isinstance(genome, ModuleGenome):
-        return 2 if config.multiobjective else 1
+        return 2
     if isinstance(genome, DAGenome):
         return 1
     raise ValueError()

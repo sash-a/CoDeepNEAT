@@ -54,7 +54,7 @@ def evaluate_blueprint(blueprint: BlueprintGenome, input_size: List[int], num_ep
         accuracy = evaluate(model, num_epochs=num_epochs)
 
     blueprint.update_best_sample_map(model.sample_map, accuracy)
-    fitness = [accuracy] if not config.multiobjective else [accuracy, model_size]
+    fitness = [accuracy, model_size]
     blueprint.report_fitness(fitness)
     parse_number = blueprint.n_evaluations
 
