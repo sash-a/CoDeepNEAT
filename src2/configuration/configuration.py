@@ -10,7 +10,7 @@ class Config:
     def __init__(self):
         # ----------------------------------------------- General stuff -----------------------------------------------
         self.run_name = 'test'
-        self.n_generations = 100
+        self.n_generations = 30
         # ------------------------------------------------ Model stuff ------------------------------------------------
         self.device = 'gpu'  # cpu
         self.n_gpus = 1
@@ -146,7 +146,7 @@ class Config:
 
         with open(file) as cfg_file:
             options: dict = json.load(cfg_file)
-            print(file, options)
+            # print(file, options)
             self._add_cfg_dict(options)
 
     def _add_cfg_dict(self, options: Dict[str, any]):
@@ -162,9 +162,12 @@ class Config:
     def _load_inner_configs(self, options: Dict[str, any]):
         inner_configs_key = 'configs'
         if inner_configs_key in options:
+            # has inner configs
             inner_configs = options[inner_configs_key]
-            if isinstance(inner_configs, list):
-                for config in reversed(inner_configs):
-                    self.read(config)
+            if isinstance(inner_configs, dict):
+                for config_name in reversed(list(inner_configs.keys())):
+                    if inner_configs[config_name]:
+                        print("reading inner config:",config_name)
+                        self.read(config_name)
             else:
                 raise TypeError('Expected a list of other config options, received: ' + str(type(inner_configs)))

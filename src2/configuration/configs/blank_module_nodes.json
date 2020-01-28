@@ -1,0 +1,8 @@
+{
+    "blank_module_input_nodes": true,
+    "blank_module_output_nodes" : true,
+
+    "wandb_tags": [
+        "blank module nodes"
+    ]
+}

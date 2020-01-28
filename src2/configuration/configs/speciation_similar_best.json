@@ -1,0 +1,8 @@
+{
+  "module_speciation": "similar",
+  "representative_selector": "best",
+  "wandb_tags": [
+    "similar speciation",
+    "best representatives"
+  ]
+}

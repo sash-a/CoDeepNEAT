@@ -1,0 +1,8 @@
+{
+  "evolve_da" : true,
+  "evolve_da_pop" : false,
+
+  "wandb_tags": [
+    "da legacy"
+  ]
+}

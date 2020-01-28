@@ -1,13 +1,11 @@
 {
   "run_name": "base",
+  "device" : "gpu",
   "n_gpus": 4,
   "dummy_run" : false,
-  "wandb_tags": ["base"],
-  "use_module_retention": false,
-  "fitness_aggregation" : "avg",
-  "parent_selector" : "uniform",
-  "representative_selector" : "random",
-  "module_speciation" : "neat",
-  "blueprint_node_type_switch_chance": 0
 
+  "configs": {
+    "elite": true,
+    "experimental": false
+  }
 }

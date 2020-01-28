@@ -1,8 +1,8 @@
 {
-  "run_name": "speciation",
   "module_speciation": "similar",
   "representative_selector": "centroid",
   "wandb_tags": [
-    "speciation"
+    "similar speciation",
+    "centroid representatives"
   ]
 }
