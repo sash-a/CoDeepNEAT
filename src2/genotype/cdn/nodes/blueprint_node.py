@@ -4,7 +4,7 @@ import random
 from typing import Dict, TYPE_CHECKING, Tuple, List
 
 # For testing!
-from src.CoDeepNEAT.CDNNodes.BlueprintNode import BlueprintNEATNode
+from src2.configuration import config
 from src2.genotype.mutagen.integer_variable import IntegerVariable
 from src2.genotype.neat.node import Node, NodeType
 from src2.phenotype.neural_network.layers.layer import Layer
@@ -21,7 +21,7 @@ class BlueprintNode(Node):
         import src2.main.singleton as Singleton
 
         self.linked_module_id: int = -1
-        self.module_repeat_count = IntegerVariable("module_repeat_count", start_range=1, current_value=1, end_range=4,
+        self.module_repeat_count = IntegerVariable("module_repeat_count", start_range=1, current_value=1, end_range=config.max_module_repeats,
                                                    mutation_chance=0.1)
 
         # TODO pick again when more species are created
@@ -66,6 +66,3 @@ class BlueprintNode(Node):
         if module is None:
             raise Exception("failed to sample module ")
         return module.to_phenotype(blueprint_node_id=self.id)
-
-    def old(self) -> BlueprintNEATNode:
-        return BlueprintNEATNode(self.id, self.node_type)

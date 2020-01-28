@@ -52,7 +52,7 @@ class Config:
         self.da_link_forget_chance = 0.25
         self.batch_augmentation = True
         # ------------------------------------------------- cdn stuff -------------------------------------------------
-        self.multiobjective = False
+        self.multiobjective = True
         # Population and species sizes
         self.module_pop_size = 50
         self.bp_pop_size = 20
@@ -100,12 +100,13 @@ class Config:
         # Mutation chances
         self.blueprint_add_node_chance = 0.16  # 0.16
         self.blueprint_add_connection_chance = 0.12  # 0.12
-        self.blueprint_node_type_switch_chance = 0  # 0.1     chance for blueprint nodes to switch to module nodes
         self.blueprint_node_species_switch_chance = 0.15  # chance per bp
         self.module_add_node_chance = 0.1  # 0.08
         self.module_add_connection_chance = 0.1  # 0.08
         self.module_node_layer_type_change_chance = 0.1
         self.gene_breeding_chance = 0
+        self.blueprint_node_type_switch_chance = 0  # 0.1     chance for blueprint nodes to switch to module nodes
+        self.max_module_repeats = 1
         # ------------------------------------------------ wandb stuff ------------------------------------------------
         self.use_wandb = True
         self.wandb_tags = []
