@@ -88,11 +88,14 @@ def _wandb_log_generation(generation: Generation):
 
     n_unevaluated_mods = 0
     raw_mod_accs = []
+    raw_module_sizes = []
     for mod in generation.module_population:
         n_unevaluated_mods += 1 if mod.n_evaluations == 0 else 0
-        raw_mod_accs.extend(mod.fitness_raw[0])  # this will end up being a list in MOO
+        raw_mod_accs.extend(mod.fitness_raw[0])
+        raw_module_sizes.extend(mod.fitness_raw[1])
 
     mod_acc_tbl = wandb.Table(['module accuracies'], data=raw_mod_accs)
+    mod_size_tbl = wandb.Table(['module sizes'], data=raw_mod_accs)
     bp_acc_tbl = wandb.Table(['blueprint accuracies'], data=raw_bp_accs)
 
     non_zero_mod_accs = [x for x in raw_mod_accs if x != 0]
@@ -102,7 +105,7 @@ def _wandb_log_generation(generation: Generation):
     for i in range(generation.generation_number + 1):
         wandb.save(get_generation_file_path(i, config.run_name))
 
-    log = {'module accuracy table': mod_acc_tbl, 'blueprint accuracy table': bp_acc_tbl,
+    log = {'module accuracy table': mod_acc_tbl,'module size table': mod_size_tbl, 'blueprint accuracy table': bp_acc_tbl,
            config.fitness_aggregation + ' module accuracies': module_accs,
            config.fitness_aggregation + ' blueprint accuracies': bp_accs,
            'module accuracies raw': raw_mod_accs, 'blueprint accuracies raw': raw_bp_accs,

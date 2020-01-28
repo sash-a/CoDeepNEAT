@@ -158,7 +158,10 @@ class Config:
                 self._add_cfg_dict(option_value)
                 continue
             if option_name in self.__dict__:  # Only add an option if it has exactly the same name as a variable
-                self.__dict__[option_name] = option_value
+                if option_name == "wandb_tags":
+                    self.__dict__[option_name].extend(option_value)
+                else:
+                    self.__dict__[option_name] = option_value
 
     def _load_inner_configs(self, options: Dict[str, any]):
         inner_configs_key = 'configs'
