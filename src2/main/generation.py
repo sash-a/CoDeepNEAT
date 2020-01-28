@@ -7,6 +7,8 @@ from __future__ import annotations
 import torch.multiprocessing as mp
 from typing import Optional, List
 
+from src2.genotype.neat.operators.population_rankers.single_objective_rank import SingleObjectiveRank
+from src2.genotype.neat.operators.population_rankers.two_objective_rank import TwoObjectiveRank
 from src2.utils.mp_utils import get_bp_eval_pool
 from src2.configuration import config
 from src2.genotype.cdn.genomes.blueprint_genome import BlueprintGenome
@@ -137,12 +139,17 @@ class Generation:
         bp_speciator = NEATSpeciator(config.species_distance_thresh_mod_base, config.n_blueprint_species,
                                      BlueprintGenomeMutator())
 
+        if not config.multiobjective:
+            ranker = SingleObjectiveRank()
+        else:
+            ranker = TwoObjectiveRank()
+
         self.module_population = Population(create_population(config.module_pop_size, ModuleNode, ModuleGenome),
-                                            create_mr(), config.module_pop_size, module_speciator)
+                                            create_mr(), config.module_pop_size, module_speciator, ranker)
 
         self.blueprint_population = Population(
             create_population(config.bp_pop_size, BlueprintNode, BlueprintGenome),
-            create_mr(), config.bp_pop_size, bp_speciator)
+            create_mr(), config.bp_pop_size, bp_speciator, ranker)
 
         print("initialised pops, bps:", len(self.blueprint_population), "mods:", len(self.module_population))
 
@@ -151,7 +158,7 @@ class Generation:
             da_speciator = NEATSpeciator(config.species_distance_thresh_mod_base, config.n_blueprint_species,
                                          DAGenomeMutator())
             self.da_population = Population(create_population(config.da_pop_size, DANode, DAGenome, no_branches=True),
-                                            create_mr(), config.da_pop_size, da_speciator)
+                                            create_mr(), config.da_pop_size, da_speciator, SingleObjectiveRank())
 
     def __getitem__(self, genome_id: int):
         if config.evolve_da and config.evolve_da_pop:
@@ -168,3 +175,11 @@ class Generation:
                 return mem
 
         return None
+
+
+def get_num_objectives_for(genome):
+    if isinstance(genome, BlueprintGenome) or isinstance(genome, ModuleGenome):
+        return 2 if config.multiobjective else 1
+    if isinstance(genome, DAGenome):
+        return 1
+    raise ValueError()

@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import os
 import sys
+
 import torch
 
 # For importing project files
@@ -25,7 +26,6 @@ from src2.main.generation import Generation
 from src2.phenotype.neural_network.evaluator import fully_train
 from src2.utils.wandb_utils import wandb_log, wandb_init
 from src2.phenotype.neural_network.evaluator.fully_train import fully_train
-from src2.genotype.neat.operators.population_rankers.two_objective_rank import TwoObjectiveRank
 
 
 def main():
@@ -119,7 +119,6 @@ def init_generation() -> Generation:
 
 
 def init_operators():
-    from src2.genotype.neat.operators.population_rankers.single_objective_rank import SingleObjectiveRank
     from src2.genotype.neat.operators.representative_selectors.best_rep_selector import BestRepSelector
     from src2.genotype.neat.operators.representative_selectors.centroid_rep_selector import CentroidRepSelector
     from src2.genotype.neat.operators.representative_selectors.random_rep_selector import RandomRepSelector
@@ -127,12 +126,6 @@ def init_operators():
     from src2.genotype.neat.operators.parent_selectors.tournament_selector import TournamentSelector
     from src2.genotype.neat.operators.parent_selectors.uniform_selector import UniformSelector
     from src2.genotype.neat.species import Species
-    from src2.genotype.neat.population import Population
-
-    if not config.multiobjective:
-        Population.ranker = SingleObjectiveRank()
-    else:
-        Population.ranker = TwoObjectiveRank()
 
     if config.parent_selector.lower() == "uniform":
         Species.selector = UniformSelector()

@@ -3,6 +3,7 @@ from __future__ import annotations
 import heapq
 from typing import List, Iterable, Optional, Union, TYPE_CHECKING
 
+from src2.configuration import config
 from src2.genotype.neat.mutation_record import MutationRecords
 from src2.genotype.neat.operators.population_rankers.population_ranker import PopulationRanker
 from src2.genotype.neat.operators.speciators.speciator import Speciator
@@ -21,9 +22,10 @@ class Population:
     ranker: PopulationRanker
 
     def __init__(self, individuals: List[Union[Genome, ModuleGenome, BlueprintGenome, DAGenome]],
-                 mutation_record: MutationRecords, pop_size: int, speciator: Speciator):
+                 mutation_record: MutationRecords, pop_size: int, speciator: Speciator, ranker: PopulationRanker):
         # initial speciation process
         self.speciator: Speciator = speciator
+        self.ranker = ranker
 
         # print("given ", len(individuals))
 
@@ -88,7 +90,7 @@ class Population:
             species.next_species_size = species_size
 
     def step(self):
-        Population.ranker.rank(iter(self))
+        self.ranker.rank(iter(self))
         self.species: List[Species] = [species for species in self.species if species]  # Removing empty species
         self._update_species_sizes()
         # Removing empty species

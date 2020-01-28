@@ -7,7 +7,7 @@ from torch import nn
 from src2.configuration import config
 from src2.genotype.mutagen.mutagen import Mutagen
 from src2.genotype.neat.graph_genome import GraphGenome
-from src2.genotype.neat.population import Population
+from src2.main import generation
 from src2.phenotype.neural_network.layers.aggregation_layer import AggregationLayer
 from src2.phenotype.neural_network.layers.layer import Layer
 
@@ -24,15 +24,15 @@ class Genome(GraphGenome):
 
         self.id = Singleton.instance.genome_id_counter
         Singleton.instance.genome_id_counter += 1
-
+        self.num_objectives = generation.get_num_objectives_for(self)
         self.rank = 0  # The order of this genome when ranked by fitness values, high rank is more fit
         # 2D array:
         # [ [ objective 0 values ]
         #   ...
         #   [ objective n values] ]
-        self.fitness_raw: List[List[float]] = [[] for _ in range(Population.ranker.num_objectives)]
+        self.fitness_raw: List[List[float]] = [[] for _ in range(self.num_objectives)]
 
-        self.fitness_values: List[float] = [0 for _ in range(Population.ranker.num_objectives)]
+        self.fitness_values: List[float] = [0 for _ in range(self.num_objectives)]
         self.n_evaluations = 0
         self.parents: List[int] = []  # the ids of the parents of this genome. can be empty if a genome has no parents
 
@@ -77,7 +77,7 @@ class Genome(GraphGenome):
 
     def before_step(self):
         self.n_evaluations = 0
-        self.fitness_raw = [[] for i in range(Population.ranker.num_objectives)]
+        self.fitness_raw = [[] for _ in range(self.num_objectives)]
         if self.fitness_values is not None:
             self.fitness_values = [0 for _ in self.fitness_values]
 
