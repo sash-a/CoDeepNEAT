@@ -24,6 +24,9 @@ class IntegerVariable(Variable):
 
         range = self.end_range - self.start_range
 
+        if range == 0:
+            raise Exception("zero range on mutagen " + repr(self) + " start = " + repr(self.start_range) + " end = " + repr(self.end_range))
+
         if random.random() < 0.25:
             # random reset
             new_current_value = random.randint(self.start_range, self.end_range)

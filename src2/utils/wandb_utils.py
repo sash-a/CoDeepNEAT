@@ -98,8 +98,10 @@ def _wandb_log_generation(generation: Generation):
         raw_module_sizes.extend(mod.fitness_raw[1])
 
     mod_acc_tbl = wandb.Table(['module accuracies'], data=raw_mod_accs)
-    mod_size_tbl = wandb.Table(['module sizes'], data=raw_mod_accs)
+    mod_size_tbl = wandb.Table(['module sizes'], data=raw_module_sizes)
     bp_acc_tbl = wandb.Table(['blueprint accuracies'], data=raw_bp_accs)
+    bp_size_tbl = wandb.Table(['blueprint sizes'], data=raw_bp_sizes)
+
 
     non_zero_mod_accs = [x for x in raw_mod_accs if x != 0]
 
@@ -108,7 +110,8 @@ def _wandb_log_generation(generation: Generation):
     for i in range(generation.generation_number + 1):
         wandb.save(get_generation_file_path(i, config.run_name))
 
-    log = {'module accuracy table': mod_acc_tbl,'module size table': mod_size_tbl, 'blueprint accuracy table': bp_acc_tbl,
+    log = {'module accuracy table': mod_acc_tbl,'module size table': mod_size_tbl,
+           'blueprint accuracy table': bp_acc_tbl, 'blueprint size table': bp_size_tbl,
            config.fitness_aggregation + ' module accuracies': module_accs,
            config.fitness_aggregation + ' blueprint accuracies': bp_accs,
            'module accuracies raw': raw_mod_accs, 'blueprint accuracies raw': raw_bp_accs,
