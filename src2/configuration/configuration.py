@@ -44,7 +44,7 @@ class Config:
         self.validation_split = 0.15  # Percent of the train set that becomes the validation set
         self.download_dataset = True
         # ------------------------------------------------- DA stuff --------------------------------------------------
-        self.evolve_da = True
+        self.evolve_da = False
         self.evolve_da_pop = False
         self.use_colour_augmentations = True
         self.add_da_node_chance = 0.15
@@ -52,7 +52,7 @@ class Config:
         self.da_link_forget_chance = 0.25
         self.batch_augmentation = True
         # ------------------------------------------------- cdn stuff -------------------------------------------------
-        self.multiobjective = True
+        self.multiobjective = False
         # Population and species sizes
         self.module_pop_size = 50
         self.bp_pop_size = 20
