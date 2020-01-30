@@ -9,7 +9,7 @@ from PIL import Image
 import re
 import wandb
 
-from runs.runs_manager import get_generation_file_path,  get_graphs_folder_path, \
+from runs.runs_manager import get_generation_file_path, get_graphs_folder_path, \
     run_folder_exists
 from src2.configuration import config
 from src2.utils.wandb_data_fetcher import download_generations, download_model
@@ -98,10 +98,7 @@ def _wandb_log_generation(generation: Generation):
         raw_module_sizes.extend(mod.fitness_raw[1])
 
     mod_acc_tbl = wandb.Table(['module accuracies'], data=raw_mod_accs)
-    mod_size_tbl = wandb.Table(['module sizes'], data=raw_module_sizes)
     bp_acc_tbl = wandb.Table(['blueprint accuracies'], data=raw_bp_accs)
-    bp_size_tbl = wandb.Table(['blueprint sizes'], data=raw_bp_sizes)
-
 
     non_zero_mod_accs = [x for x in raw_mod_accs if x != 0]
 
@@ -110,18 +107,25 @@ def _wandb_log_generation(generation: Generation):
     for i in range(generation.generation_number + 1):
         wandb.save(get_generation_file_path(i, config.run_name))
 
-    log = {'module accuracy table': mod_acc_tbl,'module size table': mod_size_tbl,
-           'blueprint accuracy table': bp_acc_tbl, 'blueprint size table': bp_size_tbl,
+    log = {'module accuracy table': mod_acc_tbl, 'blueprint accuracy table': bp_acc_tbl,
+
            config.fitness_aggregation + ' module accuracies': module_accs,
            config.fitness_aggregation + ' blueprint accuracies': bp_accs,
+
            'module accuracies raw': raw_mod_accs, 'blueprint accuracies raw': raw_bp_accs,
            'avg module accuracy': sum(non_zero_mod_accs) / len(non_zero_mod_accs),
            'avg blueprint accuracy': sum(bp_accs) / len(bp_accs),
            'best blueprint accuracy': max(raw_bp_accs),
+
+           'blueprint sizes': raw_bp_sizes, 'min blueprint size': min(raw_bp_sizes),
+           'avg blueprint size': sum(raw_bp_sizes) / len(raw_bp_sizes),
+           'module sizes': raw_module_sizes, 'min module size': min(raw_module_sizes),
+           'avg module size': sum(raw_module_sizes) / len(raw_module_sizes),
+
            'num module species': len(generation.module_population.species),
            'species sizes': [len(spc.members) for spc in generation.module_population.species],
            'unevaluated blueprints': n_unevaluated_bps, 'n_unevaluated_mods': n_unevaluated_mods,
-           "large blueprints": n_large_nets, 'speciation threshold': generation.module_population.speciator.threshold,
+           'large blueprints': n_large_nets, 'speciation threshold': generation.module_population.speciator.threshold,
            }
 
     if config.plot_best_genotypes or config.plot_best_phenotype:
