@@ -3,7 +3,7 @@
   "blueprint_node_type_switch_chance" : 0,
   "old_agg" : false,
   "use_depthwise_separable_convs": false,
-  "max_module_repeats" : 1
+  "max_module_repeats" : 1,
 
   "wandb_tags": [
    ]
