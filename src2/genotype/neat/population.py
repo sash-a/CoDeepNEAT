@@ -124,7 +124,7 @@ class Population:
         return False
 
     def get_most_accurate(self, n=1) -> List[Union[BlueprintGenome, ModuleGenome, Genome]]:
-        return heapq.nlargest(n, iter(self), key=lambda x: x.accuracy)
+        return heapq.nlargest(n, iter(self), key=lambda x: x.max_accuracy)
 
     def visualise(self, suffix=""):
         speciation_visualiser.visualise_specieses(self.species, suffix=suffix)
