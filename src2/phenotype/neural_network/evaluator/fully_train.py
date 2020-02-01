@@ -53,7 +53,7 @@ def _create_model(run: Run, blueprint: BlueprintGenome, gen_num, in_size, epochs
                   blueprint.best_module_sample_map,
                   list(set([x.species_id for x in blueprint.nodes.values()]))))
     print("Training model which scored: {} in evolution for {} epochs, with {} parameters"
-          .format(blueprint.max_accuracy, epochs, model.size()))
+          .format(blueprint.max_acc, epochs, model.size()))
 
     return model
 

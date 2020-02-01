@@ -38,7 +38,7 @@ class Genome(GraphGenome):
 
     net_size = property(lambda self: self.fitness_values[1])
     accuracy = property(lambda self: self.fitness_values[0])
-    max_accuracy = property(lambda self: max([fitness[0] for fitness in self.fitness_raw]))
+    max_acc = property(lambda self: max(self.fitness_raw[0]))
 
     def __eq__(self, other):
         return self.id == other.id

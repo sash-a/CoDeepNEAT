@@ -42,7 +42,7 @@ class Run:
             else:
                 print("Null generation found")
 
-        most_accurate = heapq.nlargest(n, blueprints, key=lambda x: x[0].max_accuracy)
+        most_accurate = heapq.nlargest(n, blueprints, key=lambda x: x[0].max_acc)
         return most_accurate
 
     def get_modules_for_blueprint(self, blueprint: BlueprintGenome) -> Dict[int, ModuleGenome]:
@@ -79,4 +79,4 @@ def get_run(run_name, config_name="config"):
 
 if __name__ == "__main__":
     run = get_run("base")
-    print([x[0].max_accuracy for x in run.get_most_accurate_blueprints(5)])
+    print([x[0].max_acc for x in run.get_most_accurate_blueprints(5)])
