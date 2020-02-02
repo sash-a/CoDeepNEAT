@@ -25,6 +25,9 @@ def download_run(run_id: str = '', run_path: str = '', replace: bool = False) ->
     set_up_run_folder(run_name)
 
     for file in fetch_run(run_id, run_path).files():
+        if file.name.endswith('.png'):
+            continue
+
         if 'generation' in file.name:
             file.download(replace=replace, root=get_generations_folder_path(run_name))
         elif file.name.endswith('.model'):

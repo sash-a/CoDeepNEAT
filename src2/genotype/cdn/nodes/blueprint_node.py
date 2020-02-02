@@ -67,10 +67,11 @@ class BlueprintNode(Node):
         first_input_layer, parent_output_layer = module.to_phenotype(blueprint_node_id=self.id)
 
         # Creating and linking this blueprints modules in a chain depending on how many repeats there are
-        for i in range(self.module_repeats.value - 1):
-            id_suffix = 0.1 * i
-            input_layer, output_layer = module.to_phenotype(blueprint_node_id=self.id + id_suffix)
-            parent_output_layer.add_child(str(module.id + id_suffix).replace('.', '-'), input_layer)
-            parent_output_layer = output_layer
+        if 'module_repeats' not in self.__dict__:  # for backwards compatibility with pickle
+            for i in range(self.module_repeats.value - 1):
+                id_suffix = 0.1 * i
+                input_layer, output_layer = module.to_phenotype(blueprint_node_id=self.id + id_suffix)
+                parent_output_layer.add_child(str(module.id + id_suffix).replace('.', '-'), input_layer)
+                parent_output_layer = output_layer
 
         return first_input_layer, parent_output_layer
