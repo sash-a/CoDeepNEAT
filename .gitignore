@@ -16,6 +16,7 @@
 **/wandb/*
 
 src2/configuration/configs/homeconf.json
+src2/configuration/configs/home_fully_train.json
 
 __pycache__/
 *.py[cod]

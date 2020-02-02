@@ -1,0 +1,5 @@
+{
+    "run_name": "fully_train_name",
+    "device" : "gpu",
+    "fully_train" : true
+}
