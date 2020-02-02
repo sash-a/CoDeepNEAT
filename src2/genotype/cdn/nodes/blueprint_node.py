@@ -3,7 +3,6 @@ from __future__ import annotations
 import random
 from typing import Dict, TYPE_CHECKING, Tuple, List
 
-# For testing!
 from src2.configuration import config
 from src2.genotype.mutagen.integer_variable import IntegerVariable
 from src2.genotype.neat.node import Node, NodeType

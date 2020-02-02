@@ -44,7 +44,6 @@ def wandb_init():
 def _resume_run():
     project = 'cdn_fully_train' if config.fully_train else 'cdn'
     dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', '..', 'results')
-    print('RPPRPRPRPPRR', config.wandb_run_path.split('/'), config.wandb_run_path)
     wandb.init(dir=dir, project=project, entity='codeepneat', resume=config.wandb_run_path.split('/')[2])
 
 

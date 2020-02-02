@@ -51,7 +51,7 @@ def evaluate_blueprint(blueprint: BlueprintGenome, input_size: List[int], num_ep
         print("dropped model which was too large:", model_size, "params")
         accuracy = 0
     else:
-        accuracy = evaluate(model, num_epochs=num_epochs)
+        accuracy = evaluate(model, n_epochs=num_epochs)
 
     blueprint.update_best_sample_map(model.sample_map, accuracy)
     fitness = [accuracy, model_size]

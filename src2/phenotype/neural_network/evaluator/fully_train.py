@@ -17,12 +17,12 @@ if TYPE_CHECKING:
     from src2.analysis.run import Run
 
 
-def fully_train(run_name, n=1, epochs=100):
+def fully_train(run_name, epochs, n=1):
     """
     Loads and trains from a saved run
     :param run_name: name of the old run
-    :param n: number of the best networks to train
     :param epochs: number of epochs to train the best networks for
+    :param n: number of the best networks to train
     """
     print('fully training')
     run: Run = get_run(run_name)
@@ -38,7 +38,7 @@ def fully_train(run_name, n=1, epochs=100):
         if config.use_wandb:
             wandb.watch(model, criterion=model.loss_fn, log='all', idx=blueprint.id)
 
-        accuracy = evaluate(model, num_epochs=epochs, fully_training=True)
+        accuracy = evaluate(model, epochs)
         print('Achieved a final accuracy of: {}'.format(accuracy * 100))
 
 

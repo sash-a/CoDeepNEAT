@@ -1,19 +1,19 @@
 from __future__ import annotations
 
+from os.path import join
 from typing import TYPE_CHECKING
 
 import random
-import sys
 import time
 import wandb
 
 import numpy as np
 import torch
-import torch.multiprocessing as mp
 
 from sklearn.metrics import accuracy_score
 from torch.utils.data import DataLoader
 
+from runs.runs_manager import save_config, get_run_folder_path
 from src2.phenotype.augmentations.batch_augmentation_scheme import BatchAugmentationScheme
 from src2.phenotype.neural_network.evaluator.data_loader import imshow, load_data, load_transform
 from src2.configuration import config
@@ -22,31 +22,51 @@ if TYPE_CHECKING:
     from src2.phenotype.neural_network.neural_network import Network
 
 
-def evaluate(model: Network, num_epochs=config.epochs_in_evolution, fully_training=False) -> float:
+def _fully_train_logging(model: Network, test_loader: DataLoader, loss: float, epoch: int):
+    print('epoch: {}\nloss: {}'.format(epoch, loss))
+
+    log = {}
+    if epoch % 15 == 0:
+        acc = test_nn(model, test_loader)
+        log['accuracy'] = acc
+        print('accuracy: {}'.format(acc))
+    print('\n')
+
+    config.current_ft_epoch = epoch
+    save_config(config.run_name)
+
+    if config.use_wandb:
+        log['loss'] = loss
+        wandb.log(log)
+        model.save()
+        wandb.save(model.save_location())
+
+        wandb.config.current_ft_epoch = epoch
+        wandb.save(join(get_run_folder_path(config.run_name), 'config.json'))
+
+
+def evaluate(model: Network, n_epochs=config.epochs_in_evolution) -> float:
     """trains model on training data, test on testing and returns test acc"""
-    if config.dummy_run and not fully_training:
+    if config.dummy_run and not config.fully_train:
         if config.dummy_time > 0:
             time.sleep(config.dummy_time)
         return random.random()
 
     aug = None if not config.evolve_da else model.blueprint.get_da().to_phenotype()
-    train_loader = load_data(load_transform(aug), 'train')
-    device = config.get_device()
 
-    for epoch in range(num_epochs):
-        if config.threading_test:
-            print('Thread %s bp: %i epoch: %i' % (mp.current_process().name, model.blueprint.id, epoch))
+    train_loader = load_data(load_transform(aug), 'train')
+    test_loader = load_data(load_transform(), 'test') if config.fully_train else None
+
+    device = config.get_device()
+    start = config.current_ft_epoch
+
+    for epoch in range(start, n_epochs):
         loss = train_epoch(model, train_loader, aug, device)
 
-        if fully_training:
-            # Save and log if fully training
-            print('epoch: {} got loss: {}'.format(epoch, loss))
-            if config.use_wandb:
-                wandb.log({'loss': loss})
-                model.save()
-                wandb.save(model.save_location())
+        if config.fully_train:
+            _fully_train_logging(model, test_loader, loss, epoch)
 
-    test_loader = load_data(load_transform(), 'test')
+    test_loader = load_data(load_transform(), 'test') if test_loader is None else test_loader
     return test_nn(model, test_loader)
 
 
@@ -63,10 +83,6 @@ def train_epoch(model: Network, train_loader: DataLoader, augmentor: BatchAugmen
 
 
 def train_batch(model: Network, inputs: torch.Tensor, labels: torch.Tensor, augmentor: BatchAugmentationScheme, device):
-    if config.threading_test:
-        print('training batch on thread:', mp.current_process().name)
-        sys.stdout.flush()
-
     if config.evolve_da:
         inputs = augmentor(list(inputs.numpy()))
 

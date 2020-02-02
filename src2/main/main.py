@@ -33,7 +33,7 @@ def main():
     run_path = None if cfg_file_path is None else config.read_option(cfg_file_path, 'wandb_run_path')
     run_name = config.read_option(cfg_file_path, 'run_name')
 
-    print('wandb run path:', run_path is None)
+    print('wandb run path:', run_path)
     if run_path is not None and run_path:
         print('downloading run...')
         run_name = download_run(run_path=run_path, replace=True)
@@ -61,7 +61,7 @@ def main():
         _force_cuda_device_init()
 
     if config.fully_train:
-        fully_train(config.run_name)  # either load generations or load model and resume fully train
+        fully_train(config.run_name, epochs=config.fully_train_epochs)
     else:
         evolve()
 
