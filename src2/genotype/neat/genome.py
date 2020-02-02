@@ -129,7 +129,7 @@ class Genome(GraphGenome):
             if parent_node_id not in node_traversal:
                 if parent_node_id != 1:
                     raise Exception("node with id " + str(parent_node_id) + " is a dead end")
-                """is blueprint output node"""
+                # is the blueprint output node
                 return
 
             for child_node_id in node_traversal[parent_node_id]:
@@ -153,11 +153,9 @@ class Genome(GraphGenome):
                     input_layer = agg_layers[child_node_id]  # only create an aggregation layer once
                 else:
                     # Create aggregation layer if not already created and node_id is negative
-                    if blueprint_node_id is not None:
-                        """this is a module agg node"""
+                    if blueprint_node_id is not None:  # this is a module agg node
                         name = str(blueprint_node_id) + "_agg (" + str(-1 * child_node_id) + ")"
-                    else:
-                        """blueprint level agg node"""
+                    else:  # blueprint level agg node
                         name = "agg (" + str(-1 * child_node_id) + ")"
 
                     node: Node = self.nodes[-child_node_id]

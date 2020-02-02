@@ -171,8 +171,8 @@ def get_node_metadata(node: Union[BlueprintNode, ModuleNode], **kwargs):
                 module_id = kwargs["sample_map"][blueprintNode.species_id]
 
         meta += "\nModule: " + str(module_id)
-        if blueprintNode.module_repeat_count() > 1:
-            meta += "\nRepeat count: " + str(blueprintNode.module_repeat_count())
+        if blueprintNode.module_repeats() > 1:
+            meta += "\nRepeat count: " + str(blueprintNode.module_repeats())
 
     if isinstance(node, ModuleNode):
         # print("found module node")
