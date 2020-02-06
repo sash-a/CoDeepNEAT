@@ -35,10 +35,7 @@ class AggregationLayer(BaseLayer):
             # waiting on other inputs
             return
 
-        if config.old_agg:
-            aggregated = self.old_aggregate()
-        else:
-            aggregated = merge(self.inputs, self)
+        aggregated = merge(self.inputs, self)
         self.reset()
         return aggregated
 

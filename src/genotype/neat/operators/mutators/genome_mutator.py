@@ -188,7 +188,7 @@ class GenomeMutator(Mutator):
 
         TypeNode = type(list(genome.nodes.values())[0])  # node could be a blueprint, module or da node
         # multiple node objects share the same id. indicating they are topologically the same
-        if (TypeNode == BlueprintNode) and config.blueprint_node_type_switch_chance > random.random():
+        if TypeNode == BlueprintNode and config.blueprint_node_type_switch_chance > random.random():
             # node switch type applies to new nodes being added to the blueprint
             TypeNode = ModuleNode
 
