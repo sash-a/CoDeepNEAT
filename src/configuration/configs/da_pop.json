@@ -1,0 +1,8 @@
+{
+  "evolve_da" : true,
+  "evolve_da_pop" : true,
+
+  "wandb_tags": [
+    "da population"
+  ]
+}

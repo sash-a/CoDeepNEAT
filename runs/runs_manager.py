@@ -11,10 +11,10 @@ import shutil
 from os.path import join, exists, dirname, abspath
 from typing import TYPE_CHECKING
 
-from src2.configuration import config
+from src.configuration import config
 
 if TYPE_CHECKING:
-    from src2.main.generation import Generation
+    from src.main.generation import Generation
 
 
 def load_latest_generation(run_name):

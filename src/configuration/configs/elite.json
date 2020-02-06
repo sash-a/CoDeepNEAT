@@ -1,0 +1,10 @@
+{
+  "configs": {
+    "mod_max" :  true,
+    "speciation_similar_centroid" : true
+  },
+
+  "wandb_tags": [
+    "elite"
+  ]
+}

@@ -2,16 +2,16 @@ from __future__ import annotations
 
 from typing import Tuple, Union, Type, TYPE_CHECKING
 
-from src2.genotype.neat.connection import Connection
-from src2.genotype.neat.genome import Genome
-from src2.genotype.neat.mutation_record import MutationRecords
-from src2.genotype.neat.node import Node, NodeType
+from src.genotype.neat.connection import Connection
+from src.genotype.neat.genome import Genome
+from src.genotype.neat.mutation_record import MutationRecords
+from src.genotype.neat.node import Node, NodeType
 
 if TYPE_CHECKING:
-    from src2.genotype.cdn.nodes.module_node import ModuleNode
-    from src2.genotype.cdn.nodes.blueprint_node import BlueprintNode
-    from src2.genotype.cdn.genomes.module_genome import ModuleGenome
-    from src2.genotype.cdn.genomes.BlueprintGenome import BlueprintGenome
+    from src.genotype.cdn.nodes.module_node import ModuleNode
+    from src.genotype.cdn.nodes.blueprint_node import BlueprintNode
+    from src.genotype.cdn.genomes.module_genome import ModuleGenome
+    from src.genotype.cdn.genomes.BlueprintGenome import BlueprintGenome
 
 input_node_params = (0, NodeType.INPUT)
 output_node_params = (1, NodeType.OUTPUT)
@@ -105,7 +105,7 @@ if __name__ == "__main__":
     print(gen.get_reachable_nodes(False))
 
     spec = importlib.util.spec_from_file_location("evolved_augmentations.py",
-                                                  "/home/sasha/Documents/CoDeepNEAT/src2/phenotype/augmentations/evolved_augmentations.py")
+                                                  "/home/sasha/Documents/CoDeepNEAT/src/phenotype/augmentations/evolved_augmentations.py")
     foo = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(foo)
     print(foo.augmentations)

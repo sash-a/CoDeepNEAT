@@ -3,13 +3,13 @@ from typing import Tuple, Union, Type
 
 from Genotype.NEAT.MutationRecord import MutationRecords
 
-from src2.genotype.cdn.genomes.BlueprintGenome import BlueprintGenome
-from src2.genotype.cdn.genomes.module_genome import ModuleGenome
-from src2.genotype.cdn.nodes.blueprint_node import BlueprintNode
-from src2.genotype.cdn.nodes.module_node import ModuleNode
-from src2.genotype.neat.connection import Connection
-from src2.genotype.neat.genome import Genome
-from src2.genotype.neat.node import Node, NodeType
+from src.genotype.cdn.genomes.BlueprintGenome import BlueprintGenome
+from src.genotype.cdn.genomes.module_genome import ModuleGenome
+from src.genotype.cdn.nodes.blueprint_node import BlueprintNode
+from src.genotype.cdn.nodes.module_node import ModuleNode
+from src.genotype.neat.connection import Connection
+from src.genotype.neat.genome import Genome
+from src.genotype.neat.node import Node, NodeType
 
 input_node_params = (0, NodeType.INPUT)
 output_node_params = (1, NodeType.OUTPUT)

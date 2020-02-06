@@ -1,0 +1,10 @@
+{
+  "gene_breeding_chance" : 0,
+  "blueprint_node_type_switch_chance" : 0,
+  "old_agg" : false,
+  "use_depthwise_separable_convs": false,
+  "max_module_repeats" : 5,
+
+  "wandb_tags": [
+   ]
+}

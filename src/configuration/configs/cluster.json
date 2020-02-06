@@ -1,0 +1,11 @@
+{
+  "run_name": "base",
+  "device" : "gpu",
+  "n_gpus": 4,
+  "dummy_run" : false,
+
+  "configs": {
+    "elite": true,
+    "experimental": false
+  }
+}

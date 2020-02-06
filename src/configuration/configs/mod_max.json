@@ -1,0 +1,7 @@
+{
+  "fitness_aggregation": "max",
+  "use_module_retention": true,
+  "wandb_tags": [
+    "mod_max"
+  ]
+}

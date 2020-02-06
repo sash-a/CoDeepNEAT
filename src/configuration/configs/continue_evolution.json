@@ -1,0 +1,5 @@
+{
+  "run_name": "continue_name",
+  "device" : "gpu",
+  "n_gpus": 4
+}
