@@ -3,7 +3,7 @@ from __future__ import annotations
 import random
 from typing import Dict, TYPE_CHECKING, Tuple, List
 
-from src.configuration import config
+from configuration import config
 from src.genotype.mutagen.integer_variable import IntegerVariable
 from src.genotype.neat.node import Node, NodeType
 from src.phenotype.neural_network.layers.layer import Layer

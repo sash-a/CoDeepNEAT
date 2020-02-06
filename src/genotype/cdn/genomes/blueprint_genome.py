@@ -9,7 +9,7 @@ import math
 import src.genotype.cdn.nodes.blueprint_node as BlueprintNode
 
 import src.main.singleton as singleton
-from src.configuration import config
+from configuration import config
 from src.genotype.mutagen.continuous_variable import ContinuousVariable
 from src.genotype.mutagen.mutagen import Mutagen
 from src.genotype.neat.connection import Connection

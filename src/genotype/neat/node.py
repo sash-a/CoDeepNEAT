@@ -1,20 +1,16 @@
 from __future__ import annotations
 
-import copy
-from typing import Dict, List, TYPE_CHECKING, Set, Tuple
+from typing import TYPE_CHECKING
 
 import random
 from enum import Enum
-from typing import Union
 
-from src.configuration import config
+from configuration import config
 from src.genotype.mutagen.option import Option
 from src.genotype.neat.gene import Gene
 
 if TYPE_CHECKING:
-    from src.genotype.cdn.nodes.blueprint_node import BlueprintNode
-    from src.genotype.cdn.nodes.da_node import DANode
-    from src.genotype.cdn.nodes.module_node import ModuleNode
+    pass
 
 
 class NodeType(Enum):

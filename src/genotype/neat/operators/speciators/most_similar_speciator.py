@@ -1,7 +1,7 @@
 import math
 from typing import List, TYPE_CHECKING
 
-from src.configuration import config
+from configuration import config
 from src.genotype.neat.operators.speciators.speciator import Speciator
 from src.genotype.neat.species import Species
 

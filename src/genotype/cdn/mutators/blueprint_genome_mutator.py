@@ -1,6 +1,6 @@
 import random
 
-from src.configuration import config
+from configuration import config
 from src.genotype.cdn.genomes.blueprint_genome import BlueprintGenome
 from src.genotype.cdn.nodes.blueprint_node import BlueprintNode
 from src.genotype.cdn.nodes.module_node import ModuleNode

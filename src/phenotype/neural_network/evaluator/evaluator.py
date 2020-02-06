@@ -16,7 +16,7 @@ from torch.utils.data import DataLoader
 from runs.runs_manager import save_config, get_run_folder_path
 from src.phenotype.augmentations.batch_augmentation_scheme import BatchAugmentationScheme
 from src.phenotype.neural_network.evaluator.data_loader import imshow, load_data, load_transform
-from src.configuration import config
+from configuration import config
 
 if TYPE_CHECKING:
     from src.phenotype.neural_network.neural_network import Network

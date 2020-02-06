@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Union, Type, TYPE_CHECKING, List
 
-from src.configuration import config
+from configuration import config
 from src.genotype.cdn.nodes.blueprint_node import BlueprintNode
 from src.genotype.cdn.nodes.module_node import ModuleNode, NodeType
 from src.genotype.neat.connection import Connection

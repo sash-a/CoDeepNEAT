@@ -5,7 +5,7 @@ import multiprocessing as mp
 
 import src.main.singleton as singleton
 from runs.runs_manager import load_config
-from src.configuration import config
+from configuration import config
 
 
 class SyncedCounter:

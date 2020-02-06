@@ -4,7 +4,7 @@ from typing import Dict, List, TYPE_CHECKING, Set, Tuple
 
 from torch import nn
 
-from src.configuration import config
+from configuration import config
 from src.genotype.mutagen.mutagen import Mutagen
 from src.genotype.neat.graph_genome import GraphGenome
 from src.main import generation

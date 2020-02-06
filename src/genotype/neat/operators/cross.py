@@ -5,7 +5,7 @@ import copy
 import random
 from typing import TYPE_CHECKING
 
-from src.configuration import config
+from configuration import config
 
 if TYPE_CHECKING:
     from src.genotype.neat.genome import Genome

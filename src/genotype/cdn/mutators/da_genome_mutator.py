@@ -1,4 +1,4 @@
-from src.configuration import config
+from configuration import config
 from src.genotype.neat import mutation_record
 from src.genotype.neat.genome import Genome
 from src.genotype.neat.operators.mutators.genome_mutator import GenomeMutator

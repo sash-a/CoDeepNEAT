@@ -7,7 +7,7 @@ import wandb
 import src.main.singleton as S
 
 from src.analysis.run import get_run
-from src.configuration import config
+from configuration import config
 from src.genotype.cdn.genomes.blueprint_genome import BlueprintGenome
 from src.phenotype.neural_network.evaluator.data_loader import get_data_shape
 from src.phenotype.neural_network.evaluator.evaluator import evaluate

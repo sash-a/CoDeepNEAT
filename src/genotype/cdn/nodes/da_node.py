@@ -1,6 +1,6 @@
 import random
 
-from src.configuration import config
+from configuration import config
 from src.phenotype.augmentations.da_submutagens import get_da_submutagens
 from src.genotype.mutagen.option import Option
 from src.genotype.neat.node import Node, NodeType

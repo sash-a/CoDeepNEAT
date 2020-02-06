@@ -3,7 +3,7 @@ from __future__ import annotations
 import torch.multiprocessing as mp
 from typing import TYPE_CHECKING, List
 
-from src.configuration import config
+from configuration import config
 from src.phenotype.neural_network.evaluator.evaluator import evaluate
 from src.phenotype.neural_network.neural_network import Network
 

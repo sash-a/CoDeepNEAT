@@ -3,7 +3,7 @@ from typing import List, Any
 import graphviz
 
 from runs import runs_manager
-from src.configuration import config
+from configuration import config
 from src.phenotype import neural_network
 from src.phenotype.neural_network.layers.aggregation_layer import AggregationLayer
 from src.phenotype.neural_network.layers.base_layer import BaseLayer

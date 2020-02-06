@@ -1,7 +1,7 @@
 import torch.nn.functional as F
 from torch import nn, tensor
 
-from src.configuration import config
+from configuration import config
 
 
 class PadUp(nn.Module):

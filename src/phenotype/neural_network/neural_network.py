@@ -9,7 +9,7 @@ import torch.nn.functional as F
 from torch import nn, tensor, optim, squeeze
 
 from runs.runs_manager import get_fully_train_folder_path
-from src.configuration import config
+from configuration import config
 from src.phenotype.neural_network.layers.layer import Layer
 from src.analysis.visualisation import phenotype_visualiser
 from src.analysis.visualisation.phenotype_visualiser import get_node_colour

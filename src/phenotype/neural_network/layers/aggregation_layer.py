@@ -3,7 +3,7 @@ from typing import List
 import torch
 from torch import tensor, nn
 
-from src.configuration import config
+from configuration import config
 from src.phenotype.neural_network.aggregation.merger import merge
 from src.phenotype.neural_network.layers.base_layer import BaseLayer
 

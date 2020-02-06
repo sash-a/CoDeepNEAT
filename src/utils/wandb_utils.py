@@ -11,7 +11,7 @@ import wandb
 
 from runs.runs_manager import get_generation_file_path, get_graphs_folder_path, \
     run_folder_exists
-from src.configuration import config
+from configuration import config
 from src.utils.wandb_data_fetcher import download_generations, download_model
 
 if TYPE_CHECKING:

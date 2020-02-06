@@ -4,7 +4,7 @@ from typing import Dict, TYPE_CHECKING, List, Union, AbstractSet, Set
 
 from tarjan import tarjan
 
-from src.configuration import config
+from configuration import config
 from src.genotype.neat.mutation_record import MutationRecords
 
 if TYPE_CHECKING:

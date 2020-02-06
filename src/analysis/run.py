@@ -8,7 +8,7 @@ from runs import runs_manager
 
 if TYPE_CHECKING:
     from src.main.generation import Generation
-    from src.configuration import configuration
+    from configuration import configuration
     from src.genotype.cdn.genomes.blueprint_genome import BlueprintGenome
     from src.genotype.cdn.genomes.module_genome import ModuleGenome
 

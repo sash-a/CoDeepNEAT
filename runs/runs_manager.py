@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import time
-
 import wandb
 import inspect
 import json
@@ -11,7 +9,7 @@ import shutil
 from os.path import join, exists, dirname, abspath
 from typing import TYPE_CHECKING
 
-from src.configuration import config
+from configuration import config
 
 if TYPE_CHECKING:
     from src.main.generation import Generation

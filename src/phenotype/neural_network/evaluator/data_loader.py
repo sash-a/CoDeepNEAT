@@ -3,13 +3,13 @@ from typing import List
 
 import matplotlib.pyplot as plt
 import numpy as np
-from torch.utils.data import DataLoader, Dataset, Subset, ConcatDataset
+from torch.utils.data import DataLoader, Dataset, Subset
 from torchvision import transforms
 from torchvision.datasets import MNIST, CIFAR10, ImageFolder
 
 from data import DataManager
 
-from src.configuration import config
+from configuration import config
 from src.phenotype.augmentations.augmentation_scheme import AugmentationScheme
 
 

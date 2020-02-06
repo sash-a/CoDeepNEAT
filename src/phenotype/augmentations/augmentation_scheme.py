@@ -2,7 +2,7 @@ import random
 
 import imgaug.augmenters as iaa
 import numpy as np
-from src.configuration import config
+from configuration import config
 
 
 # The AugmenationScheme class allows for the use of imgaug inside torch.transform.Compose

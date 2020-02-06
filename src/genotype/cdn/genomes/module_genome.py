@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 from typing import List, Tuple
 
 from runs import runs_manager
-from src.configuration import config
+from configuration import config
 from src.genotype.neat.connection import Connection
 from src.genotype.neat.genome import Genome
 from src.genotype.neat.node import Node

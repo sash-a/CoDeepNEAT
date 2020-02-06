@@ -5,7 +5,7 @@ from typing import List, TYPE_CHECKING
 import torch.nn.functional as F
 from torch import tensor, nn
 
-from src.configuration import config
+from configuration import config
 
 if TYPE_CHECKING:
     from src.phenotype.neural_network.layers.aggregation_layer import AggregationLayer

@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Union, List, Dict, Any
 
 import src.main.singleton as Singleton
 from runs import runs_manager
-from src.configuration import config
+from configuration import config
 from src.genotype.cdn.genomes.da_genome import DAGenome
 from src.genotype.cdn.nodes.blueprint_node import BlueprintNode
 from src.genotype.cdn.nodes.da_node import DANode

@@ -6,7 +6,7 @@ import imgaug.augmenters as iaa
 import numpy as np
 import torch
 
-from src.configuration import config
+from configuration import config
 
 
 class BatchAugmentationScheme:

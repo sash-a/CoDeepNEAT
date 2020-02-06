@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import List, Union, TYPE_CHECKING
 
-from src.configuration import config
+from configuration import config
 from src.genotype.neat.connection import Connection
 from src.genotype.neat.genome import Genome
 from src.phenotype.augmentations.augmentation_scheme import AugmentationScheme

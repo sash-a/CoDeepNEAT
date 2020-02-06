@@ -5,7 +5,7 @@ import random
 from typing import List, Dict, TYPE_CHECKING
 
 import src.genotype.neat.operators.cross as Cross
-from src.configuration import config
+from configuration import config
 from src.genotype.neat import mutation_record
 from src.genotype.neat.operators.mutators import mutator
 from src.genotype.neat.operators.parent_selectors import selector

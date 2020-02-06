@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import random
 
-from src.configuration import config
+from configuration import config
 from src.genotype.mutagen.continuous_variable import ContinuousVariable
 from src.genotype.mutagen.integer_variable import IntegerVariable
 from src.genotype.mutagen.option import Option

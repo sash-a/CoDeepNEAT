@@ -3,7 +3,6 @@ from __future__ import annotations
 import heapq
 from typing import List, Iterable, Optional, Union, TYPE_CHECKING
 
-from src.configuration import config
 from src.genotype.neat.mutation_record import MutationRecords
 from src.genotype.neat.operators.population_rankers.population_ranker import PopulationRanker
 from src.genotype.neat.operators.speciators.speciator import Speciator
