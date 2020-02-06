@@ -1,0 +1,8 @@
+{
+  "blueprint_node_type_switch_chance" : 0.25,
+  "blueprint_add_node_chance": 0.2,
+
+  "wandb_tags": [
+    "node type switching"
+  ]
+}

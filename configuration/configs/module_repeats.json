@@ -1,0 +1,8 @@
+{
+  "max_module_repeats" : 3,
+  "module_repeat_mutation_chance": 0.25,
+
+  "wandb_tags": [
+    "module repeats"
+  ]
+}

@@ -83,8 +83,6 @@ class Config:
         self.blank_bp_input_nodes = False
         self.blank_module_output_nodes = False
         self.blank_bp_output_nodes = False
-        # Use the old aggregation method
-        self.old_agg = False
         # ------------------------------------------------- neat stuff -------------------------------------------------
         # Used when calculating distance between genomes
         self.disjoint_coefficient = 3
@@ -107,6 +105,7 @@ class Config:
         self.gene_breeding_chance = 0
         self.blueprint_node_type_switch_chance = 0  # 0.1     chance for blueprint nodes to switch to module nodes
         self.max_module_repeats = 1
+        self.module_repeat_mutation_chance = 0
         # ------------------------------------------------ wandb stuff ------------------------------------------------
         self.use_wandb = True
         self.wandb_tags = []

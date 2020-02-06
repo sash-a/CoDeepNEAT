@@ -1,6 +1,9 @@
 import copy
 import random
 
+from configuration import config
+from src.genotype.cdn.nodes.blueprint_node import BlueprintNode
+from src.genotype.cdn.nodes.module_node import ModuleNode
 from src.genotype.neat.connection import Connection
 from src.genotype.neat.genome import Genome
 from src.genotype.neat.mutation_record import MutationRecords
@@ -21,7 +24,6 @@ class GenomeMutator(Mutator):
                            add_connection_chance: float, allow_disabling_connections: bool = True):
 
         """performs base neat genome mutations, as well as node and genome property mutations"""
-
         mutation_report = MutationReport()
 
         if random.random() < add_node_chance:
@@ -140,7 +142,6 @@ class GenomeMutator(Mutator):
     def add_node_mutation(self, genome: Genome, mutation_record: MutationRecords):
         """Adds a node on a connection and updates the relevant genome"""
         tries = 10
-
         added_node = False
         while not added_node and tries > 0:
             """
@@ -186,7 +187,11 @@ class GenomeMutator(Mutator):
             out_of_node_connection_id = mutation_record.add_mutation((mutated_node_id, connection.to_node_id), True)
 
         TypeNode = type(list(genome.nodes.values())[0])  # node could be a blueprint, module or da node
-        # multiple node objects share the same id. indicating they are functionally the same
+        # multiple node objects share the same id. indicating they are topologically the same
+        if (TypeNode == BlueprintNode) and config.blueprint_node_type_switch_chance > random.random():
+            # node switch type applies to new nodes being added to the blueprint
+            TypeNode = ModuleNode
+
         mutated_node = TypeNode(mutated_node_id, NodeType.HIDDEN)
 
         genome.add_node(mutated_node)
