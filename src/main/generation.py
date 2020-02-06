@@ -153,7 +153,6 @@ class Generation:
 
         print("initialised pops, bps:", len(self.blueprint_population), "mods:", len(self.module_population))
 
-        # TODO DA pop only straight genomes
         if config.evolve_da and config.evolve_da_pop:
             da_speciator = NEATSpeciator(config.species_distance_thresh_mod_base, config.n_blueprint_species,
                                          DAGenomeMutator())

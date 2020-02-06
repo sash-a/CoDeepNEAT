@@ -20,7 +20,9 @@ if TYPE_CHECKING:
 
 
 class Network(nn.Module):
-    def __init__(self, blueprint: BlueprintGenome, input_shape: list, output_dim=10, sample_map=None):
+    def __init__(self, blueprint: BlueprintGenome, input_shape: list, output_dim=10,
+                 sample_map=None, feature_multiplier: float = 1):
+
         """
         Constructs a trainable nn.Module network given a Blueprint genome. Must have access to a generation singleton
         with a module population.
@@ -36,7 +38,7 @@ class Network(nn.Module):
 
         self.model: Layer
         (self.model, output_layer), self.sample_map = blueprint.to_phenotype(sample_map=sample_map)
-        self.shape_layers(input_shape)
+        self.shape_layers(input_shape, feature_multiplier=feature_multiplier)
         # shaping the final layer
         img_flat_size = int(reduce(lambda x, y: x * y, output_layer.out_shape) / output_layer.out_shape[0])
         self.final_layer = nn.Linear(img_flat_size, output_dim)
@@ -61,11 +63,11 @@ class Network(nn.Module):
         final_layer_out = F.relu(self.final_layer(x.view(batch_size, -1)))
         return squeeze(F.log_softmax(final_layer_out.view(batch_size, self.output_dim, -1), dim=1))
 
-    def shape_layers(self, in_shape: list):
+    def shape_layers(self, in_shape: list, feature_multiplier: float = 1):
         q: List[Tuple[Union[Layer, AggregationLayer], list]] = [(self.model, in_shape)]
         while q:
             layer, input_shape = q.pop()
-            output_shape = layer.create_layer(input_shape)
+            output_shape = layer.create_layer(input_shape, feature_multiplier=feature_multiplier)
 
             if output_shape is not None:
                 q.extend([(child, output_shape) for child in list(layer.child_layers)])

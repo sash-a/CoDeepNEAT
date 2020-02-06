@@ -31,7 +31,6 @@ class Species:
         self.members: Dict[int, Genome] = {representative.id: representative}
         self.ranked_members: List[int] = [representative.id]
         self.next_species_size: int = 1000
-        # self.fitness: int = -1  # TODO is this ever used
         self.max_fitness_ties: int = 0  # a count of how many ties there are for the top accuracy
 
     def __iter__(self):
@@ -90,7 +89,6 @@ class Species:
         """Fills species until it has next_species_size members, using crossover and mutation"""
         children: List[Genome] = []
         num_elite = self._get_num_elite()
-        # Species.selector.before_selection(self.members) todo do we need this
         while len(children) < self.next_species_size - num_elite:
             p1, p2 = Species.selector.select(ranked_genomes=self.ranked_members, genomes=self.members)
             child = Cross.over(p1, p2)

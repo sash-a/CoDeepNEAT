@@ -55,7 +55,7 @@ def load_data(composed_transforms: transforms.Compose, split: str) -> DataLoader
         else:
             dataset = Subset(dataset, range(train_size, len(dataset)))
 
-    print(split, 'set size in', 'FT' if config.fully_train else 'evo', len(dataset))
+    # print(split, 'set size in', 'FT' if config.fully_train else 'evo', len(dataset))
 
     # TODO: test num workers and pin memory
     return DataLoader(dataset, batch_size=config.batch_size, shuffle=True, num_workers=0, pin_memory=False)

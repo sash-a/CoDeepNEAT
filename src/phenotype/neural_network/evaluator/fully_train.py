@@ -30,7 +30,7 @@ def fully_train(run_name, epochs, n=1):
     in_size = get_data_shape()
 
     for blueprint, gen_num in best_blueprints:
-        model: Network = _create_model(run, blueprint, gen_num, in_size, epochs)
+        model: Network = _create_model(run, blueprint, gen_num, in_size, epochs, config.fully_train_feature_multiplier)
 
         if config.resume_fully_train and os.path.exists(model.save_location()):
             model = _load_model(blueprint, run, gen_num, in_size)
@@ -42,10 +42,13 @@ def fully_train(run_name, epochs, n=1):
         print('Achieved a final accuracy of: {}'.format(accuracy * 100))
 
 
-def _create_model(run: Run, blueprint: BlueprintGenome, gen_num, in_size, epochs) -> Network:
+def _create_model(run: Run, blueprint: BlueprintGenome, gen_num, in_size,
+                  epochs, feature_multiplier) -> Network:
+
     S.instance = run.generations[gen_num]
     modules = run.get_modules_for_blueprint(blueprint)
-    model: Network = Network(blueprint, in_size, sample_map=blueprint.best_module_sample_map).to(config.get_device())
+    model: Network = Network(blueprint, in_size, sample_map=blueprint.best_module_sample_map,
+                             feature_multiplier=feature_multiplier).to(config.get_device())
 
     print("Blueprint: {}\nModules: {}\nSample map: {}\n Species used: {}"
           .format(blueprint,

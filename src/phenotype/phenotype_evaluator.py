@@ -39,13 +39,14 @@ def evaluate_blueprints(blueprint_q: mp.Queue,
     return completed_blueprints
 
 
-def evaluate_blueprint(blueprint: BlueprintGenome, input_size: List[int], num_epochs) -> BlueprintGenome:
+def evaluate_blueprint(blueprint: BlueprintGenome, input_size: List[int],
+                       num_epochs, feature_multiplier: float = 1) -> BlueprintGenome:
     """
     Parses the blueprint into its phenotype NN
     Handles the assignment of the single/multi obj finesses to the blueprint in parallel
     """
     device = config.get_device()
-    model: Network = Network(blueprint, input_size).to(device)
+    model: Network = Network(blueprint, input_size, feature_multiplier=feature_multiplier).to(device)
     model_size = sum(p.numel() for p in model.parameters() if p.requires_grad)
     if model_size > config.max_model_params:
         print("dropped model which was too large:", model_size, "params")

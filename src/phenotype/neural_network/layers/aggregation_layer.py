@@ -46,7 +46,7 @@ class AggregationLayer(BaseLayer):
         self.n_inputs_received = 0
         self.inputs = []
 
-    def create_layer(self, in_shape: list):
+    def create_layer(self, in_shape: list, feature_multiplier=None):
         # print('creating agg layer')
         self.n_inputs_received += 1
         self.inputs.append(torch.zeros(in_shape).to(config.get_device()))

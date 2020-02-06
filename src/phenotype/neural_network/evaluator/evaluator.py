@@ -21,30 +21,6 @@ from configuration import config
 if TYPE_CHECKING:
     from src.phenotype.neural_network.neural_network import Network
 
-
-def _fully_train_logging(model: Network, test_loader: DataLoader, loss: float, epoch: int):
-    print('epoch: {}\nloss: {}'.format(epoch, loss))
-
-    log = {}
-    if epoch % 15 == 0:
-        acc = test_nn(model, test_loader)
-        log['accuracy'] = acc
-        print('accuracy: {}'.format(acc))
-    print('\n')
-
-    config.current_ft_epoch = epoch
-    save_config(config.run_name)
-
-    if config.use_wandb:
-        log['loss'] = loss
-        wandb.log(log)
-        model.save()
-        wandb.save(model.save_location())
-
-        wandb.config.current_ft_epoch = epoch
-        wandb.save(join(get_run_folder_path(config.run_name), 'config.json'))
-
-
 def evaluate(model: Network, n_epochs=config.epochs_in_evolution) -> float:
     """trains model on training data, test on testing and returns test acc"""
     if config.dummy_run and not config.fully_train:
@@ -119,3 +95,27 @@ def test_nn(model: Network, test_loader: DataLoader):
             count = batch_idx
 
     return total_acc / count
+
+
+def _fully_train_logging(model: Network, test_loader: DataLoader, loss: float, epoch: int):
+    print('epoch: {}\nloss: {}'.format(epoch, loss))
+
+    log = {}
+    if epoch % config.fully_train_accuracy_test_period == 0:
+        acc = test_nn(model, test_loader)
+        log['accuracy'] = acc
+        print('accuracy: {}'.format(acc))
+    print('\n')
+
+    config.current_ft_epoch = epoch
+    save_config(config.run_name)
+
+    if config.use_wandb:
+        log['loss'] = loss
+        wandb.log(log)
+        model.save()
+        wandb.save(model.save_location())
+
+        wandb.config.current_ft_epoch = epoch
+        wandb.save(join(get_run_folder_path(config.run_name), 'config.json'))
+

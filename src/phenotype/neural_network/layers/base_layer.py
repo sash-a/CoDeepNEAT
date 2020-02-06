@@ -13,7 +13,6 @@ class BaseLayer(nn.Module, ABC):
     def __init__(self, name):
         super().__init__()
         self.name = name
-        self.out_shape: List[int] = []
         self.child_layers: List[BaseLayer] = []
 
     def add_child(self, name: str, child: BaseLayer) -> None:
@@ -24,7 +23,7 @@ class BaseLayer(nn.Module, ABC):
     #     property(lambda self: [child for child in self.children() if isinstance(child, BaseLayer)])
 
     @abstractmethod
-    def create_layer(self, in_shape) -> List[int]:
+    def create_layer(self, in_shape, feature_multiplier=1) -> List[int]:
         pass
 
     @abstractmethod
