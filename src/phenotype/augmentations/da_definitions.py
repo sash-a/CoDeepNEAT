@@ -4,7 +4,7 @@ import imgaug.augmenters as iaa
 
 # Dictionary containing all possible augmentation functions
 from src.genotype.cdn.genomes.da_genome import DAGenome
-from src.data_augmentation.CustomOperations import CustomOperation as CO
+from src.phenotype.augmentations.custom_operations import CustomOperation as CO
 from src.genotype.neat.connection import Connection
 from src.genotype.neat.node import NodeType
 

@@ -16,10 +16,11 @@ from torch.utils.data import DataLoader
 from runs.runs_manager import save_config, get_run_folder_path
 from src.phenotype.augmentations.batch_augmentation_scheme import BatchAugmentationScheme
 from src.phenotype.neural_network.evaluator.data_loader import imshow, load_data, load_transform
-from configuration import config
+from configuration import config, internal_config
 
 if TYPE_CHECKING:
     from src.phenotype.neural_network.neural_network import Network
+
 
 def evaluate(model: Network, n_epochs=config.epochs_in_evolution) -> float:
     """trains model on training data, test on testing and returns test acc"""
@@ -34,7 +35,7 @@ def evaluate(model: Network, n_epochs=config.epochs_in_evolution) -> float:
     test_loader = load_data(load_transform(), 'test') if config.fully_train else None
 
     device = config.get_device()
-    start = config.current_ft_epoch
+    start = internal_config.ft_epoch
 
     for epoch in range(start, n_epochs):
         loss = train_epoch(model, train_loader, aug, device)
@@ -107,7 +108,7 @@ def _fully_train_logging(model: Network, test_loader: DataLoader, loss: float, e
         print('accuracy: {}'.format(acc))
     print('\n')
 
-    config.current_ft_epoch = epoch
+    internal_config.ft_epoch = epoch
     save_config(config.run_name)
 
     if config.use_wandb:
@@ -118,4 +119,3 @@ def _fully_train_logging(model: Network, test_loader: DataLoader, loss: float, e
 
         wandb.config.current_ft_epoch = epoch
         wandb.save(join(get_run_folder_path(config.run_name), 'config.json'))
-

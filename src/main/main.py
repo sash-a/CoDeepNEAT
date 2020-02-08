@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import atexit
 import argparse
 import os
 import sys
@@ -17,11 +18,10 @@ sys.path.append(os.path.join(dir_path_1, 'test'))
 sys.path.append(os.path.join(dir_path_1, 'runs'))
 sys.path.append(os.path.join(dir_path_1, 'configuration'))
 
-
 import src.main.singleton as Singleton
 from src.utils.wandb_data_fetcher import download_run
 from runs import runs_manager
-from configuration import config
+from configuration import config, internal_config
 from src.main.generation import Generation
 from src.phenotype.neural_network.evaluator import fully_train
 from src.utils.wandb_utils import wandb_log, wandb_init
@@ -82,7 +82,7 @@ def evolve():
 
     print('config:', config.__dict__)
 
-    while generation.generation_number < config.n_generations:
+    while internal_config.generation < config.n_generations:
         print('\n\nStarted generation:', generation.generation_number)
         generation.step_evaluation()
 
@@ -159,4 +159,5 @@ def _force_cuda_device_init():
 
 
 if __name__ == '__main__':
+    atexit.register(internal_config.on_exit)
     main()

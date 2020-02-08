@@ -10,7 +10,7 @@ from typing import Optional, List
 from src.genotype.neat.operators.population_rankers.single_objective_rank import SingleObjectiveRank
 from src.genotype.neat.operators.population_rankers.two_objective_rank import TwoObjectiveRank
 from src.utils.mp_utils import get_bp_eval_pool
-from configuration import config
+from configuration import config, internal_config
 from src.genotype.cdn.genomes.blueprint_genome import BlueprintGenome
 from src.genotype.cdn.genomes.da_genome import DAGenome
 from src.genotype.cdn.genomes.module_genome import ModuleGenome
@@ -70,6 +70,7 @@ class Generation:
         # self.blueprint_population.visualise(suffix="_" + str(self.generation_number) + "blueprint_species")
 
         self.generation_number += 1
+        internal_config.generation += 1
 
         self.module_population.end_step()
         self.blueprint_population.end_step()

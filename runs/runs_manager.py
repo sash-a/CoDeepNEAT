@@ -9,7 +9,7 @@ import shutil
 from os.path import join, exists, dirname, abspath
 from typing import TYPE_CHECKING
 
-from configuration import config
+from configuration import config, internal_config
 
 if TYPE_CHECKING:
     from src.main.generation import Generation
@@ -53,6 +53,7 @@ def save_generation(generation: Generation, run_name):
 def load_config(run_name, config_name="config"):
     file_path = join(get_run_folder_path(run_name), config_name + '.json')
     config.read(file_path)
+    internal_config.load(run_name)
     return config
 
 
@@ -88,6 +89,8 @@ def set_up_run_folder(run_name):
         os.makedirs(get_run_folder_path(run_name))
         os.makedirs(get_graphs_folder_path(run_name))
         os.makedirs(get_generations_folder_path(run_name))
+
+        internal_config.save(run_name)
 
 
 def get_graphs_folder_path(run_name):
