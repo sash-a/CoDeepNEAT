@@ -1,9 +1,9 @@
 {
+  "run_name": "elite",
   "configs": {
-    "mod_max" :  true,
-    "speciation_similar_centroid" : true
+    "mod_max": true,
+    "speciation_similar_centroid": true
   },
-
   "wandb_tags": [
     "elite"
   ]
