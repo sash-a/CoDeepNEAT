@@ -7,7 +7,7 @@ import wandb
 import src.main.singleton as S
 
 from src.analysis.run import get_run
-from configuration import config
+from configuration import config, internal_config
 from src.genotype.cdn.genomes.blueprint_genome import BlueprintGenome
 from src.phenotype.neural_network.evaluator.data_loader import get_data_shape
 from src.phenotype.neural_network.evaluator.evaluator import evaluate
@@ -40,6 +40,9 @@ def fully_train(run_name, epochs, n=1):
 
         accuracy = evaluate(model, epochs)
         print('Achieved a final accuracy of: {}'.format(accuracy * 100))
+
+    internal_config.finished = True
+    internal_config.state = 'finished'
 
 
 def _create_model(run: Run, blueprint: BlueprintGenome, gen_num, in_size,

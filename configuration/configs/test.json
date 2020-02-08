@@ -1,0 +1,9 @@
+{
+  "run_name": "test",
+  "use_wandb": false,
+  "device": "cpu",
+  "dummy_run": true,
+  "n_generations": 3,
+  "n_evals_per_bp": 1,
+  "bp_pop_size": 3
+}

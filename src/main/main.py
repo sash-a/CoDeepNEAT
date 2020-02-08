@@ -4,12 +4,9 @@ import atexit
 import argparse
 import os
 import sys
-
 import torch
 
 # For importing project files
-
-
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
 sys.path.append(dir_path_1)
@@ -21,7 +18,7 @@ sys.path.append(os.path.join(dir_path_1, 'configuration'))
 import src.main.singleton as Singleton
 from src.utils.wandb_data_fetcher import download_run
 from runs import runs_manager
-from configuration import config, internal_config
+from configuration import config, internal_config, batch_runner
 from src.main.generation import Generation
 from src.phenotype.neural_network.evaluator import fully_train
 from src.utils.wandb_utils import wandb_log, wandb_init
@@ -30,13 +27,23 @@ from src.phenotype.neural_network.evaluator.fully_train import fully_train
 
 def main():
     cfg_file_path = get_cfg_file_path()
-    run_path = None if cfg_file_path is None else config.read_option(cfg_file_path, 'wandb_run_path')
-    run_name = config.read_option(cfg_file_path, 'run_name')
+    run_name_suffix = ''
+    batch_run_scheduler = config.read_option(cfg_file_path, 'batch_run_scheduler')
 
-    print('wandb run path:', run_path)
-    if run_path is not None and run_path:
+    if batch_run_scheduler:
+        # there is a batch run scheduler so must just edit use that as the config
+        cfg_file_path, run_name_suffix = batch_runner.get_config_path(batch_run_scheduler)
+
+    wandb_run_path = config.read_option(cfg_file_path, 'wandb_run_path')
+    run_name = config.read_option(cfg_file_path, 'run_name') + run_name_suffix
+
+    if run_name is None or not run_name:
+        raise Exception("Config file must have the run_name attribute")
+
+    print('wandb run path:', wandb_run_path)
+    if wandb_run_path is not None and wandb_run_path:
         print('downloading run...')
-        run_name = download_run(run_path=run_path, replace=True)
+        run_name = download_run(run_path=wandb_run_path, replace=True)
 
     print('Run name', run_name)
     if runs_manager.run_folder_exists(run_name):
@@ -45,6 +52,7 @@ def main():
 
     print('Reading config at ', cfg_file_path)
     config.read(cfg_file_path)  # overwrites loaded config with config passed as arg
+    config.run_name = run_name  # if suffix has been added to run folder, then add it to config.run_name
 
     # Full config is now loaded
     if config.use_wandb:
@@ -55,6 +63,7 @@ def main():
         runs_manager.set_up_run_folder(run_name)
 
     print('Saving conf')
+    print('config:', config.__dict__)
     runs_manager.save_config(config.run_name)
 
     if config.device == 'gpu':
@@ -80,8 +89,6 @@ def evolve():
     init_operators()
     generation = init_generation()
 
-    print('config:', config.__dict__)
-
     while internal_config.generation < config.n_generations:
         print('\n\nStarted generation:', generation.generation_number)
         generation.step_evaluation()
@@ -91,6 +98,8 @@ def evolve():
             wandb_log(generation)
 
         generation.step_evolution()
+
+    internal_config.state = 'ft'
 
 
 def init_generation_dir(new_run: bool):
@@ -102,11 +111,9 @@ def init_generation_dir(new_run: bool):
 
 def init_generation() -> Generation:
     if not os.listdir(runs_manager.get_generations_folder_path(config.run_name)):  # new run
-        print('new run')
         generation: Generation = Generation()
         Singleton.instance = generation
     else:  # continuing run
-        print('cont run')
         generation: Generation = runs_manager.load_latest_generation(config.run_name)
         if generation is None:  # generation load failed, likely because the run did not complete gen 0
             init_generation_dir(True)

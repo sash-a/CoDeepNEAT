@@ -10,6 +10,7 @@ class Config:
     def __init__(self):
         # ----------------------------------------------- General stuff -----------------------------------------------
         self.run_name = 'test'
+        self.batch_run_scheduler = ''
         self.n_generations = 30
         # ------------------------------------------------ Model stuff ------------------------------------------------
         self.device = 'gpu'  # cpu
@@ -122,7 +123,7 @@ class Config:
         return device('cpu') if self.device == 'cpu' else device(gpu)
 
     @staticmethod
-    def _build_file_path(file: str) -> str:
+    def build_file_path(file: str) -> str:
         # If the path is not absolute (i.e starts at root) then search in configs dir
         if not file.endswith('.json'):
             file += ".json"
@@ -133,7 +134,7 @@ class Config:
         return file
 
     def read_option(self, file: str, option: str) -> Optional[any]:
-        file = Config._build_file_path(file)
+        file = Config.build_file_path(file)
 
         with open(file) as cfg_file:
             options: dict = json.load(cfg_file)
@@ -143,7 +144,7 @@ class Config:
         return None
 
     def read(self, file: str):
-        file = Config._build_file_path(file)
+        file = Config.build_file_path(file)
 
         with open(file) as cfg_file:
             options: dict = json.load(cfg_file)

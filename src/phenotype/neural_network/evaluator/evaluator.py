@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 
 def evaluate(model: Network, n_epochs=config.epochs_in_evolution) -> float:
     """trains model on training data, test on testing and returns test acc"""
-    if config.dummy_run and not config.fully_train:
+    if config.dummy_run:
         if config.dummy_time > 0:
             time.sleep(config.dummy_time)
         return random.random()
