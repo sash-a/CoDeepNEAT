@@ -1,1 +1,7 @@
-{"test": 22}
+{
+  "elite": 0,
+  "elite_da" : 0,
+  "elite_da_legacy": 0,
+  "gene_breeding": 0,
+  "node_type_switching": 0
+}
