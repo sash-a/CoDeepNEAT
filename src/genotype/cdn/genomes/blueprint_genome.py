@@ -2,16 +2,17 @@ from __future__ import annotations
 
 import copy
 import random
+import math
+from torch import optim
 from typing import List, Dict, TYPE_CHECKING, Optional, Tuple
 
-import math
-
 import src.genotype.cdn.nodes.blueprint_node as BlueprintNode
-
 import src.main.singleton as singleton
+
 from configuration import config
 from src.genotype.mutagen.continuous_variable import ContinuousVariable
 from src.genotype.mutagen.mutagen import Mutagen
+from src.genotype.mutagen.option import Option
 from src.genotype.neat.connection import Connection
 from src.genotype.neat.genome import Genome
 from src.genotype.neat.node import Node
@@ -29,12 +30,19 @@ class BlueprintGenome(Genome):
     def __init__(self, nodes: List[Node], connections: List[Connection]):
         super().__init__(nodes, connections)
 
-        # TODO mutate, cdn has ranges in 2017 paper
-        self.learning_rate = ContinuousVariable("learning rate", start_range=0.0006, current_value=0.001,
-                                                end_range=0.003, mutation_chance=0)
-        self.beta1 = ContinuousVariable("beta1", start_range=0.88, current_value=0.9, end_range=0.92, mutation_chance=0)
-        self.beta2 = ContinuousVariable("beta2", start_range=0.9988, current_value=0.999, end_range=0.9992,
-                                        mutation_chance=0)
+        self.learning_rate = ContinuousVariable("learning rate", start_range=0.0001, current_value=0.001,
+                                                end_range=0.1, mutation_chance=0.2)
+        beta1 = ContinuousVariable("beta1", start_range=0.85, current_value=0.9, end_range=0.95, mutation_chance=0.2)
+        beta2 = ContinuousVariable("beta2", start_range=0.99, current_value=0.999, end_range=0.9999,
+                                   mutation_chance=0.2)
+        momentum = ContinuousVariable('momentum', 'auto', 0.68, 0.99, 0.2)
+        nestrov = Option('nesterov', True, False)
+
+        self.optim = Option('optimizer', optim.SGD, optim.Adam,
+                                submutagens={
+                                    optim.Adam: {'beta1': beta1, 'beta2': beta2},
+                                    optim.SGD: {'momentum': momentum, 'nesterov': nestrov}
+                                })
 
         # mapping from species id to the genome id of the module sampled from that species
         self.all_sample_maps: List[Dict[int, int]] = []
@@ -155,7 +163,7 @@ class BlueprintGenome(Genome):
                 raise LookupError("Sample map" + repr(sample_map) + "missing species id: " + repr(node.species_id))
 
             module_id = sample_map[node.species_id]
-            module : ModuleGenome = singleton.instance.module_population[module_id]
+            module: ModuleGenome = singleton.instance.module_population[module_id]
             module.report_fitness([accuracy, module.get_size_estimate()])
 
     def report_da_fitness(self, accuracy):

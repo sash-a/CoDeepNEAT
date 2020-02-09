@@ -43,10 +43,17 @@ class Network(nn.Module):
         img_flat_size = int(reduce(lambda x, y: x * y, output_layer.out_shape) / output_layer.out_shape[0])
         self.final_layer = nn.Linear(img_flat_size, output_dim)
 
-        self.loss_fn = nn.NLLLoss()  # TODO mutagen
+        self.loss_fn = nn.NLLLoss()  # TODO mutagen, change to cross entropy loss
 
-        self.optimizer: optim.adam = optim.Adam(self.parameters(), lr=self.blueprint.learning_rate.value,
-                                                betas=(self.blueprint.beta1.value, self.blueprint.beta2.value))
+        optim_submuts = blueprint.optim.submutagens[blueprint.optim.value]
+        if blueprint.optim.value == optim.SGD:
+            optim_kwargs = {k: v.value for k, v in optim_submuts.items()}
+        elif blueprint.optim.value == optim.Adam:
+            optim_kwargs = {'betas': (optim_submuts['beta1'].value, optim_submuts['beta2'].value)}
+        else:
+            raise Exception('Unexpected optimizer, can only be adam or sgd, found:', blueprint.optim.value)
+
+        self.optimizer = blueprint.optim.value(self.parameters(), lr=blueprint.learning_rate.value, **optim_kwargs)
 
     def forward(self, x):
         q: List[Tuple[Union[Layer, AggregationLayer], tensor]] = [(self.model, x)]
