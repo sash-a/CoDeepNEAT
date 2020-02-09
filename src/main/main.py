@@ -4,6 +4,8 @@ import atexit
 import argparse
 import os
 import sys
+from typing import Tuple
+
 import torch
 
 # For importing project files
@@ -26,12 +28,11 @@ from src.phenotype.neural_network.evaluator.fully_train import fully_train
 
 
 def main():
-    cfg_file_path = get_cfg_file_path()
     run_name_suffix = ''
+    cfg_file_path, n_gpus = get_args()
     batch_run_scheduler = config.read_option(cfg_file_path, 'batch_run_scheduler')
 
-    if batch_run_scheduler:
-        # there is a batch run scheduler so must just edit use that as the config
+    if batch_run_scheduler:  # there is a batch run scheduler so must use the config specified in it
         cfg_file_path, run_name_suffix = batch_runner.get_config_path(batch_run_scheduler)
 
     wandb_run_path = config.read_option(cfg_file_path, 'wandb_run_path')
@@ -53,6 +54,7 @@ def main():
     print('Reading config at ', cfg_file_path)
     config.read(cfg_file_path)  # overwrites loaded config with config passed as arg
     config.run_name = run_name  # if suffix has been added to run folder, then add it to config.run_name
+    config.n_gpus = n_gpus
 
     # Full config is now loaded
     if config.use_wandb:
@@ -75,13 +77,13 @@ def main():
         evolve()
 
 
-def get_cfg_file_path():
+def get_args() -> Tuple[str, int]:
     parser = argparse.ArgumentParser(description='CoDeepNEAT')
-    parser.add_argument('-c', '--config', type=str,
-                        help='Config file that will be used',
-                        required=False)
+    parser.add_argument('-c', '--config', type=str, help='Config file that will be used', required=True)
+    parser.add_argument('-g', '--ngpus', type=int, help='Number of GPUs available', required=False)
+
     args = parser.parse_args()
-    return args.config
+    return args.config, args.ngpus
 
 
 def evolve():
