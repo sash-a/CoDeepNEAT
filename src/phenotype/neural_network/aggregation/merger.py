@@ -66,7 +66,12 @@ def _merge_layers(homogeneous_inputs: List[tensor], lossy: bool, multiply: bool)
     if multiply:
         out = homogeneous_inputs[0]
         for i in range(1,len(homogeneous_inputs)):
-            out = out * homogeneous_inputs[1]
+            try:
+                out = out * homogeneous_inputs[i]
+            except Exception as e:
+                print("out:", out.size())
+                print("hom:",homogeneous_inputs[i].size())
+                raise e
         return out
     elif lossy:
         return torch.sum(torch.stack(homogeneous_inputs), dim=0)
