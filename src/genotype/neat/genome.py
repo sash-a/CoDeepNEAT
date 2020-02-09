@@ -161,7 +161,8 @@ class Genome(GraphGenome):
                     node: Node = self.nodes[-child_node_id]
                     input_layer = AggregationLayer(multi_input_map[child_node_id * -1], name,
                                                    node.lossy_aggregation.value,
-                                                   node.try_conv_aggregation.value)
+                                                   node.try_conv_aggregation.value,
+                                                   node.element_wise_multiplication_aggregation.value)
                     agg_layers[child_node_id] = input_layer
                     create_and_link_layers(input_layer, child_node_id)
 

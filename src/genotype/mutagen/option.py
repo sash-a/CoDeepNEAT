@@ -1,5 +1,5 @@
 import random
-from typing import Dict, Any, Union
+from typing import Dict, Any, Union, List
 
 from src.genotype.mutagen import mutagen as MutagenFile
 from src.genotype.mutagen.mutagen import Mutagen
@@ -14,13 +14,17 @@ class _Null:
 class Option(Mutagen):
 
     def __init__(self, name: str, *options, current_value=_Null, submutagens: Dict[Any, Dict[str, Mutagen]] = None,
-                 mutation_chance: float = 0.3):
+                 mutation_chance: float = 0.3, probability_weighting: List[float] = None):
         super().__init__(name, mutation_chance)
 
         if current_value is _Null or current_value == 'auto':
             current_value = random.choice(options)
 
         self.options = options
+        if probability_weighting is not None:
+            self.probability_weightings = probability_weighting
+        else:
+            self.probability_weightings = [1] * len(options)
 
         # maps an option value to -> a mapping from subvalue name to -> submutagen
         self.submutagens: Dict[Any, Dict[str, Union[Mutagen, Option]]] = submutagens
@@ -72,14 +76,20 @@ class Option(Mutagen):
 
     def mutate(self) -> MutationReport:
         mutation_report = MutationReport()
-        if random.random() < self.mutation_chance:
+
+        my_weighting = self.probability_weightings[self.options.index(self())]
+        my_relative_weighting = my_weighting / sum(self.probability_weightings)
+        normalised_weighting = len(self.options)*my_relative_weighting
+        effective_mutation_chance = self.mutation_chance * 1.0/ normalised_weighting
+
+        if random.random() < effective_mutation_chance:
             if len(self.options) < 2:
                 raise Exception("too few options to mutate")
 
-            new_value = self.options[random.randint(0, len(self.options) - 1)]
+            new_value = random.choices(self.options, weights=self.probability_weightings)
 
             while new_value == self():
-                new_value = self.options[random.randint(0, len(self.options) - 1)]
+                new_value = random.choices(self.options, weights=self.probability_weightings)
 
             mutation_report += self.name + " changed from " + repr(self.current_value) + " to " + repr(new_value)
             self.current_value = new_value

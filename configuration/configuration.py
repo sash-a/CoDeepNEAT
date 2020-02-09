@@ -71,6 +71,7 @@ class Config:
         self.module_node_conv_layer_chance = 1  # chance of linear = 1-conv. not used if no deep layer
         self.lossy_chance = 0.5
         self.mutate_lossy_values = True
+        self.element_wise_multiplication_chance = 0
         # Layer types
         self.use_depthwise_separable_convs = False
         # Module retention/elitism

@@ -16,13 +16,16 @@ def merge(inputs: List[tensor], agg_layer: AggregationLayer) -> tensor:
     conv_inputs = [x for x in inputs if len(list(x.size())) == 4]
 
     lossy = agg_layer.lossy
+    multiplication = agg_layer.use_element_wise_multiplication
+    if multiplication:
+        lossy = True
 
     if linear_inputs and conv_inputs:
         # print('both inputs')
-        linear = _merge_layers(homogenise_linear(linear_inputs, lossy), lossy) if len(linear_inputs) > 1 else \
+        linear = _merge_layers(homogenise_linear(linear_inputs, lossy), lossy, multiplication) if len(linear_inputs) > 1 else \
             linear_inputs[0]
         # print('linears merged, shape: ', linear.size(), "numel:", linear.numel())
-        conv = _merge_layers(homogenise_conv(conv_inputs, agg_layer), lossy) if len(conv_inputs) > 1 else conv_inputs[0]
+        conv = _merge_layers(homogenise_conv(conv_inputs, agg_layer), lossy, multiplication) if len(conv_inputs) > 1 else conv_inputs[0]
         # print('convs merged, shape:', conv.size(), "numel:", conv.numel())
 
         if agg_layer.try_output_conv:
@@ -53,11 +56,19 @@ def merge(inputs: List[tensor], agg_layer: AggregationLayer) -> tensor:
         raise Exception("erroneous or empty inputs passed to agg layer")
 
     # print('done merging...')
-    return _merge_layers(homos, lossy)
+    return _merge_layers(homos, lossy, multiplication)
 
 
-def _merge_layers(homogeneous_inputs: List[tensor], lossy: bool) -> tensor:
-    if lossy:
+def _merge_layers(homogeneous_inputs: List[tensor], lossy: bool, multiply: bool) -> tensor:
+    if multiply and not lossy:
+        multiply = False
+        print("cannot do lossless agg with multiplication")
+    if multiply:
+        out = homogeneous_inputs[0]
+        for i in range(1,len(homogeneous_inputs)):
+            out = out * homogeneous_inputs[1]
+        return out
+    elif lossy:
         return torch.sum(torch.stack(homogeneous_inputs), dim=0)
     else:
         return torch.cat(homogeneous_inputs, dim=1)

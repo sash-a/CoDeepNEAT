@@ -9,7 +9,8 @@ from src.phenotype.neural_network.layers.base_layer import BaseLayer
 
 
 class AggregationLayer(BaseLayer):
-    def __init__(self, num_inputs: int, name: str, lossy: bool, try_output_conv: bool):
+    def __init__(self, num_inputs: int, name: str, lossy: bool,
+                 try_output_conv: bool, use_element_wise_multiplication: bool):
         """
         :param lossy: choice between summing or catting to merge
         :param try_output_conv: determines whether the agg layer outputs a conv or linear
@@ -24,6 +25,7 @@ class AggregationLayer(BaseLayer):
 
         self.lossy: bool = lossy
         self.try_output_conv: bool = try_output_conv
+        self.use_element_wise_multiplication: bool = use_element_wise_multiplication
 
     def forward(self, input):
         self.n_inputs_received += 1
@@ -62,7 +64,8 @@ class AggregationLayer(BaseLayer):
     def get_layer_info(self):
         return 'aggregation layer' \
                '\nLossy: ' + str(self.lossy) + \
-               '\nConv agg: ' + str(self.try_output_conv)
+               '\nConv agg: ' + str(self.try_output_conv) + \
+               '\nMultiplicative: ' + str(self.use_element_wise_multiplication)
 
     def homogenise_outputs_list(self, outputs, homogeniser):
         """

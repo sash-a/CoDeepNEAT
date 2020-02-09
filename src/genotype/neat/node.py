@@ -31,6 +31,13 @@ class Node(Gene):
                                                                                              config.lossy_chance])[0],
                                         mutation_chance=0.3 if config.mutate_lossy_values else 0)
         self.try_conv_aggregation = Option('conv_aggregation', False, True, current_value=random.choice([False, True]))
+        mult_chance = config.element_wise_multiplication_chance
+        mult_weights = [1-mult_chance, mult_chance]
+        self.element_wise_multiplication_aggregation = \
+            Option('element_wise_multiplication_aggregation', False, True, current_value=
+            random.choices([False, True], weights=mult_weights)[0],
+                   mutation_chance= 0.2 if mult_chance > 0 else 0,
+                   probability_weighting=mult_weights)
 
     def is_output_node(self):
         return self.node_type == NodeType.OUTPUT
