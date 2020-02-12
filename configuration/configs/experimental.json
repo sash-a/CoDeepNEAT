@@ -1,7 +1,7 @@
 {
   "use_depthwise_separable_convs": false,
-  "element_wise_multiplication_chance": 0,
-  "target_network_size": 5e6,
+  "element_wise_multiplication_chance": 1,
+  "target_network_size": -1,
 
   "configs": {
     "gene_breeding": true,

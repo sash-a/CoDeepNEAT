@@ -21,7 +21,7 @@ def merge(inputs: List[tensor], agg_layer: AggregationLayer) -> tensor:
 
     if multiplication:
         # multiplicative agg requires tensors to match, and gets preference
-        print("turning on lossy to use mult")
+        # print("turning on lossy to use mult")
         lossy = True
         try_output_conv = False
 
@@ -30,12 +30,12 @@ def merge(inputs: List[tensor], agg_layer: AggregationLayer) -> tensor:
         linear = _merge_layers(homogenise_linear(linear_inputs, lossy), lossy, multiplication) if len(linear_inputs) > 1 else \
             linear_inputs[0]
         # print('linears merged, shape: ', linear.size(), "numel:", linear.numel())
-        conv = _merge_layers(homogenise_conv(conv_inputs, agg_layer), lossy, multiplication) if len(conv_inputs) > 1 else conv_inputs[0]
+        conv = _merge_layers(homogenise_conv(conv_inputs, agg_layer, lossy), lossy, multiplication) if len(conv_inputs) > 1 else conv_inputs[0]
         # print('convs merged, shape:', conv.size(), "numel:", conv.numel())
 
         if try_output_conv:
             lossy = False  # cannot do lossy merging of a conv produced from a linear and another conv
-            # print('constructing conv from linear')
+            # print('constructing conv from linear, turning off lossy')
             conv_construct = conv_linear_homogeniser.reshape_linear_to_conv(linear, conv)
             # print('conv constructed')
             homos = conv_homogeniser.homogenise_xy([conv, conv_construct])
@@ -54,7 +54,7 @@ def merge(inputs: List[tensor], agg_layer: AggregationLayer) -> tensor:
 
     elif conv_inputs and not linear_inputs:
         # print('only convs')
-        homos = homogenise_conv(inputs, agg_layer)
+        homos = homogenise_conv(inputs, agg_layer, lossy)
         # print('convs homogenised')
 
     else:
@@ -68,7 +68,7 @@ def _merge_layers(homogeneous_inputs: List[tensor], lossy: bool, multiply: bool)
     if multiply and not lossy:
         raise Exception("cannot do non lossy multiplication")
     if multiply:
-        print("outs:",torch.stack(homogeneous_inputs).size())
+        # print("outs:",torch.stack(homogeneous_inputs).size())
         out = homogeneous_inputs[0]
         for i in range(1,len(homogeneous_inputs)):
             try:
@@ -84,9 +84,9 @@ def _merge_layers(homogeneous_inputs: List[tensor], lossy: bool, multiply: bool)
         return torch.cat(homogeneous_inputs, dim=1)
 
 
-def homogenise_conv(inputs: List[tensor], agg_layer: AggregationLayer):
+def homogenise_conv(inputs: List[tensor], agg_layer: AggregationLayer, lossy):
     homos = conv_homogeniser.homogenise_xy(inputs)
-    if agg_layer.lossy:
+    if lossy:
         homos = conv_homogeniser.homogenise_channel(homos, agg_layer)
 
     return homos

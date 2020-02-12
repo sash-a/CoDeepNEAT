@@ -67,8 +67,12 @@ class Option(Mutagen):
         if self.submutagens is None:
             return []
 
-        if self.value not in self.submutagens:
-            return []
+        try:
+            if self.value not in self.submutagens:
+                return []
+        except Exception as e:
+            print("failed to get submutagens for val",self.value,"subs:",self.submutagens)
+            raise e
 
         return self.submutagens[self.value].values()
 
@@ -83,14 +87,21 @@ class Option(Mutagen):
         normalised_weighting = len(self.options)*my_relative_weighting
         effective_mutation_chance = self.mutation_chance * 1.0/ normalised_weighting
 
+        """
+            if the probability weightings of an option are not equal, then the mutation rates 
+            should be adjusted such that: if the current option value is weighted less - the option 
+            is more likely to change, and if the current option value is highly weighted - the option 
+            should be less likely to change
+        """
+
         if random.random() < effective_mutation_chance:
             if len(self.options) < 2:
                 raise Exception("too few options to mutate")
 
-            new_value = random.choices(self.options, weights=self.probability_weightings)
+            new_value = random.choices(self.options, weights=self.probability_weightings)[0]
 
             while new_value == self():
-                new_value = random.choices(self.options, weights=self.probability_weightings)
+                new_value = random.choices(self.options, weights=self.probability_weightings)[0]
 
             mutation_report += self.name + " changed from " + repr(self.current_value) + " to " + repr(new_value)
             self.current_value = new_value

@@ -55,7 +55,7 @@ class BlueprintGenome(Genome):
             self._da = get_legacy_da_scheme()
 
     def get_all_mutagens(self) -> List[Mutagen]:
-        mutagens = [self.learning_rate, self.beta1, self.beta2]
+        mutagens = [self.learning_rate, self.optim]
         if config.evolve_da and not config.evolve_da_pop:
             # Mutating the attribs of the mutagens the static DAs
             # population das get mutated in their own pops

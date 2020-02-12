@@ -147,4 +147,4 @@ class Layer(BaseLayer):
 
     def get_layer_info(self) -> str:
         """for dnn visualization"""
-        return '\n'.join(map(lambda x: repr(x), list(self.sequential.children())))
+        return '\n'.join(map(lambda x: repr(x), list(self.sequential.children()) + [self.activation, "out features: " + repr(self.out_features)]))
