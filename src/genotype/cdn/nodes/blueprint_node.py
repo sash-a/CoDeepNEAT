@@ -60,17 +60,19 @@ class BlueprintNode(Node):
         module_sample_map = kwargs['module_sample_map']
         ignore_species = kwargs['ignore_species'] if 'ignore_species' in kwargs else -1
         module = self.pick_module(module_sample_map, ignore_species)
+        feature_multiplier = kwargs["feature_multiplier"]
+
         if module is None:
             raise Exception("failed to sample module ")
 
         parent_output_layer: Layer
-        first_input_layer, parent_output_layer = module.to_phenotype(blueprint_node_id=self.id)
+        first_input_layer, parent_output_layer = module.to_phenotype(blueprint_node_id=self.id, feature_multiplier=feature_multiplier)
 
         # Creating and linking this blueprints modules in a chain depending on how many repeats there are
         if 'module_repeats' in self.__dict__:  # for backwards compatibility with pickle
             for i in range(self.module_repeats.value - 1):
                 id_suffix = 0.1 * i
-                input_layer, output_layer = module.to_phenotype(blueprint_node_id=self.id + id_suffix)
+                input_layer, output_layer = module.to_phenotype(blueprint_node_id=self.id + id_suffix, feature_multiplier=feature_multiplier)
                 parent_output_layer.add_child(str(module.id + id_suffix).replace('.', '-'), input_layer)
                 parent_output_layer = output_layer
 

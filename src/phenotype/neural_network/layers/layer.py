@@ -16,11 +16,16 @@ if TYPE_CHECKING:
 
 
 class Layer(BaseLayer):
-    def __init__(self, module: ModuleNode, name, feature_multiplier=1):
+    def __init__(self, module: ModuleNode, name, feature_multiplier: float = 1):
         super().__init__(name)
         self.module_node: ModuleNode = module
 
         self.out_features = round(module.layer_type.get_subvalue('out_features') * feature_multiplier)
+        if self.module_node.is_conv():
+            self.out_features = max(self.out_features, 1)
+        if self.module_node.is_linear():
+            self.out_features = max(self.out_features, 10)
+
         self.sequential: Optional[nn.Sequential] = None
         self.activation: Optional[nn.Module] = self.module_node.activation.value
 
@@ -66,7 +71,7 @@ class Layer(BaseLayer):
 
         return tuple(r for r in [regularisation, reduction, dropout] if r is not None)
 
-    def create_layer(self, in_shape: List[int], feature_multiplier: float = 1) -> List[int]:
+    def create_layer(self, in_shape: List[int]) -> List[int]:
         """
         Creates a layer of type nn.Linear or nn.Conv2d according to its module_node and gives it the correct shape.
         Populates the self.sequential attribute with created layers and values returned from self.create_regularisers.
@@ -84,8 +89,6 @@ class Layer(BaseLayer):
         reshape_layer: Optional[Reshape] = None
         deep_layer: Optional[nn.Module] = None
         img_flat_size = int(reduce(lambda x, y: x * y, in_shape) / batch)
-
-        out_features = round(self.out_features * feature_multiplier)
 
         # Calculating out feature size, creating deep layer and reshaping if necessary
         if self.module_node.is_conv():  # conv layer
@@ -106,13 +109,13 @@ class Layer(BaseLayer):
                 padding = max(padding, (window_size - 1) // 2)
 
             # creating conv layer
-            deep_layer = nn.Conv2d(channels, out_features, window_size, stride, padding)
+            deep_layer = nn.Conv2d(channels, self.out_features, window_size, stride, padding)
         elif self.module_node.is_linear():  # Linear layer
             if len(in_shape) != 2 or channels != img_flat_size:  # linear must be reshaped
                 reshape_layer = Reshape(batch, img_flat_size)
 
             # creating linear layer
-            deep_layer = nn.Linear(img_flat_size, out_features)
+            deep_layer = nn.Linear(img_flat_size, self.out_features)
         elif self.module_node.layer_type.value == DepthwiseSeparableConv:
             if len(in_shape) == 2:  # need a reshape if parent layer is linear because conv input needs 4 dims
                 h = w = math.ceil(math.sqrt(img_flat_size / channels))
@@ -124,7 +127,7 @@ class Layer(BaseLayer):
             window_size = self.module_node.layer_type.get_subvalue('conv_window_size')
             kernels_per_layer = self.module_node.layer_type.get_subvalue('conv_window_size')
 
-            deep_layer = DepthwiseSeparableConv(channels, out_features, kernels_per_layer, window_size)
+            deep_layer = DepthwiseSeparableConv(channels, self.out_features, kernels_per_layer, window_size)
         elif self.module_node.layer_type.value is None:  # No deep layer
             deep_layer = None
         else:

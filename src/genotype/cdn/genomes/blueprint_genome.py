@@ -65,10 +65,14 @@ class BlueprintGenome(Genome):
 
     def to_phenotype(self, **kwargs) -> Tuple[layer, layer]:
         sample_map = {}
+        feature_multiplier = 1
         if "sample_map" in kwargs and kwargs["sample_map"] is not None:
             sample_map = kwargs["sample_map"]
 
-        return super().to_phenotype(module_sample_map=sample_map, ignore_species=self.forget_module()), sample_map
+        if "feature_multiplier" in kwargs and kwargs["feature_multiplier"] is not None:
+            feature_multiplier = kwargs["feature_multiplier"]
+
+        return super().to_phenotype(module_sample_map=sample_map, ignore_species=self.forget_module(), feature_multiplier = feature_multiplier), sample_map
 
     def visualize(self, parse_number=-1, prefix=""):
         visualise_blueprint_genome(self, self.best_module_sample_map, parse_number=parse_number, prefix=prefix)

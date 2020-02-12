@@ -23,7 +23,7 @@ class BaseLayer(nn.Module, ABC):
     #     property(lambda self: [child for child in self.children() if isinstance(child, BaseLayer)])
 
     @abstractmethod
-    def create_layer(self, in_shape, feature_multiplier=1) -> List[int]:
+    def create_layer(self, in_shape) -> List[int]:
         pass
 
     @abstractmethod

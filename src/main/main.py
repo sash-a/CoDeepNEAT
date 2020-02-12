@@ -53,8 +53,12 @@ def main():
 
     print('Reading config at ', cfg_file_path)
     config.read(cfg_file_path)  # overwrites loaded config with config passed as arg
-    config.run_name = run_name  # if suffix has been added to run folder, then add it to config.run_name
-    config.n_gpus = n_gpus
+    if run_name is not None:
+        config.run_name = run_name  # if suffix has been added to run folder, then add it to config.run_name
+    if n_gpus is not None:
+        config.n_gpus = n_gpus
+    else:
+        print("no gpu argument given, using config value of", config.n_gpus)
 
     # Full config is now loaded
     if config.use_wandb:

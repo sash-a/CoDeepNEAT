@@ -17,8 +17,13 @@ def merge(inputs: List[tensor], agg_layer: AggregationLayer) -> tensor:
 
     lossy = agg_layer.lossy
     multiplication = agg_layer.use_element_wise_multiplication
+    try_output_conv = agg_layer.try_output_conv
+
     if multiplication:
+        # multiplicative agg requires tensors to match, and gets preference
+        print("turning on lossy to use mult")
         lossy = True
+        try_output_conv = False
 
     if linear_inputs and conv_inputs:
         # print('both inputs')
@@ -28,7 +33,7 @@ def merge(inputs: List[tensor], agg_layer: AggregationLayer) -> tensor:
         conv = _merge_layers(homogenise_conv(conv_inputs, agg_layer), lossy, multiplication) if len(conv_inputs) > 1 else conv_inputs[0]
         # print('convs merged, shape:', conv.size(), "numel:", conv.numel())
 
-        if agg_layer.try_output_conv:
+        if try_output_conv:
             lossy = False  # cannot do lossy merging of a conv produced from a linear and another conv
             # print('constructing conv from linear')
             conv_construct = conv_linear_homogeniser.reshape_linear_to_conv(linear, conv)
@@ -61,9 +66,9 @@ def merge(inputs: List[tensor], agg_layer: AggregationLayer) -> tensor:
 
 def _merge_layers(homogeneous_inputs: List[tensor], lossy: bool, multiply: bool) -> tensor:
     if multiply and not lossy:
-        multiply = False
-        print("cannot do lossless agg with multiplication")
+        raise Exception("cannot do non lossy multiplication")
     if multiply:
+        print("outs:",torch.stack(homogeneous_inputs).size())
         out = homogeneous_inputs[0]
         for i in range(1,len(homogeneous_inputs)):
             try:

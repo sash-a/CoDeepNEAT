@@ -46,7 +46,8 @@ class ModuleNode(Node):
         bp_node_id = kwargs['node_id']
         name = str(bp_node_id) if bp_node_id >= 0 else "agg(" + str(-1 * bp_node_id) + ")"
         name += "_" + (str(self.id) if self.id >= 0 else "agg(" + str(-1 * self.id) + ")")
-        pheno = Layer(self, name)
+        feature_multiplier = kwargs["feature_multiplier"]
+        pheno = Layer(self, name, feature_multiplier = feature_multiplier)
         return pheno, pheno
 
     def is_conv(self):
