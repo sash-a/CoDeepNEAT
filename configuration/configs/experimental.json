@@ -1,12 +1,12 @@
 {
   "use_depthwise_separable_convs": false,
-  "element_wise_multiplication_chance": 1,
+  "element_wise_multiplication_chance": 0,
   "target_network_size": -1,
 
   "configs": {
-    "gene_breeding": true,
-    "module_repeats": true,
-    "node_type_switching": true
+    "gene_breeding": false,
+    "module_repeats": false,
+    "node_type_switching": false
   },
 
   "wandb_tags": [
