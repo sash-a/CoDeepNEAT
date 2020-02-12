@@ -12,6 +12,8 @@ class Config:
         self.run_name = 'test'
         self.batch_run_scheduler = ''
         self.n_generations = 30
+        # ------------------------------------------------ Timing stuff ------------------------------------------------
+        self.approximate_generation_time_sec = -1  # Approximate amount of time for a generation to run
         # ------------------------------------------------ Model stuff ------------------------------------------------
         self.device = 'gpu'  # cpu
         self.n_gpus = 1

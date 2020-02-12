@@ -4,6 +4,7 @@ import atexit
 import argparse
 import os
 import sys
+import time
 from typing import Tuple
 
 import torch
@@ -92,11 +93,23 @@ def get_args() -> Tuple[str, int]:
 
 def evolve():
     print('Evolving')
+    gen_time = -1
+    start_time = time.time()
+    end_time = config.allowed_runtime_sec
+
     init_operators()
     generation = init_generation()
 
     while internal_config.generation < config.n_generations:
         print('\n\nStarted generation:', generation.generation_number)
+
+        gen_start_time = time.time()
+        run_time = time.time() - start_time
+        if config.allowed_runtime_sec != -1 and end_time - run_time < gen_time:
+            print('Stopped run (gen {}) because the next generation is supposed to take longer than the remaining time'
+                  .format(generation.generation_number))
+            return
+
         generation.step_evaluation()
 
         runs_manager.save_generation(generation, config.run_name)
@@ -104,6 +117,7 @@ def evolve():
             wandb_log(generation)
 
         generation.step_evolution()
+        gen_time = max(gen_time, (time.time() - gen_start_time) * 1.15)
 
     internal_config.state = 'ft'
 

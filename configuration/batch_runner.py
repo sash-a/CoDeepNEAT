@@ -4,8 +4,6 @@ from typing import Dict, Tuple
 import runs.runs_manager as run_man
 import configuration as cfg
 
-BATCH_RUNS = 3
-
 
 def build_file_path(file: str) -> str:
     # If the path is not absolute (i.e starts at root) then search in configs dir
@@ -22,7 +20,8 @@ def get_config_path(path: str) -> Tuple[str, str]:
     config_paths = read_json(path)  # dict: path -> num_runs
 
     for config_path in config_paths:
-        for i in range(BATCH_RUNS):
+        n_runs = config_paths[config_path]
+        for i in range(n_runs):
             config_dict = read_json(build_file_path(config_path))
             run_name = config_dict['run_name'] + str(i)
             run_path = run_man.get_run_folder_path(run_name)
@@ -42,9 +41,9 @@ def get_config_path(path: str) -> Tuple[str, str]:
                 cfg.config.resume_fully_train = cfg.internal_config.ft_epoch > 0
                 run_man.save_config(run_name, cfg.config)
 
-            # incrementing the number of runs
-            config_paths[config_path] += 1
-            write_json(config_paths, path)
+            if path_exists:
+                cfg.internal_config.running = True
+                cfg.internal_config.save(run_name, False)
 
             return config_path, str(i)
 

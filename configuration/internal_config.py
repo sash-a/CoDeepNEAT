@@ -16,13 +16,13 @@ class InternalConfig:
         self.ft_epoch = 0
         self.generation = 0
 
-    def save(self, run_name: str):
+    def save(self, run_name: str, wandb_save=True):
         file_path = join(runs_manager.get_run_folder_path(run_name), 'internal_config.json')
 
         with open(file_path, 'w+') as f:
             json.dump(self.__dict__, f, indent=2)
 
-        if configuration.config.use_wandb:
+        if configuration.config.use_wandb and wandb_save:
             wandb.save(file_path)
 
     def load(self, run_name: str):
