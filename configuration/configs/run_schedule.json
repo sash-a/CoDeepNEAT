@@ -2,7 +2,7 @@
   "elite": 3,
   "elite_da_pop": 3,
   "elite_da_legacy": 3,
-  "gene_breeding": 0,
-  "node_type_switch": 0,
-  "node_type_switching": 0
+  "gene_breeding": 3,
+  "node_type_switch": 3,
+  "node_type_switching": 3
 }
