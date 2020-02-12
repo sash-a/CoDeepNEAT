@@ -4,5 +4,6 @@
   "configs": {
     "elite" :  true,
     "da_legacy" : true
-  }
+  },
+  "allowed_runtime_sec": 43200
 }

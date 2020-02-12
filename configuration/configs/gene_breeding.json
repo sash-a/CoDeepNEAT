@@ -4,5 +4,6 @@
 
   "wandb_tags": [
     "gene breeding"
-   ]
+   ],
+  "allowed_runtime_sec": 43200
 }

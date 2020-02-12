@@ -6,5 +6,6 @@
 
   "wandb_tags": [
     "node type switching"
-  ]
+  ],
+  "allowed_runtime_sec": 43200
 }

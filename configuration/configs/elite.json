@@ -6,5 +6,6 @@
   },
   "wandb_tags": [
     "elite"
-  ]
+  ],
+  "allowed_runtime_sec": 43200
 }
