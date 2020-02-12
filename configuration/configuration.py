@@ -13,7 +13,7 @@ class Config:
         self.batch_run_scheduler = ''
         self.n_generations = 30
         # ------------------------------------------------ Timing stuff ------------------------------------------------
-        self.approximate_generation_time_sec = -1  # Approximate amount of time for a generation to run
+        self.allowed_runtime_sec = -1  # Amount of time allowed for the run (-1 for infinite)
         # ------------------------------------------------ Model stuff ------------------------------------------------
         self.device = 'gpu'  # cpu
         self.n_gpus = 1
