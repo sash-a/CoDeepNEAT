@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import copy
+
 import math
 from functools import reduce
 from typing import Optional, List, Tuple, TYPE_CHECKING
@@ -18,7 +20,7 @@ if TYPE_CHECKING:
 class Layer(BaseLayer):
     def __init__(self, module: ModuleNode, name, feature_multiplier: float = 1):
         super().__init__(name)
-        self.module_node: ModuleNode = module
+        self.module_node: ModuleNode = copy.deepcopy(module)
 
         self.out_features = round(module.layer_type.get_subvalue('out_features') * feature_multiplier)
         if self.module_node.is_conv():

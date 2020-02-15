@@ -110,7 +110,9 @@ class Config:
         self.gene_breeding_chance = 0
         self.blueprint_node_type_switch_chance = 0  # 0.1     chance for blueprint nodes to switch to module nodes
         self.max_module_repeats = 1
+        self.max_layer_repeats = 1
         self.module_repeat_mutation_chance = 0
+        self.layer_repeat_mutation_chance = 0
         self.target_network_size = -1  # if this option is used, all phenotype net sizes will be adjusted to match this as close as possible
         # ------------------------------------------------ wandb stuff ------------------------------------------------
         self.use_wandb = True

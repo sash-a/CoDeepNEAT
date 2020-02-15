@@ -198,9 +198,16 @@ def get_node_metadata(node: Union[BlueprintNode, ModuleNode], **kwargs):
             fac = moduleNode.layer_type.get_submutagen("dropout").get_subvalue("dropout_factor")
             meta += "\nDropout: " + pretty(repr(moduleNode.layer_type.get_subvalue("dropout"))) + " p = " + repr(fac)
 
+
+        if moduleNode.layer_repeats.value > 1:
+            meta += "\nRepeats: " + repr(moduleNode.layer_repeats.value)
+
+
         if len(meta) == 0:
             """is identiy node"""
             meta += "Identity"
+            return  meta
+
 
     if isinstance(node, DANode):
         daNode: DANode = node
