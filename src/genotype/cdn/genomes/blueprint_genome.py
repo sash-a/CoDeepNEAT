@@ -104,7 +104,8 @@ class BlueprintGenome(Genome):
         return (node for node in self.nodes.values() if isinstance(node, BlueprintNode.BlueprintNode))
 
     def get_fully_connected_blueprint_nodes_iter(self):
-        return ( )
+        return (self.nodes[node_id] for node_id in self.get_fully_connected_node_ids()
+                if isinstance(self.nodes[node_id], BlueprintNode.BlueprintNode))
 
     def inherit(self, parent: BlueprintGenome):
         if config.evolve_da:
@@ -156,9 +157,9 @@ class BlueprintGenome(Genome):
         if config.max_module_map_ignores == 0 or not allow_module_map_ignores:
             return []
         # of all of the nodes what percent of their linked species are in the module map
-        species_ids = set(self.get_blueprint_nodes_iter())
+        species_ids = set(self.get_fully_connected_blueprint_nodes_iter())
         mapped_species = set(
-            [node.species_id for node in self.get_blueprint_nodes_iter() if node.linked_module_id != -1])
+            [node.species_id for node in self.get_fully_connected_blueprint_nodes_iter() if node.linked_module_id != -1])
         if len(species_ids) == 0:
             print("blueprint without any blueprint nodes")
             return []

@@ -72,7 +72,7 @@ class BlueprintGenomeMutator(GenomeMutator):
         mutation_report = MutationReport()
 
         if config.use_module_retention and random.random()< config.module_map_forget_mutation_chance:
-            choices = list(set([node.species_id for node in genome.get_blueprint_nodes_iter() if node.linked_module_id != -1]))
+            choices = list(set([node.species_id for node in genome.get_fully_connected_blueprint_nodes_iter() if node.linked_module_id != -1]))
             if len(choices) == 0:
                 return mutation_report
 
