@@ -1,0 +1,9 @@
+{
+  "run_name": "depthwise_separable_convs",
+
+  "use_depthwise_separable_convs": true,
+
+  "wandb_tags": [
+    "depthwise separable convs"
+  ]
+}

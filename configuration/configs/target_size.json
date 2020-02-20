@@ -1,10 +1,9 @@
 {
-  "run_name": "target_size_",
+  "run_name": "target_size_2M",
 
-  "max_module_repeats" : 3,
-  "module_repeat_mutation_chance": 0.25,
+  "target_network_size": 2e6,
 
   "wandb_tags": [
-    "module repeats"
+    "target size 2M"
   ]
 }

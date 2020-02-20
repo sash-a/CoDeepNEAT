@@ -1,0 +1,12 @@
+{
+  "run_name": "node_repeats",
+
+  "configs": {
+    "layer_repeats": true,
+    "module_repeats": true
+  },
+
+  "wandb_tags": [
+    "node repeats"
+  ]
+}
