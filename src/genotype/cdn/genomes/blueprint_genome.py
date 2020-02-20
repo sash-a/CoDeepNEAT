@@ -32,17 +32,23 @@ class BlueprintGenome(Genome):
 
         self.learning_rate = ContinuousVariable("learning rate", start_range=0.0001, current_value=0.001,
                                                 end_range=0.1, mutation_chance=0.2)
-        beta1 = ContinuousVariable("beta1", start_range=0.85, current_value=0.9, end_range=0.95, mutation_chance=0.2)
-        beta2 = ContinuousVariable("beta2", start_range=0.99, current_value=0.999, end_range=0.9999,
-                                   mutation_chance=0.2)
-        momentum = ContinuousVariable('momentum', 'auto', 0.68, 0.99, 0.2)
+
+        beta1 = ContinuousVariable("beta1", start_range=0.85, current_value=0.9, end_range=0.95, mutation_chance=0)
+        beta2 = ContinuousVariable("beta2", start_range=0.99, current_value=0.999, end_range=0.9999, mutation_chance=0)
+
+        momentum = ContinuousVariable('momentum', 'auto', 0.68, 0.99, 0)
         nestrov = Option('nesterov', True, False)
 
+        current_optim = optim.SGD if config.optim == 'sgd' else optim.Adam if config.optim == 'adam' else 'auto'
+        mutation_chance = 0.15 if config.optim == 'evolve' else 0
+
         self.optim = Option('optimizer', optim.SGD, optim.Adam,
-                                submutagens={
-                                    optim.Adam: {'beta1': beta1, 'beta2': beta2},
-                                    optim.SGD: {'momentum': momentum, 'nesterov': nestrov}
-                                })
+                            current_value=current_optim,
+                            submutagens={
+                                optim.Adam: {'beta1': beta1, 'beta2': beta2},
+                                optim.SGD: {'momentum': momentum, 'nesterov': nestrov}
+                            },
+                            mutation_chance=mutation_chance)
 
         # mapping from species id to the genome id of the module sampled from that species
         self.all_sample_maps: List[Dict[int, int]] = []

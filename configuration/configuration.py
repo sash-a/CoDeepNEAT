@@ -68,6 +68,7 @@ class Config:
         self.module_node_batchnorm_chance = 0.65
         self.module_node_dropout_chance = 0.2
         self.module_node_max_pool_chance = 0.3
+        self.optim = 'adam'  # sgd | adam | evolve
         # chance of a new node starting with a deep layer - as opposed to a regulariser only layer
         self.module_node_deep_layer_chance = 1
         self.module_node_conv_layer_chance = 1  # chance of linear = 1-conv. not used if no deep layer

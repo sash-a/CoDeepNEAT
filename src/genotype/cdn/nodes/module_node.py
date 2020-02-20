@@ -7,7 +7,6 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 
-# For testing!
 from configuration import config
 from src.genotype.mutagen.continuous_variable import ContinuousVariable
 from src.genotype.mutagen.integer_variable import IntegerVariable
@@ -37,9 +36,9 @@ class ModuleNode(Node):
         self.activation: Option = Option("activation", F.relu, F.leaky_relu, torch.sigmoid, F.relu6,
                                          current_value=F.leaky_relu, mutation_chance=0.15)  # TODO try add in Selu, Elu
 
-        self.layer_repeats = IntegerVariable("layer_repeat_count", start_range=1, current_value=1,
-                                              end_range=config.max_layer_repeats,
-                                              mutation_chance=config.layer_repeat_mutation_chance if config.max_layer_repeats > 1 else 0)
+        self.layer_repeats = IntegerVariable("layer_repeats", start_range=1, current_value=1,
+                                             end_range=config.max_layer_repeats,
+                                             mutation_chance=config.layer_repeat_mutation_chance if config.max_layer_repeats > 1 else 0)
 
     def get_all_mutagens(self):
         node_muts = super().get_all_mutagens()
@@ -47,20 +46,22 @@ class ModuleNode(Node):
         return node_muts
 
     def convert_node(self, **kwargs) -> Tuple[Layer, Layer]:
-
         bp_node_id = kwargs['node_id']
         name = str(bp_node_id) if bp_node_id >= 0 else "agg(" + str(-1 * bp_node_id) + ")"
         name += "_" + (str(self.id) if self.id >= 0 else "agg(" + str(-1 * self.id) + ")")
+
         feature_multiplier = kwargs["feature_multiplier"]
-        pheno = Layer(self, name, feature_multiplier = feature_multiplier)
-        last_layer : Layer = pheno
-        num_repeats = self.layer_repeats.value - 1
-        for i in range(num_repeats):
+        pheno = Layer(self, name, feature_multiplier=feature_multiplier)
+
+        last_layer: Layer = pheno
+
+        for i in range(self.layer_repeats.value - 1):
             if self.id < 0:
                 raise Exception("cannot repeat agg layer")
-            repeat_node_name = name +"_r"+ repr(i)
-            new_layer = Layer(self, repeat_node_name, feature_multiplier = feature_multiplier)
-            last_layer.add_child(repeat_node_name,new_layer)
+
+            repeat_node_name = name + "_r" + repr(i)
+            new_layer = Layer(self, repeat_node_name, feature_multiplier=feature_multiplier)
+            last_layer.add_child(repeat_node_name, new_layer)
             last_layer = new_layer
 
         return pheno, last_layer
@@ -82,8 +83,9 @@ def get_new_conv_parameter_mutagens():
 
         "conv_stride": IntegerVariable("conv_stride", current_value=1, start_range=1, end_range=5, mutation_chance=0.1),
 
-        "reduction": Option("reduction", None, nn.MaxPool2d#, nn.AvgPool2d
-                            ,current_value=nn.MaxPool2d if random.random() < config.module_node_max_pool_chance else None,
+        "reduction": Option("reduction", None, nn.MaxPool2d  # , nn.AvgPool2d
+                            ,
+                            current_value=nn.MaxPool2d if random.random() < config.module_node_max_pool_chance else None,
                             submutagens=
                             {
                                 nn.MaxPool2d: {
