@@ -30,10 +30,14 @@ class Layer(BaseLayer):
 
         self.sequential: Optional[nn.Sequential] = None
         self.activation: Optional[nn.Module] = self.module_node.activation.value
+        self.has_deep_layer : bool = True # false if the layer is an identity or regulariser only
 
     def forward(self, x):
         try:
-            return self.activation(self.sequential(x))
+            if self.has_deep_layer:  # dont activate unless passing through deep layer
+                return self.activation(self.sequential(x))
+            else:
+                return self.sequential(x)
         except Exception as e:
             print("error passing shape", x.size(), "through ", self.sequential, '\nModule layer type',
                   self.module_node.layer_type.value)
@@ -88,6 +92,8 @@ class Layer(BaseLayer):
         else:
             raise Exception('Invalid input with shape: ' + str(in_shape))
 
+        self.has_deep_layer = True
+
         reshape_layer: Optional[Reshape] = None
         deep_layer: Optional[nn.Module] = None
         img_flat_size = int(reduce(lambda x, y: x * y, in_shape) / batch)
@@ -132,6 +138,7 @@ class Layer(BaseLayer):
             deep_layer = DepthwiseSeparableConv(channels, self.out_features, kernels_per_layer, window_size)
         elif self.module_node.layer_type.value is None:  # No deep layer
             deep_layer = None
+            self.has_deep_layer = False
         else:
             raise Exception("unrecognised module type: " + repr(self.module_node.layer_type.value))
 
@@ -149,4 +156,5 @@ class Layer(BaseLayer):
 
     def get_layer_info(self) -> str:
         """for dnn visualization"""
-        return '\n'.join(map(lambda x: repr(x), list(self.sequential.children()) + [self.activation, "out features: " + repr(self.out_features)]))
+        features = list(self.sequential.children()) + ( [self.activation, "out features: " + repr(self.out_features)] if self.has_deep_layer else [])
+        return '\n'.join(map(lambda x: repr(x), features))

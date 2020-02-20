@@ -115,23 +115,28 @@ def visualise_blueprint_genome(genome: BlueprintGenome, sample_map: Dict[int, in
                                    graph_title_prefix=prefix + "blueprint_",
                                    graph_title_suffix=("_p" + str(parse_number) + "_" if parse_number >= 0 else ""))
     module_ids = set()
-
-    for bp_node in genome.nodes.values():
+    exception = None
+    plotted_species = set()
+    for bp_node_id in genome.get_fully_connected_node_ids():
+        bp_node = genome.nodes[bp_node_id]
         if not isinstance(bp_node, BlueprintNode):
             continue
-
+        species = bp_node.species_id
+        if species in plotted_species:
+            continue
+        plotted_species.add(species)
         if bp_node.linked_module_id != -1:
-            module_ids.add(bp_node.linked_module_id)
-
-    if sample_map is not None:
-        for species_id in sample_map.keys():
-            module_id = sample_map[species_id]
-            sub_graph_label = "Species: " + str(species_id) + "\nModule: " + str(module_id)
-            node_names = "module_" + str(species_id) + "_" + str(module_id)
-            module = Singleton.instance.module_population[module_id]
-            module_graph = get_graph_of(module, node_names=node_names,
-                                        sub_graph=True, label=sub_graph_label, node_colour="cyan")
-            blueprint_graph.subgraph(module_graph)
+            module_id = bp_node.linked_module_id
+        elif species in sample_map.keys():
+            module_id = sample_map[species]
+        else:
+            exception = Exception("bp node is unmapped by both link and sample map: " + repr(bp_node) + " scp_id: " + repr(species), " sample map: " + repr(sample_map))
+        sub_graph_label = "Species: " + str(species) + "\nModule: " + str(module_id)
+        node_names = "module_" + str(species) + "_" + str(module_id)
+        module = Singleton.instance.module_population[module_id]
+        module_graph = get_graph_of(module, node_names=node_names,
+                                    sub_graph=True, label=sub_graph_label, node_colour="cyan")
+        blueprint_graph.subgraph(module_graph)
 
     if config.evolve_da:
         da: DAGenome = genome.get_da()
@@ -143,6 +148,9 @@ def visualise_blueprint_genome(genome: BlueprintGenome, sample_map: Dict[int, in
                                view=config.view_graph_plots, format="png")
     except Exception as e:
         print(e)
+
+    if exception is not None:
+        raise exception
 
 
 def visualise_traversal_dict(traversal_dict: Dict[int, List[int]]):
@@ -198,15 +206,13 @@ def get_node_metadata(node: Union[BlueprintNode, ModuleNode], **kwargs):
             fac = moduleNode.layer_type.get_submutagen("dropout").get_subvalue("dropout_factor")
             meta += "\nDropout: " + pretty(repr(moduleNode.layer_type.get_subvalue("dropout"))) + " p = " + repr(fac)
 
-
-        if moduleNode.layer_repeats.value > 1:
-            meta += "\nRepeats: " + repr(moduleNode.layer_repeats.value)
-
-
         if len(meta) == 0:
             """is identiy node"""
             meta += "Identity"
             return  meta
+
+        if moduleNode.layer_repeats.value > 1:
+            meta += "\nRepeats: " + repr(moduleNode.layer_repeats.value)
 
 
     if isinstance(node, DANode):

@@ -65,7 +65,7 @@ class AggregationLayer(BaseLayer):
         return 'aggregation layer' \
                '\nLossy: ' + str(self.lossy) + \
                '\nConv agg: ' + str(self.try_output_conv) + \
-               '\nMultiplicative: ' + str(self.use_element_wise_multiplication)
+               '\nMultiplicative: ' if self.use_element_wise_multiplication else ''
 
     def homogenise_outputs_list(self, outputs, homogeniser):
         """

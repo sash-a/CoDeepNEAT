@@ -48,7 +48,8 @@ class Run:
     def get_modules_for_blueprint(self, blueprint: BlueprintGenome) -> Dict[int, ModuleGenome]:
         modules: Dict[int, ModuleGenome] = {}
         module_ids: Set[int] = set()
-        for node in blueprint.nodes.values():
+        for node_id in blueprint.get_fully_connected_node_ids():
+            node = blueprint.nodes[node_id]
             if node.linked_module_id == -1:
                 if node.species_id not in blueprint.best_module_sample_map.keys():
                     raise Exception("unlinked blueprint node")

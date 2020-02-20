@@ -30,7 +30,8 @@ class ModuleGenome(Genome):
     def get_size_estimate(self):
         node: ModuleNode
         size = 0
-        for node in self.nodes.values():
+        for node_id in self.get_fully_connected_node_ids():
+            node = self.nodes[node_id]
             out_features = node.layer_type.get_subvalue('out_features')
 
             if node.is_conv():

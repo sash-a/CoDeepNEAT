@@ -72,13 +72,19 @@ class BlueprintGenome(Genome):
     def to_phenotype(self, **kwargs) -> Tuple[layer, layer]:
         sample_map = {}
         feature_multiplier = 1
+        allow_module_map_ignores = True
         if "sample_map" in kwargs and kwargs["sample_map"] is not None:
             sample_map = kwargs["sample_map"]
 
         if "feature_multiplier" in kwargs and kwargs["feature_multiplier"] is not None:
             feature_multiplier = kwargs["feature_multiplier"]
 
-        return super().to_phenotype(module_sample_map=sample_map, ignore_species=self.forget_module(), feature_multiplier = feature_multiplier), sample_map
+        if "allow_module_map_ignores" in kwargs:
+            allow_module_map_ignores = False
+
+        return super().to_phenotype(module_sample_map=sample_map,
+                                    ignore_species=self.forget_module(allow_module_map_ignores),
+                                    feature_multiplier=feature_multiplier), sample_map
 
     def visualize(self, parse_number=-1, prefix=""):
         visualise_blueprint_genome(self, self.best_module_sample_map, parse_number=parse_number, prefix=prefix)
@@ -96,6 +102,9 @@ class BlueprintGenome(Genome):
     def get_blueprint_nodes_iter(self):
         """returns an iterable object without iterating first"""
         return (node for node in self.nodes.values() if isinstance(node, BlueprintNode.BlueprintNode))
+
+    def get_fully_connected_blueprint_nodes_iter(self):
+        return ( )
 
     def inherit(self, parent: BlueprintGenome):
         if config.evolve_da:
@@ -142,8 +151,10 @@ class BlueprintGenome(Genome):
             self.best_module_sample_map = candidate_map
             self.best_sample_map_accuracy = accuracy
 
-    def forget_module(self) -> List[int]:
+    def forget_module(self, allow_module_map_ignores: bool) -> List[int]:
         """forget module maps with a probability based on how fully mapped the blueprint is"""
+        if config.max_module_map_ignores == 0 or not allow_module_map_ignores:
+            return []
         # of all of the nodes what percent of their linked species are in the module map
         species_ids = set(self.get_blueprint_nodes_iter())
         mapped_species = set(

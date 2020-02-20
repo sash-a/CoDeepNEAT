@@ -20,8 +20,7 @@ if TYPE_CHECKING:
 
 
 class Network(nn.Module):
-    def __init__(self, blueprint: BlueprintGenome, input_shape: list, output_dim=10,
-                 sample_map=None, feature_multiplier: float = 1):
+    def __init__(self, blueprint: BlueprintGenome, input_shape: list, output_dim=10, **kwargs):
 
         """
         Constructs a trainable nn.Module network given a Blueprint genome. Must have access to a generation singleton
@@ -37,7 +36,7 @@ class Network(nn.Module):
         self.output_dim = output_dim
 
         self.model: Layer
-        (self.model, output_layer), self.sample_map = blueprint.to_phenotype(sample_map=sample_map, feature_multiplier=feature_multiplier)
+        (self.model, output_layer), self.sample_map = blueprint.to_phenotype(**kwargs)
         self.shape_layers(input_shape)
         # shaping the final layer
         img_flat_size = int(reduce(lambda x, y: x * y, output_layer.out_shape) / output_layer.out_shape[0])

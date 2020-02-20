@@ -54,13 +54,14 @@ class Generation:
 
     def step_evolution(self):
         """Runs cdn for one generation. Prepares population objects for the next step."""
-        # TODO move this to visualization method
+
         most_accurate_blueprint: BlueprintGenome = self.blueprint_population.get_most_accurate()[0]
         if config.plot_best_genotypes:
             most_accurate_blueprint.visualize(prefix="best_g" + str(self.generation_number) + "_")
         if config.plot_best_phenotype:
-            model: Network = Network(most_accurate_blueprint, get_data_shape(),
-                                     sample_map=most_accurate_blueprint.best_module_sample_map)
+            model: Network = Network(most_accurate_blueprint,
+                                     get_data_shape(), sample_map=most_accurate_blueprint.best_module_sample_map,
+                                     allow_module_map_ignores=False)
             model.visualize(prefix="best_g" + str(self.generation_number) + "_")
 
         self.module_population.step()

@@ -51,13 +51,13 @@ def _create_model(run: Run, blueprint: BlueprintGenome, gen_num, in_size,
     S.instance = run.generations[gen_num]
     modules = run.get_modules_for_blueprint(blueprint)
     model: Network = Network(blueprint, in_size, sample_map=blueprint.best_module_sample_map,
-                             feature_multiplier=feature_multiplier).to(config.get_device())
+                             feature_multiplier=feature_multiplier, allow_module_map_ignores=False).to(config.get_device())
 
     print("Blueprint: {}\nModules: {}\nSample map: {}\n Species used: {}"
           .format(blueprint,
                   modules,
                   blueprint.best_module_sample_map,
-                  list(set([x.species_id for x in blueprint.nodes.values()]))))
+                  list(set([blueprint.nodes[node_id].species_id for node_id in blueprint.get_fully_connected_node_ids()]))))
     print("Training model which scored: {} in evolution for {} epochs, with {} parameters"
           .format(blueprint.max_acc, epochs, model.size()))
 
@@ -69,7 +69,9 @@ def _load_model(dummy_bp: BlueprintGenome, run: Run, gen_num: int, in_size) -> N
         raise Exception('Calling resume training, but config.resume_fully_train is false')
 
     S.instance = run.generations[gen_num]
-    model: Network = Network(dummy_bp, in_size, sample_map=dummy_bp.best_module_sample_map).to(config.get_device())
+    model: Network = Network(dummy_bp, in_size, sample_map=dummy_bp.best_module_sample_map,
+                             feature_multiplier=config.fully_train_feature_multiplier,
+                             allow_module_map_ignores=False).to(config.get_device())
     model.load()
 
     return model
