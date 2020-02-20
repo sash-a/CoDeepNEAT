@@ -1,6 +1,9 @@
 {
+  "run_name": "speciation_overhaul_centroid",
+
   "module_speciation": "similar",
   "representative_selector": "centroid",
+
   "wandb_tags": [
     "similar speciation",
     "centroid representatives"

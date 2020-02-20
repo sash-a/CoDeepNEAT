@@ -21,7 +21,7 @@ class BlueprintNode(Node):
 
         self.linked_module_id: int = -1
         self.module_repeats = IntegerVariable("module_repeat_count", start_range=1, current_value=1,
-                                              end_range=config.max_module_repeats,
+                                              end_range=config.max_module_repeats + 1,
                                               mutation_chance=config.module_repeat_mutation_chance if config.max_module_repeats > 1 else 0)
 
         # TODO pick again when more species are created

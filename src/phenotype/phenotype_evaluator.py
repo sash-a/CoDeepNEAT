@@ -57,6 +57,8 @@ def evaluate_blueprint(blueprint: BlueprintGenome, input_size: List[int],
         accuracy = 0
     else:
         accuracy = evaluate(model, n_epochs=num_epochs)
+        if accuracy == "retry":
+            raise Exception("no retries in evolution")
 
     blueprint.update_best_sample_map(sample_map, accuracy)
     fitness = [accuracy, model_size]

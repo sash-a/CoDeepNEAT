@@ -37,7 +37,7 @@ class ModuleNode(Node):
                                          current_value=F.leaky_relu, mutation_chance=0.15)  # TODO try add in Selu, Elu
 
         self.layer_repeats = IntegerVariable("layer_repeats", start_range=1, current_value=1,
-                                             end_range=config.max_layer_repeats,
+                                             end_range=config.max_layer_repeats + 1,
                                              mutation_chance=config.layer_repeat_mutation_chance if config.max_layer_repeats > 1 else 0)
 
     def get_all_mutagens(self):

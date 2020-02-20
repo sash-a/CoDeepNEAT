@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from os.path import join
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
 import random
 import time
@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from src.phenotype.neural_network.neural_network import Network
 
 
-def evaluate(model: Network, n_epochs=config.epochs_in_evolution) -> float:
+def evaluate(model: Network, n_epochs=config.epochs_in_evolution, training_target = -1) -> Union[float,str]:
     """trains model on training data, test on testing and returns test acc"""
     if config.dummy_run:
         if config.dummy_time > 0:
@@ -40,8 +40,14 @@ def evaluate(model: Network, n_epochs=config.epochs_in_evolution) -> float:
     for epoch in range(start, n_epochs):
         loss = train_epoch(model, train_loader, aug, device)
 
+        acc = -1
+        if epoch % config.fully_train_accuracy_test_period == 0:
+            acc = test_nn(model, test_loader)
+            if should_retry_training(acc, training_target, epoch):
+                return "retry"
+
         if config.fully_train:
-            _fully_train_logging(model, test_loader, loss, epoch)
+            _fully_train_logging(model, test_loader, loss, epoch, acc= acc)
 
     test_loader = load_data(load_transform(), 'test') if test_loader is None else test_loader
     return test_nn(model, test_loader)
@@ -98,12 +104,11 @@ def test_nn(model: Network, test_loader: DataLoader):
     return total_acc / count
 
 
-def _fully_train_logging(model: Network, test_loader: DataLoader, loss: float, epoch: int):
+def _fully_train_logging(model: Network, test_loader: DataLoader, loss: float, epoch: int, acc = -1):
     print('epoch: {}\nloss: {}'.format(epoch, loss))
 
     log = {}
-    if epoch % config.fully_train_accuracy_test_period == 0:
-        acc = test_nn(model, test_loader)
+    if acc != -1:
         log['accuracy'] = acc
         print('accuracy: {}'.format(acc))
     print('\n')
@@ -119,3 +124,32 @@ def _fully_train_logging(model: Network, test_loader: DataLoader, loss: float, e
 
         wandb.config.current_ft_epoch = epoch
         wandb.save(join(get_run_folder_path(config.run_name), 'config.json'))
+
+
+def should_retry_training(acc, training_target, current_epoch):
+    if training_target == -1:
+        return False
+    progress = current_epoch / config.epochs_in_evolution
+    performance = acc / training_target
+
+    """
+        by 50% needs 50% ~ with half as many epochs as given in evo - the network should have half the acc it got
+        by 100% needs 75%
+        by 200% needs 90%
+        by 350% needs 100%
+    """
+    progress_checks = [0.5, 1, 2, 3.5]
+    targets = [0.5, 0.75, 0.9, 1]
+
+    for prog_check, target in zip(progress_checks, targets):
+        if progress <= prog_check:
+            # this is the target to use
+            progress_normalised_target = target * progress / prog_check  # linear interpolation of target
+            if performance < progress_normalised_target:
+                print("net failed to meet target e:",current_epoch,"a:",acc,
+                      "prog:",progress,"prog check:",prog_check,"target:",
+                      target,"norm target:",progress_normalised_target)
+                return True
+            break  # only compare to first fitting target
+
+    return False

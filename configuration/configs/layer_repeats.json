@@ -1,0 +1,10 @@
+{
+  "run_name": "layer_repeats",
+
+  "max_layer_repeats" : 3,
+  "layer_repeat_mutation_chance": 0.25,
+
+  "wandb_tags": [
+    "layer repeats"
+  ]
+}

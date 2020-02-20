@@ -30,15 +30,27 @@ def fully_train(run_name, epochs, n=1):
     in_size = get_data_shape()
 
     for blueprint, gen_num in best_blueprints:
-        model: Network = _create_model(run, blueprint, gen_num, in_size, epochs, config.fully_train_feature_multiplier)
+        accuracy = "retry"
+        max_retries = 5
+        while accuracy == "retry" and max_retries>=0:
+            model: Network = _create_model(run, blueprint, gen_num, in_size, epochs, config.fully_train_feature_multiplier)
 
-        if config.resume_fully_train and os.path.exists(model.save_location()):
-            model = _load_model(blueprint, run, gen_num, in_size)
+            if config.resume_fully_train and os.path.exists(model.save_location()):
+                model = _load_model(blueprint, run, gen_num, in_size)
 
-        if config.use_wandb:
-            wandb.watch(model, criterion=model.loss_fn, log='all', idx=blueprint.id)
+            if config.use_wandb:
+                wandb.watch(model, criterion=model.loss_fn, log='all', idx=blueprint.id)
 
-        accuracy = evaluate(model, epochs)
+            if max_retries > 0:
+                accuracy = evaluate(model, epochs, training_target=blueprint.max_acc)
+            else:  # give up retrying, take whatever is produced from training
+                accuracy = evaluate(model, epochs)
+            if accuracy == "retry":
+                print("retrying fully training")
+                internal_config.ft_epoch = 0
+
+            max_retries -= 1
+
         print('Achieved a final accuracy of: {}'.format(accuracy * 100))
 
     internal_config.finished = True

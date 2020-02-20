@@ -2,8 +2,6 @@
   "use_depthwise_separable_convs": false,
   "element_wise_multiplication_chance": 0,
   "target_network_size": -1,
-  "max_layer_repeats": 3,
-  "layer_repeat_mutation_chance": 1,
 
   "configs": {
     "gene_breeding": false,

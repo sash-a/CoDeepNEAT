@@ -1,9 +1,8 @@
 {
-  "gene_breeding": "homerun",
+  "gene_breeding": true,
   "gene_breeding_chance" : 0.2,
 
   "wandb_tags": [
     "gene breeding"
-   ],
-  "allowed_runtime_sec": 43200
+   ]
 }

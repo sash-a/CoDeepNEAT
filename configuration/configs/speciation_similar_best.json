@@ -1,6 +1,9 @@
 {
+  "run_name": "speciation_overhaul_best",
+
   "module_speciation": "similar",
   "representative_selector": "best",
+  
   "wandb_tags": [
     "similar speciation",
     "best representatives"

@@ -1,4 +1,6 @@
 {
+  "run_name": "mod_max",
+
   "fitness_aggregation": "max",
   "use_module_retention": true,
   "wandb_tags": [
