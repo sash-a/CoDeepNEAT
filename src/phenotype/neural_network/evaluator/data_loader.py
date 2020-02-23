@@ -52,8 +52,10 @@ def load_data(composed_transforms: transforms.Compose, split: str) -> DataLoader
         train_size = int(len(dataset) * (1 - config.validation_split))
         if split == 'train':
             dataset = Subset(dataset, range(train_size))
-        else:
+        elif split == 'test':
             dataset = Subset(dataset, range(train_size, len(dataset)))
+        else:
+            raise Exception("")
 
     # print(split, 'set size in', 'FT' if config.fully_train else 'evo', len(dataset))
 

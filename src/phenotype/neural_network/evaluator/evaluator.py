@@ -41,7 +41,7 @@ def evaluate(model: Network, n_epochs=config.epochs_in_evolution, training_targe
         loss = train_epoch(model, train_loader, aug, device)
 
         acc = -1
-        if epoch % config.fully_train_accuracy_test_period == 0:
+        if config.fully_train and epoch % config.fully_train_accuracy_test_period == 0:# and epoch > 0:
             acc = test_nn(model, test_loader)
             if should_retry_training(acc, training_target, epoch):
                 return "retry"

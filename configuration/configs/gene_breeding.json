@@ -1,4 +1,6 @@
 {
+  "run_name": "gene_breeding",
+
   "gene_breeding": true,
   "gene_breeding_chance" : 0.2,
 

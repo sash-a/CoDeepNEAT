@@ -3,7 +3,10 @@
   "use_wandb": false,
   "device": "cpu",
   "dummy_run": true,
-  "n_generations": 3,
+  "n_generations": 5,
   "n_evals_per_bp": 1,
-  "bp_pop_size": 3
+  "bp_pop_size": 3,
+  "module_pop_size": 25,
+  "batch_size": 16,
+  "max_batches": 1
 }

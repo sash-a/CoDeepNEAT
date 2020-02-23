@@ -1,15 +1,14 @@
 from __future__ import annotations
 
 import atexit
-import argparse
 import os
 import sys
 import time
-from typing import Tuple
 
 import torch
 
 # For importing project files
+
 dir_path = os.path.dirname(os.path.realpath(__file__))
 dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
 sys.path.append(dir_path_1)
@@ -17,11 +16,9 @@ sys.path.append(os.path.join(dir_path_1, 'src'))
 sys.path.append(os.path.join(dir_path_1, 'test'))
 sys.path.append(os.path.join(dir_path_1, 'runs'))
 sys.path.append(os.path.join(dir_path_1, 'configuration'))
-
 import src.main.singleton as Singleton
-from src.utils.wandb_data_fetcher import download_run
 from runs import runs_manager
-from configuration import config, internal_config, batch_runner
+from configuration import config, internal_config, config_loader
 from src.main.generation import Generation
 from src.phenotype.neural_network.evaluator import fully_train
 from src.utils.wandb_utils import wandb_log, wandb_init
@@ -29,53 +26,19 @@ from src.phenotype.neural_network.evaluator.fully_train import fully_train
 
 
 def main():
-    run_name_suffix = ''
-    cfg_file_path, n_gpus = get_args()
-    batch_run_scheduler = config.read_option(cfg_file_path, 'batch_run_scheduler')
-
-    parent_conf_run_path = cfg_file_path
-
-    if batch_run_scheduler:  # there is a batch run scheduler so must use the config specified in it
-        cfg_file_path, run_name_suffix = batch_runner.get_config_path(batch_run_scheduler)
-
-    wandb_run_path = config.read_option(cfg_file_path, 'wandb_run_path')
-    run_name = config.read_option(cfg_file_path, 'run_name') + run_name_suffix
-
-    if run_name is None or not run_name:
-        raise Exception("Config file must have the run_name attribute")
-
-    print('wandb run path:', wandb_run_path)
-    if wandb_run_path is not None and wandb_run_path:
-        print('downloading run...')
-        run_name = download_run(run_path=wandb_run_path, replace=True)
-
-    print('Run name', run_name)
-    if runs_manager.run_folder_exists(run_name):
-        print('Run folder already exists, reading its config')
-        runs_manager.load_config(run_name)
-
-    print('Reading config at ', cfg_file_path)
-    config.read(cfg_file_path)  # overwrites loaded config with config passed as arg or batch config
-    config.read(parent_conf_run_path)  # overwrites loaded config with config passed as arg
-
-    if run_name is not None:
-        config.run_name = run_name  # if suffix has been added to run folder, then add it to config.run_name
-    if n_gpus is not None:
-        config.n_gpus = n_gpus
-    else:
-        print("no gpu argument given, using config value of", config.n_gpus)
+    config_loader.load_config()
 
     # Full config is now loaded
     if config.use_wandb:
         wandb_init()
 
-    if not runs_manager.run_folder_exists(run_name):
-        print('New run, setting up run folder')
-        runs_manager.set_up_run_folder(run_name)
+    if not runs_manager.run_folder_exists(config.run_name):
+        print('New run, setting up run folder for', config.run_name)
+        runs_manager.set_up_run_folder(config.run_name)
 
-    print('Saving conf')
-    print('config:', config.__dict__)
+    print('Saving conf to run', config.run_name)
     runs_manager.save_config(config.run_name)
+    print('config:', config.__dict__)
 
     if config.device == 'gpu':
         _force_cuda_device_init()
@@ -84,15 +47,6 @@ def main():
         fully_train(config.run_name, epochs=config.fully_train_epochs)
     else:
         evolve()
-
-
-def get_args() -> Tuple[str, int]:
-    parser = argparse.ArgumentParser(description='CoDeepNEAT')
-    parser.add_argument('-c', '--config', type=str, help='Config file that will be used', required=True)
-    parser.add_argument('-g', '--ngpus', type=int, help='Number of GPUs available', required=False)
-
-    args = parser.parse_args()
-    return args.config, args.ngpus
 
 
 def evolve():
@@ -126,22 +80,16 @@ def evolve():
     internal_config.state = 'ft'
 
 
-def init_generation_dir(new_run: bool):
-    if new_run:
-        runs_manager.set_up_run_folder(config.run_name)
-    else:
-        runs_manager.load_config(config.run_name)
-
-
 def init_generation() -> Generation:
-    if not os.listdir(runs_manager.get_generations_folder_path(config.run_name)):  # new run
+    """either loads a saved gen from a to-be-continued run, or creates a fresh one"""
+    if not os.listdir(runs_manager.get_generations_folder_path(config.run_name)):
+        # if there are no generations in the run folder
         generation: Generation = Generation()
         Singleton.instance = generation
     else:  # continuing run
         generation: Generation = runs_manager.load_latest_generation(config.run_name)
         if generation is None:  # generation load failed, likely because the run did not complete gen 0
-            init_generation_dir(True)
-            return init_generation()  # will start a fresh gen
+            raise Exception("generation files exist, but failed to load")
 
         Singleton.instance = generation
         generation.step_evolution()
