@@ -152,6 +152,7 @@ class Config:
 
     def read(self, file: str):
         file = Config.build_file_path(file)
+        print('Reading config file with path {}'.format(file))
 
         with open(file) as cfg_file:
             options: dict = json.load(cfg_file)

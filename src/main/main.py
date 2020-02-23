@@ -33,6 +33,8 @@ def main():
     cfg_file_path, n_gpus = get_args()
     batch_run_scheduler = config.read_option(cfg_file_path, 'batch_run_scheduler')
 
+    parent_conf_run_path = cfg_file_path
+
     if batch_run_scheduler:  # there is a batch run scheduler so must use the config specified in it
         cfg_file_path, run_name_suffix = batch_runner.get_config_path(batch_run_scheduler)
 
@@ -53,7 +55,9 @@ def main():
         runs_manager.load_config(run_name)
 
     print('Reading config at ', cfg_file_path)
-    config.read(cfg_file_path)  # overwrites loaded config with config passed as arg
+    config.read(cfg_file_path)  # overwrites loaded config with config passed as arg or batch config
+    config.read(parent_conf_run_path)  # overwrites loaded config with config passed as arg
+
     if run_name is not None:
         config.run_name = run_name  # if suffix has been added to run folder, then add it to config.run_name
     if n_gpus is not None:

@@ -1,8 +1,9 @@
 {
   "elite": 3,
-  "elite_da_pop": 3,
-  "elite_da_legacy": 3,
   "gene_breeding": 3,
   "node_type_switching": 3,
-  "module_repeats": 3
+  "module_repeats": 3,
+  "sgd": 3,
+  "elite_da_pop": 3,
+  "elite_da_legacy": 3
 }
