@@ -125,7 +125,7 @@ def _fully_train_logging(model: Network, loss: float, epoch: int, attempt: int, 
         model.save()
         wandb.save(model.save_location())
 
-        wandb.config.current_ft_epoch = epoch
+        wandb.config.update({'current_ft_epoch': epoch}, allow_val_change=True)
         wandb.save(join(get_run_folder_path(config.run_name), 'config.json'))
 
 
