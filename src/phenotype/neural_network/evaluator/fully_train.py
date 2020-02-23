@@ -11,6 +11,7 @@ from configuration import config, internal_config
 from src.genotype.cdn.genomes.blueprint_genome import BlueprintGenome
 from src.phenotype.neural_network.evaluator.data_loader import get_data_shape
 from src.phenotype.neural_network.evaluator.evaluator import evaluate, RETRY
+from src.phenotype.neural_network.feature_multiplication import get_model_of_target_size
 from src.phenotype.neural_network.neural_network import Network
 
 if TYPE_CHECKING:
@@ -32,11 +33,11 @@ def fully_train(run_name, epochs, n=1):
     in_size = get_data_shape()
 
     for blueprint, gen_num in best_blueprints:
-        for feature_multiplier in config.ft_feature_multipliers:
+        for target_feature_multiplier in config.ft_feature_multipliers:
             accuracy = RETRY
             remaining_retries = MAX_RETRIES
             while accuracy == RETRY and remaining_retries >= 0:
-                model: Network = _create_model(run, blueprint, gen_num, in_size, epochs, feature_multiplier)
+                model: Network = _create_model(run, blueprint, gen_num, in_size, epochs, target_feature_multiplier)
 
                 if config.resume_fully_train and os.path.exists(model.save_location()):
                     model = _load_model(blueprint, run, gen_num, in_size)
@@ -62,12 +63,15 @@ def fully_train(run_name, epochs, n=1):
 
 
 def _create_model(run: Run, blueprint: BlueprintGenome, gen_num, in_size,
-                  epochs, feature_multiplier) -> Network:
+                  epochs, target_feature_multiplier) -> Network:
     S.instance = run.generations[gen_num]
     modules = run.get_modules_for_blueprint(blueprint)
-    model: Network = Network(blueprint, in_size, sample_map=blueprint.best_module_sample_map,
-                             feature_multiplier=feature_multiplier, allow_module_map_ignores=False).to(
-        config.get_device())
+    model: Network = Network(blueprint, in_size, sample_map=blueprint.best_module_sample_map, allow_module_map_ignores=False).to(config.get_device())
+    model_size = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    sample_map = model.sample_map
+
+    if target_feature_multiplier != 1:
+        model = get_model_of_target_size(blueprint, sample_map, model_size, in_size, target_size=model_size * target_feature_multiplier)
 
     print("Blueprint: {}\nModules: {}\nSample map: {}\n Species used: {}"
           .format(blueprint,

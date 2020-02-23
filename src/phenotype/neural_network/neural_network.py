@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 
 class Network(nn.Module):
-    def __init__(self, blueprint: BlueprintGenome, input_shape: list, output_dim=10, feature_multiplier =1, **kwargs):
+    def __init__(self, blueprint: BlueprintGenome, input_shape: list, output_dim=10, **kwargs):
 
         """
         Constructs a trainable nn.Module network given a Blueprint genome. Must have access to a generation singleton
@@ -36,7 +36,7 @@ class Network(nn.Module):
         self.output_dim = output_dim
 
         self.model: Layer
-        (self.model, output_layer), self.sample_map = blueprint.to_phenotype(feature_multiplier=feature_multiplier, **kwargs)
+        (self.model, output_layer), self.sample_map = blueprint.to_phenotype(**kwargs)
         self.shape_layers(input_shape)
         # shaping the final layer
         img_flat_size = int(reduce(lambda x, y: x * y, output_layer.out_shape) / output_layer.out_shape[0])
@@ -44,7 +44,10 @@ class Network(nn.Module):
 
         self.loss_fn = nn.NLLLoss()  # TODO mutagen, change to cross entropy loss
 
-        self.feature_multiplier = feature_multiplier
+        if "feature_multiplier" in kwargs:  # the value to multiply layer features by
+            self.effective_feature_multiplier = kwargs["feature_multiplier"]
+        if "target_feature_multiplier" in kwargs:  # the actual effect the fm has on the total net size
+            self.target_feature_multiplier = kwargs["target_feature_multiplier"]
 
         optim_submuts = blueprint.optim.submutagens[blueprint.optim.value]
         if blueprint.optim.value == optim.SGD:
