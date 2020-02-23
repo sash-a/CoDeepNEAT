@@ -1,4 +1,6 @@
 {
+    "run_name" : "blank_module_nodes",
+
     "blank_module_input_nodes": true,
     "blank_module_output_nodes" : true,
 

@@ -1,4 +1,6 @@
 {
+  "run_name": "da_pop",
+
   "evolve_da" : true,
   "evolve_da_pop" : true,
 

@@ -1,4 +1,6 @@
 {
+  "run_name": "da_legacy",
+
   "evolve_da" : true,
   "evolve_da_pop" : false,
 
