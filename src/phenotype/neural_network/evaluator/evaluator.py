@@ -111,8 +111,9 @@ def _fully_train_logging(model: Network, loss: float, epoch: int, attempt: int, 
     print('epoch: {}\nloss: {}'.format(epoch, loss))
 
     log = {}
+    metric_name = 'accuracy_fm_' + str(model.feature_multiplier) + ("_r_" + str(attempt) if attempt > 0 else "")
     if acc != -1:
-        log['accuracy_' + str(attempt)] = acc
+        log[metric_name] = acc
         print('accuracy: {}'.format(acc))
     print('\n')
 

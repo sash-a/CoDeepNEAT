@@ -29,7 +29,7 @@ class Config:
         self.resume_fully_train = False  # used to know if a generation should be downloaded from wandb or a fully train should be downloaded
         self.fully_train_accuracy_test_period = 10
         self.fully_train_epochs = 100
-        self.ft_feature_multiplier = 1
+        self.ft_feature_multipliers = [1, 1.5, 2]
         # ---------------------------------------------- Debug Options ----------------------------------------------
         self.dummy_run = False
         self.dummy_time = 0  # number of seconds to wait to return a dummy eval
