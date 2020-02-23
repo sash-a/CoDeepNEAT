@@ -22,7 +22,10 @@ if TYPE_CHECKING:
     from src.phenotype.neural_network.neural_network import Network
 
 
-def evaluate(model: Network, n_epochs=config.epochs_in_evolution, training_target = -1) -> Union[float,str]:
+RETRY = 'retry'
+
+
+def evaluate(model: Network, n_epochs=config.epochs_in_evolution, training_target=-1, attempt=0) -> Union[float, str]:
     """trains model on training data, test on testing and returns test acc"""
     if config.dummy_run:
         if config.dummy_time > 0:
@@ -41,13 +44,13 @@ def evaluate(model: Network, n_epochs=config.epochs_in_evolution, training_targe
         loss = train_epoch(model, train_loader, aug, device)
 
         acc = -1
-        if config.fully_train and epoch % config.fully_train_accuracy_test_period == 0:# and epoch > 0:
+        if config.fully_train and epoch % config.fully_train_accuracy_test_period == 0:  # and epoch > 0:
             acc = test_nn(model, test_loader)
             if should_retry_training(acc, training_target, epoch):
-                return "retry"
+                return RETRY
 
         if config.fully_train:
-            _fully_train_logging(model, test_loader, loss, epoch, acc= acc)
+            _fully_train_logging(model, loss, epoch, attempt, acc)
 
     test_loader = load_data(load_transform(), 'test') if test_loader is None else test_loader
     return test_nn(model, test_loader)
@@ -104,12 +107,12 @@ def test_nn(model: Network, test_loader: DataLoader):
     return total_acc / count
 
 
-def _fully_train_logging(model: Network, test_loader: DataLoader, loss: float, epoch: int, acc = -1):
+def _fully_train_logging(model: Network, loss: float, epoch: int, attempt: int, acc: float = -1):
     print('epoch: {}\nloss: {}'.format(epoch, loss))
 
     log = {}
     if acc != -1:
-        log['accuracy'] = acc
+        log['accuracy_' + str(attempt)] = acc
         print('accuracy: {}'.format(acc))
     print('\n')
 
@@ -117,7 +120,7 @@ def _fully_train_logging(model: Network, test_loader: DataLoader, loss: float, e
     save_config(config.run_name)
 
     if config.use_wandb:
-        log['loss'] = loss
+        log['loss_' + str(attempt)] = loss
         wandb.log(log)
         model.save()
         wandb.save(model.save_location())
@@ -146,9 +149,9 @@ def should_retry_training(acc, training_target, current_epoch):
             # this is the target to use
             progress_normalised_target = target * progress / prog_check  # linear interpolation of target
             if performance < progress_normalised_target:
-                print("net failed to meet target e:",current_epoch,"a:",acc,
-                      "prog:",progress,"prog check:",prog_check,"target:",
-                      target,"norm target:",progress_normalised_target)
+                print("net failed to meet target e:", current_epoch, "a:", acc,
+                      "prog:", progress, "prog check:", prog_check, "target:",
+                      target, "norm target:", progress_normalised_target)
                 return True
             break  # only compare to first fitting target
 
