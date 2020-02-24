@@ -1,4 +1,4 @@
-from typing import Tuple, Union
+from typing import Tuple, Union, Optional
 
 from configuration import config, batch_runner
 from src.utils.wandb_data_fetcher import download_run
@@ -6,59 +6,58 @@ from runs import runs_manager
 
 import argparse
 
-"""
-    there are 3 possible levels of configs to be loaded:
-    1: a saved config which is attached to an existing run which has been executed before
-        this config does not exist when starting a fresh run, only when continuing an existing one
-    2: a scheduled config. If a run scheduler is used, it will point to a one of the configs in its schedule
-    3: the cli config, which is specified as a run arg to the main program
-    
-    when no run schedule is used, the cli config values overwrite the saved config (if one exists)
-        an example of when this is desirable is to change the num gpu's when continuing a run, or 
-        to change the man num of generations, to evolve a population for longer
-        
-    when a run schedule is specified, it will fetch a config file eg: elite.json
-    It may be desirable to override certain properties of all runs in a schedule
-        An example of this is schedule = {elite,base} - we may want to turn on DataAug for bot
-        ie: transform the schedule into {da_elite,da_base}
-    
-    thus when a run schedule is used, the cli config starting the schedule may contain overriding config values (eg: da=true)
-    
-    therefore the priority of configs when a schedule is being used is:
-        saved config (if exists)    - lowest
-        scheduled config            - middle
-        cli config                  - highest
-"""
-
 
 def load_config():
-    cli_cfg_file_name, cli_n_gpus = get_cli_args()
+    """
+        there are 3 possible levels of configs to be loaded:
+        1: a saved config which is attached to an existing run which has been executed before
+            this config does not exist when starting a fresh run, only when continuing an existing one
+        2: a scheduled config. If a run scheduler is used, it will point to a one of the configs in its schedule
+        3: the cli config, which is specified as a run arg to the main program
 
-    effective_run_name, scheduled_cfg_file_name = check_and_execute_batch_scheduler(cli_cfg_file_name)
-    effective_run_name = load_saved_config(effective_run_name, cli_cfg_file_name)
+        when no run schedule is used, the cli config values overwrite the saved config (if one exists)
+            an example of when this is desirable is to change the num gpu's when continuing a run, or
+            to change the man num of generations, to evolve a population for longer
+
+        when a run schedule is specified, it will fetch a config file eg: elite.json
+        It may be desirable to override certain properties of all runs in a schedule
+            An example of this is schedule = {elite,base} - we may want to turn on DataAug for bot
+            ie: transform the schedule into {da_elite,da_base}
+
+        thus when a run schedule is used, the cli config starting the schedule may contain overriding config values (eg: da=true)
+
+        therefore the priority of configs when a schedule is being used is:
+            saved config (if exists)    - lowest
+            scheduled config            - middle
+            cli config                  - highest
+    """
+    args = get_cli_args()
+
+    effective_run_name, scheduled_cfg_file_name = check_and_execute_batch_scheduler(args.config)
+    effective_run_name = load_saved_config(effective_run_name, args.config)
 
     if scheduled_cfg_file_name:
         print("reading scheduled config: ", scheduled_cfg_file_name)
         config.read(scheduled_cfg_file_name)
 
-    print('Reading cli config', cli_cfg_file_name)
-    config.read(cli_cfg_file_name)  # final authority on config values
+    print('Reading cli config', args.config)
+    config.read(args.config)  # final authority on config values
 
     if scheduled_cfg_file_name:
         # must detect whether the scheduler is calling for a fully train, or an evolutionary run
         fully_train, resume_fully_train = batch_runner.get_fully_train_state(effective_run_name)
-        print("scheduler is starting run with FT=",fully_train, "continue train:",resume_fully_train)
+        print("scheduler is starting run with FT=", fully_train, "continue train:", resume_fully_train)
         config.fully_train = fully_train
         config.resume_fully_train = resume_fully_train
 
     config.run_name = effective_run_name
-    if cli_n_gpus is not None:
-        config.n_gpus = cli_n_gpus
+    if args.ngpus is not None:
+        config.n_gpus = args.ngpus
     else:
         print("no gpu argument given, using cli config value of", config.n_gpus)
 
 
-def check_and_execute_batch_scheduler(cli_cfg_file_name) -> Tuple[str,Union[str, None]]:
+def check_and_execute_batch_scheduler(cli_cfg_file_name: str, ngpus: int, max_gpus: int) -> Tuple[str, Optional[str]]:
     """
         finds out the effective run name to be used
         if there is a run scheduler, the run config it is scheduling is fetched, but not parsed
@@ -66,9 +65,11 @@ def check_and_execute_batch_scheduler(cli_cfg_file_name) -> Tuple[str,Union[str,
     """
     batch_run_scheduler = config.read_option(cli_cfg_file_name, 'batch_run_scheduler')
     cli_cfg_run_name = config.read_option(cli_cfg_file_name, 'run_name')
+    ngpus = ngpus if ngpus is not None else max_gpus - 1
 
     if batch_run_scheduler:  # there is a batch run scheduler so must use the config specified in it
-        scheduled_cfg_file_name, scheduled_run_name = batch_runner.get_config_path(batch_run_scheduler, cli_cfg_run_name)
+        scheduled_cfg_file_name, scheduled_run_name = \
+            batch_runner.get_config_path(batch_run_scheduler, cli_cfg_run_name, ngpus, max_gpus)
         return scheduled_run_name, scheduled_cfg_file_name
 
     if not cli_cfg_run_name:
@@ -98,10 +99,11 @@ def load_saved_config(effective_run_name, cli_cfg_file_name):
     return effective_run_name
 
 
-def get_cli_args() -> Tuple[str, int]:
+def get_cli_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description='CoDeepNEAT')
     parser.add_argument('-c', '--config', type=str, help='Config file that will be used', required=True)
     parser.add_argument('-g', '--ngpus', type=int, help='Number of GPUs available', required=False)
+    parser.add_argument('-m', '--max_ft_gpus', type=int, required=False, default=2,
+                        help='Maximum number of GPUs to be allowed in batch fully training')
 
-    args = parser.parse_args()
-    return args.config, args.ngpus
+    return parser.parse_args()

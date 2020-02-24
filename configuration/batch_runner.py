@@ -8,7 +8,7 @@ import configuration as cfg
 def build_file_path(file: str) -> str:
     # If the path is not absolute (i.e starts at root) then search in configs dir
     if not file.endswith('.json'):
-        file += ".json"
+        file += '.json'
 
     if not file.startswith("/"):
         file = os.path.join(os.path.dirname(__file__), 'configs', file)
@@ -16,7 +16,7 @@ def build_file_path(file: str) -> str:
     return file
 
 
-def get_config_path(path: str, scheduler_run_name) -> Tuple[str, str]:
+def get_config_path(path: str, scheduler_run_name: str, ngpus: int, max_gpus: int) -> Tuple[str, str]:
     """picks which config to use next."""
     config_paths = read_json(build_file_path(path))  # dict: path -> num_runs
 
@@ -32,14 +32,16 @@ def get_config_path(path: str, scheduler_run_name) -> Tuple[str, str]:
             if run_folder_exists:
                 cfg.internal_config.load(run_name)
 
+            meets_gpu_requirements = not (cfg.internal_config.state == 'ft' and ngpus > max_gpus)
             run_currently_running_in_another_process = run_folder_exists and cfg.internal_config.running
+
             if run_currently_running_in_another_process:
-                print("run",run_name,"is being run in another process, moving on")
-            if cfg.internal_config.finished or run_currently_running_in_another_process:
-                cfg.internal_config.__init__()
+                print('run {} is being run in another process, moving on'.format(run_name))
+            if cfg.internal_config.finished or run_currently_running_in_another_process and not meets_gpu_requirements:
+                cfg.internal_config.__init__()  # reset internal config
                 continue
 
-            print("scheduler running",run_name)
+            print('scheduler running', run_name)
 
             if run_folder_exists:
                 cfg.internal_config.running = True
@@ -51,15 +53,14 @@ def get_config_path(path: str, scheduler_run_name) -> Tuple[str, str]:
 
 
 def _get_effective_run_name(scheduled_run_base_name, run_number, scheduler_name):
-
-    if scheduled_run_base_name == "base":
+    if scheduled_run_base_name == 'base':
         scheduled_run_name = repr(run_number)
     else:
         scheduled_run_name = scheduled_run_base_name + "_" + repr(run_number)
 
-    prefix = ""
+    prefix = ''
     if scheduler_name:
-        prefix = scheduler_name + "_"
+        prefix = scheduler_name + '_'
     return prefix + scheduled_run_name
 
 
@@ -79,8 +80,8 @@ def get_fully_train_state(run_name):
 
 
 def read_json(path: str) -> Dict[str, any]:
-    if ".json" not in path:
-        path += ".json"
+    if '.json' not in path:
+        path += '.json'
     with open(path) as f:
         return json.load(f)
 
