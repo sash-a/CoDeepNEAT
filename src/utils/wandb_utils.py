@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import datetime
+from os.path import join
 from random import randint
 from typing import TYPE_CHECKING, Dict
 from PIL import Image
@@ -10,8 +11,9 @@ import re
 import wandb
 
 from runs.runs_manager import get_generation_file_path, get_graphs_folder_path, \
-    run_folder_exists
+    run_folder_exists, save_config, get_run_folder_path
 from configuration import config
+from src.phenotype.neural_network.neural_network import Network
 from src.utils.wandb_data_fetcher import download_generations, download_model
 
 if TYPE_CHECKING:
@@ -147,3 +149,26 @@ def _log_imgs(generation: Generation) -> Dict[str, wandb.Image]:
                     imgs[name] = wandb.Image(Image.open(os.path.join(root, file)), file)
 
     return imgs
+
+
+def _fully_train_logging(model: Network, loss: float, epoch: int, attempt: int, wandb_run, acc: float = -1):
+    print('epoch: {}\nloss: {}'.format(epoch, loss))
+
+    log = {}
+    metric_name = 'accuracy_fm_' + str(model.target_feature_multiplier) + ("_r_" + str(attempt) if attempt > 0 else "")
+    if acc != -1:
+        log[metric_name] = acc
+        print('accuracy: {}'.format(acc))
+    print('\n')
+
+    model.ft_epoch = epoch
+    save_config(config.run_name)
+
+    if config.use_wandb:
+        log['loss_' + str(attempt)] = loss
+        wandb_run.log(log)
+        model.save()
+        wandb_run.save(model.save_location())
+
+        wandb_run.config.update({'current_ft_epoch': epoch}, allow_val_change=True)
+        wandb_run.save(join(get_run_folder_path(config.run_name), 'config.json'))

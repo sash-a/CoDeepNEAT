@@ -1,11 +1,9 @@
 from __future__ import annotations
 
-from os.path import join
 from typing import TYPE_CHECKING, Union
 
 import random
 import time
-import wandb
 
 import numpy as np
 import torch
@@ -13,10 +11,10 @@ import torch
 from sklearn.metrics import accuracy_score
 from torch.utils.data import DataLoader
 
-from runs.runs_manager import save_config, get_run_folder_path
 from src.phenotype.augmentations.batch_augmentation_scheme import BatchAugmentationScheme
 from src.phenotype.neural_network.evaluator.data_loader import imshow, load_data, load_transform
-from configuration import config, internal_config
+from configuration import config
+from src.utils.wandb_utils import _fully_train_logging
 
 if TYPE_CHECKING:
     from src.phenotype.neural_network.neural_network import Network
@@ -127,29 +125,6 @@ def test_nn(model: Network, test_loader: DataLoader):
             count = batch_idx
 
     return total_acc / count
-
-
-def _fully_train_logging(model: Network, loss: float, epoch: int, attempt: int, wandb_run, acc: float = -1):
-    print('epoch: {}\nloss: {}'.format(epoch, loss))
-
-    log = {}
-    metric_name = 'accuracy_fm_' + str(model.target_feature_multiplier) + ("_r_" + str(attempt) if attempt > 0 else "")
-    if acc != -1:
-        log[metric_name] = acc
-        print('accuracy: {}'.format(acc))
-    print('\n')
-
-    model.ft_epoch = epoch
-    save_config(config.run_name)
-
-    if config.use_wandb:
-        log['loss_' + str(attempt)] = loss
-        wandb_run.log(log)
-        model.save()
-        wandb_run.save(model.save_location())
-
-        wandb_run.config.update({'current_ft_epoch': epoch}, allow_val_change=True)
-        wandb_run.save(join(get_run_folder_path(config.run_name), 'config.json'))
 
 
 def should_retry_training(acc, training_target, current_epoch):
