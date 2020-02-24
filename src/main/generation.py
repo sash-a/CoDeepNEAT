@@ -9,7 +9,7 @@ from typing import Optional, List
 
 from src.genotype.neat.operators.population_rankers.single_objective_rank import SingleObjectiveRank
 from src.genotype.neat.operators.population_rankers.two_objective_rank import TwoObjectiveRank
-from src.utils.mp_utils import get_bp_eval_pool
+from src.utils.mp_utils import get_evaluator_pool
 from configuration import config, internal_config
 from src.genotype.cdn.genomes.blueprint_genome import BlueprintGenome
 from src.genotype.cdn.genomes.da_genome import DAGenome
@@ -98,7 +98,7 @@ class Generation:
         for bp in self.blueprint_population:
             consumable_q.put(bp, False)
 
-        with get_bp_eval_pool(self) as pool:  # TODO will probably be more efficient to keep this alive throughout gens
+        with get_evaluator_pool(self) as pool:  # TODO will probably be more efficient to keep this alive throughout gens
             futures = []
             for i in range(config.n_gpus * config.n_evals_per_gpu):
                 futures.append(pool.submit(evaluate_blueprints, consumable_q, in_size))
