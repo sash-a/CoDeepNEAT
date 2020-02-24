@@ -31,17 +31,17 @@ def load_config():
             scheduled config            - middle
             cli config                  - highest
     """
-    args = get_cli_args()
+    cli_args = get_cli_args()
 
-    effective_run_name, scheduled_cfg_file_name = check_and_execute_batch_scheduler(args.config)
-    effective_run_name = load_saved_config(effective_run_name, args.config)
+    effective_run_name, scheduled_cfg_file_name = check_and_execute_batch_scheduler(cli_args)
+    effective_run_name = load_saved_config(effective_run_name, cli_args.config)
 
     if scheduled_cfg_file_name:
         print("reading scheduled config: ", scheduled_cfg_file_name)
         config.read(scheduled_cfg_file_name)
 
-    print('Reading cli config', args.config)
-    config.read(args.config)  # final authority on config values
+    print('Reading cli config', cli_args.config)
+    config.read(cli_args.config)  # final authority on config values
 
     if scheduled_cfg_file_name:
         # must detect whether the scheduler is calling for a fully train, or an evolutionary run
@@ -51,25 +51,25 @@ def load_config():
         config.resume_fully_train = resume_fully_train
 
     config.run_name = effective_run_name
-    if args.ngpus is not None:
-        config.n_gpus = args.ngpus
+    if cli_args.ngpus is not None:
+        config.n_gpus = cli_args.ngpus
     else:
         print("no gpu argument given, using cli config value of", config.n_gpus)
 
 
-def check_and_execute_batch_scheduler(cli_cfg_file_name: str, ngpus: int, max_gpus: int) -> Tuple[str, Optional[str]]:
+def check_and_execute_batch_scheduler(cli_args) -> Tuple[str, Optional[str]]:
     """
         finds out the effective run name to be used
         if there is a run scheduler, the run config it is scheduling is fetched, but not parsed
         the effective name, as well as the Optional scheduled_run_name are returned
     """
-    batch_run_scheduler = config.read_option(cli_cfg_file_name, 'batch_run_scheduler')
-    cli_cfg_run_name = config.read_option(cli_cfg_file_name, 'run_name')
-    ngpus = ngpus if ngpus is not None else max_gpus - 1
+    batch_run_scheduler = config.read_option(cli_args.config, 'batch_run_scheduler')
+    cli_cfg_run_name = config.read_option(cli_args.config, 'run_name')
+    ngpus = cli_args.ngpus if cli_args.ngpus is not None else cli_args.max_ft_gpus - 1
 
     if batch_run_scheduler:  # there is a batch run scheduler so must use the config specified in it
         scheduled_cfg_file_name, scheduled_run_name = \
-            batch_runner.get_config_path(batch_run_scheduler, cli_cfg_run_name, ngpus, max_gpus)
+            batch_runner.get_config_path(batch_run_scheduler, cli_cfg_run_name, ngpus, cli_args.max_ft_gpus)
         return scheduled_run_name, scheduled_cfg_file_name
 
     if not cli_cfg_run_name:

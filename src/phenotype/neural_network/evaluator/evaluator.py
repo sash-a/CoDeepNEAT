@@ -40,20 +40,40 @@ def evaluate(model: Network, n_epochs=config.epochs_in_evolution, training_targe
     device = config.get_device()
     start = internal_config.ft_epoch
 
+    if config.fully_train:
+        n_epochs = config.fully_train_max_epochs  # max number of epochs for a fully train
+
+    max_acc = 0
+    max_acc_age = 0
     for epoch in range(start, n_epochs):
         loss = train_epoch(model, train_loader, aug, device)
 
         acc = -1
-        if config.fully_train and epoch % config.fully_train_accuracy_test_period == 0:  # and epoch > 0:
+        test_intermediate_accuracy = config.fully_train and epoch % config.fully_train_accuracy_test_period == 0
+        if test_intermediate_accuracy:
             acc = test_nn(model, test_loader)
-            if should_retry_training(acc, training_target, epoch):
+            if acc > max_acc:
+                max_acc = acc
+                max_acc_age = 0
+
+            if should_retry_training(max_acc, training_target, epoch):
+                # the training is not making target, start again
+                # this means that the network is not doing as well as its duplicate in evolution
                 return RETRY
+
+            if max_acc_age >= 2:
+                # wait 2 accuracy checks, if the max acc has not increased - this network has finished training
+                print("training has plateaued stopping")
+                return max_acc
+
+            max_acc_age += 1
 
         if config.fully_train:
             _fully_train_logging(model, loss, epoch, attempt, acc)
 
     test_loader = load_data(load_transform(), 'test') if test_loader is None else test_loader
-    return test_nn(model, test_loader)
+    final_test_acc = test_nn(model, test_loader)
+    return max(final_test_acc, max_acc)
 
 
 def train_epoch(model: Network, train_loader: DataLoader, augmentor: BatchAugmentationScheme, device) -> float:
@@ -150,7 +170,7 @@ def should_retry_training(acc, training_target, current_epoch):
             # this is the target to use
             progress_normalised_target = target * progress / prog_check  # linear interpolation of target
             if performance < progress_normalised_target:
-                print("net failed to meet target e:", current_epoch, "a:", acc,
+                print("net failed to meet target e:", current_epoch, "acc:", acc,
                       "prog:", progress, "prog check:", prog_check, "target:",
                       target, "norm target:", progress_normalised_target)
                 return True

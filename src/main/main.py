@@ -44,7 +44,7 @@ def main():
         _force_cuda_device_init()
 
     if config.fully_train:
-        fully_train(config.run_name, epochs=config.fully_train_epochs)
+        fully_train(config.run_name)
     else:
         evolve()
 

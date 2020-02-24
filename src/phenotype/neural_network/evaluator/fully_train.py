@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 MAX_RETRIES = 5
 
 
-def fully_train(run_name, epochs, n=1):
+def fully_train(run_name, n=1):
     """
     Loads and trains from a saved run
     :param run_name: name of the old run
@@ -37,7 +37,7 @@ def fully_train(run_name, epochs, n=1):
             accuracy = RETRY
             remaining_retries = MAX_RETRIES
             while accuracy == RETRY and remaining_retries >= 0:
-                model: Network = _create_model(run, blueprint, gen_num, in_size, epochs, target_feature_multiplier)
+                model: Network = _create_model(run, blueprint, gen_num, in_size, target_feature_multiplier)
 
                 if config.resume_fully_train and os.path.exists(model.save_location()):
                     model = _load_model(blueprint, run, gen_num, in_size)
@@ -46,9 +46,10 @@ def fully_train(run_name, epochs, n=1):
                     wandb.watch(model, criterion=model.loss_fn, log='all', idx=blueprint.id)
 
                 if remaining_retries > 0:
-                    accuracy = evaluate(model, epochs, blueprint.max_acc, MAX_RETRIES - remaining_retries)
+                    attempt_number = MAX_RETRIES - remaining_retries
+                    accuracy = evaluate(model, training_target=blueprint.max_acc, attempt=attempt_number)
                 else:  # give up retrying, take whatever is produced from training
-                    accuracy = evaluate(model, epochs)
+                    accuracy = evaluate(model)
 
                 if accuracy == RETRY:
                     print("retrying fully training")
@@ -63,15 +64,17 @@ def fully_train(run_name, epochs, n=1):
 
 
 def _create_model(run: Run, blueprint: BlueprintGenome, gen_num, in_size,
-                  epochs, target_feature_multiplier) -> Network:
+                  target_feature_multiplier) -> Network:
     S.instance = run.generations[gen_num]
     modules = run.get_modules_for_blueprint(blueprint)
-    model: Network = Network(blueprint, in_size, sample_map=blueprint.best_module_sample_map, allow_module_map_ignores=False).to(config.get_device())
+    model: Network = Network(blueprint, in_size, sample_map=blueprint.best_module_sample_map,
+                             allow_module_map_ignores=False, feature_multiplier=1, target_feature_multiplier=target_feature_multiplier).to(config.get_device())
     model_size = sum(p.numel() for p in model.parameters() if p.requires_grad)
     sample_map = model.sample_map
 
     if target_feature_multiplier != 1:
         model = get_model_of_target_size(blueprint, sample_map, model_size, in_size, target_size=model_size * target_feature_multiplier)
+        model.target_feature_multiplier = target_feature_multiplier
 
     print("Blueprint: {}\nModules: {}\nSample map: {}\n Species used: {}"
           .format(blueprint,
@@ -79,8 +82,8 @@ def _create_model(run: Run, blueprint: BlueprintGenome, gen_num, in_size,
                   blueprint.best_module_sample_map,
                   list(set(
                       [blueprint.nodes[node_id].species_id for node_id in blueprint.get_fully_connected_node_ids()]))))
-    print("Training model which scored: {} in evolution for {} epochs, with {} parameters\n"
-          .format(blueprint.max_acc, epochs, model.size()))
+    print("Training model which scored: {} in evolution , with {} parameters with feature mult: {}\n"
+          .format(blueprint.max_acc, model.size(), target_feature_multiplier))
 
     return model
 

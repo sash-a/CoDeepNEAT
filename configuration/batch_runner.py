@@ -37,7 +37,7 @@ def get_config_path(path: str, scheduler_run_name: str, ngpus: int, max_gpus: in
 
             if run_currently_running_in_another_process:
                 print('run {} is being run in another process, moving on'.format(run_name))
-            if cfg.internal_config.finished or run_currently_running_in_another_process and not meets_gpu_requirements:
+            if cfg.internal_config.finished or run_currently_running_in_another_process or not meets_gpu_requirements:
                 cfg.internal_config.__init__()  # reset internal config
                 continue
 
