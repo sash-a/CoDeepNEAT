@@ -94,7 +94,8 @@ class Network(nn.Module):
         return sum(p.numel() for p in self.parameters() if p.requires_grad)
 
     def save_location(self) -> str:
-        return os.path.join(get_fully_train_folder_path(config.run_name), 'bp-' + str(self.blueprint.id) + '.model')
+        file_name = 'bp-{}_fm-{}.model'.format(self.blueprint.id, self.target_feature_multiplier)
+        return os.path.join(get_fully_train_folder_path(config.run_name), file_name)
 
     def save(self):
         if not os.path.exists(get_fully_train_folder_path(config.run_name)):
