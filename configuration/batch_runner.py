@@ -73,7 +73,7 @@ def get_fully_train_state(run_name):
         cfg.internal_config.load(run_name)
 
     fully_training = cfg.internal_config.state == 'ft'
-    continue_fully_training = fully_training and cfg.internal_config.ft_epoch > 0
+    continue_fully_training = fully_training and cfg.internal_config.ft_started
     cfg.internal_config.__init__()
 
     return fully_training, continue_fully_training

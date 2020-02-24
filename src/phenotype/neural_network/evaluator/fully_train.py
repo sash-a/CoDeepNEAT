@@ -28,6 +28,8 @@ def fully_train(run_name, n=1):
     :param n: number of the best networks to train
     """
     print('Fully training...')
+    internal_config.ft_started = True
+
     run: Run = get_run(run_name)
     best_blueprints = run.get_most_accurate_blueprints(n)
     in_size = get_data_shape()
@@ -40,7 +42,7 @@ def fully_train(run_name, n=1):
                 accuracies.append(pool.submit(evaluate_with_retries, run, blueprint, gen_num, in_size, target_fm))
 
         for accuracy in accuracies:
-            print(accuracy)  # Need to consume this list for the process to run
+            print(accuracy.result())  # Need to consume this list for the process to run
 
     internal_config.finished = True
     internal_config.state = 'finished'
@@ -97,10 +99,6 @@ def evaluate_with_retries(run: Run, blueprint: BlueprintGenome, gen_num: int, in
                                     target_feature_multiplier,
                                     MAX_RETRIES - remaining_retries)
 
-        if accuracy == RETRY:
-            print("retrying fully training")
-            internal_config.ft_epoch = 0
-
         remaining_retries -= 1
 
     if accuracy == RETRY:
@@ -122,5 +120,8 @@ def attempt_evaluate(run: Run, blueprint: BlueprintGenome, gen_num: int, in_size
         wandb.watch(model, criterion=model.loss_fn, log='all', idx=blueprint.id)
 
     accuracy = evaluate(model, training_target=blueprint.max_acc, attempt=attempt_number)
+    if accuracy == RETRY:
+        print("retrying fully training")
+        model.ft_epoch = 0
 
     return accuracy

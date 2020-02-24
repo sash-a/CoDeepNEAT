@@ -13,7 +13,7 @@ class InternalConfig:
         self.running = True
         self.finished = False
 
-        self.ft_epoch = 0
+        self.ft_started = False
         self.generation = 0
 
     def save(self, run_name: str, wandb_save=True):
@@ -34,5 +34,6 @@ class InternalConfig:
                     self.__dict__[k] = v
 
     def on_exit(self):
+        print('Exiting!')
         self.running = False
         self.save(configuration.config.run_name)

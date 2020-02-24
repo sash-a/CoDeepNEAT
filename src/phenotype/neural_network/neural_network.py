@@ -32,6 +32,8 @@ class Network(nn.Module):
         :param sample_map: Required to construct a network with specific modules from each species (usually used when fully training)
         """
         super().__init__()
+        self.ft_epoch = 0  # allows us to keep track of how far a network got in fully train when resuming
+
         self.blueprint: BlueprintGenome = blueprint
         self.output_dim = output_dim
 

@@ -38,7 +38,7 @@ def evaluate(model: Network, n_epochs=config.epochs_in_evolution, training_targe
     test_loader = load_data(load_transform(), 'test') if config.fully_train else None
 
     device = config.get_device()
-    start = internal_config.ft_epoch
+    start = model.ft_epoch
 
     if config.fully_train:
         n_epochs = config.fully_train_max_epochs  # max number of epochs for a fully train
@@ -137,7 +137,7 @@ def _fully_train_logging(model: Network, loss: float, epoch: int, attempt: int, 
         print('accuracy: {}'.format(acc))
     print('\n')
 
-    internal_config.ft_epoch = epoch
+    model.ft_epoch = epoch
     save_config(config.run_name)
 
     if config.use_wandb:
