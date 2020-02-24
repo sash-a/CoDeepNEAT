@@ -8,5 +8,5 @@
   "bp_pop_size": 3,
   "module_pop_size": 25,
   "batch_size": 16,
-  "max_batches": -1
+  "max_batches": 10
 }

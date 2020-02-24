@@ -38,8 +38,13 @@ def fully_train(run_name, n=1):
         accuracies = []
 
         with get_evaluator_pool(singleton.instance) as pool:
-            for target_fm in config.ft_feature_multipliers:
-                accuracies.append(pool.submit(evaluate_with_retries, run, blueprint, gen_num, in_size, target_fm))
+            for target_fm in config.ft_feature_multipliers.sort().reverse():  # run through fm from highest to lowest
+                if target_fm != 1:  # new child wandb run for the FM > 1 trains
+                    fm_wandb_run_name = config.run_name + "_fm" + target_fm
+                    fm_wandb_run = wandb.init(name=fm_wandb_run_name, reinit=True)
+                else:
+                    fm_wandb_run = wandb.run  # main wandb run for FM1
+                accuracies.append(pool.submit(evaluate_with_retries, run, blueprint, gen_num, in_size, target_fm, fm_wandb_run))
 
         for accuracy in accuracies:
             print(accuracy.result())  # Need to consume this list for the process to run
@@ -88,38 +93,35 @@ def _load_model(dummy_bp: BlueprintGenome, run: Run, gen_num: int, in_size) -> N
 
 
 def evaluate_with_retries(run: Run, blueprint: BlueprintGenome, gen_num: int, in_size,
-                          target_feature_multiplier: float):
+                          target_feature_multiplier: float, wandb_run):
     accuracy = RETRY
     remaining_retries = MAX_RETRIES
     while accuracy == RETRY and remaining_retries >= 0:
-        accuracy = attempt_evaluate(run,
-                                    blueprint,
-                                    gen_num,
-                                    in_size,
+        attempt_number = MAX_RETRIES - remaining_retries
+        accuracy = attempt_evaluate(run, blueprint,
+                                    gen_num, in_size,
                                     target_feature_multiplier,
-                                    MAX_RETRIES - remaining_retries)
+                                    attempt_number, wandb_run)
 
         remaining_retries -= 1
 
     if accuracy == RETRY:
         # Final retry
-        accuracy = evaluate(_create_model(run, blueprint, gen_num, in_size, target_feature_multiplier))
+        accuracy = evaluate(_create_model(run, blueprint, gen_num, in_size, target_feature_multiplier), wandb_run=wandb_run)
 
     print('Achieved a final accuracy of: {}'.format(accuracy * 100))
     return accuracy
 
 
 def attempt_evaluate(run: Run, blueprint: BlueprintGenome, gen_num: int, in_size,
-                     target_feature_multiplier: float, attempt_number) -> Union[float, str]:
+                     target_feature_multiplier: float, attempt_number, wandb_run) -> Union[float, str]:
     model: Network = _create_model(run, blueprint, gen_num, in_size, target_feature_multiplier)
 
     if config.resume_fully_train and os.path.exists(model.save_location()):
         model = _load_model(blueprint, run, gen_num, in_size)
 
-    if config.use_wandb:
-        wandb.watch(model, criterion=model.loss_fn, log='all', idx=blueprint.id)
+    accuracy = evaluate(model, training_target=blueprint.max_acc, attempt=attempt_number, wandb_run=wandb_run)
 
-    accuracy = evaluate(model, training_target=blueprint.max_acc, attempt=attempt_number)
     if accuracy == RETRY:
         print("retrying fully training")
         model.ft_epoch = 0

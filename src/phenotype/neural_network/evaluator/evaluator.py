@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 RETRY = 'retry'
 
 
-def evaluate(model: Network, n_epochs=config.epochs_in_evolution, training_target=-1, attempt=0) -> Union[float, str]:
+def evaluate(model: Network, n_epochs=config.epochs_in_evolution, training_target=-1, attempt=0, wandb_run = None) -> Union[float, str]:
     """trains model on training data, test on testing and returns test acc"""
     if config.dummy_run:
         if config.dummy_time > 0:
@@ -53,8 +53,10 @@ def evaluate(model: Network, n_epochs=config.epochs_in_evolution, training_targe
         if test_intermediate_accuracy:
             acc = test_nn(model, test_loader)
             if acc > max_acc:
+                print("new best acc: ",acc)
                 max_acc = acc
                 max_acc_age = 0
+            print("max acc age:",max_acc_age)
 
             if should_retry_training(max_acc, training_target, epoch):
                 # the training is not making target, start again
@@ -69,7 +71,7 @@ def evaluate(model: Network, n_epochs=config.epochs_in_evolution, training_targe
             max_acc_age += 1
 
         if config.fully_train:
-            _fully_train_logging(model, loss, epoch, attempt, acc)
+            _fully_train_logging(model, loss, epoch, attempt, acc, wandb_run)
 
     test_loader = load_data(load_transform(), 'test') if test_loader is None else test_loader
     final_test_acc = test_nn(model, test_loader)
@@ -127,7 +129,7 @@ def test_nn(model: Network, test_loader: DataLoader):
     return total_acc / count
 
 
-def _fully_train_logging(model: Network, loss: float, epoch: int, attempt: int, acc: float = -1):
+def _fully_train_logging(model: Network, loss: float, epoch: int, attempt: int, wandb_run, acc: float = -1):
     print('epoch: {}\nloss: {}'.format(epoch, loss))
 
     log = {}
@@ -142,12 +144,12 @@ def _fully_train_logging(model: Network, loss: float, epoch: int, attempt: int, 
 
     if config.use_wandb:
         log['loss_' + str(attempt)] = loss
-        wandb.log(log)
+        wandb_run.log(log)
         model.save()
-        wandb.save(model.save_location())
+        wandb_run.save(model.save_location())
 
-        wandb.config.update({'current_ft_epoch': epoch}, allow_val_change=True)
-        wandb.save(join(get_run_folder_path(config.run_name), 'config.json'))
+        wandb_run.config.update({'current_ft_epoch': epoch}, allow_val_change=True)
+        wandb_run.save(join(get_run_folder_path(config.run_name), 'config.json'))
 
 
 def should_retry_training(acc, training_target, current_epoch):
