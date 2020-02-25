@@ -21,15 +21,6 @@ if TYPE_CHECKING:
 MAX_RETRIES = 5
 
 
-def get_wandb_sub_run(target_fm):
-    if not config.use_wandb:
-        return None
-    if target_fm != 1:  # new child wandb run for the FM > 1 trains
-        fm_wandb_run_name = config.run_name + "_fm" + str(target_fm)
-        return wandb.init(name=fm_wandb_run_name, reinit=True)
-    else:
-        return wandb.run  # main wandb run for FM1
-
 def fully_train(run_name, n=1):
     """
     Loads and trains from a saved run
@@ -43,13 +34,16 @@ def fully_train(run_name, n=1):
     best_blueprints = run.get_most_accurate_blueprints(n)
     in_size = get_data_shape()
 
+    main_wandb_run = wandb.run
+
     for blueprint, gen_num in best_blueprints:
         accuracies = []
-        reverse_order_fm_values = sorted(config.ft_feature_multipliers, reverse = True)
+        reverse_order_fm_values = sorted(config.ft_feature_multipliers, reverse=True)
+        print("training net at FT values:", reverse_order_fm_values)
 
         with get_evaluator_pool(singleton.instance) as pool:
             for target_fm in reverse_order_fm_values:  # run through fm from highest to lowest
-                fm_wandb_run = get_wandb_sub_run(target_fm)
+                fm_wandb_run = get_wandb_sub_run(target_fm, main_wandb_run)
                 accuracies.append(pool.submit(evaluate_with_retries, run, blueprint, gen_num, in_size, target_fm, fm_wandb_run))
 
         for accuracy in accuracies:
@@ -133,3 +127,13 @@ def attempt_evaluate(run: Run, blueprint: BlueprintGenome, gen_num: int, in_size
         model.ft_epoch = 0
 
     return accuracy
+
+
+def get_wandb_sub_run(target_fm, main_wandb_run):
+    if not config.use_wandb:
+        return None
+    if target_fm != 1 and False:  # new child wandb run for the FM > 1 trains
+        fm_wandb_run_name = config.run_name + "_fm" + str(target_fm)
+        return wandb.init(name=fm_wandb_run_name, reinit=True)
+    else:
+        return main_wandb_run  # main wandb run for FM1
