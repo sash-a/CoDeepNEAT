@@ -96,6 +96,9 @@ def evaluate_with_retries(run: Run, blueprint: BlueprintGenome, gen_num: int, in
                           target_feature_multiplier: float, wandb_run):
     accuracy = RETRY
     remaining_retries = MAX_RETRIES
+    fm_wandb_run_name = config.run_name + "_fm" + str(target_feature_multiplier)
+    wandb.init(name=fm_wandb_run_name)
+
     while accuracy == RETRY and remaining_retries >= 0:
         attempt_number = MAX_RETRIES - remaining_retries
         accuracy = attempt_evaluate(run, blueprint,

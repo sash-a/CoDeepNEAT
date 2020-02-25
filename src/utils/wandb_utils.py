@@ -166,9 +166,9 @@ def _fully_train_logging(model: Network, loss: float, epoch: int, attempt: int, 
 
     if config.use_wandb:
         log['loss_' + str(attempt)] = loss
-        wandb_run.log(log)
+        wandb.log(log)
         model.save()
-        wandb_run.save(model.save_location())
+        wandb.save(model.save_location())
 
-        wandb_run.config.update({'current_ft_epoch': epoch}, allow_val_change=True)
-        wandb_run.save(join(get_run_folder_path(config.run_name), 'config.json'))
+        wandb.config.update({'current_ft_epoch': epoch}, allow_val_change=True)
+        wandb.save(join(get_run_folder_path(config.run_name), 'config.json'))
