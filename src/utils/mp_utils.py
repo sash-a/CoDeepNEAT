@@ -32,7 +32,7 @@ def init_process(generation, run_name: str, proc_counter: SyncedCounter):
     mp.current_process().name = str(proc_counter.incr())
 
 
-def get_evaluator_pool(generation) -> ProcessPoolExecutor:
+def get_bp_eval_pool(generation) -> ProcessPoolExecutor:
     return ProcessPoolExecutor(config.n_gpus * config.n_evals_per_gpu,
                                mp.get_context('spawn'),
                                initializer=init_process,

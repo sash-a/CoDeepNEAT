@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+from os.path import join
 from typing import TYPE_CHECKING, Union
 
 import random
 import time
+import wandb
 
 import numpy as np
 import torch
@@ -11,10 +13,10 @@ import torch
 from sklearn.metrics import accuracy_score
 from torch.utils.data import DataLoader
 
+from runs.runs_manager import save_config, get_run_folder_path
 from src.phenotype.augmentations.batch_augmentation_scheme import BatchAugmentationScheme
 from src.phenotype.neural_network.evaluator.data_loader import imshow, load_data, load_transform
-from configuration import config
-from src.utils.wandb_utils import _fully_train_logging
+from configuration import config, internal_config
 
 if TYPE_CHECKING:
     from src.phenotype.neural_network.neural_network import Network
@@ -23,7 +25,7 @@ if TYPE_CHECKING:
 RETRY = 'retry'
 
 
-def evaluate(model: Network, n_epochs=config.epochs_in_evolution, training_target=-1, attempt=0, wandb_run = None) -> Union[float, str]:
+def evaluate(model: Network, n_epochs=config.epochs_in_evolution, training_target=-1, attempt=0) -> Union[float, str]:
     """trains model on training data, test on testing and returns test acc"""
     if config.dummy_run:
         if config.dummy_time > 0:
@@ -51,10 +53,8 @@ def evaluate(model: Network, n_epochs=config.epochs_in_evolution, training_targe
         if test_intermediate_accuracy:
             acc = test_nn(model, test_loader)
             if acc > max_acc:
-                print("new best acc: ",acc)
                 max_acc = acc
                 max_acc_age = 0
-            print("max acc age:",max_acc_age)
 
             if should_retry_training(max_acc, training_target, epoch):
                 # the training is not making target, start again
@@ -69,7 +69,7 @@ def evaluate(model: Network, n_epochs=config.epochs_in_evolution, training_targe
             max_acc_age += 1
 
         if config.fully_train:
-            _fully_train_logging(model, loss, epoch, attempt, acc, wandb_run)
+            _fully_train_logging(model, loss, epoch, attempt, acc)
 
     test_loader = load_data(load_transform(), 'test') if test_loader is None else test_loader
     final_test_acc = test_nn(model, test_loader)
@@ -125,6 +125,29 @@ def test_nn(model: Network, test_loader: DataLoader):
             count = batch_idx
 
     return total_acc / count
+
+
+def _fully_train_logging(model: Network, loss: float, epoch: int, attempt: int, acc: float = -1):
+    print('epoch: {}\nloss: {}'.format(epoch, loss))
+
+    log = {}
+    metric_name = 'accuracy_fm_' + str(model.target_feature_multiplier) + ("_r_" + str(attempt) if attempt > 0 else "")
+    if acc != -1:
+        log[metric_name] = acc
+        print('accuracy: {}'.format(acc))
+    print('\n')
+
+    internal_config.ft_epoch = epoch
+    save_config(config.run_name)
+
+    if config.use_wandb:
+        log['loss_' + str(attempt)] = loss
+        wandb.log(log)
+        model.save()
+        wandb.save(model.save_location())
+
+        wandb.config.update({'current_ft_epoch': epoch}, allow_val_change=True)
+        wandb.save(join(get_run_folder_path(config.run_name), 'config.json'))
 
 
 def should_retry_training(acc, training_target, current_epoch):

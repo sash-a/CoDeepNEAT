@@ -46,7 +46,7 @@ def load_config():
     if scheduled_cfg_file_name:
         # must detect whether the scheduler is calling for a fully train, or an evolutionary run
         fully_train, resume_fully_train = batch_runner.get_fully_train_state(effective_run_name)
-        print("scheduler is starting run with FT=", fully_train, "continue train:", resume_fully_train)
+        print("scheduler is starting run with FT = {} continue ft {}".format(fully_train, resume_fully_train))
         config.fully_train = fully_train
         config.resume_fully_train = resume_fully_train
 

@@ -16,11 +16,11 @@ def get_model_of_target_size(blueprint: BlueprintGenome, sample_map: Dict[int, i
 
     model: Network = Network(blueprint, input_size, feature_multiplier=feature_mult_best_approximation,
                              sample_map=sample_map, allow_module_map_ignores=False).to(config.get_device())
-    # model_size = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    model_size = sum(p.numel() for p in model.parameters() if p.requires_grad)
 
-    # print("targeting size using feature mult:", feature_mult_best_approximation, "original size:", original_model_size,
-    #       "normalised size:", model_size, "target:", target_size, "change ratio:",
-    #       (model_size / original_model_size), "target ratio:", (model_size / target_size))
+    print("targeting size using feature mult:", feature_mult_best_approximation, "original size:", original_model_size,
+          "normalised size:", model_size, "target:", target_size, "change ratio:",
+          (model_size / original_model_size), "target ratio:", (model_size / target_size))
     return model
 
 
