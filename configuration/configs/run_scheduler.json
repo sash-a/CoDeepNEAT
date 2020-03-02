@@ -1,10 +1,10 @@
 {
-  "run_name": "sched",
+  "run_name": "elite",
 
   "configs": {
     "elite": true,
-    "test": true
+    "test": false
   },
 
-  "batch_run_scheduler" : "run_schedule"
+  "batch_run_scheduler" : "small_run_schedule"
 }
