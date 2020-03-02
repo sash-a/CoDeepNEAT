@@ -114,13 +114,13 @@ def get_cli_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def stagger(cli_args):
+def stagger(cli_args, stagger_time = 3):
     stagger_number = cli_args.stagger_number
     if stagger_number == -1:
         print("no stagger number provided")
         return
     # the run has been given a stagger number
     # spin until the program is allowed to run
-    while int(time.time()) % 10 != stagger_number:
+    while int(time.time()) % 10 * stagger_time != stagger_number * stagger_time:
         time.sleep(0.5)
     print("staggered run until t=",int(time.time()))
