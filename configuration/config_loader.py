@@ -8,17 +8,6 @@ from runs import runs_manager
 import argparse
 
 
-def stagger(cli_args):
-    stagger_number = cli_args.stagger_number
-    if stagger_number == -1:
-        return
-    # the run has been given a stagger number
-    # spin until the program is allowed to run
-    while int(time.time()) % 10 != stagger_number:
-        time.sleep(0.5)
-    print("staggered run until t=",int(time.time()))
-
-
 def load_config():
     """
         there are 3 possible levels of configs to be loaded:
@@ -123,3 +112,15 @@ def get_cli_args() -> argparse.Namespace:
                         help='Runs with this flag may only start when Time(S) % 10 == stagger_number')
 
     return parser.parse_args()
+
+
+def stagger(cli_args):
+    stagger_number = cli_args.stagger_number
+    if stagger_number == -1:
+        print("no stagger number provided")
+        return
+    # the run has been given a stagger number
+    # spin until the program is allowed to run
+    while int(time.time()) % 10 != stagger_number:
+        time.sleep(0.5)
+    print("staggered run until t=",int(time.time()))
