@@ -1,3 +1,4 @@
+import time
 from typing import Tuple, Union, Optional
 
 from configuration import config, batch_runner
@@ -5,6 +6,17 @@ from src.utils.wandb_data_fetcher import download_run
 from runs import runs_manager
 
 import argparse
+
+
+def stagger(cli_args):
+    stagger_number = cli_args.stagger_number
+    if stagger_number == -1:
+        return
+    # the run has been given a stagger number
+    # spin until the program is allowed to run
+    while int(time.time()) % 10 != stagger_number:
+        time.sleep(0.5)
+    print("staggered run until t=",int(time.time()))
 
 
 def load_config():
@@ -32,6 +44,7 @@ def load_config():
             cli config                  - highest
     """
     cli_args = get_cli_args()
+    stagger(cli_args)
 
     effective_run_name, scheduled_cfg_file_name = check_and_execute_batch_scheduler(cli_args)
     effective_run_name = load_saved_config(effective_run_name, cli_args.config)
@@ -103,7 +116,10 @@ def get_cli_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description='CoDeepNEAT')
     parser.add_argument('-c', '--config', type=str, help='Config file that will be used', required=True)
     parser.add_argument('-g', '--ngpus', type=int, help='Number of GPUs available', required=False)
-    parser.add_argument('-m', '--max_ft_gpus', type=int, required=False, default=2,
+    parser.add_argument('-m', '--max_ft_gpus', type=int, required=False, default=1,
                         help='Maximum number of GPUs to be allowed in batch fully training')
+
+    parser.add_argument('-s', '--stagger_number', type=int, required=False, default=-1,
+                        help='Runs with this flag may only start when Time(S) % 10 == stagger_number')
 
     return parser.parse_args()
