@@ -1,6 +1,8 @@
 {
   "run_name": "elite",
 
+  "allowed_runtime_sec": 43100,
+
   "configs": {
     "elite": true,
     "test": false
