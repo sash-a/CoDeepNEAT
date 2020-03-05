@@ -114,7 +114,7 @@ def get_cli_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def stagger(cli_args, stagger_time=3):
+def stagger(cli_args, stagger_time=6):
     stagger_number = cli_args.stagger_number
     if stagger_number == -1:
         print("no stagger number provided")
