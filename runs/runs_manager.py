@@ -10,6 +10,7 @@ from os.path import join, exists, dirname, abspath
 from typing import TYPE_CHECKING
 
 from configuration import config, internal_config
+from src.utils.wandb_utils import upload_config
 
 if TYPE_CHECKING:
     from src.main.generation import Generation
@@ -65,7 +66,7 @@ def save_config(run_name, conf=config, config_name="config"):
         json.dump(conf.__dict__, f, indent=2)
 
     if conf.use_wandb:
-        wandb.config.update(conf.__dict__, allow_val_change=True)
+        upload_config()
         wandb.save(file_path)
 
 

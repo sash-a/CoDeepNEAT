@@ -16,6 +16,7 @@ sys.path.append(os.path.join(dir_path_1, 'src'))
 sys.path.append(os.path.join(dir_path_1, 'test'))
 sys.path.append(os.path.join(dir_path_1, 'runs'))
 sys.path.append(os.path.join(dir_path_1, 'configuration'))
+
 import src.main.singleton as Singleton
 from runs import runs_manager
 from configuration import config, internal_config, config_loader

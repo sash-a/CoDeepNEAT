@@ -23,13 +23,11 @@ def wandb_init():
             (not run_folder_exists(config.run_name) and not config.wandb_run_path):
         # Either new evolution run or new fully train run
         evo_run_path = config.wandb_run_path
-        print('new run')
         _new_run()
         if config.fully_train:
             wandb.config['evolution_run_path'] = evo_run_path
 
     elif run_folder_exists(config.run_name) or config.resume_fully_train:
-        print('resuming')
         _resume_run()
         if config.resume_fully_train:
             print('resuming ft at', wandb.config.evolution_run_path)
@@ -41,7 +39,33 @@ def wandb_init():
     wandb.config.update(config.__dict__, allow_val_change=True)
 
 
+def upload_config():
+    wandb.config.update(config.__dict__, allow_val_change=True)
+
+
+def resume_ft_run():
+    _resume_run()
+    download_generations(run_path=wandb.config.evolution_run_path, replace=True)
+    download_model(run_path=wandb.config.evolution_run_path, replace=True)
+
+
+def resume_evo_run():
+    _resume_run()
+
+
+def new_ft_run():
+    evo_run_path = config.wandb_run_path
+    _new_run()
+    if config.fully_train:
+        wandb.config['evolution_run_path'] = evo_run_path
+
+
+def new_evo_run():
+    _new_run()
+
+
 def _resume_run():
+    print('resuming wandb run {}'.format(config.wandb_run_path))
     project = 'cdn_fully_train' if config.fully_train else 'cdn'
     dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', '..', 'results')
     wandb.init(dir=dir, project=project, entity='codeepneat', resume=config.wandb_run_path.split('/')[2])
@@ -61,6 +85,8 @@ def _new_run():
     if config.dummy_run:
         tags += ['TEST_RUN']
         job_type = 'test'
+
+    print('starting new wandb run {}'.format(wandb_run_id))
 
     wandb.init(job_type=job_type, project=project, entity='codeepneat', name=config.run_name, tags=tags, dir=dir,
                id=wandb_run_id)
