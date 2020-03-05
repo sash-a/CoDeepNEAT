@@ -58,7 +58,7 @@ def evolve():
     init_operators()
     generation = init_generation()
 
-    while internal_config.generation < config.n_generations:
+    while generation.generation_number < config.n_generations:
         print('\n\nStarted generation:', generation.generation_number)
 
         gen_start_time = time.time()

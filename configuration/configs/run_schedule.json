@@ -1,11 +1,11 @@
 {
   "base": 3,
   "gene_breeding": 3,
-  "node_type_switching": 3,
-  "module_repeats": 3,
-  "layer_repeats": 3,
   "sgd": 3,
   "da_pop": 3,
   "da_legacy": 3,
-  "target_size": 3
+  "target_size": 3,
+  "node_type_switching": 3,
+  "module_repeats": 3,
+  "layer_repeats": 3
 }

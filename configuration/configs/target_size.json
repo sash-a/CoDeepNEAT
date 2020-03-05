@@ -1,9 +1,9 @@
 {
-  "run_name": "target_size_2M",
+  "run_name": "target_size_3M",
 
-  "target_network_size": 2e6,
+  "target_network_size": 3e6,
 
   "wandb_tags": [
-    "target size 2M"
+    "target size 3M"
   ]
 }

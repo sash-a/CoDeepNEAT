@@ -71,7 +71,7 @@ class Generation:
         # self.blueprint_population.visualise(suffix="_" + str(self.generation_number) + "blueprint_species")
 
         self.generation_number += 1
-        internal_config.generation += 1
+        internal_config.generation = self.generation_number
 
         self.module_population.end_step()
         self.blueprint_population.end_step()
