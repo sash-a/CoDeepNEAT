@@ -159,6 +159,9 @@ class Config:
             # print(file, options)
             self._add_cfg_dict(options)
 
+        tags = sorted(list(set(self.__dict__["wandb_tags"])))  # unique in order
+        self.__dict__["wandb_tags"] = tags
+
     def _add_cfg_dict(self, options: Dict[str, any]):
         self._load_inner_configs(options)
 
@@ -170,7 +173,7 @@ class Config:
                 if option_name == "wandb_tags":
                     tags = self.__dict__["wandb_tags"]
                     tags.extend(option_value)
-                    tags = sorted(list(set(self.__dict__["wandb_tags"])))
+                    tags = sorted(list(set(tags))) # unique in order
                     self.__dict__["wandb_tags"] = tags
                 else:
                     self.__dict__[option_name] = option_value
