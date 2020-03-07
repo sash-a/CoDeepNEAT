@@ -168,7 +168,8 @@ class Config:
                 continue
             if option_name in self.__dict__:  # Only add an option if it has exactly the same name as a variable
                 if option_name == "wandb_tags":
-                    self.__dict__[option_name].extend(option_value)
+                    self.__dict__["wandb_tags"].extend(option_value)
+                    self.__dict__["wandb_tags"] = list(set(self.__dict__["wandb_tags"]))
                 else:
                     self.__dict__[option_name] = option_value
 

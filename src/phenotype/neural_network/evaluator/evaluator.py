@@ -165,6 +165,8 @@ def should_retry_training(acc, training_target, current_epoch):
     progress_checks = [0.5, 1, 2, 3.5]
     targets = [0.5, 0.75, 0.9, 1]
 
+    print("checking if should retry training. prog:",progress,"perf:",performance)
+
     for prog_check, target in zip(progress_checks, targets):
         if progress <= prog_check:
             # this is the target to use

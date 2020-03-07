@@ -19,15 +19,20 @@ if TYPE_CHECKING:
 
 
 def wandb_init():
-    if (config.fully_train and not config.resume_fully_train) or \
-            (not run_folder_exists(config.run_name) and not config.wandb_run_path):
+    starting_new_fully_train_run = config.fully_train and not config.resume_fully_train
+    starting_new_evolutionary_run = not run_folder_exists(config.run_name) and not config.wandb_run_path
+    continuing_a_run = run_folder_exists(config.run_name) or config.resume_fully_train
+
+    if starting_new_fully_train_run or starting_new_evolutionary_run:
         # Either new evolution run or new fully train run
         evo_run_path = config.wandb_run_path
         _new_run()
         if config.fully_train:
+            # links the new fully_train wandb run to
             wandb.config['evolution_run_path'] = evo_run_path
 
-    elif run_folder_exists(config.run_name) or config.resume_fully_train:
+    elif continuing_a_run:
+        print('resuming')
         _resume_run()
         if config.resume_fully_train:
             print('resuming ft at', wandb.config.evolution_run_path)
@@ -67,8 +72,8 @@ def new_evo_run():
 def _resume_run():
     print('resuming wandb run {}'.format(config.wandb_run_path))
     project = 'cdn_fully_train' if config.fully_train else 'cdn'
-    dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', '..', 'results')
-    wandb.init(dir=dir, project=project, entity='codeepneat', resume=config.wandb_run_path.split('/')[2])
+    wandb_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', '..', 'results')
+    wandb.init(dir=wandb_dir, project=project, entity='codeepneat', resume=config.wandb_run_path.split('/')[2])
 
 
 def _new_run():
@@ -85,6 +90,7 @@ def _new_run():
     if config.dummy_run:
         tags += ['TEST_RUN']
         job_type = 'test'
+    tags = list(set(tags))  # ensures tags unique
 
     print('starting new wandb run {}'.format(wandb_run_id))
 
