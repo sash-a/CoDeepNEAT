@@ -1,5 +1,6 @@
 {
   "run_name": "continue_name",
   "device" : "gpu",
-  "n_gpus": 4
+  "fully_train": false,
+  "resume_fully_train": false
 }
