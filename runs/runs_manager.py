@@ -10,7 +10,6 @@ from os.path import join, exists, dirname, abspath
 from typing import TYPE_CHECKING
 
 from configuration import config, internal_config
-from src.utils.wandb_utils import upload_config
 
 if TYPE_CHECKING:
     from src.main.generation import Generation
@@ -60,6 +59,7 @@ def load_config(run_name, config_name="config"):
 
 def save_config(run_name, conf=config, config_name="config"):
     """Saves config locally and uploads it to wandb if config.use_wandb is true"""
+    from src.utils.wandb_utils import upload_config
     file_path = join(get_run_folder_path(run_name), config_name + '.json')
 
     with open(file_path, 'w+') as f:
