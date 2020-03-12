@@ -1,0 +1,7 @@
+{
+  "loss_based_stopping_in_evolution": true,
+
+  "wandb_tags": [
+    "loss based stopping"
+  ]
+}

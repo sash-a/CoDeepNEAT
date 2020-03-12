@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 MAX_RETRIES = 5
 
 
-def fully_train(run_name, n=1):
+def fully_train(run_name):
     """
     Loads and trains from a saved run
     :param run_name: name of the old run
@@ -31,7 +31,7 @@ def fully_train(run_name, n=1):
     internal_config.ft_started = True
 
     run: Run = get_run(run_name)
-    best_blueprints = run.get_most_accurate_blueprints(n)
+    best_blueprints = run.get_most_accurate_blueprints(config.fully_train_best_n_blueprints)
     in_size = get_data_shape()
 
     for blueprint, gen_num in best_blueprints:
@@ -51,7 +51,7 @@ def fully_train(run_name, n=1):
                     attempt_number = MAX_RETRIES - remaining_retries
                     accuracy = evaluate(model, training_target=blueprint.max_acc, attempt=attempt_number)
                 else:  # give up retrying, take whatever is produced from training
-                    accuracy = evaluate(model)
+                    accuracy = evaluate(model, config.fully_train_max_epochs)
 
                 if accuracy == RETRY:
                     print("retrying fully training")

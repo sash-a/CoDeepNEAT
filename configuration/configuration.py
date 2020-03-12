@@ -14,13 +14,19 @@ class Config:
         self.n_generations = 30
         # ------------------------------------------------ Timing stuff ------------------------------------------------
         self.allowed_runtime_sec = -1  # Amount of time allowed for the run (-1 for infinite)
+        # ------------------------------------------ General Evaluation stuff -----------------------------------------
+        self.loss_based_stopping_in_evolution = False
+        self.loss_based_stopping_max_epochs = 20
+        self.loss_gradient_threshold = 0.00035
+        self.optim = 'adam'  # sgd | adam | evolve
+        self.batch_size = 256
+        self.n_evals_per_bp = 4
+
         # ------------------------------------------------ Model stuff ------------------------------------------------
         self.device = 'gpu'  # cpu
         self.n_gpus = 1
         self.n_evals_per_gpu = 1
-        self.batch_size = 256
         self.epochs_in_evolution = 8
-        self.n_evals_per_bp = 4
         self.max_model_params = 50e6
 
         self.min_square_dim = -1  # Min output size a conv can be without padding
@@ -29,11 +35,13 @@ class Config:
         self.resume_fully_train = False  # used to know if a generation should be downloaded from wandb or a fully train should be downloaded
         self.fully_train_accuracy_test_period = 10
         self.fully_train_max_epochs = 300
+        self.fully_train_best_n_blueprints = 1
         self.ft_feature_multipliers = [1, 2, 3]
+        self.ft_allow_lr_drops = True
         # ---------------------------------------------- Debug Options ----------------------------------------------
         self.dummy_run = False
         self.dummy_time = 0  # number of seconds to wait to return a dummy eval
-        self.max_batches = -1
+        self.max_batches = -1  # if not -1, will stop all epoch at specified max batches
         # -------------------------------------------- Visualising Options --------------------------------------------
         self.view_graph_plots = False  # if true, any plotted graphs will be viewed
         self.plot_best_genotypes = True
@@ -68,7 +76,6 @@ class Config:
         self.module_node_batchnorm_chance = 0.65
         self.module_node_dropout_chance = 0.2
         self.module_node_max_pool_chance = 0.3
-        self.optim = 'adam'  # sgd | adam | evolve
         # chance of a new node starting with a deep layer - as opposed to a regulariser only layer
         self.module_node_deep_layer_chance = 1
         self.module_node_conv_layer_chance = 1  # chance of linear = 1-conv. not used if no deep layer

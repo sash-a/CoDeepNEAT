@@ -15,8 +15,7 @@ if TYPE_CHECKING:
 
 
 def evaluate_blueprints(blueprint_q: mp.Queue,
-                        input_size: List[int],
-                        num_epochs: int = config.epochs_in_evolution) -> List[BlueprintGenome]:
+                        input_size: List[int]) -> List[BlueprintGenome]:
     """
     Consumes blueprints off the blueprints queue, evaluates them and adds them back to the queue if all of their
     evaluations have not been completed for the current generation. If all their evaluations have been completed, add
@@ -31,7 +30,7 @@ def evaluate_blueprints(blueprint_q: mp.Queue,
     while blueprint_q.qsize() != 0:
         blueprint = blueprint_q.get()
 
-        blueprint = evaluate_blueprint(blueprint, input_size, num_epochs)
+        blueprint = evaluate_blueprint(blueprint, input_size)
         if blueprint.n_evaluations == config.n_evals_per_bp:
             completed_blueprints.append(blueprint)
         else:
@@ -39,8 +38,9 @@ def evaluate_blueprints(blueprint_q: mp.Queue,
 
     return completed_blueprints
 
+
 def evaluate_blueprint(blueprint: BlueprintGenome, input_size: List[int],
-                       num_epochs, feature_multiplier: float = 1) -> BlueprintGenome:
+                       feature_multiplier: float = 1) -> BlueprintGenome:
     """
     Parses the blueprint into its phenotype NN
     Handles the assignment of the single/multi obj finesses to the blueprint in parallel
@@ -57,6 +57,9 @@ def evaluate_blueprint(blueprint: BlueprintGenome, input_size: List[int],
         print("dropped model which was too large:", model_size, "params")
         accuracy = 0
     else:
+        num_epochs = config.loss_based_stopping_max_epochs \
+            if config.loss_based_stopping_in_evolution \
+            else config.epochs_in_evolution
         accuracy = evaluate(model, n_epochs=num_epochs)
         if accuracy == "retry":
             raise Exception("no retries in evolution")
@@ -66,8 +69,8 @@ def evaluate_blueprint(blueprint: BlueprintGenome, input_size: List[int],
     blueprint.report_fitness(fitness)
     parse_number = blueprint.n_evaluations
 
-    print("Blueprint - {:^5} - accuracy: {:05.2f}% (proc {})"
-          .format(blueprint.id, accuracy * 100, mp.current_process().name))
+    print("Blueprint - {:^5} - accuracy: {:05.2f}% (proc {}) epochs: {}"
+          .format(blueprint.id, accuracy * 100, mp.current_process().name, model.last_epoch))
 
     if config.plot_every_genotype:
         blueprint.visualize(parse_number=parse_number,
