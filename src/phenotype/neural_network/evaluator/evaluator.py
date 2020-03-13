@@ -59,7 +59,10 @@ def evaluate(model: Network, n_epochs, training_target=-1, attempt=0) -> Union[f
         if TRAINING_INSTRUCTION == RETRY:
             return RETRY
         if TRAINING_INSTRUCTION == STOP:
-            return training_results.get_max_acc()
+            if len(training_results.accuracies) > 0:
+                return training_results.get_max_acc()
+            else:
+                break  # exits for, runs final acc test, returns
         if TRAINING_INSTRUCTION == DROP_LR:
             model.drop_lr()
 

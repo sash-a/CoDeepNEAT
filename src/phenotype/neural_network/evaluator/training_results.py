@@ -36,6 +36,8 @@ class TrainingResults:
         return max_acc_age
 
     def get_max_acc(self):
+        if len(self.accuracies) == 0:
+            return -1
         return max(self.accuracies)
 
 
