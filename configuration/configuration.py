@@ -17,7 +17,7 @@ class Config:
         # ------------------------------------------ General Evaluation stuff -----------------------------------------
         self.loss_based_stopping_in_evolution = False
         self.loss_based_stopping_max_epochs = 20
-        self.loss_gradient_threshold = 0.00035
+        self.loss_gradient_threshold = 0.012
         self.optim = 'adam'  # sgd | adam | evolve
         self.batch_size = 256
         self.n_evals_per_bp = 4
