@@ -71,7 +71,6 @@ def train_epoch(model: Network, train_loader: DataLoader, augmentor: BatchAugmen
     model.train()
     loss: float = 0
     batch_idx = 0
-    print("num batches:",len(train_loader))
 
     for batch_idx, (inputs, targets) in enumerate(train_loader):
         if config.max_batches != -1 and batch_idx > config.max_batches:

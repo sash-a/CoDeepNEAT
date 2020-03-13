@@ -44,9 +44,12 @@ def get_current_gradient_given_training_data(y_data, x_data=None):
         x_data = list(range(len(y_data)))  # if not specified - the x data is just 0..n
     # hyperbolic_params, _ = curve_fit(hyperbolic_function, x_data, y_data)
     linearised_data = linearise_data(y_data)
-    params = np.polyfit(x_data, linearised_data, 2)
+    try:
+        params = np.polyfit(x_data, linearised_data, 2)
+    except Exception as e:
+        print("error fitting linearised data - ",linearised_data)
+        raise e
     m = params[1]
-    c = params[0]
 
     a = 1/m
     current_gradient = derivative_hyperbolic_function(x_data[-1], a)
