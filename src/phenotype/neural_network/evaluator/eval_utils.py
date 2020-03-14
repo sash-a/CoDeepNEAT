@@ -39,7 +39,7 @@ def handle_accuracy_reading(training_results: TrainingResults, training_target):
 
     else:
         """in evolution"""
-        if config.loss_based_stopping_in_evolution and len(training_results.losses) > 1:
+        if config.loss_based_stopping_in_evolution and len(training_results.losses) > 2:
             current_loss_gradient = training_results.get_loss_gradient()
             # the slope will start highly negative, and move towards zero
             if -current_loss_gradient < config.loss_gradient_threshold:
