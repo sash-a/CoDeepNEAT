@@ -49,7 +49,7 @@ def fully_train(run_name):
 
                 if remaining_retries > 0:
                     attempt_number = MAX_RETRIES - remaining_retries
-                    accuracy = evaluate(model, training_target=blueprint.max_acc, attempt=attempt_number)
+                    accuracy = evaluate(model, config.fully_train_max_epochs, training_target=blueprint.max_acc, attempt=attempt_number)
                 else:  # give up retrying, take whatever is produced from training
                     accuracy = evaluate(model, config.fully_train_max_epochs)
 
