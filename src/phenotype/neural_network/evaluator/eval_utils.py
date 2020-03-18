@@ -39,11 +39,16 @@ def handle_accuracy_reading(training_results: TrainingResults, training_target):
 
     else:
         """in evolution"""
-        if config.loss_based_stopping_in_evolution and len(training_results.losses) > 2:
-            current_loss_gradient = training_results.get_loss_gradient()
+        if config.loss_based_stopping_in_evolution and len(training_results.losses) > 4:
+            third_epoch_gradient = training_results.get_loss_gradient_at_step(2)
+            current_loss_gradient = training_results.get_current_loss_gradient()
             # the slope will start highly negative, and move towards zero
-            if -current_loss_gradient < config.loss_gradient_threshold:
+            if abs(current_loss_gradient) < 0.5 * abs(third_epoch_gradient):
+                print("network loss improvement speed has halved since e3:",third_epoch_gradient,
+                      "now:",current_loss_gradient, "epoch:",len(training_results.losses))
                 return STOP
+            # if -current_loss_gradient < config.loss_gradient_threshold:
+            #     return STOP
 
     return CONTINUE
 

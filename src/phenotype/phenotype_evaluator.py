@@ -70,7 +70,7 @@ def evaluate_blueprint(blueprint: BlueprintGenome, input_size: List[int],
     parse_number = blueprint.n_evaluations
 
     print("Blueprint - {:^5} - accuracy: {:05.2f}% (proc {}) epochs: {}"
-          .format(blueprint.id, accuracy * 100, mp.current_process().name, model.last_epoch))
+          .format(blueprint.id, accuracy * 100, mp.current_process().name, model.last_epoch + 1))
 
     if config.plot_every_genotype:
         blueprint.visualize(parse_number=parse_number,

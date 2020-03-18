@@ -19,8 +19,11 @@ class TrainingResults:
         self.accuracies.append(acc)
         self.accuracy_epochs.append(epoch)
 
-    def get_loss_gradient(self):
+    def get_current_loss_gradient(self):
         return get_current_gradient_given_training_data(self.losses)
+
+    def get_loss_gradient_at_step(self, n):
+        return get_current_gradient_given_training_data(self.losses[:n+1])
 
     def get_max_acc_age(self):
         max_acc = -1
@@ -55,7 +58,7 @@ def get_current_gradient_given_training_data(y_data, x_data=None):
 
     a = 1/m
     current_gradient = derivative_hyperbolic_function(x_data[-1], a)
-    print("e:",len(x_data),"gradient value:", current_gradient)
+    # print("e:",len(x_data),"gradient value:", current_gradient)
     return current_gradient
 
 
