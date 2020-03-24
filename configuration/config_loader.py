@@ -8,7 +8,8 @@ from src.utils.wandb_data_fetcher import download_run
 from src.utils.wandb_utils import wandb_init
 
 
-def load_simple_config(config_path: str, wandb_resume_run_fn, wandb_new_run_fn, ngpus: Optional[int] = None):
+def load_simple_config(config_path: str, wandb_resume_run_fn, wandb_new_run_fn, ngpus: Optional[int] = None,
+                       use_wandb_override=True):
     """
     Used for loading a normal run that is not part of a batch run. Therefore it is much more simple than loading a batch
     config
@@ -25,6 +26,7 @@ def load_simple_config(config_path: str, wandb_resume_run_fn, wandb_new_run_fn, 
     @param wandb_resume_run_fn: function that allows wandb to resume
     @param wandb_new_run_fn: function that creates a new wandb run
     @param ngpus: number of gpus if config option should be overridden
+    :param use_wandb_override: determines whether wandb actions should be taken in the config loading
     """
     config.read(config_path)
     run_name = config.run_name
@@ -33,21 +35,21 @@ def load_simple_config(config_path: str, wandb_resume_run_fn, wandb_new_run_fn, 
     if run_man.run_folder_exists(run_name):
         print('Run folder already exists, reading its config')
         run_man.load_config(run_name)  # load saved config
-        if config.use_wandb:
+        if config.use_wandb and use_wandb_override:
             wandb_resume_run_fn()
     else:
         print(f'No runs folder detected with name {run_name}. Creating one')
-        if config.use_wandb:
+        if config.use_wandb and use_wandb_override:
             wandb_new_run_fn()
 
-        run_man.set_up_run_folder(config.run_name)
+        run_man.set_up_run_folder(config.run_name, use_wandb_override)
 
     config.read(config_path)  # overwrite saved/wandb config with provided config (only values present in this config)
 
     if ngpus is not None:  # n_gpu override
         config.n_gpus = ngpus
 
-    run_man.save_config(run_name)
+    run_man.save_config(run_name, use_wandb_override=use_wandb_override)
     print(f'config: {config.__dict__}')
 
 
@@ -127,7 +129,8 @@ def get_batch_schedule_run_names(cli_args) -> Tuple[str, str]:
         raise Exception('Could not find batch_run_schedule option in config, but trying to read batch config')
 
     # there is a batch run scheduler so must use the config specified in it
-    scheduled_cfg_file_name, scheduled_run_name = batch_runner.get_config_path(batch_run_scheduler, cli_cfg_run_name, ngpus, cli_args.max_ft_gpus)
+    scheduled_cfg_file_name, scheduled_run_name = batch_runner.get_config_path(batch_run_scheduler, cli_cfg_run_name,
+                                                                               ngpus, cli_args.max_ft_gpus)
     return scheduled_run_name, scheduled_cfg_file_name
 
 

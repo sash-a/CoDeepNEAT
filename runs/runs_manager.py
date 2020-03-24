@@ -57,7 +57,7 @@ def load_config(run_name, config_name="config"):
     return config
 
 
-def save_config(run_name, conf=config, config_name="config"):
+def save_config(run_name, conf=config, config_name="config", use_wandb_override=True):
     """Saves config locally and uploads it to wandb if config.use_wandb is true"""
     from src.utils.wandb_utils import upload_config
     file_path = join(get_run_folder_path(run_name), config_name + '.json')
@@ -65,7 +65,7 @@ def save_config(run_name, conf=config, config_name="config"):
     with open(file_path, 'w+') as f:
         json.dump(conf.__dict__, f, indent=2)
 
-    if conf.use_wandb:
+    if conf.use_wandb and use_wandb_override:
         upload_config()
         wandb.save(file_path)
 
@@ -85,13 +85,13 @@ def get_latest_generation(run_name):
     return latest - 1
 
 
-def set_up_run_folder(run_name):
+def set_up_run_folder(run_name, wandb_save=True):
     if not run_folder_exists(run_name):
         os.makedirs(get_run_folder_path(run_name))
         os.makedirs(get_graphs_folder_path(run_name))
         os.makedirs(get_generations_folder_path(run_name))
 
-        internal_config.save(run_name)
+        internal_config.save(run_name, wandb_save)
 
 
 def get_graphs_folder_path(run_name):

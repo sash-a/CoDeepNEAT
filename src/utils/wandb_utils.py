@@ -48,8 +48,8 @@ def upload_config():
     wandb.config.update(config.__dict__, allow_val_change=True)
 
 
-def resume_ft_run():
-    _resume_run()
+def resume_ft_run(reinit=False):
+    _resume_run(reinit)
     download_generations(run_path=wandb.config.evolution_run_path, replace=True)
     download_model(run_path=wandb.config.evolution_run_path, replace=True)
 
@@ -58,9 +58,9 @@ def resume_evo_run():
     _resume_run()
 
 
-def new_ft_run():
+def new_ft_run(reinit=False):
     evo_run_path = config.wandb_run_path
-    _new_run()
+    _new_run(reinit)
     if config.fully_train:
         wandb.config['evolution_run_path'] = evo_run_path
 
@@ -69,14 +69,15 @@ def new_evo_run():
     _new_run()
 
 
-def _resume_run():
+def _resume_run(reinit=False):
     print('resuming wandb run {}'.format(config.wandb_run_path))
     project = 'cdn_fully_train' if config.fully_train else 'cdn'
     wandb_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', '..', 'results')
-    wandb.init(dir=wandb_dir, project=project, entity='codeepneat', resume=config.wandb_run_path.split('/')[2])
+    wandb.init(dir=wandb_dir, project=project, entity='codeepneat', resume=config.wandb_run_path.split('/')[2],
+               reinit=reinit)
 
 
-def _new_run():
+def _new_run(reinit=False):
     wandb_run_id = config.run_name + str(datetime.date.today()) + '_' + str(randint(1E5, 1E6))
     project = 'cdn_fully_train' if config.fully_train else 'cdn'
     config.wandb_run_path = 'codeepneat/' + project + '/' + wandb_run_id
@@ -95,7 +96,7 @@ def _new_run():
     print('starting new wandb run {}'.format(wandb_run_id))
 
     wandb.init(job_type=job_type, project=project, entity='codeepneat', name=config.run_name, tags=tags, dir=dir,
-               id=wandb_run_id)
+               id=wandb_run_id, reinit=reinit)
 
 
 def wandb_log(generation: Generation):

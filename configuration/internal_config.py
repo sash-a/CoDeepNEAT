@@ -23,7 +23,12 @@ class InternalConfig:
             json.dump(self.__dict__, f, indent=2)
 
         if configuration.config.use_wandb and wandb_save:
-            wandb.save(file_path)
+            try:
+                wandb.save(file_path)
+            except ValueError:
+                print('Error: You must call `wandb.init` before calling save. This happens because wandb is not '
+                      'initialized in the main thread in fully training. If you were not fully training this is should '
+                      'be investigated, otherwise ignore it')
 
     def load(self, run_name: str):
         file_path = join(runs_manager.get_run_folder_path(run_name), 'internal_config.json')
