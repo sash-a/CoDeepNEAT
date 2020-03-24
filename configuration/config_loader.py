@@ -1,13 +1,11 @@
-import time
 import argparse
-from typing import Tuple, Union, Optional
+import time
+from typing import Tuple, Optional
 
 from configuration import config, batch_runner
-from src.utils.wandb_data_fetcher import download_run
-from src.utils.wandb_utils import new_evo_run, resume_evo_run
-
-from src.utils.wandb_utils import wandb_init
 from runs import runs_manager as run_man
+from src.utils.wandb_data_fetcher import download_run
+from src.utils.wandb_utils import wandb_init
 
 
 def load_simple_config(config_path: str, wandb_resume_run_fn, wandb_new_run_fn, ngpus: Optional[int] = None):
@@ -83,8 +81,9 @@ def load_batch_config():
     effective_run_name, scheduled_cfg_file_name = get_batch_schedule_run_names(cli_args)
     effective_run_name = load_saved_config(effective_run_name, cli_args.config)
 
-    print(f'reading scheduled config: {scheduled_cfg_file_name}')
-    config.read(scheduled_cfg_file_name)
+    if scheduled_cfg_file_name:
+        print(f'reading scheduled config: {scheduled_cfg_file_name}')
+        config.read(scheduled_cfg_file_name)
 
     print(f'Reading cli config {cli_args.config}')
     config.read(cli_args.config)  # final authority on config values
@@ -125,9 +124,11 @@ def get_batch_schedule_run_names(cli_args) -> Tuple[str, str]:
     ngpus = cli_args.ngpus if cli_args.ngpus is not None else cli_args.max_ft_gpus - 1
 
     if not batch_run_scheduler:
-        raise Exception(f'Could not find bath scheduler option in config located at: {cli_args.config}')
+        raise Exception('Could not find batch_run_schedule option in config, but trying to read batch config')
 
-    return batch_runner.get_config_path(batch_run_scheduler, cli_cfg_run_name, ngpus, cli_args.max_ft_gpus)
+    # there is a batch run scheduler so must use the config specified in it
+    scheduled_cfg_file_name, scheduled_run_name = batch_runner.get_config_path(batch_run_scheduler, cli_cfg_run_name, ngpus, cli_args.max_ft_gpus)
+    return scheduled_run_name, scheduled_cfg_file_name
 
 
 def load_saved_config(effective_run_name, cli_cfg_file_name):
