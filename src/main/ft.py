@@ -23,6 +23,7 @@ from configuration.config_loader import load_simple_config, get_cli_args
 def main():
     args = get_cli_args()
     load_simple_config(args.config, resume_ft_run, new_ft_run, args.ngpus)
+    config.fully_train = True
 
     _force_cuda_device_init()
 
