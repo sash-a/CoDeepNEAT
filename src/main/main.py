@@ -27,19 +27,7 @@ from src.phenotype.neural_network.evaluator.fully_train import fully_train
 
 
 def main():
-    config_loader.load_config()
-
-    # Full config is now loaded
-    if config.use_wandb:
-        wandb_init()
-
-    if not runs_manager.run_folder_exists(config.run_name):
-        print('New run, setting up run folder for', config.run_name)
-        runs_manager.set_up_run_folder(config.run_name)
-
-    print('Saving conf to run', config.run_name)
-    runs_manager.save_config(config.run_name)
-    print('config:', config.__dict__)
+    config_loader.load_batch_config()
 
     if config.device == 'gpu':
         _force_cuda_device_init()

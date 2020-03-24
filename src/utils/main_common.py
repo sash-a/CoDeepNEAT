@@ -1,5 +1,4 @@
 import os
-import sys
 import time
 
 import torch
@@ -7,24 +6,8 @@ import torch
 import src.main.singleton as Singleton
 from runs import runs_manager as run_man
 from src.main.generation import Generation
-from typing import List, Iterable
-from configuration import config
+from configuration import config, internal_config
 from src.utils.wandb_utils import wandb_log
-
-
-def python_path(dirs_from_root: Iterable[str] = ('src', 'test', 'runs', 'configuration')):
-    """
-    @param dirs_from_root: directories from root to add to the python path
-
-    For importing project files. This file must be kept at a depth of 1 from root. i.e CoDeepNEAT/utils/main_utils
-    @type dirs_from_root: List[str]
-    """
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    root_path = os.path.split(os.path.split(dir_path)[0])[0]
-    sys.path.append(root_path)
-
-    for dir in dirs_from_root:
-        sys.path.append(os.path.join(root_path, dir))
 
 
 def _force_cuda_device_init():
@@ -112,3 +95,27 @@ def step_generation(generation: Generation):
         wandb_log(generation)
 
     generation.step_evolution()
+
+
+def evolve():
+    print('Evolving')
+    gen_time = -1
+    run_time = 0
+    end_time = config.allowed_runtime_sec
+
+    init_operators()
+    generation = init_generation()
+
+    while generation.generation_number < config.n_generations:
+        print('\n\nStarted generation:', generation.generation_number)
+
+        # Checks if generation is expected to run allowed time
+        if config.allowed_runtime_sec != -1 and end_time - run_time < gen_time:
+            print('Stopped run (gen {}) because the next generation will likely to take longer than the remaining time'
+                  .format(generation.generation_number))
+            return
+
+        run_time = step_generation(generation)
+        gen_time = max(gen_time, run_time * 1.15)
+
+    internal_config.state = 'ft'

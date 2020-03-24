@@ -29,6 +29,7 @@ def fully_train(run_name, n=1):
     """
     print('Fully training...')
     internal_config.ft_started = True
+    internal_config.state = 'ft'
 
     run: Run = get_run(run_name)
     best_blueprints = run.get_most_accurate_blueprints(n)
