@@ -16,7 +16,7 @@ def build_file_path(file: str) -> str:
     return file
 
 
-def get_config_path(path: str, scheduler_run_name: str, ngpus: int, max_gpus: int) -> Tuple[str, str]:
+def get_config_path(path: str, scheduler_run_name: str) -> Tuple[str, str]:
     """picks which config to use next."""
     config_paths = read_json(build_file_path(path))  # dict: path -> num_runs
 
@@ -32,12 +32,11 @@ def get_config_path(path: str, scheduler_run_name: str, ngpus: int, max_gpus: in
             if run_folder_exists:
                 cfg.internal_config.load(run_name)
 
-            meets_gpu_requirements = not (cfg.internal_config.state == 'ft' and ngpus > max_gpus)
             run_currently_running_in_another_process = run_folder_exists and cfg.internal_config.running
 
             if run_currently_running_in_another_process:
                 print('run {} is being run in another process, moving on'.format(run_name))
-            if cfg.internal_config.finished or run_currently_running_in_another_process or not meets_gpu_requirements:
+            if cfg.internal_config.finished or run_currently_running_in_another_process:
                 cfg.internal_config.__init__()  # reset internal config
                 continue
 

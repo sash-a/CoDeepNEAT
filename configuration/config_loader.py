@@ -123,14 +123,12 @@ def get_batch_schedule_run_names(cli_args) -> Tuple[str, str]:
     """
     batch_run_scheduler = config.read_option(cli_args.config, 'batch_run_scheduler')
     cli_cfg_run_name = config.read_option(cli_args.config, 'run_name')
-    ngpus = cli_args.ngpus if cli_args.ngpus is not None else cli_args.max_ft_gpus - 1
 
     if not batch_run_scheduler:
         raise Exception('Could not find batch_run_schedule option in config, but trying to read batch config')
 
     # there is a batch run scheduler so must use the config specified in it
-    scheduled_cfg_file_name, scheduled_run_name = batch_runner.get_config_path(batch_run_scheduler, cli_cfg_run_name,
-                                                                               ngpus, cli_args.max_ft_gpus)
+    scheduled_cfg_file_name, scheduled_run_name = batch_runner.get_config_path(batch_run_scheduler, cli_cfg_run_name)
     return scheduled_run_name, scheduled_cfg_file_name
 
 
@@ -157,9 +155,6 @@ def get_cli_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description='CoDeepNEAT')
     parser.add_argument('-c', '--config', type=str, help='Config file that will be used', required=True)
     parser.add_argument('-g', '--ngpus', type=int, help='Number of GPUs available', required=False)
-    parser.add_argument('-m', '--max_ft_gpus', type=int, required=False, default=1,
-                        help='Maximum number of GPUs to be allowed in batch fully training')
-
     parser.add_argument('-s', '--stagger_number', type=int, required=False, default=-1,
                         help='Runs with this flag may only start when Time(S) % 10 == stagger_number')
 
