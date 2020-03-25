@@ -15,7 +15,6 @@ from src.phenotype.neural_network.feature_multiplication import get_model_of_tar
 from src.phenotype.neural_network.neural_network import Network
 from src.utils.mp_utils import create_eval_pool
 from src.utils.wandb_utils import resume_ft_run, new_ft_run
-import multiprocessing as mp
 
 if TYPE_CHECKING:
     from src.analysis.run import Run

@@ -1,12 +1,10 @@
 {
-  "run_name": "elite",
-
+  "run_name": "base",
   "allowed_runtime_sec": 43100,
 
   "configs": {
-    "elite": true,
-    "test": false
+    "elite": false
   },
 
-  "batch_run_scheduler" : "run_schedule"
+  "batch_run_scheduler": "run_schedule"
 }
