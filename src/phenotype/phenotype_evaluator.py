@@ -58,7 +58,7 @@ def evaluate_blueprint(blueprint: BlueprintGenome, input_size: List[int],
         print(f"dropped model which was too large with {model_size} params. Max is: {config.max_model_params}")
         accuracy = 0
     else:
-        accuracy = evaluate(model, n_epochs=num_epochs)
+        accuracy = evaluate(model, num_epochs)
         if accuracy == "retry":
             raise Exception("no retries in evolution")
 

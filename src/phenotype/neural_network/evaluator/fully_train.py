@@ -77,9 +77,9 @@ def eval_with_retries(run: Run, blueprint: BlueprintGenome, gen_num: int, in_siz
 
         if remaining_retries > 0:
             attempt_number = MAX_RETRIES - remaining_retries
-            accuracy = evaluate(model, training_target=blueprint.max_acc, attempt=attempt_number)
+            accuracy = evaluate(model, config.fully_train_max_epochs, blueprint.max_acc, attempt_number)
         else:  # give up retrying, take whatever is produced from training
-            accuracy = evaluate(model)
+            accuracy = evaluate(model, config.fully_train_max_epochs)
 
         if accuracy == RETRY:
             print('retrying fully training')

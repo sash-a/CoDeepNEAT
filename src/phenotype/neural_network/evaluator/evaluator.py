@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 RETRY = 'retry'
 
 
-def evaluate(model: Network, n_epochs=config.epochs_in_evolution, training_target=-1, attempt=0) -> Union[float, str]:
+def evaluate(model: Network, n_epochs, training_target=-1, attempt=0) -> Union[float, str]:
     """trains model on training data, test on testing and returns test acc"""
     if config.dummy_run:
         if config.dummy_time > 0:
