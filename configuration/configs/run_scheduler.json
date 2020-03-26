@@ -1,5 +1,6 @@
 {
   "run_name": "base",
+  "batch_size": 512,
   "allowed_runtime_sec": 43100,
 
   "configs": {

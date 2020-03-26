@@ -16,28 +16,29 @@ if TYPE_CHECKING:
 
 def evaluate_blueprints(blueprint_q: mp.Queue,
                         input_size: List[int],
-                        num_epochs: int = config.epochs_in_evolution) -> List[BlueprintGenome]:
+                        num_epochs) -> List[BlueprintGenome]:
     """
     Consumes blueprints off the blueprints queue, evaluates them and adds them back to the queue if all of their
     evaluations have not been completed for the current generation. If all their evaluations have been completed, add
     them to the completed_blueprints list.
 
-    :param blueprint_q:
-    :param input_size:
-    :param num_epochs:
-    :return:
+    :param blueprint_q: A thread safe queue of blueprints
+    :param input_size: The shape of the input to each network
+    :param num_epochs: the number of epochs to train each model for
+    :return: A list of evaluated blueprints
     """
     completed_blueprints: List[BlueprintGenome] = []
     while blueprint_q.qsize() != 0:
         blueprint = blueprint_q.get()
-
         blueprint = evaluate_blueprint(blueprint, input_size, num_epochs)
+
         if blueprint.n_evaluations == config.n_evals_per_bp:
             completed_blueprints.append(blueprint)
         else:
             blueprint_q.put(blueprint)
 
     return completed_blueprints
+
 
 def evaluate_blueprint(blueprint: BlueprintGenome, input_size: List[int],
                        num_epochs, feature_multiplier: float = 1) -> BlueprintGenome:
@@ -54,7 +55,7 @@ def evaluate_blueprint(blueprint: BlueprintGenome, input_size: List[int],
         model_size = sum(p.numel() for p in model.parameters() if p.requires_grad)
 
     if model_size > config.max_model_params:
-        print("dropped model which was too large:", model_size, "params")
+        print(f"dropped model which was too large with {model_size} params. Max is: {config.max_model_params}")
         accuracy = 0
     else:
         accuracy = evaluate(model, n_epochs=num_epochs)
@@ -66,9 +67,7 @@ def evaluate_blueprint(blueprint: BlueprintGenome, input_size: List[int],
     blueprint.report_fitness(fitness)
     parse_number = blueprint.n_evaluations
 
-    print("Blueprint - {:^5} - accuracy: {:05.2f}% (proc {})"
-          .format(blueprint.id, accuracy * 100, mp.current_process().name))
-
+    print(f'Blueprint - {blueprint.id:^5} - accuracy: {accuracy * 100:05.2f}% (proc {mp.current_process().name})')
     if config.plot_every_genotype:
         blueprint.visualize(parse_number=parse_number,
                             prefix="g" + str(singleton.instance.generation_number) + "_" + str(blueprint.id))
@@ -78,4 +77,3 @@ def evaluate_blueprint(blueprint: BlueprintGenome, input_size: List[int],
                         prefix="g" + str(singleton.instance.generation_number) + "_" + str(blueprint.id))
 
     return blueprint
-

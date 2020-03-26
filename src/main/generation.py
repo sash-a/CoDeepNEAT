@@ -101,7 +101,7 @@ class Generation:
         with create_eval_pool(self) as pool:  # TODO will probably be more efficient to keep this alive throughout gens
             futures = []
             for i in range(config.n_gpus * config.n_evals_per_gpu):
-                futures.append(pool.submit(evaluate_blueprints, consumable_q, in_size))
+                futures.append(pool.submit(evaluate_blueprints, consumable_q, in_size, config.epochs_in_evolution))
 
             self.report_fitness(futures)
 
