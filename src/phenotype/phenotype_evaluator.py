@@ -28,6 +28,7 @@ def evaluate_blueprints(blueprint_q: mp.Queue,
     :return: A list of evaluated blueprints
     """
     completed_blueprints: List[BlueprintGenome] = []
+    print(f'Process {mp.current_process().name} - epochs: {config.epochs_in_evolution}')
     while blueprint_q.qsize() != 0:
         blueprint = blueprint_q.get()
         blueprint = evaluate_blueprint(blueprint, input_size, num_epochs)

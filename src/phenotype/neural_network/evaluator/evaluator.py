@@ -2,16 +2,15 @@ from __future__ import annotations
 
 from os.path import join
 from typing import TYPE_CHECKING, Union
+from sklearn.metrics import accuracy_score
+from torch.utils.data import DataLoader
 
 import random
 import time
 import wandb
-
-import numpy as np
 import torch
-
-from sklearn.metrics import accuracy_score
-from torch.utils.data import DataLoader
+import numpy as np
+import multiprocessing as mp
 
 from runs.runs_manager import save_config, get_run_folder_path
 from src.phenotype.augmentations.batch_augmentation_scheme import BatchAugmentationScheme
@@ -20,7 +19,6 @@ from configuration import config, internal_config
 
 if TYPE_CHECKING:
     from src.phenotype.neural_network.neural_network import Network
-
 
 RETRY = 'retry'
 
@@ -47,6 +45,7 @@ def evaluate(model: Network, n_epochs, training_target=-1, attempt=0) -> Union[f
     max_acc_age = 0
     for epoch in range(start, n_epochs):
         loss = train_epoch(model, train_loader, aug, device)
+        print(f'Process {mp.current_process().name}, epoch {epoch}, blueprint {model.blueprint.id} -> loss: {loss}')
 
         acc = -1
         test_intermediate_accuracy = config.fully_train and epoch % config.fully_train_accuracy_test_period == 0
@@ -63,7 +62,7 @@ def evaluate(model: Network, n_epochs, training_target=-1, attempt=0) -> Union[f
 
             if max_acc_age >= 2:
                 # wait 2 accuracy checks, if the max acc has not increased - this network has finished training
-                print("training has plateaued stopping")
+                print('training has plateaued stopping')
                 return max_acc
 
             max_acc_age += 1
@@ -165,7 +164,7 @@ def should_retry_training(acc, training_target, current_epoch):
     progress_checks = [0.5, 1, 2, 3.5]
     targets = [0.5, 0.75, 0.9, 1]
 
-    print("checking if should retry training. prog:",progress,"perf:",performance)
+    print("checking if should retry training. prog:", progress, "perf:", performance)
 
     for prog_check, target in zip(progress_checks, targets):
         if progress <= prog_check:

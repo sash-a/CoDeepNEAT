@@ -30,6 +30,7 @@ def init_process(generation, run_name: str, proc_counter: SyncedCounter):
     singleton.instance = generation
     load_config(run_name)
     mp.current_process().name = str(proc_counter.incr())
+    print(f'Process {mp.current_process().name}\nConfig: {config.__dict__}')
 
 
 def create_eval_pool(generation) -> ProcessPoolExecutor:
