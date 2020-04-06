@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import sys
 from typing import TYPE_CHECKING, List, Tuple
 
 import wandb
@@ -40,8 +41,12 @@ def fully_train(run_name, n=1):
     in_size = get_data_shape()
 
     with create_eval_pool(None) as pool:
+        futures = []
         for feature_mul in config.ft_feature_multipliers:
-            pool.submit(setup_and_evaluate, run, best_blueprints, in_size, feature_mul)
+            futures += [pool.submit(setup_and_evaluate, run, best_blueprints, in_size, feature_mul)]
+
+        for future in futures:  # consuming the futures so that it prints out
+            print(future)
 
     internal_config.finished = True
     internal_config.state = 'finished'
@@ -51,6 +56,7 @@ def setup_and_evaluate(run: Run, blueprints: List[Tuple[BlueprintGenome, int]], 
     fm_tag = f'FM={feature_mul}'  # wandb tag for feature mul so that we can tell the difference
 
     if config.use_wandb:
+        config.wandb_tags = [tag for tag in config.wandb_tags if 'FM=' not in tag]
         config.wandb_tags += [fm_tag]
         if config.resume_fully_train:
             resume_ft_run(True)
@@ -93,6 +99,7 @@ def eval_with_retries(run: Run, blueprint: BlueprintGenome, gen_num: int, in_siz
         remaining_retries -= 1
 
     print(f'Achieved a final accuracy of: {accuracy * 100}')
+    sys.stdout.flush()
 
 
 def _create_model(run: Run, blueprint: BlueprintGenome, gen_num, in_size, target_feature_multiplier) -> Network:
