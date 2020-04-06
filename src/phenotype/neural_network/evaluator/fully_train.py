@@ -83,9 +83,6 @@ def eval_with_retries(run: Run, blueprint: BlueprintGenome, gen_num: int, in_siz
         if config.resume_fully_train and os.path.exists(model.save_location()):
             model = _load_model(blueprint, run, gen_num, in_size)
 
-        if config.use_wandb:
-            wandb.watch(model, criterion=model.loss_fn, log='all', idx=blueprint.id)
-
         if remaining_retries > 0:
             attempt_number = MAX_RETRIES - remaining_retries
             accuracy = evaluate(model, config.fully_train_max_epochs, blueprint.max_acc, attempt_number)
