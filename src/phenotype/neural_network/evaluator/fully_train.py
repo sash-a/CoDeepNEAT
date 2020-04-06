@@ -46,7 +46,7 @@ def fully_train(run_name, n=1):
             futures += [pool.submit(setup_and_evaluate, run, best_blueprints, in_size, feature_mul)]
 
         for future in futures:  # consuming the futures so that it prints out
-            print(future)
+            print(future.result())
 
     internal_config.finished = True
     internal_config.state = 'finished'

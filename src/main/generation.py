@@ -111,7 +111,7 @@ class Generation:
         """
         results: List[BlueprintGenome] = []
         for future in futures:
-            results += future.result()
+            results += future.rSesult()
 
         # Replacing the bp population with the blueprints that are returned from the processes
         # i.e the same blueprints, but they have fitness assigned
