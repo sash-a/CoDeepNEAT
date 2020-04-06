@@ -103,7 +103,7 @@ def load_batch_config():
         print(f'no gpu argument given, using config value of {config.n_gpus}')
 
     # Full config is now loaded
-    if config.use_wandb:
+    if config.use_wandb and not fully_train:
         wandb_init()
 
     if not run_man.run_folder_exists(config.run_name):
