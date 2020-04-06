@@ -113,7 +113,7 @@ def load_batch_config():
     print(f'Saving conf to run {config.run_name}')
     config.fully_train = fully_train
     config.resume_fully_train = resume_fully_train
-    run_man.save_config(config.run_name)
+    run_man.save_config(config.run_name, use_wandb_override=not config.fully_train)
     print(f'config: {config.__dict__}')
 
 

@@ -87,7 +87,7 @@ def _new_run(reinit=False):
     job_type = 'train'
     tags = config.wandb_tags
     if config.fully_train:
-        tags = ['FULLY_TRAIN']
+        tags += ['FULLY_TRAIN']
     if config.dummy_run:
         tags += ['TEST_RUN']
         job_type = 'test'

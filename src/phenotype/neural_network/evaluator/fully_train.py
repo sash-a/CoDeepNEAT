@@ -2,12 +2,12 @@ from __future__ import annotations
 
 import os
 from typing import TYPE_CHECKING, List, Tuple
+
 import wandb
 
 import src.main.singleton as S
-
-from src.analysis.run import get_run
 from configuration import config, internal_config
+from src.analysis.run import get_run
 from src.genotype.cdn.genomes.blueprint_genome import BlueprintGenome
 from src.phenotype.neural_network.evaluator.data_loader import get_data_shape
 from src.phenotype.neural_network.evaluator.evaluator import evaluate, RETRY
@@ -48,7 +48,10 @@ def fully_train(run_name, n=1):
 
 
 def setup_and_evaluate(run: Run, blueprints: List[Tuple[BlueprintGenome, int]], in_size: List[int], feature_mul: int):
+    fm_tag = f'FM={feature_mul}'  # wandb tag for feature mul so that we can tell the difference
+
     if config.use_wandb:
+        config.wandb_tags += [fm_tag]
         if config.resume_fully_train:
             resume_ft_run(True)
         else:
@@ -57,7 +60,9 @@ def setup_and_evaluate(run: Run, blueprints: List[Tuple[BlueprintGenome, int]], 
     for blueprint, gen_num in blueprints:
         eval_with_retries(run, blueprint, gen_num, in_size, feature_mul)
 
-    wandb.join()
+    if config.use_wandb:
+        wandb.join()
+        config.wandb_tags.remove(fm_tag)
 
 
 def eval_with_retries(run: Run, blueprint: BlueprintGenome, gen_num: int, in_size: List[int], feature_mul: int):
