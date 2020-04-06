@@ -111,6 +111,8 @@ def load_batch_config():
         run_man.set_up_run_folder(config.run_name)
 
     print(f'Saving conf to run {config.run_name}')
+    config.fully_train = fully_train
+    config.resume_fully_train = resume_fully_train
     run_man.save_config(config.run_name)
     print(f'config: {config.__dict__}')
 
