@@ -1,6 +1,0 @@
-{
-  "run_name": "big_networks",
-  "epochs_in_evolution": 25,
-  "optim": "sgd",
-  "target_network_size": 1e7
-}

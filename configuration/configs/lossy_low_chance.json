@@ -1,0 +1,5 @@
+{
+  "run_name": "lossy_low_chance",
+
+  "lossy_chance": 0.25
+}

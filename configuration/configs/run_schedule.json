@@ -1,5 +1,10 @@
 {
-  "base": 3,
-  "twenty_five_epochs": 3,
-  "big_networks": 3
+  "sixteen_epochs": 3,
+  "small_pop": 3,
+  "sgd": 3,
+  "lossy_high_chance": 3,
+  "lossy_low_chance": 3,
+  "tournament_selection": 3,
+  "da_legacy": 3,
+  "da_pop": 3
 }

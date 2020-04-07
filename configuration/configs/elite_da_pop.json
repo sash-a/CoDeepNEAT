@@ -1,8 +1,0 @@
-{
-  "run_name": "elite_da_pop",
-
-  "configs": {
-    "elite": true,
-    "da_pop": true
-  }
-}

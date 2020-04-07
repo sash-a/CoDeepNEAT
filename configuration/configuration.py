@@ -60,7 +60,7 @@ class Config:
         # Population and species sizes
         self.module_pop_size = 50
         self.bp_pop_size = 20
-        self.da_pop_size = 5
+        self.da_pop_size = 20
 
         self.n_module_species = 4
         self.n_blueprint_species = 1

@@ -1,8 +1,0 @@
-{
-  "run_name": "elite_da_legacy",
-
-  "configs": {
-    "elite" :  true,
-    "da_legacy" : true
-  }
-}
