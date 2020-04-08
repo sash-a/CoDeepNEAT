@@ -1,5 +1,7 @@
 {
   "run_name": "tournament_selection",
 
-  "parent_selector": "tournament"
+  "parent_selector": "tournament",
+
+  "wandb_tags": ["tournament"]
 }

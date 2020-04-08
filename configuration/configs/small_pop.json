@@ -2,5 +2,8 @@
   "run_name": "small_pop",
 
   "module_pop_size": 32,
-  "bp_pop_size": 20
+  "bp_pop_size": 20,
+
+  "wandb_tags": [ "small pop" ]
+
 }

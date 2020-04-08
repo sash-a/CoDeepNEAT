@@ -1,4 +1,7 @@
 {
   "run_name": "sixteen_epochs",
-  "epochs_in_evolution": 16
+  "epochs_in_evolution": 16,
+
+  "wandb_tags": [ "epochs: 16" ]
+
 }

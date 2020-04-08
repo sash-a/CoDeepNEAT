@@ -1,5 +1,8 @@
 {
   "run_name": "lossy_high_chance",
 
-  "lossy_chance": 0.75
+  "lossy_chance": 0.75,
+
+  "wandb_tags": [ "lossy high chance" ]
+
 }
