@@ -119,6 +119,4 @@ def evolve():
         allowed_gen_time = max(allowed_gen_time, gen_time * 1.05)
         run_time += gen_time
 
-        print(f'runtime: {run_time}, end time: {end_time}, allowing time {allowed_gen_time}')
-
     internal_config.state = 'ft'
