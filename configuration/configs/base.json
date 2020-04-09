@@ -1,3 +1,4 @@
 {
-  "run_name" : "base"
+  "run_name" : "base",
+  "wandb_tags": [ "base" ]
 }
