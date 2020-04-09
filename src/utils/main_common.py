@@ -99,7 +99,7 @@ def step_generation(generation: Generation):
 
 def evolve():
     print('Evolving')
-    gen_time = -1
+    allowed_gen_time = -1
     run_time = 0
     end_time = config.allowed_runtime_sec
 
@@ -110,12 +110,15 @@ def evolve():
         print('\n\nStarted generation:', generation.generation_number)
 
         # Checks if generation is expected to run allowed time
-        if config.allowed_runtime_sec != -1 and end_time - run_time < gen_time:
+        if config.allowed_runtime_sec != -1 and end_time - run_time < allowed_gen_time:
             print('Stopped run (gen {}) because the next generation will likely to take longer than the remaining time'
                   .format(generation.generation_number))
             return
 
-        run_time = step_generation(generation)
-        gen_time = max(gen_time, run_time * 1.15)
+        gen_time = step_generation(generation)
+        allowed_gen_time = max(allowed_gen_time, gen_time * 1.05)
+        run_time += gen_time
+
+        print(f'runtime: {run_time}, end time: {end_time}, allowing time {allowed_gen_time}')
 
     internal_config.state = 'ft'

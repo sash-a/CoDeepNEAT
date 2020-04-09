@@ -37,17 +37,19 @@ def _create_individual(Node: Union[Type[ModuleNode], Type[BlueprintNode], Type[D
     out_node_params = (1, NodeType.OUTPUT)
     mid_node_params = (2, NodeType.HIDDEN)
 
+    # linear shape
     genomes = [Genome(
         ([Node(*in_node_params), Node(*mid_node_params), Node(*out_node_params)]),
-        [Connection(1, 0, 2), Connection(2, 2, 1)]  # TODO should this have the connection from 0 -> 1?
+        [Connection(1, 0, 2), Connection(2, 2, 1)]
     )]
 
     if not no_branches:
+        # triangle shape
         genomes.append(Genome(
             ([Node(*in_node_params), Node(*mid_node_params), Node(*out_node_params)]),
             [Connection(0, 0, 1), Connection(1, 0, 2), Connection(2, 2, 1)]
         ))
-
+        # diamond shape
         genomes.append(Genome(
             ([Node(*in_node_params), Node(*mid_node_params), Node(3, NodeType.HIDDEN), Node(*out_node_params)]),
             [Connection(1, 0, 2), Connection(3, 0, 3), Connection(4, 3, 1), Connection(2, 2, 1)]
