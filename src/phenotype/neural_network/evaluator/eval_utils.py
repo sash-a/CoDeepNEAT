@@ -13,7 +13,7 @@ STOP = "stop"
 DROP_LR = "drop_lr"
 
 
-def handle_accuracy_reading(training_results: TrainingResults, training_target):
+def fetch_training_instruction(training_results: TrainingResults, training_target):
     """
         if in evolution, and the config specifies to continue training until the
         loss improvement gradient drops below a threshold -
@@ -29,12 +29,13 @@ def handle_accuracy_reading(training_results: TrainingResults, training_target):
 
         max_acc_age = training_results.get_max_acc_age()
         if config.ft_allow_lr_drops:
-            if max_acc_age >= 3:
+            if max_acc_age >= 1 + config.ft_auto_stop_count:
+                # if dropping the LR failed to improve the performance in two follow up acc samples - stop
                 return STOP
-            if max_acc_age == 1: # the first time the max acc stagnates - drop the LR
+            if max_acc_age == 1:  # the first time the max acc stagnates - drop the LR
                 return DROP_LR
         else:
-            if max_acc_age >=2:
+            if max_acc_age >= config.ft_auto_stop_count:
                 return STOP
 
     else:
@@ -54,9 +55,9 @@ def handle_accuracy_reading(training_results: TrainingResults, training_target):
 
 
 def check_should_retry_training(acc, training_target, current_epoch):
-    if training_target == -1:
+    if training_target == -1 or not config.ft_retries:
         return False
-    progress = current_epoch / config.epochs_in_evolution
+    progress = current_epoch * 1.0 / config.epochs_in_evolution
     performance = acc / training_target
 
     """

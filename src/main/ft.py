@@ -32,7 +32,7 @@ def main():
 
     _force_cuda_device_init()
 
-    fully_train(config.run_name, config.n_ft_models)
+    fully_train(config.run_name)
 
 
 def dont_init_wandb():

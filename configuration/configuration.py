@@ -38,8 +38,8 @@ class Config:
         self.fully_train_best_n_blueprints = 5
         self.ft_feature_multipliers = [1, 2, 3]
         self.ft_retries = True  # retry if accuracy seems too low
-        self.ft_auto_stop = False  # automatically stop if accuracy is plateauing
-        self.ft_allow_lr_drops = True
+        self.ft_auto_stop_count = 2  # number of acc plateaus before a stop. -1 for no auto stopping
+        self.ft_allow_lr_drops = False
         # ---------------------------------------------- Debug Options ----------------------------------------------
         self.dummy_run = False
         self.dummy_time = 0  # number of seconds to wait to return a dummy eval

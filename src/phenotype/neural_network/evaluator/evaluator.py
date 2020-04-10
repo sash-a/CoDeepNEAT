@@ -18,7 +18,7 @@ from src.phenotype.augmentations.batch_augmentation_scheme import BatchAugmentat
 from src.phenotype.neural_network.evaluator.data_loader import imshow, load_data, load_transform
 from configuration import config, internal_config
 
-from src.phenotype.neural_network.evaluator.eval_utils import handle_accuracy_reading, \
+from src.phenotype.neural_network.evaluator.eval_utils import fetch_training_instruction, \
     RETRY, CONTINUE, STOP, DROP_LR
 from src.phenotype.neural_network.evaluator.training_results import TrainingResults
 from src.utils.wandb_utils import _fully_train_logging
@@ -49,8 +49,10 @@ def evaluate(model: Network, n_epochs, training_target=-1, attempt=0) -> Union[f
         training_results.add_loss(loss)
 
         acc = -1
-        test_intermediate_accuracy = config.fully_train and epoch % config.fully_train_accuracy_test_period == 0 and (
-                config.ft_auto_stop or config.ft_retries or config.ft_allow_lr_drops)
+        needs_intermediate_acc = config.ft_auto_stop_count != -1 or config.ft_retries or config.ft_allow_lr_drops
+        test_intermediate_accuracy = config.fully_train and epoch % config.fully_train_accuracy_test_period == 0 \
+                                     and needs_intermediate_acc
+
         if test_intermediate_accuracy:
             acc = test_nn(model, test_loader)
             training_results.add_accuracy(acc, epoch)
@@ -58,7 +60,7 @@ def evaluate(model: Network, n_epochs, training_target=-1, attempt=0) -> Union[f
         if config.fully_train:
             _fully_train_logging(model, loss, epoch, attempt, acc)
 
-        TRAINING_INSTRUCTION = handle_accuracy_reading(training_results, training_target)
+        TRAINING_INSTRUCTION = fetch_training_instruction(training_results, training_target)
         if TRAINING_INSTRUCTION == CONTINUE:
             continue
         if TRAINING_INSTRUCTION == RETRY:
@@ -70,7 +72,7 @@ def evaluate(model: Network, n_epochs, training_target=-1, attempt=0) -> Union[f
                 break  # exits for, runs final acc test, returns
         if TRAINING_INSTRUCTION == DROP_LR:
             model.drop_lr()
-
+    print("doing final acc test")
     final_test_acc = test_nn(model, test_loader)
     return max(final_test_acc, training_results.get_max_acc())
 
