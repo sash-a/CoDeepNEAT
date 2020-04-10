@@ -22,21 +22,20 @@ if TYPE_CHECKING:
 MAX_RETRIES = 5
 
 
-def fully_train(run_name, n=1):
+def fully_train(run_name):
     """
     Loads and trains from a saved run.
     This will parallelize all training of all the best networks across the given config.ft_feature_multipliers. i.e each
     different feature multiplier will gets its own process and own gpu if available.
 
     :param run_name: name of the old run
-    :param n: number of the best networks to train
     """
     print('Fully training...')
     internal_config.ft_started = True
     internal_config.state = 'ft'
 
     run: Run = get_run(run_name)
-    best_blueprints = run.get_most_accurate_blueprints(n)
+    best_blueprints = run.get_most_accurate_blueprints(config.fully_train_best_n_blueprints)
     in_size = get_data_shape()
 
     with create_eval_pool(None) as pool:
@@ -104,7 +103,7 @@ def eval_with_retries(run: Run, blueprint: BlueprintGenome, gen_num: int, in_siz
 
         if remaining_retries > 0:
             attempt_number = MAX_RETRIES - remaining_retries
-            accuracy = evaluate(model, config.fully_train_max_epochs, blueprint.max_acc, attempt_number)
+            accuracy = evaluate(model, config.fully_train_max_epochs, training_target=blueprint.max_acc, attempt=attempt_number)
         else:  # give up retrying, take whatever is produced from training
             accuracy = evaluate(model, config.fully_train_max_epochs)
 

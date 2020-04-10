@@ -1,26 +1,30 @@
 from __future__ import annotations
 
-import multiprocessing as mp
-import random
-import time
 from os.path import join
 from typing import TYPE_CHECKING, Union
+import multiprocessing as mp
+
+
+import random
+import time
 
 import numpy as np
 import torch
-import wandb
+
 from sklearn.metrics import accuracy_score
 from torch.utils.data import DataLoader
 
-from configuration import config, internal_config
-from runs.runs_manager import save_config, get_run_folder_path
 from src.phenotype.augmentations.batch_augmentation_scheme import BatchAugmentationScheme
 from src.phenotype.neural_network.evaluator.data_loader import imshow, load_data, load_transform
+from configuration import config, internal_config
+
+from src.phenotype.neural_network.evaluator.eval_utils import handle_accuracy_reading, \
+    RETRY, CONTINUE, STOP, DROP_LR
+from src.phenotype.neural_network.evaluator.training_results import TrainingResults
+from src.utils.wandb_utils import _fully_train_logging
 
 if TYPE_CHECKING:
     from src.phenotype.neural_network.neural_network import Network
-
-RETRY = 'retry'
 
 
 def evaluate(model: Network, n_epochs, training_target=-1, attempt=0) -> Union[float, str]:
@@ -33,58 +37,56 @@ def evaluate(model: Network, n_epochs, training_target=-1, attempt=0) -> Union[f
     aug = None if not config.evolve_da else model.blueprint.get_da().to_phenotype()
 
     train_loader = load_data(load_transform(aug), 'train')
-    test_loader = load_data(load_transform(), 'test') if config.fully_train else None
+    test_loader = load_data(load_transform(), 'test')
 
     device = config.get_device()
-    start = model.ft_epoch
+    start = model.last_epoch
 
-    if config.fully_train:
-        n_epochs = config.fully_train_max_epochs  # max number of epochs for a fully train
-
-    max_acc = 0
-    max_acc_age = 0
+    training_results = TrainingResults()
     for epoch in range(start, n_epochs):
         loss = train_epoch(model, train_loader, aug, device)
+        model.last_epoch = epoch
+        training_results.add_loss(loss)
 
         acc = -1
         test_intermediate_accuracy = config.fully_train and epoch % config.fully_train_accuracy_test_period == 0 and (
-                config.ft_auto_stop or config.ft_retries)
+                config.ft_auto_stop or config.ft_retries or config.ft_allow_lr_drops)
         if test_intermediate_accuracy:
             acc = test_nn(model, test_loader)
-            if acc > max_acc:
-                max_acc = acc
-                max_acc_age = 0
-
-            if should_retry_training(max_acc, training_target, epoch) and config.ft_retries:
-                # the training is not making target, start again
-                # this means that the network is not doing as well as its duplicate in evolution
-                return RETRY
-
-            if max_acc_age >= 2 and config.ft_auto_stop:
-                # wait 2 accuracy checks, if the max acc has not increased - this network has finished training
-                print('training has plateaued stopping')
-                return max_acc
-
-            max_acc_age += 1
+            training_results.add_accuracy(acc, epoch)
 
         if config.fully_train:
             _fully_train_logging(model, loss, epoch, attempt, acc)
 
-    test_loader = load_data(load_transform(), 'test') if test_loader is None else test_loader
+        TRAINING_INSTRUCTION = handle_accuracy_reading(training_results, training_target)
+        if TRAINING_INSTRUCTION == CONTINUE:
+            continue
+        if TRAINING_INSTRUCTION == RETRY:
+            return RETRY
+        if TRAINING_INSTRUCTION == STOP:
+            if len(training_results.accuracies) > 0:
+                return training_results.get_max_acc()
+            else:
+                break  # exits for, runs final acc test, returns
+        if TRAINING_INSTRUCTION == DROP_LR:
+            model.drop_lr()
+
     final_test_acc = test_nn(model, test_loader)
-    return max(final_test_acc, max_acc)
+    return max(final_test_acc, training_results.get_max_acc())
 
 
 def train_epoch(model: Network, train_loader: DataLoader, augmentor: BatchAugmentationScheme, device) -> float:
     model.train()
     loss: float = 0
+    batch_idx = 0
+
     for batch_idx, (inputs, targets) in enumerate(train_loader):
         if config.max_batches != -1 and batch_idx > config.max_batches:
             break
         model.optimizer.zero_grad()
         loss += train_batch(model, inputs, targets, augmentor, device)
 
-    return loss
+    return loss/batch_idx
 
 
 def train_batch(model: Network, inputs: torch.Tensor, labels: torch.Tensor, augmentor: BatchAugmentationScheme, device):
@@ -100,7 +102,7 @@ def train_batch(model: Network, inputs: torch.Tensor, labels: torch.Tensor, augm
     m_loss.backward()
     model.optimizer.step()
 
-    return m_loss.item()
+    return m_loss.item()/config.batch_size
 
 
 def test_nn(model: Network, test_loader: DataLoader):
@@ -126,55 +128,3 @@ def test_nn(model: Network, test_loader: DataLoader):
     return total_acc / count
 
 
-def _fully_train_logging(model: Network, loss: float, epoch: int, attempt: int, acc: float = -1):
-    print(f'Process {mp.current_process().name}, epoch {epoch}, blueprint {model.blueprint.id} -> loss: {loss}')
-
-    log = {}
-    metric_name = 'accuracy_fm_' + str(model.target_feature_multiplier) + ("_r_" + str(attempt) if attempt > 0 else "")
-    if acc != -1:
-        log[metric_name] = acc
-        print('accuracy: {}'.format(acc))
-    print('\n')
-
-    internal_config.ft_epoch = epoch
-    save_config(config.run_name)
-
-    if config.use_wandb:
-        log['loss_' + str(attempt)] = loss
-        wandb.log(log)
-        model.save()
-        wandb.save(model.save_location())
-
-        wandb.config.update({'current_ft_epoch': epoch}, allow_val_change=True)
-        wandb.save(join(get_run_folder_path(config.run_name), 'config.json'))
-
-
-def should_retry_training(acc, training_target, current_epoch):
-    if training_target == -1:
-        return False
-    progress = current_epoch / config.epochs_in_evolution
-    performance = acc / training_target
-
-    """
-        by 50% needs 50% ~ with half as many epochs as given in evo - the network should have half the acc it got
-        by 100% needs 75%
-        by 200% needs 90%
-        by 350% needs 100%
-    """
-    progress_checks = [0.5, 1, 2, 3.5]
-    targets = [0.5, 0.75, 0.9, 1]
-
-    print("checking if should retry training. prog:", progress, "perf:", performance)
-
-    for prog_check, target in zip(progress_checks, targets):
-        if progress <= prog_check:
-            # this is the target to use
-            progress_normalised_target = target * progress / prog_check  # linear interpolation of target
-            if performance < progress_normalised_target:
-                print("net failed to meet target e:", current_epoch, "acc:", acc,
-                      "prog:", progress, "prog check:", prog_check, "target:",
-                      target, "norm target:", progress_normalised_target)
-                return True
-            break  # only compare to first fitting target
-
-    return False
