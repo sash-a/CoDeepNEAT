@@ -1,8 +1,7 @@
 from __future__ import annotations
 
 import os
-import sys
-from typing import TYPE_CHECKING, List, Tuple
+from typing import TYPE_CHECKING, List
 
 import wandb
 
@@ -44,7 +43,7 @@ def fully_train(run_name, n=1):
         futures = []
         for feature_mul in config.ft_feature_multipliers:
             for i, (blueprint, gen_num) in enumerate(best_blueprints, 1):
-                futures += [pool.submit(setup_and_evaluate, run, blueprint, gen_num, in_size, feature_mul, i)]
+                futures += [pool.submit(wandb_setup_and_evaluate, run, blueprint, gen_num, in_size, feature_mul, i)]
 
         for future in futures:  # consuming the futures
             print(future.result())
@@ -53,7 +52,19 @@ def fully_train(run_name, n=1):
     internal_config.state = 'finished'
 
 
-def setup_and_evaluate(run: Run, blueprint: BlueprintGenome, gen_num: int, in_size: List[int], feature_mul: int, best: int):
+def wandb_setup_and_evaluate(run: Run, blueprint: BlueprintGenome, gen_num: int, in_size: List[int], feature_mul: int,
+                             best: int):
+    """
+    Sets up wandb for the specific training instance and calls eval_with_retries
+
+    @param run: The run that is being fully trained
+    @param blueprint: The blueprint that is being fully trained
+    @param gen_num: generation blueprint got best accuracy so that correct modules can be accessed
+    @param in_size: shape of the input tensor
+    @param feature_mul: feature multiplier: how much bigger or smaller to make each layer
+    @param best: the ranking of the network in evolution - ie best = 1 mean that network got the highest accuracy
+     in evolution
+    """
     fm_tag = f'FM={feature_mul}'  # wandb tag for feature mul so that we can tell the difference
     best_tag = f'BEST={best}'  # wandb tag for Nth best network in evolution
 
@@ -65,6 +76,10 @@ def setup_and_evaluate(run: Run, blueprint: BlueprintGenome, gen_num: int, in_si
             resume_ft_run(True)
         else:
             new_ft_run(True)
+
+        # specific options for wandb grouping
+        wandb.config['fm'] = feature_mul
+        wandb.config['best'] = best
 
     print(f'Fully training network with FM={feature_mul}, it had the number {best} accuracy in evolution')
     eval_with_retries(run, blueprint, gen_num, in_size, feature_mul)
@@ -100,7 +115,6 @@ def eval_with_retries(run: Run, blueprint: BlueprintGenome, gen_num: int, in_siz
         remaining_retries -= 1
 
     print(f'Achieved a final accuracy of: {accuracy * 100}')
-    sys.stdout.flush()
 
 
 def _create_model(run: Run, blueprint: BlueprintGenome, gen_num, in_size, target_feature_multiplier) -> Network:

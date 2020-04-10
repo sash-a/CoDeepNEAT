@@ -1,17 +1,17 @@
 from __future__ import annotations
 
-import os
 import datetime
+import os
+import re
 from random import randint
 from typing import TYPE_CHECKING, Dict
+
+import wandb
 from PIL import Image
 
-import re
-import wandb
-
+from configuration import config
 from runs.runs_manager import get_generation_file_path, get_graphs_folder_path, \
     run_folder_exists
-from configuration import config
 from src.utils.wandb_data_fetcher import download_generations, download_model
 
 if TYPE_CHECKING:
@@ -97,6 +97,11 @@ def _new_run(reinit=False):
 
     wandb.init(job_type=job_type, project=project, entity='codeepneat', name=config.run_name, tags=config.wandb_tags,
                dir=dir, id=wandb_run_id, reinit=reinit, config=config.__dict__)
+
+    # Specific options for grouping on wandb
+    wandb.config['trimmed_name'] = config.run_name[:-2] if config.run_name[-1].isdigit() else config.run_name
+    wandb.config['elite'] = 'elite' in config.wandb_tags
+    wandb.config['base'] = 'base' in config.wandb_tags
 
 
 def wandb_log(generation: Generation):
