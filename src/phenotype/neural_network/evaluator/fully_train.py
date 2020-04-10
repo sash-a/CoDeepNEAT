@@ -43,32 +43,36 @@ def fully_train(run_name, n=1):
     with create_eval_pool(None) as pool:
         futures = []
         for feature_mul in config.ft_feature_multipliers:
-            futures += [pool.submit(setup_and_evaluate, run, best_blueprints, in_size, feature_mul)]
+            for i, (blueprint, gen_num) in enumerate(best_blueprints, 1):
+                futures += [pool.submit(setup_and_evaluate, run, blueprint, gen_num, in_size, feature_mul, i)]
 
-        for future in futures:  # consuming the futures so that it prints out
+        for future in futures:  # consuming the futures
             print(future.result())
 
     internal_config.finished = True
     internal_config.state = 'finished'
 
 
-def setup_and_evaluate(run: Run, blueprints: List[Tuple[BlueprintGenome, int]], in_size: List[int], feature_mul: int):
+def setup_and_evaluate(run: Run, blueprint: BlueprintGenome, gen_num: int, in_size: List[int], feature_mul: int, best: int):
     fm_tag = f'FM={feature_mul}'  # wandb tag for feature mul so that we can tell the difference
+    best_tag = f'BEST={best}'  # wandb tag for Nth best network in evolution
 
     if config.use_wandb:
-        config.wandb_tags = [tag for tag in config.wandb_tags if 'FM=' not in tag]
-        config.wandb_tags += [fm_tag]
+        config.wandb_tags = list(set([tag for tag in config.wandb_tags if 'FM=' not in tag and 'BEST=' not in tag]))
+        config.wandb_tags += [fm_tag, best_tag]
+
         if config.resume_fully_train:
             resume_ft_run(True)
         else:
             new_ft_run(True)
 
-    for blueprint, gen_num in blueprints:
-        eval_with_retries(run, blueprint, gen_num, in_size, feature_mul)
+    print(f'Fully training network with FM={feature_mul}, it had the number {best} accuracy in evolution')
+    eval_with_retries(run, blueprint, gen_num, in_size, feature_mul)
 
     if config.use_wandb:
         wandb.join()
         config.wandb_tags.remove(fm_tag)
+        config.wandb_tags.remove(best_tag)
 
 
 def eval_with_retries(run: Run, blueprint: BlueprintGenome, gen_num: int, in_size: List[int], feature_mul: int):

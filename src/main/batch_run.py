@@ -24,7 +24,7 @@ def main():
     _force_cuda_device_init()
 
     if config.fully_train:
-        fully_train(config.run_name)
+        fully_train(config.run_name, config.n_ft_models)
     else:
         evolve()
 

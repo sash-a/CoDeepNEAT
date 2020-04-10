@@ -74,7 +74,7 @@ def _resume_run(reinit=False):
     project = 'cdn_fully_train' if config.fully_train else 'cdn'
     wandb_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', '..', 'results')
     wandb.init(dir=wandb_dir, project=project, entity='codeepneat', resume=config.wandb_run_path.split('/')[2],
-               reinit=reinit)
+               reinit=reinit, config=config.__dict__)
 
 
 def _new_run(reinit=False):
@@ -85,18 +85,18 @@ def _new_run(reinit=False):
     dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', '..', 'results')
 
     job_type = 'train'
-    tags = config.wandb_tags
+
     if config.fully_train:
-        tags += ['FULLY_TRAIN']
+        config.wandb_tags += ['FULLY_TRAIN']
     if config.dummy_run:
-        tags += ['TEST_RUN']
+        config.wandb_tags += ['TEST_RUN']
         job_type = 'test'
-    tags = list(set(tags))  # ensures tags unique
+    config.wandb_tags = list(set(config.wandb_tags))  # ensures tags are unique
 
-    print('starting new wandb run {}'.format(wandb_run_id))
+    print(f'starting new wandb run {wandb_run_id}')
 
-    wandb.init(job_type=job_type, project=project, entity='codeepneat', name=config.run_name, tags=tags, dir=dir,
-               id=wandb_run_id, reinit=reinit)
+    wandb.init(job_type=job_type, project=project, entity='codeepneat', name=config.run_name, tags=config.wandb_tags,
+               dir=dir, id=wandb_run_id, reinit=reinit, config=config.__dict__)
 
 
 def wandb_log(generation: Generation):

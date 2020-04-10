@@ -30,6 +30,9 @@ class Config:
         self.fully_train_accuracy_test_period = 10
         self.fully_train_max_epochs = 300
         self.ft_feature_multipliers = [1, 2, 3]
+        self.n_ft_models = 5  # number of models to fully train
+        self.ft_retries = True  # retry if accuracy seems too low
+        self.ft_auto_stop = False  # automatically stop if accuracy is plateauing
         # ---------------------------------------------- Debug Options ----------------------------------------------
         self.dummy_run = False
         self.dummy_time = 0  # number of seconds to wait to return a dummy eval

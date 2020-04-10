@@ -1,21 +1,21 @@
 from __future__ import annotations
 
+import multiprocessing as mp
+import random
+import time
 from os.path import join
 from typing import TYPE_CHECKING, Union
+
+import numpy as np
+import torch
+import wandb
 from sklearn.metrics import accuracy_score
 from torch.utils.data import DataLoader
 
-import random
-import time
-import wandb
-import torch
-import numpy as np
-import multiprocessing as mp
-
+from configuration import config, internal_config
 from runs.runs_manager import save_config, get_run_folder_path
 from src.phenotype.augmentations.batch_augmentation_scheme import BatchAugmentationScheme
 from src.phenotype.neural_network.evaluator.data_loader import imshow, load_data, load_transform
-from configuration import config, internal_config
 
 if TYPE_CHECKING:
     from src.phenotype.neural_network.neural_network import Network
@@ -45,22 +45,22 @@ def evaluate(model: Network, n_epochs, training_target=-1, attempt=0) -> Union[f
     max_acc_age = 0
     for epoch in range(start, n_epochs):
         loss = train_epoch(model, train_loader, aug, device)
-        print(f'Process {mp.current_process().name}, epoch {epoch}, blueprint {model.blueprint.id} -> loss: {loss}')
 
         acc = -1
-        test_intermediate_accuracy = config.fully_train and epoch % config.fully_train_accuracy_test_period == 0
+        test_intermediate_accuracy = config.fully_train and epoch % config.fully_train_accuracy_test_period == 0 and (
+                config.ft_auto_stop or config.ft_retries)
         if test_intermediate_accuracy:
             acc = test_nn(model, test_loader)
             if acc > max_acc:
                 max_acc = acc
                 max_acc_age = 0
 
-            if should_retry_training(max_acc, training_target, epoch):
+            if should_retry_training(max_acc, training_target, epoch) and config.ft_retries:
                 # the training is not making target, start again
                 # this means that the network is not doing as well as its duplicate in evolution
                 return RETRY
 
-            if max_acc_age >= 2:
+            if max_acc_age >= 2 and config.ft_auto_stop:
                 # wait 2 accuracy checks, if the max acc has not increased - this network has finished training
                 print('training has plateaued stopping')
                 return max_acc
@@ -127,7 +127,7 @@ def test_nn(model: Network, test_loader: DataLoader):
 
 
 def _fully_train_logging(model: Network, loss: float, epoch: int, attempt: int, acc: float = -1):
-    print('epoch: {}\nloss: {}'.format(epoch, loss))
+    print(f'Process {mp.current_process().name}, epoch {epoch}, blueprint {model.blueprint.id} -> loss: {loss}')
 
     log = {}
     metric_name = 'accuracy_fm_' + str(model.target_feature_multiplier) + ("_r_" + str(attempt) if attempt > 0 else "")
