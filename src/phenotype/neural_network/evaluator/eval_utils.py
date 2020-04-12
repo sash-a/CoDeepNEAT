@@ -24,18 +24,22 @@ def fetch_training_instruction(training_results: TrainingResults, training_targe
     """
 
     if config.fully_train:
+        if not training_results.just_received_new_acc_reading():
+            # no decisions can be made here unless the latest epoch sampled a test acc
+            return CONTINUE
+
         if check_should_retry_training(training_results.get_max_acc(), training_target, training_results.accuracy_epochs[-1]):
             return RETRY
 
         max_acc_age = training_results.get_max_acc_age()
         if config.ft_allow_lr_drops:
-            if max_acc_age >= 1 + config.ft_auto_stop_count:
+            if config.ft_auto_stop_count != -1 and max_acc_age >= 1 + config.ft_auto_stop_count:
                 # if dropping the LR failed to improve the performance in two follow up acc samples - stop
                 return STOP
-            if max_acc_age == 1:  # the first time the max acc stagnates - drop the LR
+            if max_acc_age >= 1:  # the first time the max acc stagnates - drop the LR
                 return DROP_LR
         else:
-            if max_acc_age >= config.ft_auto_stop_count:
+            if config.ft_auto_stop_count != -1 and max_acc_age >= config.ft_auto_stop_count:
                 return STOP
 
     else:

@@ -43,6 +43,11 @@ class TrainingResults:
             return -1
         return max(self.accuracies)
 
+    def just_received_new_acc_reading(self):
+        # returns true iff the latest epoch sampled a test acc
+        last_acc_epoch = self.accuracy_epochs[-1]
+        return last_acc_epoch == len(self.losses) - 1
+
 
 def get_current_gradient_given_training_data(y_data, x_data=None):
     if x_data is None:

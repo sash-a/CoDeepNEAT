@@ -58,7 +58,7 @@ class Network(nn.Module):
             optim_kwargs = {'betas': (optim_submuts['beta1'].value, optim_submuts['beta2'].value)}
         else:
             raise Exception('Unexpected optimizer, can only be adam or sgd, found:', blueprint.optim.value)
-
+        self.current_learning_rate = blueprint.learning_rate.value
         self.optimizer = blueprint.optim.value(self.parameters(), lr=blueprint.learning_rate.value, **optim_kwargs)
 
     def forward(self, x):
@@ -85,9 +85,6 @@ class Network(nn.Module):
             if output_shape is not None:
                 q.extend([(child, output_shape) for child in list(layer.child_layers)])
 
-    def multiply_learning_rate(self, factor):
-        pass
-
     def visualize(self, parse_number=-1, prefix=""):
         suffix = ("_p" + str(parse_number) if parse_number >= 0 else "")
         phenotype_visualiser.visualise(self, prefix, suffix, node_colour=get_node_colour)
@@ -109,4 +106,9 @@ class Network(nn.Module):
         self.load_state_dict(torch.load(self.save_location()))
 
     def drop_lr(self):
-        pass
+        """used for adaptive learning rate adjustment"""
+        self.current_learning_rate /= config.lr_drop_fac
+
+        for param_group in self.optimizer.param_groups:
+            print("updating lr from", repr(param_group['lr']), "to", self.current_learning_rate)
+            param_group['lr'] = self.current_learning_rate
