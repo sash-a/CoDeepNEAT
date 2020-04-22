@@ -1,10 +1,5 @@
 {
-  "sixteen_epochs": 3,
-  "small_pop": 3,
-  "sgd": 3,
-  "lossy_high_chance": 3,
-  "lossy_low_chance": 3,
-  "tournament_selection": 3,
-  "da_legacy": 3,
-  "da_pop": 3
+  "roulette_selection": 3,
+  "blank_io_nodes": 3,
+  "tournament_selection_large_cutoff": 3
 }

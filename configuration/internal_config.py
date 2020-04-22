@@ -42,3 +42,4 @@ class InternalConfig:
         print('Exiting!')
         self.running = False
         self.save(configuration.config.run_name)
+        print('Exited!')
