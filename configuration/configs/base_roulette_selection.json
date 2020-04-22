@@ -1,0 +1,8 @@
+{
+  "run_name": "base_roulette_selection",
+  "parent_selector": "roulette",
+  "wandb_tags": [
+    "base",
+    "roulette"
+  ]
+}

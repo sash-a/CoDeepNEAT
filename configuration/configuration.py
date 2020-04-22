@@ -22,7 +22,6 @@ class Config:
         self.batch_size = 256
         self.n_evals_per_bp = 4
         self.lr_drop_fac = 2
-
         # ------------------------------------------------ Model stuff ------------------------------------------------
         self.device = 'gpu'  # cpu
         self.n_gpus = 1

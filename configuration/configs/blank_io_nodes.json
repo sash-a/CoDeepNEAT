@@ -1,8 +1,0 @@
-{
-  "run_name": "blank_io_nodes",
-
-  "blank_module_input_nodes": true,
-  "blank_bp_input_nodes": true,
-  "blank_module_output_nodes": true,
-  "blank_bp_output_nodes": true
-}

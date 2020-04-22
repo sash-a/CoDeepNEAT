@@ -1,6 +1,8 @@
 {
-  "roulette_selection": 3,
-  "blank_io_nodes": 3,
-  "tournament_selection_large_cutoff": 3,
-  "element_wise_mul": 3
+  "base": 3,
+  "base_lr_drops": 3,
+  "base_roulette_selection": 3,
+  "base_blank_io_nodes": 3,
+  "base_tournament_selection_50_reproduce": 3,
+  "base_element_wise_mul": 3
 }

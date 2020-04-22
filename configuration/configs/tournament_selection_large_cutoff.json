@@ -1,6 +1,0 @@
-{
-  "run_name": "tournament_selection_large_cutoff",
-
-  "parent_selector": "tournament",
-  "reproduce_percent": 0.5
-}
