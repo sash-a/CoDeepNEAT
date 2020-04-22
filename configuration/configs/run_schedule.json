@@ -1,5 +1,6 @@
 {
   "roulette_selection": 3,
   "blank_io_nodes": 3,
-  "tournament_selection_large_cutoff": 3
+  "tournament_selection_large_cutoff": 3,
+  "element_wise_mul": 3
 }
