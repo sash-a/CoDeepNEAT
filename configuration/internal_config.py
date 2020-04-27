@@ -3,7 +3,6 @@ from os.path import join
 
 import wandb
 
-import runs.runs_manager as runs_manager
 import configuration
 
 
@@ -17,6 +16,7 @@ class InternalConfig:
         self.generation = 0
 
     def save(self, run_name: str, wandb_save=True):
+        import runs.runs_manager as runs_manager
         file_path = join(runs_manager.get_run_folder_path(run_name), 'internal_config.json')
 
         with open(file_path, 'w+') as f:
@@ -31,6 +31,7 @@ class InternalConfig:
                       'be investigated, otherwise ignore it')
 
     def load(self, run_name: str):
+        import runs.runs_manager as runs_manager
         file_path = join(runs_manager.get_run_folder_path(run_name), 'internal_config.json')
 
         with open(file_path, 'r+') as f:

@@ -52,6 +52,7 @@ class Config:
         self.plot_every_phenotype = False
         self.plot_module_species = False
         self.view_batch_image = False
+        self.visualise_moo_scores = False
         # ----------------------------------------------- Dataset stuff -----------------------------------------------
         self.dataset = 'cifar10'  # mnist | cifar10 | custom
         self.custom_dataset_root = ''

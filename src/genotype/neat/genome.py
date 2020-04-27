@@ -7,7 +7,6 @@ from torch import nn
 from configuration import config
 from src.genotype.mutagen.mutagen import Mutagen
 from src.genotype.neat.graph_genome import GraphGenome
-from src.main import generation
 from src.phenotype.neural_network.layers.aggregation_layer import AggregationLayer
 from src.phenotype.neural_network.layers.layer import Layer
 
@@ -21,6 +20,7 @@ class Genome(GraphGenome):
     def __init__(self, nodes: List[Node], connections: List[Connection]):
         super().__init__(nodes, connections)
         import src.main.singleton as Singleton
+        from src.main import generation
 
         self.id = Singleton.instance.genome_id_counter
         Singleton.instance.genome_id_counter += 1
@@ -30,9 +30,9 @@ class Genome(GraphGenome):
         # [ [ objective 0 values ]
         #   ...
         #   [ objective n values] ]
-        self.fitness_raw: List[List[float]] = [[] for _ in range(self.num_objectives)]
+        self.fitness_raw: List[List[float]] = [[] for _ in range(self.num_objectives)]  # unaggregated
 
-        self.fitness_values: List[float] = [0 for _ in range(self.num_objectives)]
+        self.fitness_values: List[float] = [0 for _ in range(self.num_objectives)]  # aggregated wrt n_evals
         self.n_evaluations = 0
         self.parents: List[int] = []  # the ids of the parents of this genome. can be empty if a genome has no parents
 
