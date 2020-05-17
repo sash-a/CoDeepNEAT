@@ -1,9 +1,0 @@
-{
-  "run_name": "element_wise_multiplication_aggregation",
-
-  "element_wise_multiplication_chance": 0.2,
-
-  "wandb_tags": [
-    "element wise multiplication"
-  ]
-}

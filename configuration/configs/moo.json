@@ -1,0 +1,5 @@
+{
+  "run_name": "moo",
+  "multiobjective": true,
+  "wandb_tags": ["moo"]
+}
