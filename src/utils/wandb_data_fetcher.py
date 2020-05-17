@@ -101,9 +101,23 @@ def fix_untagged_runs(extra_tags: List[str] = []):
         run.update()
 
 
+
 if __name__ == '__main__':
     # fetch_config(run_path='codeepneat/cdn/test2019-12-25_599245')
     # print(fetch_run_name(run_id="base2020-01-08_253129"))
     # print(fetch_run('homerun2020-01-11_315871').history())
     # download_run(run_id="base2020-01-08_253129")
-    fix_untagged_runs()
+    # fix_untagged_runs()
+    import os
+
+    for root, dirs, files in os.walk('/home/sasha/wandb/'):
+        for name in dirs:
+            if 'lr' in name:
+                print(os.path.join(root, name))
+                start = name.index('base_base')
+                path = name[start:]
+
+                # wandb.restore(os.path.join(root, name))
+                # wandb.init()
+                # wandb.log({})
+                # break

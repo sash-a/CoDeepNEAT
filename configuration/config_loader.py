@@ -163,7 +163,7 @@ def get_cli_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def stagger(stagger_number: int, stagger_time=6):
+def stagger(stagger_number: int, stagger_time=10):
     """
     Used to make sure runs are not executed at exactly the same time
 
