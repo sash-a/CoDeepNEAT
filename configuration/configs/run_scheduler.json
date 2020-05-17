@@ -2,6 +2,7 @@
   "run_name": "base",
   "batch_size": 512,
   "fully_train_max_epochs": 150,
+  "ft_allow_lr_drops": true,
   "allowed_runtime_sec": 43100,
 
   "configs": {

@@ -1,5 +1,5 @@
 {
-  "run_name": "base_element_wise_mul",
+  "run_name": "element_wise_mul",
   "element_wise_multiplication_chance": 0.33,
   "wandb_tags": [
     "base",

@@ -1,5 +1,5 @@
 {
-  "run_name": "base_tournament_selection_50_reproduce",
+  "run_name": "tournament_selection_50_reproduce",
   "parent_selector": "tournament",
   "reproduce_percent": 0.5,
   "wandb_tags": [
