@@ -77,47 +77,9 @@ def get_metric(metric_name: str, run_id: str = '', run_path: str = '') -> List:
     return gathered_metric
 
 
-def fix_untagged_runs(extra_tags: List[str] = []):
-    """
-    Adds wandb tags to all runs that do not have them (these tags are taken from the config file associated with the
-     runs name)
-    :param extra_tags: tags to be added on to all untagged runs
-    """
-    from configuration import config
-
-    for run in wandb.Api().runs(path='codeepneat/cdn', order="-created_at"):
-        tags = run.config['wandb_tags']
-        if tags:
-            continue
-
-        start = run.name.index('_')
-        end = run.name.rindex('_')
-        name = run.name[start + 1:end] if len(run.name) > 6 else run.name[:end]
-
-        new_tags = list(set(config.read_option(name, 'wandb_tags') + extra_tags))
-        print(f'Adding tags: {new_tags} to run: {name}')
-
-        run.config['wandb_tags'] = new_tags
-        run.update()
-
-
-
 if __name__ == '__main__':
     # fetch_config(run_path='codeepneat/cdn/test2019-12-25_599245')
     # print(fetch_run_name(run_id="base2020-01-08_253129"))
     # print(fetch_run('homerun2020-01-11_315871').history())
     # download_run(run_id="base2020-01-08_253129")
-    # fix_untagged_runs()
-    import os
-
-    for root, dirs, files in os.walk('/home/sasha/wandb/'):
-        for name in dirs:
-            if 'lr' in name:
-                print(os.path.join(root, name))
-                start = name.index('base_base')
-                path = name[start:]
-
-                # wandb.restore(os.path.join(root, name))
-                # wandb.init()
-                # wandb.log({})
-                # break
+    pass
