@@ -41,5 +41,5 @@ def fix_trimmed_name(path):
 
 
 if __name__ == '__main__':
-    fix_trimmed_name('cdn/codeepneat')
-    fix_trimmed_name('cdn/cdn_fully_train')
+    fix_trimmed_name('codeepneat/cdn')
+    fix_trimmed_name('codeepneat/cdn_fully_train')

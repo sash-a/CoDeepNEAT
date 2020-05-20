@@ -27,7 +27,7 @@ class InternalConfig:
                 wandb.save(file_path)
             except ValueError:
                 print('Error: You must call `wandb.init` before calling save. This happens because wandb is not '
-                      'initialized in the main thread in fully training. If you were not fully training this is should '
+                      'initialized in the main thread in fully training. If you were not fully training this should '
                       'be investigated, otherwise ignore it')
 
     def load(self, run_name: str):
