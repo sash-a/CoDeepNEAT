@@ -5,6 +5,7 @@ from typing import List, Tuple, Dict, Set
 from typing import TYPE_CHECKING
 
 from runs import runs_manager
+from src.genotype.cdn.nodes.blueprint_node import BlueprintNode
 
 if TYPE_CHECKING:
     from src.main.generation import Generation
@@ -50,6 +51,10 @@ class Run:
         module_ids: Set[int] = set()
         for node_id in blueprint.get_fully_connected_node_ids():
             node = blueprint.nodes[node_id]
+
+            if type(node) != BlueprintNode:  # Blueprint is replaced by a single module node, won't have a link module
+                continue
+
             if node.linked_module_id == -1:
                 if node.species_id not in blueprint.best_module_sample_map.keys():
                     raise Exception("unlinked blueprint node")

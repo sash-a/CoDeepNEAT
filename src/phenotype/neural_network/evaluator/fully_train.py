@@ -9,6 +9,7 @@ import src.main.singleton as S
 from configuration import config, internal_config
 from src.analysis.run import get_run
 from src.genotype.cdn.genomes.blueprint_genome import BlueprintGenome
+from src.genotype.cdn.nodes.blueprint_node import BlueprintNode
 from src.phenotype.neural_network.evaluator.data_loader import get_data_shape
 from src.phenotype.neural_network.evaluator.evaluator import evaluate, RETRY
 from src.phenotype.neural_network.feature_multiplication import get_model_of_target_size
@@ -28,7 +29,7 @@ def fully_train(run_name):
     This will parallelize all training of all the best networks across the given config.ft_feature_multipliers. i.e each
     different feature multiplier will gets its own process and own gpu if available.
 
-    :param run_name: name of the old run
+    :param run_name: name of the evolutionary run
     """
     print('Fully training...')
     internal_config.ft_started = True
@@ -118,6 +119,7 @@ def eval_with_retries(run: Run, blueprint: BlueprintGenome, gen_num: int, in_siz
 
 def _create_model(run: Run, blueprint: BlueprintGenome, gen_num, in_size, target_feature_multiplier) -> Network:
     S.instance = run.generations[gen_num]
+    blueprint.visualize()
     modules = run.get_modules_for_blueprint(blueprint)
     model: Network = Network(blueprint, in_size, sample_map=blueprint.best_module_sample_map,
                              allow_module_map_ignores=False, feature_multiplier=1,
@@ -135,7 +137,7 @@ def _create_model(run: Run, blueprint: BlueprintGenome, gen_num, in_size, target
                   modules,
                   blueprint.best_module_sample_map,
                   list(set(
-                      [blueprint.nodes[node_id].species_id for node_id in blueprint.get_fully_connected_node_ids()]))))
+                      [blueprint.nodes[node_id].species_id for node_id in blueprint.get_fully_connected_node_ids() if type(blueprint.nodes[node_id]) == BlueprintNode]))))
     print("Training model which scored: {} in evolution , with {} parameters with feature mult: {}\n"
           .format(blueprint.max_acc, model.size(), target_feature_multiplier))
 
