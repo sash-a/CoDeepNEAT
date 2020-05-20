@@ -119,11 +119,11 @@ def eval_with_retries(run: Run, blueprint: BlueprintGenome, gen_num: int, in_siz
 
 def _create_model(run: Run, blueprint: BlueprintGenome, gen_num, in_size, target_feature_multiplier) -> Network:
     S.instance = run.generations[gen_num]
-    blueprint.visualize()
     modules = run.get_modules_for_blueprint(blueprint)
     model: Network = Network(blueprint, in_size, sample_map=blueprint.best_module_sample_map,
                              allow_module_map_ignores=False, feature_multiplier=1,
                              target_feature_multiplier=target_feature_multiplier).to(config.get_device())
+
     model_size = sum(p.numel() for p in model.parameters() if p.requires_grad)
     sample_map = model.sample_map
 
@@ -137,7 +137,8 @@ def _create_model(run: Run, blueprint: BlueprintGenome, gen_num, in_size, target
                   modules,
                   blueprint.best_module_sample_map,
                   list(set(
-                      [blueprint.nodes[node_id].species_id for node_id in blueprint.get_fully_connected_node_ids() if type(blueprint.nodes[node_id]) == BlueprintNode]))))
+                      [blueprint.nodes[node_id].species_id for node_id in blueprint.get_fully_connected_node_ids()
+                       if type(blueprint.nodes[node_id]) == BlueprintNode]))))
     print("Training model which scored: {} in evolution , with {} parameters with feature mult: {}\n"
           .format(blueprint.max_acc, model.size(), target_feature_multiplier))
 
