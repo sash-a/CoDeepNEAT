@@ -97,13 +97,13 @@ def _new_run(reinit=False):
 
     print(f'starting new wandb run {wandb_run_id}')
 
-    wandb.init(job_type=job_type, project=project, entity='codeepneat', name=config.run_name, tags=config.wandb_tags,
-               dir=dir, id=wandb_run_id, reinit=reinit, config=config.__dict__)
-
+    uploaded_config = config.__dict__
     # Specific options for grouping on wandb
-    wandb.config['trimmed_name'] = config.run_name[:-2] if config.run_name[-1].isdigit() else config.run_name
-    wandb.config['elite'] = 'elite' in config.wandb_tags
-    wandb.config['base'] = 'base' in config.wandb_tags
+    trimmed_name = config.run_name[:-2] if config.run_name[-1].isdigit() else config.run_name
+    uploaded_config.update({"trimmed_name": trimmed_name, "elite":'elite' in config.wandb_tags , "base": 'base' in config.wandb_tags } )
+
+    wandb.init(job_type=job_type, project=project, entity='codeepneat', name=config.run_name, tags=config.wandb_tags,
+               dir=dir, id=wandb_run_id, reinit=reinit, config=uploaded_config)
 
 
 def wandb_log(generation: Generation):
