@@ -1,0 +1,12 @@
+{
+  "run_name": "moo_smallp_tournament_lossy_DA",
+
+  "configs": {
+    "moo": true,
+    "small_pop": true,
+    "roulette_selection": false,
+    "tournament_selection": true,
+    "lossy_high_chance": true,
+    "da_legacy": true
+  }
+}
