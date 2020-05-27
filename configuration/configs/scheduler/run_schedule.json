@@ -1,9 +1,6 @@
 {
-  "moo_smallp_roulette_lossy_DA": 3,
-  "smallp_roulette_lossy_DA": 3,
-  "moo_roulette_lossy_DA": 3,
-
-  "moo_smallp_tournament_lossy_DA": 3,
-  "moo_smallp_roulette_DA": 3,
-  "moo_smallp_roulette_lossy": 3
+  "blank_nodes/blank_i_nodes": 3,
+  "extensions/mod_max": 3,
+  "simple_start": 3,
+  "extensions/elite": 3
 }
