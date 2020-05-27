@@ -113,8 +113,8 @@ def wandb_log(generation: Generation):
 
 
 def _wandb_log_generation(generation: Generation):
-    module_accs = sorted([module.accuracy for module in generation.module_population])
-    bp_accs = sorted([bp.accuracy for bp in generation.blueprint_population])
+    module_accs = sorted([module.aggregated_acc for module in generation.module_population])
+    bp_accs = sorted([bp.aggregated_acc for bp in generation.blueprint_population])
 
     n_unevaluated_bps = 0
     n_large_nets = 0

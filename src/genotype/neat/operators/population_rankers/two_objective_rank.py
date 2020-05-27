@@ -16,7 +16,7 @@ class TwoObjectiveRank(PopulationRanker):
     def __init__(self):
         super().__init__(2)
 
-    def rank(self, individuals: Iterable[Genome], value_coefficients:List[int] = None) -> None:
+    def rank(self, individuals: Iterable[Genome], value_coefficients: List[int] = None) -> None:
         num_indvs = len(list(copy.deepcopy(individuals)))
         fronts = self.cdn_rank(individuals)
         if config.visualise_moo_scores:
@@ -24,7 +24,7 @@ class TwoObjectiveRank(PopulationRanker):
 
     @staticmethod
     def cdn_pareto_front(individuals: Iterable[Genome]):
-        acc_ordered_indvs = sorted(individuals, key=lambda indv: indv.accuracy, reverse=True)
+        acc_ordered_indvs = sorted(individuals, key=lambda indv: indv.aggregated_acc, reverse=True)
         # print("accs:",[indv.accuracy for indv in acc_ordered_indvs])
 
         pf = [acc_ordered_indvs[0]]  # pareto front populated with best individual in primary objective
@@ -55,7 +55,7 @@ class TwoObjectiveRank(PopulationRanker):
         print("num ranked indvs", num_individuals)
         for i, indv in enumerate(ranked_individuals):
             # rank=0 is the least fit
-            indv.rank = num_individuals-i
+            indv.rank = num_individuals - i
         return fronts
 
     def plot_scores(self, fronts, num_individuals):
@@ -65,12 +65,12 @@ class TwoObjectiveRank(PopulationRanker):
             yys = []
 
             for indv in fronts[front_no]:
-                colour = self.get_rank_colour(indv,num_individuals)
-                xxs.append(indv.accuracy)
+                colour = self.get_rank_colour(indv, num_individuals)
+                xxs.append(indv.aggregated_acc)
                 yys.append(indv.net_size)
 
             # plt.scatter(xxs, yys, color=colour)
-            plt.scatter(xxs,yys,color=colour, label=label)
+            plt.scatter(xxs, yys, color=colour, label=label)
 
         plt.legend()
         plt.show()
@@ -84,7 +84,7 @@ class TwoObjectiveRank(PopulationRanker):
         dist = lambda indv: abs(diff(indv))  # 0 : 1   ,  0 being frac = 0.5
 
         adjusted_frac = lambda indv: pow(frac(indv), skew_fac ** dist(indv)) if frac(indv) < 0.5 else pow(frac(indv), (
-                    1 / skew_fac) ** dist(indv))
+                1 / skew_fac) ** dist(indv))
 
         rank_colouring = lambda indv: (1 - adjusted_frac(indv), adjusted_frac(indv), 0.5 * adjusted_frac(indv) ** 2)
         return rank_colouring(individual)

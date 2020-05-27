@@ -50,7 +50,7 @@ class Generation:
         self.blueprint_population.aggregate_fitness()
 
         best = self.blueprint_population.get_most_accurate()[0]
-        print("Best nn: {} - {:.2f}%".format(best.id, best.accuracy * 100))
+        print("Best nn: {} - {:.2f}%".format(best.id, best.max_acc * 100))
 
     def step_evolution(self):
         """Runs cdn for one generation. Prepares population objects for the next step."""
