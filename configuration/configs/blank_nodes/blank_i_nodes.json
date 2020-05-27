@@ -1,0 +1,9 @@
+{
+  "run_name": "base_blank_i_nodes",
+  "blank_module_input_nodes": true,
+  "blank_bp_input_nodes": true,
+
+  "wand_tags": [
+    "blank i nodes"
+  ]
+}

@@ -7,6 +7,6 @@
     "roulette_selection": true,
     "tournament_selection": false,
     "lossy_high_chance": true,
-    "da_legacy": true
+    "da/da_legacy": true
   }
 }
