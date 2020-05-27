@@ -20,7 +20,7 @@ from src.genotype.cdn.mutators.module_genome_mutator import ModuleGenomeMutator
 from src.genotype.cdn.nodes.blueprint_node import BlueprintNode
 from src.genotype.cdn.nodes.da_node import DANode
 from src.genotype.cdn.nodes.module_node import ModuleNode
-from src.genotype.cdn.population_initializer import create_population, create_mr
+from src.genotype.cdn.population_initializer.population_initializer import create_population, create_mr
 from src.genotype.neat.operators.speciators.most_similar_speciator import MostSimilarSpeciator
 from src.genotype.neat.operators.speciators.neat_speciator import NEATSpeciator
 from src.genotype.neat.population import Population
@@ -146,20 +146,27 @@ class Generation:
         else:
             ranker = TwoObjectiveRank()
 
-        self.module_population = Population(create_population(config.module_pop_size, ModuleNode, ModuleGenome),
-                                            create_mr(), config.module_pop_size, module_speciator, ranker)
+        self.module_population = Population(
+            create_population(config.module_pop_size, ModuleNode, ModuleGenome, *config.initial_shapes),
+            create_mr(*config.initial_shapes), config.module_pop_size, module_speciator, ranker
+        )
 
         self.blueprint_population = Population(
-            create_population(config.bp_pop_size, BlueprintNode, BlueprintGenome),
-            create_mr(), config.bp_pop_size, bp_speciator, ranker)
+            create_population(config.bp_pop_size, BlueprintNode, BlueprintGenome, *config.initial_shapes),
+            create_mr(*config.initial_shapes), config.bp_pop_size, bp_speciator, ranker
+        )
 
         print("initialised pops, bps:", len(self.blueprint_population), "mods:", len(self.module_population))
 
         if config.evolve_da and config.evolve_da_pop:
             da_speciator = NEATSpeciator(config.species_distance_thresh_mod_base, config.n_blueprint_species,
                                          DAGenomeMutator())
-            self.da_population = Population(create_population(config.da_pop_size, DANode, DAGenome, no_branches=True),
-                                            create_mr(), config.da_pop_size, da_speciator, SingleObjectiveRank())
+
+            da_shapes = ['io_only', 'linear']
+            self.da_population = Population(
+                create_population(config.da_pop_size, DANode, DAGenome, *da_shapes),
+                create_mr(*da_shapes), config.da_pop_size, da_speciator, SingleObjectiveRank()
+            )
 
     def __getitem__(self, genome_id: int):
         if config.evolve_da and config.evolve_da_pop:

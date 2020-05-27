@@ -99,6 +99,8 @@ class Config:
         self.blank_bp_input_nodes = False
         self.blank_module_output_nodes = False
         self.blank_bp_output_nodes = False
+        # The starting shapes for nodes of both population: io_only | linear | triangle | diamond
+        self.initial_shapes = ['io_only', 'linear', 'triangle', 'diamond']
         # ------------------------------------------------- neat stuff -------------------------------------------------
         # Used when calculating distance between genomes
         self.disjoint_coefficient = 3
@@ -183,7 +185,7 @@ class Config:
                 if option_name == "wandb_tags":
                     tags = self.__dict__["wandb_tags"]
                     tags.extend(option_value)
-                    tags = sorted(list(set(tags))) # unique in order
+                    tags = sorted(list(set(tags)))  # unique in order
                     self.__dict__["wandb_tags"] = tags
                 else:
                     self.__dict__[option_name] = option_value
@@ -196,7 +198,7 @@ class Config:
             if isinstance(inner_configs, dict):
                 for config_name in reversed(list(inner_configs.keys())):
                     if inner_configs[config_name]:
-                        print("reading inner config:",config_name)
+                        print("reading inner config:", config_name)
                         self.read(config_name)
             else:
                 raise TypeError('Expected a list of other config options, received: ' + str(type(inner_configs)))
