@@ -65,9 +65,9 @@ str_to_shape = {
 
 # Creates the mutation record for the given shapes
 def io_only_mr(mr: MutationRecords):
-    mutation = (0, 1)
-    if not mr.exists(mutation, True):
-        mr.add_mutation(mutation, True)
+    conn_mutation = (0, 1)
+    if not mr.exists(conn_mutation, True):
+        mr.add_mutation(conn_mutation, True)
 
 
 def linear_mr(mr: MutationRecords):

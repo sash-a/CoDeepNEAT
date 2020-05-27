@@ -33,7 +33,8 @@ def fetch_training_instruction(training_results: TrainingResults, training_targe
 
         max_acc_age = training_results.get_max_acc_age()
         if config.ft_allow_lr_drops:
-            if config.ft_auto_stop_count != -1 and max_acc_age >= 1 + config.ft_auto_stop_count:
+            allow_auto_stops = config.ft_auto_stop_count != -1
+            if allow_auto_stops and max_acc_age >= 1 + config.ft_auto_stop_count:
                 # if dropping the LR failed to improve the performance in two follow up acc samples - stop
                 return STOP
             if max_acc_age >= 1:  # the first time the max acc stagnates - drop the LR
