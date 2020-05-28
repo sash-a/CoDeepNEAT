@@ -37,7 +37,7 @@ def create_population(pop_size: int, Node: Union[Type[ModuleNode], Type[Blueprin
 def create_mr(*shapes: str):
     """Creates the mutation record for the given shapes"""
     validate_shapes(shapes)
-    mr = MutationRecords({}, {}, 0, 0)
+    mr = MutationRecords({}, {})
     for shape in shapes:
         str_to_shape_mr[shape](mr)
 

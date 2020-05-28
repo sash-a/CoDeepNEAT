@@ -59,7 +59,7 @@ class GraphGenome:
         found_next_id = False
         while not found_next_id:
             mutation = (conn_id, count)
-            if record.exists(mutation, False):
+            if record.node_mut_exists(mutation):
                 node_id = record.node_mutations[mutation]
                 if node_id in self.nodes:
                     # If mutation has already occurred in this genome then continue searching for a valid node id

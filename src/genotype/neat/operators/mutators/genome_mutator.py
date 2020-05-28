@@ -121,10 +121,10 @@ class GenomeMutator(Mutator):
             return False
 
         # Adding to global mutation dictionary
-        if mutation_record.exists(candidate_connection, True):
+        if mutation_record.connection_mut_exists(candidate_connection):
             mutation_id = mutation_record.connection_mutations[candidate_connection]
         else:
-            mutation_id = mutation_record.add_mutation(candidate_connection, True)
+            mutation_id = mutation_record.add_conn_mutation(candidate_connection)
 
         # Adding new mutation
         mutated_conn = Connection(mutation_id, from_node.id, to_node.id)
@@ -157,14 +157,14 @@ class GenomeMutator(Mutator):
     def test_and_add_node_on_connection(self, genome: Genome, mutation_record: MutationRecords, connection: Connection):
 
         n_mutations_on_conn = genome.n_mutations_on_connection(mutation_record, connection.id)
-        mutation_id = (connection.id, n_mutations_on_conn)
+        node_mutation_id = (connection.id, n_mutations_on_conn)
 
-        if mutation_record.exists(mutation_id, False):
+        if mutation_record.node_mut_exists(node_mutation_id):
             # this node mutation has occurred before
             # ie: this connection has had a node placed already
 
             # the id of the original node which was placed on this connection
-            mutated_node_id = mutation_record.node_mutations[mutation_id]
+            mutated_node_id = mutation_record.node_mutations[node_mutation_id]
             if mutated_node_id in genome.nodes:
                 raise Exception("node id already in genome, but searched for unique node id")
 
@@ -175,7 +175,7 @@ class GenomeMutator(Mutator):
         else:
             # if this mutation hasn't occurred before if should not be in any genome
 
-            mutated_node_id = mutation_record.add_mutation(mutation_id, False)
+            mutated_node_id = mutation_record.add_node_mutation(node_mutation_id)
 
             if mutated_node_id in genome.nodes:  # this connection has already created a new node
                 raise Exception("tried to mutate a node onto connection " + str(connection.id) +
@@ -183,8 +183,8 @@ class GenomeMutator(Mutator):
                                 " but this value is already present in the genome: " + repr(genome.nodes.keys()) +
                                 "\nmutation record: " + repr(mutation_record))
 
-            into_node_connection_id = mutation_record.add_mutation((connection.from_node_id, mutated_node_id), True)
-            out_of_node_connection_id = mutation_record.add_mutation((mutated_node_id, connection.to_node_id), True)
+            into_node_connection_id = mutation_record.add_conn_mutation((connection.from_node_id, mutated_node_id))
+            out_of_node_connection_id = mutation_record.add_conn_mutation((mutated_node_id, connection.to_node_id))
 
         TypeNode = type(list(genome.nodes.values())[0])  # node could be a blueprint, module or da node
         # multiple node objects share the same id. indicating they are topologically the same

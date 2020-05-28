@@ -24,7 +24,7 @@ def io_only(Node: Union[Type[ModuleNode], Type[BlueprintNode], Type[DANode]],
         Union[ModuleGenome, BlueprintGenome, DAGenome]:
     return Genome(
         ([Node(*in_node_params), Node(*out_node_params)]),
-        [Connection(1, 0, 1)]
+        [Connection(0, 0, 1)]
     )
 
 
@@ -65,22 +65,23 @@ str_to_shape = {
 
 # Creates the mutation record for the given shapes
 def io_only_mr(mr: MutationRecords):
+    # the mutation record for the connection from the input to output node
     conn_mutation = (0, 1)
-    if not mr.exists(conn_mutation, True):
-        mr.add_mutation(conn_mutation, True)
+    if not mr.connection_mut_exists(conn_mutation):
+        mr.add_conn_mutation(conn_mutation)
 
 
 def linear_mr(mr: MutationRecords):
     io_only_mr(mr)
 
-    node_mutation = (0, 0)
+    node_mutation = (0, 0)  # 1st time placing a node on conn 0
     conn_mutations = [(0, 2), (2, 1)]
-    if not mr.exists(node_mutation, False):
-        mr.add_mutation(node_mutation, False)
+    if not mr.node_mut_exists(node_mutation):
+        mr.add_node_mutation(node_mutation)
 
     for conn_mutation in conn_mutations:
-        if not mr.exists(conn_mutation, True):
-            mr.add_mutation(conn_mutation, True)
+        if not mr.connection_mut_exists(conn_mutation):
+            mr.add_conn_mutation(conn_mutation)
 
 
 def triangle_mr(mr: MutationRecords):
@@ -90,14 +91,14 @@ def triangle_mr(mr: MutationRecords):
 def diamond_mr(mr: MutationRecords):
     linear_mr(mr)
 
-    node_mutation = (0, 1)
+    node_mutation = (0, 1)  # 2nd time placing a node on conn 0
     conn_mutations = [(0, 3), (3, 1)]
-    if not mr.exists(node_mutation, False):
-        mr.add_mutation(node_mutation, False)
+    if not mr.node_mut_exists(node_mutation):
+        mr.add_node_mutation(node_mutation)
 
     for conn_mutation in conn_mutations:
-        if not mr.exists(conn_mutation, True):
-            mr.add_mutation(conn_mutation, True)
+        if not mr.connection_mut_exists(conn_mutation):
+            mr.add_conn_mutation(conn_mutation)
 
 
 str_to_shape_mr = {
