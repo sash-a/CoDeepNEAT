@@ -13,5 +13,5 @@
     "base"
   ],
 
-  "batch_run_scheduler": "scheduler/run_schedule"
+  "batch_run_scheduler": "run_schedule"
 }

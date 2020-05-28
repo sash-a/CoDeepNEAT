@@ -10,4 +10,4 @@ if TYPE_CHECKING:
 
 class BestRepSelector(RepresentativeSelector):
     def select_representative(self, genomes: Dict[int:Genome]) -> Genome:
-        return max(genomes.values(), key=lambda genome: genome.accuracy)
+        return max(genomes.values(), key=lambda genome: genome.aggregated_acc)

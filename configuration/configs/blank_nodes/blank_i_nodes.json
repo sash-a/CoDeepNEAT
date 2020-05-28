@@ -1,5 +1,8 @@
 {
-  "run_name": "base_blank_i_nodes",
+  "run_name": "blank_i_nodes",
+
+  "n_generations": 50,
+
   "blank_module_input_nodes": true,
   "blank_bp_input_nodes": true,
 

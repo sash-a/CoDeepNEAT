@@ -21,7 +21,6 @@ class Config:
         self.optim = 'adam'  # sgd | adam | evolve
         self.batch_size = 256
         self.n_evals_per_bp = 4
-        self.lr_drop_fac = 2
         # ------------------------------------------------ Model stuff ------------------------------------------------
         self.device = 'gpu'  # cpu
         self.n_gpus = 1
@@ -33,13 +32,18 @@ class Config:
         # --------------------------------------------- Fully train stuff ---------------------------------------------
         self.fully_train = False
         self.resume_fully_train = False  # used to know if a generation should be downloaded from wandb or a fully train should be downloaded
-        self.fully_train_accuracy_test_period = 10
+
         self.fully_train_max_epochs = 300
         self.fully_train_best_n_blueprints = 5
+
         self.ft_feature_multipliers = [1, 2, 3]
+
+        self.fully_train_accuracy_test_period = 10
         self.ft_retries = True  # retry if accuracy seems too low
         self.ft_auto_stop_count = 3  # number of acc plateaus before a stop. -1 for no auto stopping
-        self.ft_allow_lr_drops = True
+
+        self.ft_allow_lr_drops = True  # drops the learning rate if accuracy plateaus
+        self.lr_drop_fac = 2
         # ---------------------------------------------- Debug Options ----------------------------------------------
         self.dummy_run = False
         self.dummy_time = 0  # number of seconds to wait to return a dummy eval

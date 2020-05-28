@@ -41,6 +41,8 @@ def create_mr(*shapes: str):
     for shape in shapes:
         str_to_shape_mr[shape](mr)
 
+    return mr
+
 
 def _blank_genome_nodes(genome: Union[ModuleGenome, BlueprintGenome, DAGenome]):
     """Blanks a genomes nodes if the config options allow it"""

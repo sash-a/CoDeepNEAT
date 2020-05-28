@@ -14,6 +14,7 @@ from src.genotype.neat.operators.representative_selectors.representative_selecto
 if TYPE_CHECKING:
     from src.genotype.neat.genome import Genome
 
+
 class Species:
     species_id_counter = 0
 
@@ -69,9 +70,9 @@ class Species:
         if elite == 0:  # don't want to count ties if there are no elite anyways
             return elite
 
-        highest_acc = self.members[self.ranked_members[0]].accuracy
+        highest_acc = self.members[self.ranked_members[0]].aggregated_acc
         self.max_fitness_ties = \
-            sum(genome.accuracy == highest_acc for genome in self.members.values())  # TODO test
+            sum(genome.aggregated_acc == highest_acc for genome in self.members.values())  # TODO test
         return max(elite, self.max_fitness_ties)
 
     def _unfill(self):
