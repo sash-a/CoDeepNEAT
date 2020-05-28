@@ -15,8 +15,9 @@ class MutationRecords:
         # where node_count is the number of times a mutation has occurred on this connection
         self.node_mutations = initial_node_mutations
 
-        self._next_node_id = -1  # -1 as get method increments then returns, meaning 0 will be returned first call
-        self._next_conn_id = -1
+        self._curr_node_id = 1  # 1 as we start with nodes 0 and 1 as the initialization (they aren't mutated in)
+        # -1 as get method increments then returns, meaning 0 will be returned first call and connections are mutated in
+        self._curr_conn_id = -1
 
     def __repr__(self):
         return 'Connections: ' + repr(self.connection_mutations) + '\nnodes: ' + repr(self.node_mutations)
@@ -31,22 +32,23 @@ class MutationRecords:
 
     def add_conn_mutation(self, mutation: Tuple[int, int]):
         if mutation in self.connection_mutations:
-            raise Exception('Connection mutation already exists')
+            raise Exception(f'Connection mutation already exists. Trying to add connection with from node'
+                            f' {mutation[0]} to node {mutation[1]}')
 
         self.connection_mutations[mutation] = self.get_next_connection_id()
-        return self._next_conn_id
+        return self._curr_conn_id
 
     def add_node_mutation(self, mutation: Tuple[int, int]):
         if mutation in self.node_mutations:
             raise Exception('Node mutation already exists')
 
         self.node_mutations[mutation] = self.get_next_node_id()
-        return self._next_node_id
+        return self._curr_node_id
 
     def get_next_node_id(self) -> int:
-        self._next_node_id += 1
-        return self._next_node_id
+        self._curr_node_id += 1
+        return self._curr_node_id
 
     def get_next_connection_id(self) -> int:
-        self._next_conn_id += 1
-        return self._next_conn_id
+        self._curr_conn_id += 1
+        return self._curr_conn_id

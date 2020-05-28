@@ -31,15 +31,17 @@ def io_only(Node: Union[Type[ModuleNode], Type[BlueprintNode], Type[DANode]],
 def linear(Node: Union[Type[ModuleNode], Type[BlueprintNode], Type[DANode]],
            Genome: Union[Type[ModuleGenome], Type[BlueprintGenome], Type[DAGenome]]) -> \
         Union[ModuleGenome, BlueprintGenome, DAGenome]:
+
     return Genome(
         ([Node(*in_node_params), Node(*mid_node_params), Node(*out_node_params)]),
-        [Connection(1, 0, 2), Connection(2, 2, 1)]
+        [Connection(0, 0, 1, False), Connection(1, 0, 2), Connection(2, 2, 1)]
     )
 
 
 def triangle(Node: Union[Type[ModuleNode], Type[BlueprintNode], Type[DANode]],
              Genome: Union[Type[ModuleGenome], Type[BlueprintGenome], Type[DAGenome]]) -> \
         Union[ModuleGenome, BlueprintGenome, DAGenome]:
+
     return Genome(
         ([Node(*in_node_params), Node(*mid_node_params), Node(*out_node_params)]),
         [Connection(0, 0, 1), Connection(1, 0, 2), Connection(2, 2, 1)]
@@ -49,6 +51,7 @@ def triangle(Node: Union[Type[ModuleNode], Type[BlueprintNode], Type[DANode]],
 def diamond(Node: Union[Type[ModuleNode], Type[BlueprintNode], Type[DANode]],
             Genome: Union[Type[ModuleGenome], Type[BlueprintGenome], Type[DAGenome]]) -> \
         Union[ModuleGenome, BlueprintGenome, DAGenome]:
+
     return Genome(
         ([Node(*in_node_params), Node(*mid_node_params), Node(3, NodeType.HIDDEN), Node(*out_node_params)]),
         [Connection(1, 0, 2), Connection(3, 0, 3), Connection(4, 3, 1), Connection(2, 2, 1)]
