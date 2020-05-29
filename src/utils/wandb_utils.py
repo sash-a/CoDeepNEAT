@@ -97,13 +97,8 @@ def _new_run(reinit=False):
 
     print(f'starting new wandb run {wandb_run_id}')
 
-    uploaded_config = config.__dict__
-    # Specific options for grouping on wandb
-    trimmed_name = config.run_name[:-2] if config.run_name[-1].isdigit() else config.run_name
-    uploaded_config.update({"trimmed_name": trimmed_name, "elite":'elite' in config.wandb_tags , "base": 'base' in config.wandb_tags } )
-
     wandb.init(job_type=job_type, project=project, entity='codeepneat', name=config.run_name, tags=config.wandb_tags,
-               dir=dir, id=wandb_run_id, reinit=reinit, config=uploaded_config)
+               dir=dir, id=wandb_run_id, reinit=reinit, config=add_to_config())
 
 
 def wandb_log(generation: Generation):
@@ -210,3 +205,13 @@ def _fully_train_logging(model: Network, loss: float, epoch: int, attempt: int, 
 
         wandb.config.update({'current_ft_epoch': epoch}, allow_val_change=True)
         wandb.save(join(get_run_folder_path(config.run_name), 'config.json'))
+
+
+def add_to_config() -> dict:
+    """Adds extra values to config for use on wandb for easier filtering/grouping"""
+    cfg = config.__dict__
+    # Specific options for grouping on wandb
+    trimmed_name = config.run_name[:-2] if config.run_name[-1].isdigit() else config.run_name
+    cfg.update(
+        {"trimmed_name": trimmed_name, "elite": 'elite' in config.wandb_tags, "base": 'base' in config.wandb_tags})
+    return cfg
