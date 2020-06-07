@@ -1,0 +1,5 @@
+{
+  "run_name": "similar_speciation",
+  "module_speciation": "similar",
+  "wandb_tags": [ "similar speciation" ]
+}

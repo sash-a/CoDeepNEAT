@@ -46,7 +46,9 @@ def evaluate_blueprint(blueprint: BlueprintGenome, input_size: List[int],
     Handles the assignment of the single/multi obj finesses to the blueprint in parallel
     """
 
-    model: Network = Network(blueprint, input_size, feature_multiplier=feature_multiplier).to(config.get_device())
+    allow_ignores = blueprint.n_evaluations==0
+    model: Network = Network(blueprint, input_size, feature_multiplier=feature_multiplier,
+                             allow_module_map_ignores=allow_ignores).to(config.get_device())
     model_size = sum(p.numel() for p in model.parameters() if p.requires_grad)
     sample_map = model.sample_map
     if config.target_network_size != -1:

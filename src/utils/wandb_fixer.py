@@ -3,12 +3,14 @@ from typing import List
 import wandb
 
 
-def fix_untagged_runs(extra_tags: List[str] = []):
+def fix_untagged_runs(extra_tags=None):
     """
     Adds wandb tags to all runs that do not have them (these tags are taken from the config file associated with the
      runs name)
     :param extra_tags: tags to be added on to all untagged runs
     """
+    if extra_tags is None:
+        extra_tags = []
     from configuration import config
 
     for run in wandb.Api().runs(path='codeepneat/cdn', order="-created_at"):

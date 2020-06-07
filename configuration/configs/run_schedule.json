@@ -1,6 +1,9 @@
 {
-  "blank_nodes/blank_i_nodes": 3,
-  "extensions/mod_max": 3,
-  "simple_start": 3,
-  "extensions/elite": 3
+  "tune/similar_speciation": 3,
+  "tune/unbounded_ignores": 3,
+  "small_pop": 3,
+  "lossy_high_chance": 3,
+  "lossy_low_chance": 3,
+  "elite": 3,
+  "base": 3
 }

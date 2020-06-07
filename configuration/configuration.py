@@ -33,14 +33,14 @@ class Config:
         self.fully_train = False
         self.resume_fully_train = False  # used to know if a generation should be downloaded from wandb or a fully train should be downloaded
 
-        self.fully_train_max_epochs = 300
+        self.fully_train_max_epochs = 150
         self.fully_train_best_n_blueprints = 5
 
         self.ft_feature_multipliers = [1, 2, 3]
 
         self.fully_train_accuracy_test_period = 10
         self.ft_retries = True  # retry if accuracy seems too low
-        self.ft_auto_stop_count = 3  # number of acc plateaus before a stop. -1 for no auto stopping
+        self.ft_auto_stop_count = -1  # number of acc plateaus before a stop. -1 for no auto stopping
 
         self.ft_allow_lr_drops = True  # drops the learning rate if accuracy plateaus
         self.lr_drop_fac = 2
@@ -71,7 +71,7 @@ class Config:
         self.da_link_forget_chance = 0.25
         self.batch_augmentation = True
         # ------------------------------------------------- cdn stuff -------------------------------------------------
-        self.multiobjective = False
+        self.multiobjective = True
         # Population and species sizes
         self.module_pop_size = 50
         self.bp_pop_size = 20
@@ -94,9 +94,10 @@ class Config:
         # Module retention/elitism
         self.fitness_aggregation = 'avg'  # max | avg
         self.use_module_retention = False
-        self.module_map_forget_mutation_chance = 0.2
-        self.max_module_map_ignores = 1
-        self.parent_selector = "uniform"  # uniform | roulette | tournament
+        self.module_map_forget_mutation_chance = 0.2  # chance for a blueprint to forget a linked module during mutation
+        self.max_module_map_ignores = 1  # max number of eval ignores (eval 0 has no ignores)
+        self.parent_selector = "roulette"  # uniform | roulette | tournament
+        self.tournament_size = 5
         self.representative_selector = 'random'  # best | centroid | random
         # blank node settings - if true input/output nodes are left blank perpetually
         self.blank_module_input_nodes = False
@@ -104,7 +105,7 @@ class Config:
         self.blank_module_output_nodes = False
         self.blank_bp_output_nodes = False
         # The starting shapes for nodes of both population: io_only | linear | triangle | diamond
-        self.initial_shapes = ['io_only', 'linear', 'triangle', 'diamond']
+        self.initial_shapes = ['io_only']  # {'io_only', 'linear', 'triangle', 'diamond'}
         # ------------------------------------------------- neat stuff -------------------------------------------------
         # Used when calculating distance between genomes
         self.disjoint_coefficient = 3

@@ -54,7 +54,7 @@ def init_operators():
     elif config.parent_selector.lower() == "roulette":
         Species.selector = RouletteSelector()
     elif config.parent_selector.lower() == "tournament":
-        Species.selector = TournamentSelector(5)
+        Species.selector = TournamentSelector(config.tournament_size)
     else:
         raise Exception("unrecognised parent selector in config: " + str(config.parent_selector).lower() +
                         " expected either: uniform | roulette | tournament")

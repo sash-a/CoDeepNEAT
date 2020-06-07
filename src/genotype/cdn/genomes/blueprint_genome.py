@@ -83,7 +83,7 @@ class BlueprintGenome(Genome):
             allow_module_map_ignores = False
 
         return super().to_phenotype(module_sample_map=sample_map,
-                                    ignore_species=self.forget_module(allow_module_map_ignores),
+                                    ignore_species=self.get_ignored_modules_in_eval(allow_module_map_ignores),
                                     feature_multiplier=feature_multiplier), sample_map
 
     def visualize(self, parse_number=-1, prefix=""):
@@ -152,8 +152,10 @@ class BlueprintGenome(Genome):
             self.best_module_sample_map = candidate_map
             self.best_sample_map_accuracy = accuracy
 
-    def forget_module(self, allow_module_map_ignores: bool) -> List[int]:
-        """forget module maps with a probability based on how fully mapped the blueprint is"""
+    def get_ignored_modules_in_eval(self, allow_module_map_ignores: bool) -> List[int]:
+        """
+        forget module maps with a probability based on how fully mapped the blueprint is
+        """
         if config.max_module_map_ignores == 0 or not allow_module_map_ignores:
             return []
         # of all of the nodes what percent of their linked species are in the module map
@@ -166,13 +168,14 @@ class BlueprintGenome(Genome):
 
         map_frac = len(mapped_species) / len(species_ids)
 
-        n_species_to_unmap = min(config.max_module_map_ignores, int(len(mapped_species) * map_frac * random.random()))
-        species_to_unmap = []
+        n_species_to_unmap = random.randint(1, len(mapped_species))
+        if config.max_module_map_ignores != -1:
+            n_species_to_unmap = min(config.max_module_map_ignores, n_species_to_unmap)
 
-        if (random.random() < math.pow(map_frac, 1.5)) or map_frac == 1:
+        if random.random() < map_frac:
             # fully mapped blueprints are guaranteed to lose a mapping
-            species_to_unmap = random.choices(list(mapped_species), k=max(n_species_to_unmap, 1))
-        return species_to_unmap
+            return random.choices(list(mapped_species), k=n_species_to_unmap)
+        return []
 
     # -------------------------- FITNESS REPORTING --------------------------
     def report_module_fitness(self, accuracy, sample_map):
