@@ -2,8 +2,8 @@
   "run_name": "node_repeats",
 
   "configs": {
-    "extensions/layer_repeats": true,
-    "extensions/module_repeats": true
+    "layer_repeats": true,
+    "module_repeats": true
   },
 
   "wandb_tags": [

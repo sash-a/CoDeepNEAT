@@ -1,8 +1,0 @@
-{
-  "run_name": "lr_drops",
-  "ft_allow_lr_drops": true,
-  "wand_tags": [
-    "base",
-    "lr_drop"
-  ]
-}

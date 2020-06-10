@@ -1,7 +1,7 @@
 {
   "run_name": "elite",
   "configs": {
-    "extensions/mod_max": true,
+    "mod_max": true,
     "speciation_similar_centroid": true
   },
   "wandb_tags": [

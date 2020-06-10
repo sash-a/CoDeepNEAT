@@ -6,6 +6,7 @@ from typing import Dict, Optional
 from torch import device
 
 
+
 class Config:
     def __init__(self):
         # ----------------------------------------------- General stuff -----------------------------------------------
@@ -153,9 +154,32 @@ class Config:
             file += ".json"
 
         if not file.startswith("/"):
-            file = os.path.join(os.path.dirname(__file__), 'configs', file)
+            # a config can be specified with a full path, allowing it to be saved outside the configs folder
+            # prepend the full path up to the configs folder
+            preceding_path = Config.find_path_containing_file(file)
+            file = os.path.join(preceding_path, file)
 
         return file
+
+    @staticmethod
+    def find_path_containing_file(file):
+        bare_file = file.split("/")[-1]  # just conf_name.json
+        path_items = file.split("/")[:-1]
+
+        configs_folder = os.path.join(os.path.dirname(__file__), 'configs')
+        # fetch all dir which contain the bare_file name
+        contained_dirs = [sub[0] for sub in os.walk(configs_folder) if bare_file in sub[2]]
+        # filter leaving ones which end in the given path
+        if len(path_items) > 0:
+            # a path was specified, find the containing dirs which match this path at their ends
+            contained_dirs = [d for d in contained_dirs if path_items == d.split("/")[-len(path_items):]]
+
+        if len(contained_dirs) > 1:
+            raise Exception("ambiguous config specified. given " + file + " found in " + repr(contained_dirs))
+        if len(contained_dirs) == 0:
+            raise Exception("cannot find specified config " + file + " in " + configs_folder)
+
+        return contained_dirs[0]
 
     def read_option(self, file: str, option: str) -> Optional[any]:
         file = Config.build_file_path(file)
@@ -207,3 +231,15 @@ class Config:
                         self.read(config_name)
             else:
                 raise TypeError('Expected a list of other config options, received: ' + str(type(inner_configs)))
+
+if __name__ == "__main__":
+    print(Config.find_path_containing_file("similar_speciation.json"))
+    print(Config.find_path_containing_file("elite.json"))
+    try:
+        print(Config.find_path_containing_file("fake_duplicate.json"))
+    except Exception as e:
+        print(e)
+    print(Config.find_path_containing_file("base/fake_duplicate.json"))
+    print(Config.find_path_containing_file("tune/base/fake_duplicate.json"))
+    print(Config.find_path_containing_file("configs/fake_duplicate.json"))
+

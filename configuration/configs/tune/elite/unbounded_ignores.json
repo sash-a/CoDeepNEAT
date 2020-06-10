@@ -1,6 +1,6 @@
 {
   "run_name": "unbounded_ignores",
-  "configs": {"extensions/elite": true},
+  "configs": {"elite": true},
   "max_module_map_ignores": -1,
   "wandb_tags": [ "unbounded ignores" ]
 }

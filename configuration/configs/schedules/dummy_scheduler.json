@@ -1,0 +1,14 @@
+{
+  "run_name": "dummy",
+  "batch_size": 1,
+  "allowed_runtime_sec": 43100,
+  "dummy_run": true,
+  "n_generations":  1,
+  "use_wandb": false,
+
+  "wandb_tags": [
+    "dummy"
+  ],
+
+  "batch_run_scheduler": "dummy_run_schedule"
+}

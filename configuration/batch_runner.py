@@ -3,27 +3,17 @@ import os
 from typing import Dict, Tuple
 import runs.runs_manager as run_man
 import configuration as cfg
-
-
-def build_file_path(file: str) -> str:
-    # If the path is not absolute (i.e starts at root) then search in configs dir
-    if not file.endswith('.json'):
-        file += '.json'
-
-    if not file.startswith("/"):
-        file = os.path.join(os.path.dirname(__file__), 'configs', file)
-
-    return file
+from configuration import Config
 
 
 def get_config_path(path: str, scheduler_run_name: str) -> Tuple[str, str]:
     """picks which config to use next."""
-    config_paths = read_json(build_file_path(path))  # dict: path -> num_runs
+    config_paths = read_json(Config.build_file_path(path))  # dict: path -> num_runs
 
     for config_path in config_paths:
         n_runs = config_paths[config_path]
         for i in range(n_runs):
-            config_dict = read_json(build_file_path(config_path))
+            config_dict = read_json(Config.build_file_path(config_path))
             scheduled_run_name = config_dict['run_name']
             run_name = _get_effective_run_name(scheduled_run_name, i, scheduler_run_name)
             run_path = run_man.get_run_folder_path(run_name)

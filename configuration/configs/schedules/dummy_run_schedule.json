@@ -1,0 +1,8 @@
+{
+  "similar_speciation": 1,
+  "unbounded_ignores": 1,
+  "small_pop": 1,
+  "lossy_high_chance": 1,
+  "elite": 1,
+  "base": 1
+}

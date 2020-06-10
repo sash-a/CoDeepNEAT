@@ -1,6 +1,6 @@
 {
-  "tune/similar_speciation": 3,
-  "tune/unbounded_ignores": 3,
+  "similar_speciation": 3,
+  "unbounded_ignores": 3,
   "small_pop": 3,
   "lossy_high_chance": 3,
   "lossy_low_chance": 3,
