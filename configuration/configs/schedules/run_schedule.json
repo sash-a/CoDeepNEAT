@@ -1,9 +1,7 @@
 {
-  "similar_speciation": 3,
-  "unbounded_ignores": 3,
-  "small_pop": 3,
-  "lossy_high_chance": 3,
-  "lossy_low_chance": 3,
-  "elite": 3,
-  "base": 3
+  "forget_mutation_075": 3,
+  "forget_mutation_05": 3,
+  "forget_mutation_01": 3,
+  "mm_similar_spc": 3,
+  "mm_best_spc": 3
 }

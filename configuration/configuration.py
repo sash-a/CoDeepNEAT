@@ -37,7 +37,7 @@ class Config:
         self.fully_train_max_epochs = 150
         self.fully_train_best_n_blueprints = 5
 
-        self.ft_feature_multipliers = [1, 2, 3]
+        self.ft_feature_multipliers = [1, 3, 5]
 
         self.fully_train_accuracy_test_period = 10
         self.ft_retries = True  # retry if accuracy seems too low
@@ -96,7 +96,7 @@ class Config:
         self.fitness_aggregation = 'avg'  # max | avg
         self.use_module_retention = False
         self.module_map_forget_mutation_chance = 0.2  # chance for a blueprint to forget a linked module during mutation
-        self.max_module_map_ignores = 1  # max number of eval ignores (eval 0 has no ignores)
+        self.max_module_map_ignores = -1  # max number of eval ignores (eval 0 has no ignores) | -1 = unbounded
         self.parent_selector = "roulette"  # uniform | roulette | tournament
         self.tournament_size = 5
         self.representative_selector = 'random'  # best | centroid | random
@@ -231,15 +231,3 @@ class Config:
                         self.read(config_name)
             else:
                 raise TypeError('Expected a list of other config options, received: ' + str(type(inner_configs)))
-
-if __name__ == "__main__":
-    print(Config.find_path_containing_file("similar_speciation.json"))
-    print(Config.find_path_containing_file("elite.json"))
-    try:
-        print(Config.find_path_containing_file("fake_duplicate.json"))
-    except Exception as e:
-        print(e)
-    print(Config.find_path_containing_file("base/fake_duplicate.json"))
-    print(Config.find_path_containing_file("tune/base/fake_duplicate.json"))
-    print(Config.find_path_containing_file("configs/fake_duplicate.json"))
-

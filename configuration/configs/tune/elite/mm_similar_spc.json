@@ -1,0 +1,11 @@
+{
+  "run_name": "mm_similar_spc",
+  "representative_selector": "similar",
+
+  "configs": {
+    "mod_max": true
+  },
+  "wandb_tags": [
+    "similar speciation"
+  ]
+}
