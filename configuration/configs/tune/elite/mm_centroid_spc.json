@@ -1,0 +1,11 @@
+{
+  "run_name": "mm_centroid_spc",
+  "representative_selector": "centroid",
+
+  "configs": {
+    "mod_max": true
+  },
+  "wandb_tags": [
+    "centroid speciation"
+  ]
+}
