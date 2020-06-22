@@ -1,9 +1,6 @@
 from __future__ import annotations
 
-from os.path import join
 from typing import TYPE_CHECKING, Union
-import multiprocessing as mp
-
 
 import random
 import time
@@ -14,9 +11,11 @@ import torch
 from sklearn.metrics import accuracy_score
 from torch.utils.data import DataLoader
 
+from src.analysis.reporters.base_reporter import BaseReporter
+from src.analysis.reporters.reporter_set import ReporterSet
 from src.phenotype.augmentations.batch_augmentation_scheme import BatchAugmentationScheme
 from src.phenotype.neural_network.evaluator.data_loader import imshow, load_data, load_transform
-from configuration import config, internal_config
+from configuration import config
 
 from src.phenotype.neural_network.evaluator.eval_utils import fetch_training_instruction, \
     RETRY, CONTINUE, STOP, DROP_LR
@@ -27,7 +26,7 @@ if TYPE_CHECKING:
     from src.phenotype.neural_network.neural_network import Network
 
 
-def evaluate(model: Network, n_epochs, training_target=-1, attempt=0) -> Union[float, str]:
+def evaluate(model: Network, n_epochs, training_target=-1, attempt=0, reporter=ReporterSet()) -> Union[float, str]:
     """trains model on training data, test on testing and returns test acc"""
     if config.dummy_run:
         if config.dummy_time > 0:
@@ -44,7 +43,9 @@ def evaluate(model: Network, n_epochs, training_target=-1, attempt=0) -> Union[f
 
     training_results = TrainingResults()
     for epoch in range(start, n_epochs):
-        loss = train_epoch(model, train_loader, aug, device)
+        reporter.on_start_epoch(model, epoch)
+
+        loss = train_epoch(model, train_loader, aug, device, reporter)
         model.last_epoch = epoch
         training_results.add_loss(loss)
 
@@ -57,8 +58,9 @@ def evaluate(model: Network, n_epochs, training_target=-1, attempt=0) -> Union[f
             acc = test_nn(model, test_loader)
             training_results.add_accuracy(acc, epoch)
 
-        if config.fully_train:
-            _fully_train_logging(model, loss, epoch, attempt, acc)
+            # if config.fully_train:
+            #     _fully_train_logging(model, loss, epoch, attempt, acc)
+        reporter.on_end_epoch(model, epoch, loss, acc)
 
         TRAINING_INSTRUCTION = fetch_training_instruction(training_results, training_target)
         if TRAINING_INSTRUCTION == CONTINUE:
@@ -72,12 +74,13 @@ def evaluate(model: Network, n_epochs, training_target=-1, attempt=0) -> Union[f
                 break  # exits for, runs final acc test, returns
         if TRAINING_INSTRUCTION == DROP_LR:
             model.drop_lr()
+
     print("doing final acc test")
     final_test_acc = test_nn(model, test_loader)
     return max(final_test_acc, training_results.get_max_acc())
 
 
-def train_epoch(model: Network, train_loader: DataLoader, augmentor: BatchAugmentationScheme, device) -> float:
+def train_epoch(model: Network, train_loader: DataLoader, augmentor: BatchAugmentationScheme, device, reporter: ReporterSet) -> float:
     model.train()
     loss: float = 0
     batch_idx = 0
@@ -85,10 +88,14 @@ def train_epoch(model: Network, train_loader: DataLoader, augmentor: BatchAugmen
     for batch_idx, (inputs, targets) in enumerate(train_loader):
         if config.max_batches != -1 and batch_idx > config.max_batches:
             break
-        model.optimizer.zero_grad()
-        loss += train_batch(model, inputs, targets, augmentor, device)
 
-    return loss/batch_idx
+        model.optimizer.zero_grad()
+
+        reporter.on_start_batch(batch_idx, loss)
+        loss += train_batch(model, inputs, targets, augmentor, device)
+        reporter.on_end_batch(batch_idx, loss)
+
+    return loss / batch_idx
 
 
 def train_batch(model: Network, inputs: torch.Tensor, labels: torch.Tensor, augmentor: BatchAugmentationScheme, device):
@@ -104,7 +111,7 @@ def train_batch(model: Network, inputs: torch.Tensor, labels: torch.Tensor, augm
     m_loss.backward()
     model.optimizer.step()
 
-    return m_loss.item()/config.batch_size
+    return m_loss.item() / config.batch_size
 
 
 def test_nn(model: Network, test_loader: DataLoader):
@@ -128,5 +135,3 @@ def test_nn(model: Network, test_loader: DataLoader):
             count = batch_idx
 
     return total_acc / count
-
-

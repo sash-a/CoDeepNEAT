@@ -1,11 +1,8 @@
-# from scipy.optimize import curve_fit
 import numpy as np
 
 
 class TrainingResults:
-    """
-        an object to store the loss values and intermediate accuracy readings of a training session
-    """
+    """an object to store the loss values and intermediate accuracy readings of a training session"""
 
     def __init__(self):
         self.losses = []  # it is assumed a loss value is provided every epoch
@@ -80,4 +77,3 @@ def derivative_hyperbolic_function(x, a):
 
 def hyperbolic_function(x, a, q):
     return q + a / (x + 1)
-

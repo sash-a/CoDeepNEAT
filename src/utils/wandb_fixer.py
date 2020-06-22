@@ -36,6 +36,7 @@ def fix_trimmed_name(path):
     for run in wandb.Api().runs(path=path, order="-created_at"):
         if 'trimmed_name' not in run.config:
             run.config['trimmed_name'] = run.name[:-2] if run.name[-1].isdigit() else run.name
+            print(f'Fixed trimmed name of {run.name}')
         if 'run_name' not in run.config:
             run.config['run_name'] = run.name
 

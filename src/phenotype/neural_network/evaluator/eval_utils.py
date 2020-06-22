@@ -22,13 +22,13 @@ def fetch_training_instruction(training_results: TrainingResults, training_targe
         if in fully train mode the training continues until the accuracy appears to have plateaued.
         if config specifies, then an acc plateau can also trigger a drop in the LR
     """
-
     if config.fully_train:
         if not training_results.just_received_new_acc_reading():
             # no decisions can be made here unless the latest epoch sampled a test acc
             return CONTINUE
 
-        if check_should_retry_training(training_results.get_max_acc(), training_target, training_results.accuracy_epochs[-1]):
+        if check_should_retry_training(training_results.get_max_acc(), training_target,
+                                       training_results.accuracy_epochs[-1]):
             return RETRY
 
         max_acc_age = training_results.get_max_acc_age()
@@ -50,8 +50,8 @@ def fetch_training_instruction(training_results: TrainingResults, training_targe
             current_loss_gradient = training_results.get_current_loss_gradient()
             # the slope will start highly negative, and move towards zero
             if abs(current_loss_gradient) < 0.5 * abs(third_epoch_gradient):
-                print("network loss improvement speed has halved since e3:",third_epoch_gradient,
-                      "now:",current_loss_gradient, "epoch:",len(training_results.losses))
+                print("network loss improvement speed has halved since e3:", third_epoch_gradient,
+                      "now:", current_loss_gradient, "epoch:", len(training_results.losses))
                 return STOP
             # if -current_loss_gradient < config.loss_gradient_threshold:
             #     return STOP
@@ -74,7 +74,7 @@ def check_should_retry_training(acc, training_target, current_epoch):
     progress_checks = [0.5, 1, 2, 3.5]
     targets = [0.5, 0.75, 0.9, 1]
 
-    print("checking if should retry training. prog:",progress,"perf:",performance)
+    print("checking if should retry training. prog:", progress, "perf:", performance)
 
     for prog_check, target in zip(progress_checks, targets):
         if progress <= prog_check:
@@ -88,5 +88,3 @@ def check_should_retry_training(acc, training_target, current_epoch):
             break  # only compare to first fitting target
 
     return False
-
-
