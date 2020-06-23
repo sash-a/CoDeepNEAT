@@ -1,8 +1,0 @@
-{
-  "run_name": "simple_start",
-
-  "n_generations": 50,
-  "initial_shapes": ["io_only"],
-
-   "wandb_tags": ["simple start"]
-}

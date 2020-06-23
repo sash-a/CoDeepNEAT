@@ -1,7 +1,6 @@
 {
-  "forget_mutation_075": 3,
-  "forget_mutation_05": 3,
-  "forget_mutation_01": 3,
-  "mm_centroid_spc": 3,
-  "mm_best_spc": 3
+  "base": 10,
+  "elite_gene_breeding": 10,
+  "elite": 10,
+  "elite_da_pop_gene_breeding": 10
 }

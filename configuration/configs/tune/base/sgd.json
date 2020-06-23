@@ -1,8 +1,0 @@
-{
-  "run_name": "sgd",
-  "optim": "sgd",
-  "wandb_tags": [
-    "sgd"
-  ],
-  "allowed_runtime_sec": 43200
-}

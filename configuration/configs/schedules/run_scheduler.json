@@ -1,16 +1,8 @@
 {
-  "run_name": "base",
+  "run_name": "",
   "batch_size": 512,
   "allowed_runtime_sec": 43100,
   "download_dataset": false,
-
-  "configs": {
-    "elite": false
-  },
-
-  "wandb_tags": [
-    "base"
-  ],
 
   "batch_run_scheduler": "run_schedule"
 }

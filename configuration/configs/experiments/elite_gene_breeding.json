@@ -1,0 +1,7 @@
+{
+  "run_name": "elite_gene_breeding",
+  "configs": {
+    "elite": true,
+    "gene_breeding": true
+  }
+}

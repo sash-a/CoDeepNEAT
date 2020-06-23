@@ -6,13 +6,12 @@ from typing import Dict, Optional
 from torch import device
 
 
-
 class Config:
     def __init__(self):
         # ----------------------------------------------- General stuff -----------------------------------------------
         self.run_name = 'test'
         self.batch_run_scheduler = ''
-        self.n_generations = 30
+        self.n_generations = 50
         # ------------------------------------------------ Timing stuff ------------------------------------------------
         self.allowed_runtime_sec = -1  # Amount of time allowed for the run (-1 for infinite)
         # ------------------------------------------ General Evaluation stuff -----------------------------------------
@@ -64,7 +63,7 @@ class Config:
         self.validation_split = 0.15  # Percent of the train set that becomes the validation set
         self.download_dataset = True
         # ------------------------------------------------- DA stuff --------------------------------------------------
-        self.evolve_da = False
+        self.evolve_da = True
         self.evolve_da_pop = False
         self.use_colour_augmentations = True
         self.add_da_node_chance = 0.15

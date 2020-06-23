@@ -1,0 +1,8 @@
+{
+  "run_name": "elite_da_pop_gene_breeding",
+  "configs": {
+    "elite": true,
+    "gene_breeding": true,
+    "da_pop": true
+  }
+}

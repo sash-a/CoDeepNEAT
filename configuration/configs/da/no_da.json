@@ -1,0 +1,10 @@
+{
+  "run_name": "no_da",
+
+  "evolve_da" : false,
+  "evolve_da_pop" : false,
+
+  "wandb_tags": [
+    "no da"
+  ]
+}
