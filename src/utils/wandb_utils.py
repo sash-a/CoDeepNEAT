@@ -76,7 +76,7 @@ def _resume_run(reinit=False):
     project = 'cdn_fully_train' if config.fully_train else 'cdn'
     wandb_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', '..', 'results')
     wandb.init(dir=wandb_dir, project=project, entity='codeepneat', resume=config.wandb_run_path.split('/')[2],
-               reinit=reinit, config=config.__dict__)
+               reinit=reinit)
 
 
 def _new_run(reinit=False):
@@ -213,5 +213,5 @@ def add_to_config() -> dict:
     # Specific options for grouping on wandb
     trimmed_name = config.run_name[:-2] if config.run_name[-1].isdigit() else config.run_name
     cfg.update(
-        {"trimmed_name": trimmed_name, "elite": 'elite' in config.wandb_tags, "base": 'base' in config.wandb_tags})
+        {"trimmed_name": trimmed_name, 'elite': 'elite' in config.wandb_tags, 'base': 'base' in config.wandb_tags})
     return cfg
