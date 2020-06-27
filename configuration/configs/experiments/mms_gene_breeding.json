@@ -1,0 +1,7 @@
+{
+  "run_name": "mms_gene_breeding",
+  "configs": {
+    "mms": true,
+    "gene_breeding": true
+  }
+}
