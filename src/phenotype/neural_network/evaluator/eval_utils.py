@@ -74,17 +74,26 @@ def check_should_retry_training(acc, training_target, current_epoch):
     progress_checks = [0.5, 1, 2, 3.5]
     targets = [0.5, 0.75, 0.9, 1]
 
-    print("checking if should retry training. prog:", progress, "perf:", performance)
+    # print("checking if should retry training. prog:",progress,"perf:",performance)
 
-    for prog_check, target in zip(progress_checks, targets):
+    def print_failed():
+        print("net failed to meet target e:", current_epoch, "acc:", acc,
+              "prog:", progress, "prog check:", prog_check, "target:",
+              target, "norm target:", progress_normalised_target)
+
+    for i in range(len(progress_checks)):
+        prog_check, target = progress_checks[i], targets[i]
         if progress <= prog_check:
             # this is the target to use
             progress_normalised_target = target * progress / prog_check  # linear interpolation of target
             if performance < progress_normalised_target:
-                print("net failed to meet target e:", current_epoch, "acc:", acc,
-                      "prog:", progress, "prog check:", prog_check, "target:",
-                      target, "norm target:", progress_normalised_target)
+                print_failed()
                 return True
             break  # only compare to first fitting target
+        elif i == len(progress_checks) - 1:
+            # has passed the last progress check - should forever onwards meet the final target
+            if performance < targets[-1]:
+                print_failed()
+                return True
 
     return False

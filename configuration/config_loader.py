@@ -65,7 +65,7 @@ def load_batch_config():
         an example of when this is desirable is to change the num gpu's when continuing a run, or
         to change the man num of generations, to evolve a population for longer
 
-    when a run schedule is specified, it will fetch a config file eg: elite.json
+    when a run schedule is specified, it will fetch a config file eg: mms.json
     It may be desirable to override certain properties of all runs in a schedule
         An example of this is schedule = {elite,base} - we may want to turn on DataAug for bot
         ie: transform the schedule into {da_elite,da_base}

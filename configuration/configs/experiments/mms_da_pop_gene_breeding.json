@@ -1,7 +1,7 @@
 {
-  "run_name": "elite_da_pop_gene_breeding",
+  "run_name": "mms_da_pop_gene_breeding",
   "configs": {
-    "elite": true,
+    "mms": true,
     "gene_breeding": true,
     "da_pop": true
   }

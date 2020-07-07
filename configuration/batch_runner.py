@@ -41,16 +41,13 @@ def get_config_path(path: str, scheduler_run_name: str) -> Tuple[str, str]:
     raise Exception('Could not find any non-running/non-finished configs in the batch run')
 
 
-def _get_effective_run_name(scheduled_run_base_name, run_number, scheduler_name):
-    if scheduled_run_base_name == 'base':
-        scheduled_run_name = repr(run_number)
-    else:
-        scheduled_run_name = scheduled_run_base_name + "_" + repr(run_number)
+def _get_effective_run_name(scheduled_run_base_name, run_number, scheduler_prefix):
+    if scheduler_prefix and scheduler_prefix not in scheduled_run_base_name:
+        # if the scheduler provides a name prefix - add it
+        # if the schedulers name is redundant - don't add it
+        scheduled_run_base_name = scheduler_prefix + '_' + scheduled_run_base_name
 
-    prefix = ''
-    if scheduler_name:
-        prefix = scheduler_name + '_'
-    return prefix + scheduled_run_name
+    return scheduled_run_base_name + "_" + repr(run_number)
 
 
 def get_fully_train_state(run_name):

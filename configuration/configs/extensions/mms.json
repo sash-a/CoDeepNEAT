@@ -1,10 +1,10 @@
 {
-  "run_name": "elite",
+  "run_name": "mms",
   "configs": {
     "mod_max": true,
     "speciation_similar_centroid": true
   },
   "wandb_tags": [
-    "elite"
+    "mms"
   ]
 }
