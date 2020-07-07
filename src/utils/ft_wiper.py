@@ -1,4 +1,14 @@
 import os
+import sys
+
+dir_path = os.path.dirname(os.path.realpath(__file__))
+dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
+sys.path.append(dir_path_1)
+sys.path.append(os.path.join(dir_path_1, 'src'))
+sys.path.append(os.path.join(dir_path_1, 'test'))
+sys.path.append(os.path.join(dir_path_1, 'runs'))
+sys.path.append(os.path.join(dir_path_1, 'configuration'))
+
 import json
 from runs.runs_manager import get_fully_train_folder_path, get_run_folder_path, __get_runs_folder_path
 
@@ -19,8 +29,6 @@ def reset_internal_config(run_name: str):
         j['ft_started'] = False
 
     j['finished'] = False
-
-    # j['running'] = False
 
     json.dump(j, open(os.path.join(get_run_folder_path(run_name), 'internal_config.json'), 'w'))
 
