@@ -21,7 +21,6 @@ class WandbFTReporter(BaseReporter):
         """
         self.fm = fm
         self.best = best
-        self.model_save_location = None
         self.training_results = TrainingResults()
 
     def on_start_train(self, blueprint: BlueprintGenome):
@@ -56,9 +55,6 @@ class WandbFTReporter(BaseReporter):
 
             wandb.log(log)
 
-        if self.model_save_location is not None:
-            wandb.save(self.model_save_location)
-
         wandb.join()
         config.wandb_tags.remove(fm_tag)
         config.wandb_tags.remove(best_tag)
@@ -74,9 +70,6 @@ class WandbFTReporter(BaseReporter):
 
         internal_config.ft_epoch = epoch
         save_config(config.run_name, use_wandb_override=False)
-
-        model.save()
-        self.model_save_location = model.save_location()
 
     def on_start_batch(self, batch_idx: int, loss: float):
         pass

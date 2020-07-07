@@ -39,14 +39,12 @@ def evaluate(model: Network, n_epochs, training_target=-1, attempt=0, reporter=R
     test_loader = load_data(load_transform(), 'test')
 
     device = config.get_device()
-    start = model.last_epoch
 
     training_results = TrainingResults()
-    for epoch in range(start, n_epochs):
+    for epoch in range(n_epochs):
         reporter.on_start_epoch(model, epoch)
 
         loss = train_epoch(model, train_loader, aug, device, reporter)
-        model.last_epoch = epoch
         training_results.add_loss(loss)
 
         acc = -1

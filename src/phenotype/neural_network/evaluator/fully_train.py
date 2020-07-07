@@ -61,8 +61,8 @@ def eval_with_retries(run: Run, blueprint: BlueprintGenome, gen_num: int, in_siz
     while accuracy == RETRY and remaining_retries >= 0:
         model: Network = _create_model(run, blueprint, gen_num, in_size, feature_mul)
 
-        if config.resume_fully_train and os.path.exists(model.save_location()):
-            model = _load_model(blueprint, run, gen_num, in_size)
+        if os.path.exists(model.save_location()):
+            continue  # If the model was saved that means it has completed its fully training schedule
 
         reporter = ReporterSet(WandbFTReporter(feature_mul, best))
         reporter.on_start_train(blueprint)
@@ -83,6 +83,8 @@ def eval_with_retries(run: Run, blueprint: BlueprintGenome, gen_num: int, in_siz
             internal_config.ft_epoch = 0
 
         remaining_retries -= 1
+
+    model.save()  # even if it fails all retries then save it
 
     if accuracy == RETRY:
         print(f'Accuracy could not keep up with evolution after {MAX_RETRIES}, therefore discarding it')
@@ -118,6 +120,7 @@ def _create_model(run: Run, blueprint: BlueprintGenome, gen_num, in_size, target
     return model
 
 
+# Unused
 def _load_model(dummy_bp: BlueprintGenome, run: Run, gen_num: int, in_size) -> Network:
     if not config.resume_fully_train:
         raise Exception('Calling resume training, but config.resume_fully_train is false')
