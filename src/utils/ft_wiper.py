@@ -30,8 +30,13 @@ def reset_internal_config(run_name: str):
 
     j['finished'] = False
 
-    # j['running'] = False
+    json.dump(j, open(os.path.join(get_run_folder_path(run_name), 'internal_config.json'), 'w'))
 
+
+def set_run_inactive(run_name: str):
+    j = json.load(open(os.path.join(get_run_folder_path(run_name), 'internal_config.json'), 'r'))
+
+    j['running'] = False
     json.dump(j, open(os.path.join(get_run_folder_path(run_name), 'internal_config.json'), 'w'))
 
 
@@ -41,5 +46,7 @@ if __name__ == '__main__':
         try:
             wipe(dir)
             reset_internal_config(dir)
+            set_run_inactive(dir)
+
         except FileNotFoundError:
             print(f'no relevant files in {dir}')
