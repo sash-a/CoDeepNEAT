@@ -28,8 +28,6 @@ class WandbFTReporter(BaseReporter):
 
     def on_end_train(self, blueprint: BlueprintGenome, accuracy: float):
         """Creates the wandb run and logs all relevant data if run was not a 'dud'"""
-        if accuracy == RETRY:  # If it was a retry then we know it was a bad run, so leave it out as it is an outlier
-            return
 
         fm_tag = f'FM={self.fm}'  # wandb tag for feature mul so that we can tell the difference
         best_tag = f'BEST={self.best}'  # wandb tag for Nth best network in evolution
@@ -37,6 +35,8 @@ class WandbFTReporter(BaseReporter):
         if config.use_wandb:
             config.wandb_tags = list(set([tag for tag in config.wandb_tags if 'FM=' not in tag and 'BEST=' not in tag]))
             config.wandb_tags += [fm_tag, best_tag]
+            if accuracy == RETRY:  # If it was a retry then we know it was a bad run, so leave it out as it is an outlier
+                config.wandb_tags += [RETRY]
 
             if config.resume_fully_train:
                 resume_ft_run(True)

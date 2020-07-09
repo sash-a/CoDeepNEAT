@@ -80,6 +80,9 @@ def load_batch_config():
     cli_args = get_cli_args()
     stagger(cli_args.stagger_number)
 
+    if cli_args.ngpus is not None:
+        config.n_gpus = cli_args.ngpus
+
     effective_run_name, scheduled_cfg_file_name = get_batch_schedule_run_names(cli_args)
     effective_run_name = load_saved_config(effective_run_name, cli_args.config)
 

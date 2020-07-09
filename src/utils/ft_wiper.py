@@ -1,4 +1,15 @@
 import os
+import sys
+
+# For importing project files
+dir_path = os.path.dirname(os.path.realpath(__file__))
+dir_path_1 = os.path.split(os.path.split(dir_path)[0])[0]
+sys.path.append(dir_path_1)
+sys.path.append(os.path.join(dir_path_1, 'src'))
+sys.path.append(os.path.join(dir_path_1, 'test'))
+sys.path.append(os.path.join(dir_path_1, 'runs'))
+sys.path.append(os.path.join(dir_path_1, 'configuration'))
+
 import json
 from runs.runs_manager import get_fully_train_folder_path, get_run_folder_path, __get_runs_folder_path
 
@@ -20,8 +31,13 @@ def reset_internal_config(run_name: str):
 
     j['finished'] = False
 
-    # j['running'] = False
+    json.dump(j, open(os.path.join(get_run_folder_path(run_name), 'internal_config.json'), 'w'))
 
+
+def set_run_inactive(run_name: str):
+    j = json.load(open(os.path.join(get_run_folder_path(run_name), 'internal_config.json'), 'r'))
+
+    j['running'] = False
     json.dump(j, open(os.path.join(get_run_folder_path(run_name), 'internal_config.json'), 'w'))
 
 
@@ -31,5 +47,7 @@ if __name__ == '__main__':
         try:
             wipe(dir)
             reset_internal_config(dir)
+            set_run_inactive(dir)
+
         except FileNotFoundError:
             print(f'no relevant files in {dir}')
