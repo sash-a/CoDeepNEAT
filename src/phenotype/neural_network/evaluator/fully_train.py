@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import time
 from typing import TYPE_CHECKING, List
 
 import src.main.singleton as S
@@ -38,11 +39,13 @@ def fully_train(run_name):
     best_blueprints = run.get_most_accurate_blueprints(config.fully_train_best_n_blueprints)
     in_size = get_data_shape()
 
+    start_time = time.time()
+
     with create_eval_pool(None) as pool:
         futures = []
         for feature_mul in config.ft_feature_multipliers:
             for i, (blueprint, gen_num) in enumerate(best_blueprints, 1):
-                futures += [pool.submit(eval_with_retries, run, blueprint, gen_num, in_size, feature_mul, i)]
+                futures += [pool.submit(eval_with_retries, run, blueprint, gen_num, in_size, feature_mul, i, start_time)]
 
         for future in futures:  # consuming the futures
             print(future.result())
@@ -52,13 +55,21 @@ def fully_train(run_name):
 
 
 def eval_with_retries(run: Run, blueprint: BlueprintGenome, gen_num: int, in_size: List[int], feature_mul: int,
-                      best: int):
+                      best: int, start_time: float):
     """
     Evaluates a run and automatically retries is accuracy is not keeping up with the accuracy achieved in evolution
     """
     accuracy = RETRY
     remaining_retries = MAX_RETRIES
     while accuracy == RETRY and remaining_retries >= 0:
+
+        elapsed_time = time.time() - start_time
+        remaining_time = config.allowed_runtime_sec - elapsed_time
+        if remaining_time/60/60 < 2 and config.allowed_runtime_sec != -1:
+            # We don't allow models to begin training with less than 2 hours remaining time. As in our case,
+            # the program is killed without warning, preventing internal config from registering the run as inactive
+            return
+
         model: Network = _create_model(run, blueprint, gen_num, in_size, feature_mul)
 
         if os.path.exists(model.save_location()):

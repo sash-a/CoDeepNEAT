@@ -32,6 +32,9 @@ class WandbFTReporter(BaseReporter):
         fm_tag = f'FM={self.fm}'  # wandb tag for feature mul so that we can tell the difference
         best_tag = f'BEST={self.best}'  # wandb tag for Nth best network in evolution
 
+        if RETRY in config.wandb_tags:
+            raise Exception("failed to remove RETRY tag")
+
         if config.use_wandb:
             config.wandb_tags = list(set([tag for tag in config.wandb_tags if 'FM=' not in tag and 'BEST=' not in tag]))
             config.wandb_tags += [fm_tag, best_tag]
@@ -56,6 +59,8 @@ class WandbFTReporter(BaseReporter):
             wandb.log(log)
 
         wandb.join()
+        if accuracy == RETRY:
+            config.wandb_tags.remove(RETRY)
         config.wandb_tags.remove(fm_tag)
         config.wandb_tags.remove(best_tag)
 
