@@ -45,7 +45,9 @@ def fully_train(run_name):
         futures = []
         for feature_mul in config.ft_feature_multipliers:
             for i, (blueprint, gen_num) in enumerate(best_blueprints, 1):
-                futures += [pool.submit(eval_with_retries, run, blueprint, gen_num, in_size, feature_mul, i, start_time)]
+                futures += [
+                    pool.submit(eval_with_retries, run, blueprint, gen_num, in_size, feature_mul, i, start_time)
+                ]
 
         for future in futures:  # consuming the futures
             print(future.result())
@@ -65,7 +67,7 @@ def eval_with_retries(run: Run, blueprint: BlueprintGenome, gen_num: int, in_siz
 
         elapsed_time = time.time() - start_time
         remaining_time = config.allowed_runtime_sec - elapsed_time
-        if remaining_time/60/60 < 2 and config.allowed_runtime_sec != -1:
+        if remaining_time / 60 / 60 < 2 and config.allowed_runtime_sec != -1:
             # We don't allow models to begin training with less than 2 hours remaining time. As in our case,
             # the program is killed without warning, preventing internal config from registering the run as inactive
             return

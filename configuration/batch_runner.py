@@ -23,7 +23,6 @@ def get_config_path(path: str, scheduler_run_name: str) -> Tuple[str, str]:
                 cfg.internal_config.load(run_name)
 
             run_currently_running_in_another_process = run_folder_exists and cfg.internal_config.running
-            insufficient_gpus_for_ft = cfg.internal_config.state == "ft" and cfg.config.n_gpus == 1
 
             if run_currently_running_in_another_process:
                 print('run {} is being run in another process, moving on'.format(run_name))
@@ -31,12 +30,6 @@ def get_config_path(path: str, scheduler_run_name: str) -> Tuple[str, str]:
                 cfg.internal_config.__init__()  # reset internal config
                 continue
 
-            if insufficient_gpus_for_ft:
-                # To overcome a limitation with the internal config and our GPU cluster which kills jobs without
-                # warning, leading to a failure to register runs as 'not running'
-                print(f"cannot ft run {run_name}, insufficient gpus")
-                cfg.internal_config.__init__()  # reset internal config
-                continue
             print('scheduler running', run_name)
 
             if run_folder_exists:
