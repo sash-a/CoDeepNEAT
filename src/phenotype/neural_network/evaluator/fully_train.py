@@ -39,7 +39,7 @@ def fully_train(run_name):
     best_blueprints = run.get_most_accurate_blueprints(config.fully_train_best_n_blueprints)
     in_size = get_data_shape()
 
-    start_time = time.time()
+    start_time = int(time.time())
 
     with create_eval_pool(None) as pool:
         futures = []
@@ -57,7 +57,7 @@ def fully_train(run_name):
 
 
 def eval_with_retries(run: Run, blueprint: BlueprintGenome, gen_num: int, in_size: List[int], feature_mul: int,
-                      best: int, start_time: float):
+                      best: int, start_time: int):
     """
     Evaluates a run and automatically retries is accuracy is not keeping up with the accuracy achieved in evolution
     """
