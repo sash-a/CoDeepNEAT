@@ -76,6 +76,8 @@ def check_should_retry_training(acc, training_target, current_epoch):
 
     # print("checking if should retry training. prog:",progress,"perf:",performance)
 
+    progress_normalised_target = None
+
     def print_failed():
         print("net failed to meet target e:", current_epoch, "acc:", acc,
               "prog:", progress, "prog check:", prog_check, "target:",
