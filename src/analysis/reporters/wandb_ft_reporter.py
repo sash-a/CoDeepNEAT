@@ -41,10 +41,7 @@ class WandbFTReporter(BaseReporter):
             if accuracy == RETRY:  # If it was a retry then we know it was a bad run, so leave it out as it is an outlier
                 config.wandb_tags += [RETRY]
 
-            if config.resume_fully_train:
-                resume_ft_run(True)
-            else:
-                new_ft_run(True)
+            new_ft_run(True)
 
             # specific options for wandb grouping
             wandb.config['fm'] = self.fm
