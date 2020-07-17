@@ -75,5 +75,3 @@ def read_json(path: str) -> Dict[str, any]:
 def write_json(d: dict, path: str):
     with open(path, 'w+') as f:
         json.dump(d, f, indent=2)
-
-# get_config_path('batch_configs/run_schedule.json')
