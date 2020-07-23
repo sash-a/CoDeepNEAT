@@ -1,13 +1,13 @@
 import wandb
 
+from configuration import config, internal_config
 from runs.runs_manager import save_config
 from src.analysis.reporters.base_reporter import BaseReporter
 from src.genotype.cdn.genomes.blueprint_genome import BlueprintGenome
 from src.phenotype.neural_network.evaluator.eval_utils import RETRY
 from src.phenotype.neural_network.evaluator.training_results import TrainingResults
 from src.phenotype.neural_network.neural_network import Network
-from configuration import config, internal_config
-from src.utils.wandb_utils import resume_ft_run, new_ft_run
+from src.utils.wandb_utils import new_ft_run
 
 
 class WandbFTReporter(BaseReporter):
@@ -58,8 +58,10 @@ class WandbFTReporter(BaseReporter):
         wandb.join()
         if accuracy == RETRY or RETRY in config.wandb_tags:
             config.wandb_tags.remove(RETRY)
-        config.wandb_tags.remove(fm_tag)
-        config.wandb_tags.remove(best_tag)
+        if fm_tag in config.wandb_tags:
+            config.wandb_tags.remove(fm_tag)
+        if best_tag in config.wandb_tags:
+            config.wandb_tags.remove(best_tag)
 
     def on_start_epoch(self, model: Network, epoch: int):
         pass

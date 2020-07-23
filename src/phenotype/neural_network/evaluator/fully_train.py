@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import os
 import time
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Optional
 
 import src.main.singleton as S
 from configuration import config, internal_config
+from src.analysis.reporters.logger_reporter import LoggerReporter
 from src.analysis.reporters.reporter_set import ReporterSet
 from src.analysis.reporters.wandb_ft_reporter import WandbFTReporter
 from src.analysis.run import get_run
@@ -62,6 +63,7 @@ def eval_with_retries(run: Run, blueprint: BlueprintGenome, gen_num: int, in_siz
     """
     accuracy = RETRY
     remaining_retries = MAX_RETRIES
+    model: Optional[Network] = None
     while accuracy == RETRY and remaining_retries >= 0:
 
         elapsed_time = time.time() - start_time
@@ -71,17 +73,17 @@ def eval_with_retries(run: Run, blueprint: BlueprintGenome, gen_num: int, in_siz
             # the program is killed without warning, preventing internal config from registering the run as inactive
             return
 
-        model: Network = _create_model(run, blueprint, gen_num, in_size, feature_mul)
+        model = _create_model(run, blueprint, gen_num, in_size, feature_mul)
 
         if os.path.exists(model.save_location()):
-            continue  # If the model was saved that means it has completed its fully training schedule
+            return  # If the model was saved that means it has completed its fully training schedule
 
-        reporter = ReporterSet(WandbFTReporter(feature_mul, best))
+        attempt_number = MAX_RETRIES - remaining_retries
+        reporter = ReporterSet(LoggerReporter(feature_mul, best, attempt_number), WandbFTReporter(feature_mul, best))
         reporter.on_start_train(blueprint)
 
         # If all trains are bad then will not get a FT accuracy for this blueprint
         if remaining_retries > 0:
-            attempt_number = MAX_RETRIES - remaining_retries
             accuracy = evaluate(model,
                                 config.fully_train_max_epochs,
                                 training_target=blueprint.max_acc,
@@ -96,7 +98,8 @@ def eval_with_retries(run: Run, blueprint: BlueprintGenome, gen_num: int, in_siz
 
         remaining_retries -= 1
 
-    model.save()  # even if it fails all retries then save it
+    if model is not None:
+        model.save()  # even if it fails all retries then save it
 
     if accuracy == RETRY:
         print(f'Accuracy could not keep up with evolution after {MAX_RETRIES}, therefore discarding it')
