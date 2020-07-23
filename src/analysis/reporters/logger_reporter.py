@@ -1,6 +1,7 @@
 import logging
 import sys
 from os.path import join
+from pathlib import Path
 
 from configuration import config
 from runs.runs_manager import get_run_folder_path
@@ -17,7 +18,10 @@ class LoggerReporter(BaseReporter):
         @param best: the ranking of the network in evolution - ie best = 1 mean that network got the highest accuracy
          in evolution
         """
-        file = join(get_run_folder_path(config.run_name), f'fm={fm}_best={best}_attempt={attempt}.log')
+        path = join(get_run_folder_path(config.run_name), 'logs', f'fm{fm}', f'best{best}')
+        file = join(path, f'attempt{attempt}.log')
+        Path(path).mkdir(parents=True, exist_ok=True)
+
         self.logger = logging.getLogger(file)
         self.logger.addHandler(logging.FileHandler(file, 'a'))
         self.logger.setLevel(logging.DEBUG)
