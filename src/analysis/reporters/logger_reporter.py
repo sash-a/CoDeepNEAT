@@ -34,9 +34,7 @@ class LoggerReporter(BaseReporter):
         self.logger.info(f'blueprint:{blueprint.id}')
 
     def on_end_train(self, blueprint: BlueprintGenome, accuracy: float):
-        """Creates the wandb run and logs all relevant data if run was not a 'dud'"""
-        if accuracy == RETRY:
-            self.logger.info(RETRY)
+        self.logger.info(f'accP{RETRY}')
 
     def on_start_epoch(self, model: Network, epoch: int):
         pass
