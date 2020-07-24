@@ -38,6 +38,8 @@ def fully_train(run_name):
     best_blueprints = run.get_most_accurate_blueprints(config.fully_train_best_n_blueprints)
     in_size = get_data_shape()
 
+    print(f'best blueprints ({len(best_blueprints)}): {[b[0].id for b in best_blueprints]}')
+
     with create_eval_pool(None) as pool:
         futures = []
         for feature_mul in config.ft_feature_multipliers:
@@ -59,14 +61,15 @@ def eval_with_retries(run: Run, blueprint: BlueprintGenome, gen_num: int, in_siz
     Evaluates a run and automatically retries is accuracy is not keeping up with the accuracy achieved in evolution
     """
     print(f'Starting ft for fm{feature_mul} best{best}')
+    save_suffix = f'-best-{best}'
     accuracy = RETRY
     remaining_retries = MAX_RETRIES
     model: Optional[Network] = None
     while accuracy == RETRY and remaining_retries >= 0:
         model = _create_model(run, blueprint, gen_num, in_size, feature_mul)
 
-        if os.path.exists(model.save_location()):
-            print(f'Found file {model.save_location()}. Therefore not ft: fm{feature_mul} best{best}')
+        if os.path.exists(model.save_location(save_suffix)):
+            print(f'Found file {model.save_location(save_suffix)}. Therefore not ft: fm{feature_mul} best{best}')
             return  # If the model was saved that means it has completed its fully training schedule
 
         attempt_number = MAX_RETRIES - remaining_retries
@@ -92,7 +95,7 @@ def eval_with_retries(run: Run, blueprint: BlueprintGenome, gen_num: int, in_siz
         remaining_retries -= 1
 
     if model is not None:
-        model.save()  # even if it fails all retries then save it
+        model.save(save_suffix)  # even if it fails all retries then save it
 
     if accuracy == RETRY:
         print(f'Accuracy could not keep up with evolution after {MAX_RETRIES}, therefore discarding it '

@@ -8,11 +8,11 @@ import torch
 import torch.nn.functional as F
 from torch import nn, tensor, optim, squeeze
 
-from runs.runs_manager import get_fully_train_folder_path
 from configuration import config
-from src.phenotype.neural_network.layers.layer import Layer
+from runs.runs_manager import get_fully_train_folder_path
 from src.analysis.visualisation import phenotype_visualiser
 from src.analysis.visualisation.phenotype_visualiser import get_node_colour
+from src.phenotype.neural_network.layers.layer import Layer
 
 if TYPE_CHECKING:
     from src.genotype.cdn.genomes.blueprint_genome import BlueprintGenome
@@ -92,15 +92,15 @@ class Network(nn.Module):
     def size(self):
         return sum(p.numel() for p in self.parameters() if p.requires_grad)
 
-    def save_location(self) -> str:
-        file_name = 'bp-{}_fm-{}.model'.format(self.blueprint.id, self.target_feature_multiplier)
+    def save_location(self, suffix='') -> str:
+        file_name = f'bp-{self.blueprint.id}_fm-{self.target_feature_multiplier}{suffix}.model'
         return os.path.join(get_fully_train_folder_path(config.run_name), file_name)
 
-    def save(self):
+    def save(self, suffix=''):
         if not os.path.exists(get_fully_train_folder_path(config.run_name)):
             os.makedirs(get_fully_train_folder_path(config.run_name))
 
-        torch.save(self.state_dict(), self.save_location())
+        torch.save(self.state_dict(), self.save_location(suffix))
 
     def load(self):
         self.load_state_dict(torch.load(self.save_location()))
