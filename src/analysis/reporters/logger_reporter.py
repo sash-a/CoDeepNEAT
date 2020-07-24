@@ -38,7 +38,7 @@ class LoggerReporter(BaseReporter):
         self.logger.info(f'blueprint:{blueprint.id}')
 
     def on_end_train(self, blueprint: BlueprintGenome, accuracy: float):
-        self.logger.info(f'acc:{RETRY}')
+        self.logger.info(f'acc:{accuracy}')
 
     def on_start_epoch(self, model: Network, epoch: int):
         pass
