@@ -1,0 +1,7 @@
+{
+  "run_name": "mms_da_pop",
+  "configs": {
+    "mms": true,
+    "da_pop": true
+  }
+}

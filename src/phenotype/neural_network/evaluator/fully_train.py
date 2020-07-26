@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, List, Optional
 
 import src.main.singleton as S
 from configuration import config, internal_config
+from runs.runs_manager import get_fully_train_folder_path
 from src.analysis.reporters.logger_reporter import LoggerReporter
 from src.analysis.reporters.reporter_set import ReporterSet
 from src.analysis.reporters.wandb_ft_reporter import WandbFTReporter
@@ -51,8 +52,10 @@ def fully_train(run_name):
         for future in futures:  # consuming the futures
             print(future.result())
 
-    internal_config.finished = True
-    internal_config.state = 'finished'
+    # Finished if number of saved models is the expected max number of models
+    internal_config.finished = len(os.listdir(get_fully_train_folder_path(config.run_name))) == \
+                               len(config.ft_feature_multipliers) * config.fully_train_best_n_blueprints
+    internal_config.state = 'finished' if internal_config.finished else 'ft'
 
 
 def eval_with_retries(run: Run, blueprint: BlueprintGenome, gen_num: int, in_size: List[int], feature_mul: int,
@@ -89,7 +92,7 @@ def eval_with_retries(run: Run, blueprint: BlueprintGenome, gen_num: int, in_siz
         reporter.on_end_train(blueprint, accuracy)
 
         if accuracy == RETRY:
-            print(f'retrying fully training for fm{feature_mul} best{best}')
+            print(f'Retrying fully training for fm{feature_mul} best{best}')
             internal_config.ft_epoch = 0
 
         remaining_retries -= 1

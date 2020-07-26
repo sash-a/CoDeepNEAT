@@ -1,6 +1,6 @@
 {
   "base": 10,
-  "elite_gene_breeding": 10,
-  "elite": 10,
-  "elite_da_pop_gene_breeding": 10
+  "mms_gene_breeding": 10,
+  "mms": 10,
+  "mms_da_pop": 10
 }

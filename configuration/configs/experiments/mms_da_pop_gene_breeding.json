@@ -1,8 +1,0 @@
-{
-  "run_name": "mms_da_pop_gene_breeding",
-  "configs": {
-    "mms": true,
-    "gene_breeding": true,
-    "da_pop": true
-  }
-}
