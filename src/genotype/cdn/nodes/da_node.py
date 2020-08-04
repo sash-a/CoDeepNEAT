@@ -19,12 +19,12 @@ class DANode(Node):
             self.da: Option = Option("DA Type", "Flip_lr", "Rotate", "Translate_Pixels", "Scale", "Pad_Pixels",
                                      "Crop_Pixels", "Grayscale", "Coarse_Dropout", "HSV", "No_Operation",
                                      current_value=random.choice(list(submutagens.keys())),
-                                     submutagens=submutagens, mutation_chance=0.25)
+                                     submutagens=submutagens, mutation_chance=config.da_op_swap_chance)
         else:
             self.da: Option = Option("DA Type", "Flip_lr", "Rotate", "Translate_Pixels", "Scale", "Pad_Pixels",
                                      "Crop_Pixels", "Coarse_Dropout", "No_Operation",
                                      current_value=random.choice(list(submutagens.keys())),
-                                     submutagens=submutagens, mutation_chance=0.25)
+                                     submutagens=submutagens, mutation_chance=config.da_op_swap_chance)
 
     enabled = Option("enabled", True, False, current_value=True)
 

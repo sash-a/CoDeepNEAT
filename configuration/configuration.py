@@ -67,6 +67,7 @@ class Config:
         self.evolve_da_pop = False
         self.use_colour_augmentations = True
         self.add_da_node_chance = 0.15
+        self.da_op_swap_chance = 0.25
         self.apply_da_chance = 0.5
         self.da_link_forget_chance = 0.25
         self.batch_augmentation = True
