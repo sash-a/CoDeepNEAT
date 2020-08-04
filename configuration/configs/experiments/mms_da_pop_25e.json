@@ -1,0 +1,9 @@
+{
+  "run_name": "mms_da_pop_25e",
+  "configs": {
+    "mms_da_pop": true
+  },
+  "epochs_in_evolution": 25,
+
+  "wand_tags": ["25e"]
+}

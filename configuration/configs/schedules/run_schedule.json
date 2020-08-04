@@ -2,5 +2,6 @@
   "base": 10,
   "mms_gene_breeding": 10,
   "mms": 10,
-  "mms_da_pop": 10
+  "mms_da_pop": 10,
+  "mms_da_pop_25e": 3
 }
