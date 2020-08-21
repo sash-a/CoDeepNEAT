@@ -6,6 +6,7 @@ import random
 from typing import TYPE_CHECKING
 
 from configuration import config
+from src.genotype.cdn.genomes.da_genome import DAGenome
 
 if TYPE_CHECKING:
     from src.genotype.neat.genome import Genome
@@ -20,7 +21,7 @@ def over(genome_a: Genome, genome_b: Genome) -> Genome:
 
     for best_node in best.nodes.values():
         if best_node.id in worst.nodes:
-            if random.random()< config.gene_breeding_chance:
+            if not isinstance(genome_a, DAGenome) and random.random() < config.gene_breeding_chance:
                 child_node = best_node.interpolate(worst.nodes[best_node.id])
             else:
                 child_node = copy.deepcopy(random.choice([best_node, worst.nodes[best_node.id]]))
@@ -31,7 +32,7 @@ def over(genome_a: Genome, genome_b: Genome) -> Genome:
 
     for best_conn in best.connections.values():
         if best_conn.id in worst.connections:
-            if random.random()< config.gene_breeding_chance:
+            if not isinstance(genome_a, DAGenome) and random.random() < config.gene_breeding_chance:
                 new_connection = best_conn.interpolate(worst.connections[best_conn.id])
             else:
                 new_connection = copy.deepcopy(random.choice([best_conn, worst.connections[best_conn.id]]))
