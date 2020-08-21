@@ -26,7 +26,7 @@ Example configs are in ```src/configuration/configs``` directory
 ## Extensions
 Extensions are detailed in the paper linked above
 
-### Results
+## Results
 For detailed results see:  
 [convergence](https://app.wandb.ai/codeepneat/cdn_fully_train/reports/CoDeepNEAT-convergence-results--VmlldzoyMTIyMjY?accessToken=86xwfnm0f8tko6spt71oharczveqgv388hzojcuei7g3z4wonshr4uy5n24bbga6)  
 [evolution](https://app.wandb.ai/codeepneat/cdn/reports/CoDeepNEAT-evolution-results--VmlldzoyMTIyNDI?accessToken=bvjugcdbb1qdgn7czmcyxct60cxkgatapk8nldg1bt7gwy4a4kovlavdt5sy7bz5)
