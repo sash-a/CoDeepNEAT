@@ -58,7 +58,8 @@ class Config:
         self.view_batch_image = False
         self.visualise_moo_scores = False
         # ----------------------------------------------- Dataset stuff -----------------------------------------------
-        self.dataset = 'cifar10'  # mnist | cifar10 | custom
+        self.dataset = 'cifar10'  # mnist | cifar10 | cifar100 | custom
+        self.num_output_classes = 10
         self.custom_dataset_root = ''
         self.validation_split = 0.15  # Percent of the train set that becomes the validation set
         self.download_dataset = True

@@ -3,6 +3,7 @@ from typing import List
 import imgaug.augmenters as iaa
 
 # Dictionary containing all possible augmentation functions
+from configuration import config
 from src.genotype.cdn.genomes.da_genome import DAGenome
 from src.phenotype.augmentations.custom_operations import CustomOperation as CO
 from src.genotype.neat.connection import Connection
@@ -316,8 +317,13 @@ def get_legacy_da_scheme():
 
 
 def _make_da_scheme_legacy(nodes: List):
+    """the static DA scheme used by the original CDN authors"""
     for i in range(len(nodes)):
         node = nodes[i]
+        if not config.use_colour_augmentations and i < 3:
+            #no colour augs, cannot use HSV
+            continue
+
         if i == 0:
             node.da.set_value("HSV")
             node.da.set_sub_value("channel", 0)

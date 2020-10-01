@@ -117,7 +117,7 @@ class Option(Mutagen):
 
     def set_value(self, value):
         if value not in self.options:
-            raise Exception("trying to set the value of the " + self.name + " mutagen to "
+            raise InvalidOptionException("trying to set the value of the " + self.name + " mutagen to "
                             + repr(value) + " which is not in the options: " + repr(self.options))
 
         self.current_value = value
@@ -129,6 +129,10 @@ class Option(Mutagen):
         return Option(self.name, *self.options,
                       current_value=random.choice([self.current_value, other.get_current_value()]),
                       submutagens=interpolate_submutagens(self, other))
+
+
+class InvalidOptionException(Exception):
+    pass
 
 
 def interpolate_submutagens(mutagen_a: Option, mutagen_b: Option):

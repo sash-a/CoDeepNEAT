@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from torch.utils.data import DataLoader, Dataset, Subset
 from torchvision import transforms
-from torchvision.datasets import MNIST, CIFAR10, ImageFolder
+from torchvision.datasets import MNIST, CIFAR10, ImageFolder, CIFAR100, FashionMNIST
 
 from data import DataManager
 
@@ -42,6 +42,10 @@ def load_data(composed_transforms: transforms.Compose, split: str) -> DataLoader
         dataset = MNIST(**dataset_args)
     elif config.dataset == 'cifar10':
         dataset = CIFAR10(**dataset_args)
+    elif config.dataset == 'cifar100':
+        dataset = CIFAR100(**dataset_args)
+    elif config.dataset == 'fashionMnist':
+        dataset = FashionMNIST(**dataset_args)
     elif config.dataset == 'custom':
         dataset = get_generic_dataset(composed_transforms, train)
     else:
@@ -88,16 +92,18 @@ def get_generic_dataset(composed_transforms: transforms.Compose, train: bool) ->
 
 
 def load_transform(aug: AugmentationScheme = None) -> transforms.Compose:
+    norm_tuple = (0.5, 0.5, 0.5) if config.use_colour_augmentations else (0.5,)
+
     if config.evolve_da and not config.batch_augmentation and aug is not None:
         return transforms.Compose([
             aug,
             transforms.ToTensor(),
-            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+            transforms.Normalize(norm_tuple, norm_tuple)
         ])
     else:
         return transforms.Compose([
             transforms.ToTensor(),
-            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+            transforms.Normalize(norm_tuple, norm_tuple)
         ])
 
 

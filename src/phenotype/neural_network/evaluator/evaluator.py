@@ -1,26 +1,21 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Union
-
 import random
 import time
+from typing import TYPE_CHECKING, Union
 
 import numpy as np
 import torch
-
 from sklearn.metrics import accuracy_score
 from torch.utils.data import DataLoader
 
-from src.analysis.reporters.base_reporter import BaseReporter
+from configuration import config
 from src.analysis.reporters.reporter_set import ReporterSet
 from src.phenotype.augmentations.batch_augmentation_scheme import BatchAugmentationScheme
 from src.phenotype.neural_network.evaluator.data_loader import imshow, load_data, load_transform
-from configuration import config
-
 from src.phenotype.neural_network.evaluator.eval_utils import fetch_training_instruction, \
     RETRY, CONTINUE, STOP, DROP_LR
 from src.phenotype.neural_network.evaluator.training_results import TrainingResults
-from src.utils.wandb_utils import _fully_train_logging
 
 if TYPE_CHECKING:
     from src.phenotype.neural_network.neural_network import Network
@@ -78,7 +73,8 @@ def evaluate(model: Network, n_epochs, training_target=-1, attempt=0, reporter=R
     return max(final_test_acc, training_results.get_max_acc())
 
 
-def train_epoch(model: Network, train_loader: DataLoader, augmentor: BatchAugmentationScheme, device, reporter: ReporterSet) -> float:
+def train_epoch(model: Network, train_loader: DataLoader, augmentor: BatchAugmentationScheme, device,
+                reporter: ReporterSet) -> float:
     model.train()
     loss: float = 0
     batch_idx = 0
@@ -105,7 +101,13 @@ def train_batch(model: Network, inputs: torch.Tensor, labels: torch.Tensor, augm
         imshow(inputs[0])
 
     output = model(inputs)
-    m_loss = model.loss_fn(output, labels)
+    try:
+        m_loss = model.loss_fn(output, labels)
+    except Exception as e:
+        print(e)
+        raise Exception("cannot calculate loss. found label value of " + repr(torch.max(labels).item()) +
+                        " but output dim = " + repr(output.size()) + " try altering the num_output_dim conf")
+
     m_loss.backward()
     model.optimizer.step()
 
@@ -129,7 +131,7 @@ def test_nn(model: Network, test_loader: DataLoader):
             predictions = np.argmax(prob, axis=1)
 
             acc = accuracy_score(targets.cpu(), predictions)
-            total_acc += acc
+
             count = batch_idx
 
     return total_acc / count
