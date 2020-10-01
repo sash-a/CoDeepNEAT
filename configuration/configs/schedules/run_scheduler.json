@@ -1,8 +1,11 @@
 {
-  "run_name": "",
+  "run_name": "cifar100",
   "batch_size": 512,
   "allowed_runtime_sec": 43100,
-  "download_dataset": false,
+  "download_dataset": true,
+
+  "dataset": "cifar100",
+  "num_output_classes": 100,
 
   "batch_run_scheduler": "run_schedule"
 }
