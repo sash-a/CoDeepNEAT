@@ -131,7 +131,7 @@ def test_nn(model: Network, test_loader: DataLoader):
             predictions = np.argmax(prob, axis=1)
 
             acc = accuracy_score(targets.cpu(), predictions)
-
+            total_acc += acc
             count = batch_idx
 
     return total_acc / count
