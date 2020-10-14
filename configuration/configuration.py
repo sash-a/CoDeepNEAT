@@ -88,6 +88,9 @@ class Config:
         # chance of a new node starting with a deep layer - as opposed to a regulariser only layer
         self.module_node_deep_layer_chance = 1
         self.module_node_conv_layer_chance = 1  # chance of linear = 1-conv. not used if no deep layer
+        self.min_conv_channels = 50
+        self.max_conv_channels = 400
+
         self.lossy_chance = 0.5
         self.mutate_lossy_values = True
         self.element_wise_multiplication_chance = 0

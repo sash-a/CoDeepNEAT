@@ -77,6 +77,12 @@ class ModuleNode(Node):
 
 
 def get_new_conv_parameter_mutagens():
+    min_c = config.min_conv_channels
+    max_c = config.max_conv_channels
+    av = 0.5 * (min_c + max_c)
+    var = av * 0.3
+    start = int(random.normalvariate(mu=av, sigma=var))
+
     return {
         "conv_window_size": Option("conv_window_size", 1, 3, 5, 7, current_value=random.choice([1, 3, 5, 7]),
                                    mutation_chance=0.13),
@@ -120,10 +126,7 @@ def get_new_conv_parameter_mutagens():
                           },
                           mutation_chance=0.08),
 
-        "out_features": IntegerVariable("out_features", current_value=int(random.normalvariate(mu=50, sigma=20)),
-                                        start_range=1,
-                                        end_range=100, mutation_chance=0.22),
-
+        "out_features": IntegerVariable("out_features", current_value=start, start_range=min_c, end_range=max_c, mutation_chance=0.22),
         "pad_output": Option("pad_output", True, False,
                              current_value=random.choices([True, False], weights=[0.65, 0.35])[0])
     }
