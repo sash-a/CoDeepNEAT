@@ -165,6 +165,41 @@ def visualise_traversal_dict(traversal_dict: Dict[int, List[int]]):
     g.render(directory=runs_manager.get_graphs_folder_path(config.run_name), view=config.view_graph_plots, format="png")
 
 
+def get_module_node_metadata(node):
+    meta = ""
+    moduleNode: ModuleNode = node
+    if moduleNode.is_conv():
+        window_size = moduleNode.layer_type.get_subvalue("conv_window_size")
+        out_features = moduleNode.layer_type.get_subvalue("out_features")
+
+        meta += "Conv " + str(window_size) + "*" + str(window_size) + " Chans:" + str(out_features)
+        if moduleNode.layer_type.get_subvalue("reduction") is not None:
+            # print('found reduction:', moduleNode.layer_type.get_subvalue("reduction"), "pretty:",
+            #       pretty(repr(moduleNode.layer_type.get_subvalue("reduction"))))
+            meta += "\nReduction: " + pretty(repr(moduleNode.layer_type.get_subvalue("reduction")))
+
+    if moduleNode.is_linear():
+        out_features = moduleNode.layer_type.get_subvalue("out_features")
+        meta += "Linear " + str(out_features)
+
+    if moduleNode.layer_type.get_subvalue("regularisation") is not None:
+        # print("found reg", moduleNode.layer_type.get_subvalue("regularisation"), "pretty:",
+        #       pretty(repr(moduleNode.layer_type.get_subvalue("regularisation"))))
+        meta += "\nRegularisation: " + pretty(repr(moduleNode.layer_type.get_subvalue("regularisation")))
+
+    if moduleNode.layer_type.get_subvalue("dropout") is not None:
+        fac = moduleNode.layer_type.get_submutagen("dropout").get_subvalue("dropout_factor")
+        meta += "\nDropout: " + pretty(repr(moduleNode.layer_type.get_subvalue("dropout"))) + " p = " + repr(fac)
+
+    if len(meta) == 0:
+        """is identiy node"""
+        meta += "Identity"
+        return meta
+
+    if moduleNode.layer_repeats.value > 1:
+        meta += "\nRepeats: " + repr(moduleNode.layer_repeats.value)
+
+
 def get_node_metadata(node: Union[BlueprintNode, ModuleNode], **kwargs):
     meta = ""
     if isinstance(node, BlueprintNode):
@@ -184,35 +219,7 @@ def get_node_metadata(node: Union[BlueprintNode, ModuleNode], **kwargs):
 
     if isinstance(node, ModuleNode):
         # print("found module node")
-        moduleNode: ModuleNode = node
-        if moduleNode.is_conv():
-            window_size = moduleNode.layer_type.get_subvalue("conv_window_size")
-            meta += "Conv " + str(window_size) + "*" + str(window_size)
-            if moduleNode.layer_type.get_subvalue("reduction") is not None:
-                # print('found reduction:', moduleNode.layer_type.get_subvalue("reduction"), "pretty:",
-                #       pretty(repr(moduleNode.layer_type.get_subvalue("reduction"))))
-                meta += "\nReduction: " + pretty(repr(moduleNode.layer_type.get_subvalue("reduction")))
-
-        if moduleNode.is_linear():
-            out_features = moduleNode.layer_type.get_subvalue("out_features")
-            meta += "Linear " + str(out_features)
-
-        if moduleNode.layer_type.get_subvalue("regularisation") is not None:
-            # print("found reg", moduleNode.layer_type.get_subvalue("regularisation"), "pretty:",
-            #       pretty(repr(moduleNode.layer_type.get_subvalue("regularisation"))))
-            meta += "\nRegularisation: " + pretty(repr(moduleNode.layer_type.get_subvalue("regularisation")))
-
-        if moduleNode.layer_type.get_subvalue("dropout") is not None:
-            fac = moduleNode.layer_type.get_submutagen("dropout").get_subvalue("dropout_factor")
-            meta += "\nDropout: " + pretty(repr(moduleNode.layer_type.get_subvalue("dropout"))) + " p = " + repr(fac)
-
-        if len(meta) == 0:
-            """is identiy node"""
-            meta += "Identity"
-            return  meta
-
-        if moduleNode.layer_repeats.value > 1:
-            meta += "\nRepeats: " + repr(moduleNode.layer_repeats.value)
+        return get_module_node_metadata(node)
 
 
     if isinstance(node, DANode):
