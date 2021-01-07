@@ -26,6 +26,22 @@ Example configs are in ```src/configuration/configs``` directory
 ## Extensions
 Extensions are detailed in the paper linked above
 
+# Paper
+
+If you use this code, please cite our paper:
+
+```
+@INPROCEEDINGS{9308151,
+  author={S. {Acton} and S. {Abramowitz} and L. {Toledo} and G. {Nitschke}},
+  booktitle={2020 IEEE Symposium Series on Computational Intelligence (SSCI)}, 
+  title={Efficiently Coevolving Deep Neural Networks and Data Augmentations}, 
+  year={2020},
+  volume={},
+  number={},
+  pages={2543-2550},
+  doi={10.1109/SSCI47803.2020.9308151}}
+```
+
 ## Results
 For detailed results see:  
 [convergence](https://app.wandb.ai/codeepneat/cdn_fully_train/reports/CoDeepNEAT-convergence-results--VmlldzoyMTIyMjY?accessToken=86xwfnm0f8tko6spt71oharczveqgv388hzojcuei7g3z4wonshr4uy5n24bbga6)  
