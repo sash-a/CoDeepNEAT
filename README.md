@@ -28,7 +28,7 @@ Extensions are detailed in the paper linked above
 
 # Paper
 
-If you use this code, please cite our paper:
+If you use this code, please cite [our paper](https://ieeexplore.ieee.org/abstract/document/9308151):
 
 ```
 @INPROCEEDINGS{9308151,
